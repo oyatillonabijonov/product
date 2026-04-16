@@ -5,10 +5,12 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-[#1D1D1F] font-sans flex flex-col items-center selection:bg-[#0066CC] selection:text-white">
       {/* Header */}
-      <header className="w-full h-12 bg-[#FFFFFF] px-4 md:px-16 flex justify-between items-center max-w-[1024px] mx-auto z-10">
-        <div className="font-semibold text-[19px] tracking-[-0.02em]">ProDuct</div>
-        <div className="text-[12px] font-normal opacity-80">+998(88)414-88-88</div>
-      </header>
+      <div className="w-full bg-[#FFFFFF] border-b border-[#D2D2D7] sticky top-0 z-50">
+        <header className="w-full h-12 px-4 md:px-16 flex justify-between items-center max-w-[1024px] mx-auto">
+          <div className="font-semibold text-[19px] tracking-[-0.02em]">ProDuct</div>
+          <div className="text-[12px] font-normal opacity-80">+998(88)414-88-88</div>
+        </header>
+      </div>
 
       {/* Hero Section */}
       <section className="w-full pt-16 pb-16 flex flex-col items-center text-center px-6">
@@ -30,19 +32,19 @@ export default function App() {
       <section className="w-full max-w-[920px] mx-auto px-4 md:px-0 pb-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-[#F5F5F7] rounded-[22px] p-6 flex flex-col items-center text-center gap-3">
-            <BadgeCheck className="w-8 h-8 text-[#1D1D1F]" strokeWidth={1.5} />
+            <BadgeCheck className="w-8 h-8 text-[#0071E3]" strokeWidth={1.5} />
             <h3 className="text-[15px] font-semibold tracking-[-0.01em]">100% Rasmiy Mahsulotlar</h3>
           </div>
           <div className="bg-[#F5F5F7] rounded-[22px] p-6 flex flex-col items-center text-center gap-3">
-            <ShieldCheck className="w-8 h-8 text-[#1D1D1F]" strokeWidth={1.5} />
+            <ShieldCheck className="w-8 h-8 text-[#0071E3]" strokeWidth={1.5} />
             <h3 className="text-[15px] font-semibold tracking-[-0.01em]">Rasmiy Kafolat</h3>
           </div>
           <div className="bg-[#F5F5F7] rounded-[22px] p-6 flex flex-col items-center text-center gap-3">
-            <Truck className="w-8 h-8 text-[#1D1D1F]" strokeWidth={1.5} />
+            <Truck className="w-8 h-8 text-[#0071E3]" strokeWidth={1.5} />
             <h3 className="text-[15px] font-semibold tracking-[-0.01em]">Toshkent bo'ylab tezkor yetkazib berish</h3>
           </div>
           <div className="bg-[#F5F5F7] rounded-[22px] p-6 flex flex-col items-center text-center gap-3">
-            <Wrench className="w-8 h-8 text-[#1D1D1F]" strokeWidth={1.5} />
+            <Wrench className="w-8 h-8 text-[#0071E3]" strokeWidth={1.5} />
             <h3 className="text-[15px] font-semibold tracking-[-0.01em]">Professional maslahat va yig'ib berish</h3>
           </div>
         </div>
@@ -54,9 +56,10 @@ export default function App() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[400px] md:auto-rows-[450px]">
           
           {/* MacBook - Large */}
-          <div className="md:col-span-8 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer">
+          <div className="md:col-span-8 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer group">
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1">MacBook Pro</h3>
             <p className="text-[17px] text-[#86868B] font-normal">Aqlbovar qilmas kuch.</p>
+            <div className="text-[#0071E3] text-[15px] font-medium mt-2 flex items-center group-hover:underline">Batafsil <ChevronRight className="w-4 h-4 ml-0.5" /></div>
             <div className="absolute bottom-0 w-full h-[65%] flex justify-center items-end">
               <img 
                 src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1000&q=80" 
@@ -68,9 +71,10 @@ export default function App() {
           </div>
 
           {/* iPhone - Medium */}
-          <div className="md:col-span-4 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer">
+          <div className="md:col-span-4 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer group">
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1">iPhone 15 Pro</h3>
             <p className="text-[17px] text-[#86868B] font-normal">Titanium.</p>
+            <div className="text-[#0071E3] text-[15px] font-medium mt-2 flex items-center group-hover:underline">Batafsil <ChevronRight className="w-4 h-4 ml-0.5" /></div>
             <div className="absolute bottom-0 w-full h-[60%] flex justify-center items-end">
               <img 
                 src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80" 
@@ -82,9 +86,10 @@ export default function App() {
           </div>
 
           {/* iPad - Medium */}
-          <div className="md:col-span-6 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer">
+          <div className="md:col-span-6 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer group">
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1">iPad Pro</h3>
             <p className="text-[17px] text-[#86868B] font-normal">Yengil. Kuchli.</p>
+            <div className="text-[#0071E3] text-[15px] font-medium mt-2 flex items-center group-hover:underline">Batafsil <ChevronRight className="w-4 h-4 ml-0.5" /></div>
             <div className="absolute bottom-0 w-full h-[60%] flex justify-center items-end">
               <img 
                 src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80" 
@@ -96,9 +101,10 @@ export default function App() {
           </div>
 
           {/* Accessories - Medium */}
-          <div className="md:col-span-6 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer">
+          <div className="md:col-span-6 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer group">
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1">Aksessuarlar</h3>
             <p className="text-[17px] text-[#86868B] font-normal">Sehrli ulanish.</p>
+            <div className="text-[#0071E3] text-[15px] font-medium mt-2 flex items-center group-hover:underline">Batafsil <ChevronRight className="w-4 h-4 ml-0.5" /></div>
             <div className="absolute bottom-0 w-full h-[60%] flex justify-center items-end">
               <img 
                 src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=800&q=80" 
@@ -118,9 +124,10 @@ export default function App() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[400px] md:auto-rows-[450px]">
           
           {/* PC Card 1 - Medium */}
-          <div className="md:col-span-4 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer">
+          <div className="md:col-span-4 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer group">
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1">Pro Studio</h3>
             <p className="text-[17px] text-[#86868B] font-normal">Cheksiz imkoniyat.</p>
+            <div className="text-[#0071E3] text-[15px] font-medium mt-2 flex items-center group-hover:underline">Batafsil <ChevronRight className="w-4 h-4 ml-0.5" /></div>
             <div className="absolute bottom-0 w-full h-[60%] flex justify-center items-end">
               <img 
                 src="https://images.unsplash.com/photo-1587202372634-32705e3bf49c?auto=format&fit=crop&w=600&q=80" 
@@ -132,9 +139,10 @@ export default function App() {
           </div>
 
           {/* PC Card 2 - Large */}
-          <div className="md:col-span-8 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer">
+          <div className="md:col-span-8 bg-[#F5F5F7] rounded-[22px] overflow-hidden relative flex flex-col items-center text-center p-8 hover:scale-[1.01] transition-transform duration-500 cursor-pointer group">
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1">Workstation</h3>
             <p className="text-[17px] text-[#86868B] font-normal">Arxitektor va 3D dizaynerlar uchun.</p>
+            <div className="text-[#0071E3] text-[15px] font-medium mt-2 flex items-center group-hover:underline">Batafsil <ChevronRight className="w-4 h-4 ml-0.5" /></div>
             <div className="absolute bottom-0 w-full h-[65%] flex justify-center items-end">
               <img 
                 src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1000&q=80" 
