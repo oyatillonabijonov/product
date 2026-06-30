@@ -12,10 +12,26 @@ import itImg from './assets/images/it.webp';
 import designImg from './assets/images/design.webp';
 import businessImg from './assets/images/business.webp';
 import { translations } from './locales';
+import { products } from './data/products';
+import HowItWorks from './components/HowItWorks';
+import Catalog from './components/Catalog';
+import Calculator from './components/Calculator';
+import Conditions from './components/Conditions';
+import ApplicationForm from './components/ApplicationForm';
+import Faq from './components/Faq';
 
 export default function App() {
   const [lang, setLang] = useState("O'zbek tili");
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(products[0].id);
+  const [selectedMonths, setSelectedMonths] = useState(12);
+
+  const scrollToId = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const handleSelectProduct = (id: string) => {
+    setSelectedProductId(id);
+    window.setTimeout(() => scrollToId('calculator'), 50);
+  };
   const isFirstRender = React.useRef(true);
   const languages = ["O'zbek tili", "Rus tili", "English", "O'zbek tili (Cyrillic)"];
   const t = translations[lang as keyof typeof translations] || translations["O'zbek tili"];
@@ -73,11 +89,11 @@ export default function App() {
               transition={{ 
                 opacity: { duration: 3, repeat: Infinity, ease: "easeInOut" }
               }}
-              className="w-24 h-24 flex items-center justify-center pt-2"
+              className="w-12 h-12 flex items-center justify-center pt-2"
             >
               <img 
                 src={logo} 
-                alt="ProDuct Logo" 
+                alt="Taqsit Store Logo"
                 width="96" 
                 height="40" 
                 className="w-full h-full object-contain" 
@@ -122,13 +138,13 @@ export default function App() {
             </div>
 
             <motion.a 
-              href="tel:+998884148888"
-              aria-label="Bizga qo'ng'iroq qilish / Call us"
+              href="tel:+998886043636"
+              aria-label="Taqsit Store ga qo'ng'iroq qilish / Call Taqsit Store"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="text-[13px] font-semibold text-white px-5 py-2 bg-[#0071E3] rounded-full border border-white/20 flex items-center gap-2 hover:bg-[#0077ED] transition-all"
             >
-              <Phone className="w-3.5 h-3.5" /> <span className="hidden sm:inline">(88) 414-88-88</span>
+              <Phone className="w-3.5 h-3.5" /> <span className="hidden sm:inline">(88) 604-36-36</span>
             </motion.a>
           </div>
         </header>
@@ -231,7 +247,7 @@ export default function App() {
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1">MacBook Pro</h3>
             <p className="text-[17px] text-[#6E6E73] font-normal">{t.macSubtitle}</p>
             <motion.a 
-              href="https://t.me/pro_duct_uz"
+              href="https://t.me/Taqsit_store"
               target="_blank"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -266,7 +282,7 @@ export default function App() {
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1 text-white">iPhone 17 Pro</h3>
             <p className="text-[17px] text-white/70 font-normal">Titanium.</p>
             <motion.a 
-              href="https://t.me/pro_duct_uz"
+              href="https://t.me/Taqsit_store"
               target="_blank"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -299,7 +315,7 @@ export default function App() {
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1 text-white">iPad Pro</h3>
             <p className="text-[17px] text-white/70 font-normal">{t.ipadSubtitle}</p>
             <motion.a 
-              href="https://t.me/pro_duct_uz"
+              href="https://t.me/Taqsit_store"
               target="_blank"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -332,7 +348,7 @@ export default function App() {
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1 text-white">{t.imacTitle}</h3>
             <p className="text-[17px] text-white/80 font-normal">{t.imacSubtitle}</p>
             <motion.a 
-              href="https://t.me/pro_duct_uz"
+              href="https://t.me/Taqsit_store"
               target="_blank"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -375,7 +391,7 @@ export default function App() {
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1">Mac Mini</h3>
             <p className="text-[17px] text-[#6E6E73] font-normal">{t.studioSubtitle}</p>
             <motion.a 
-              href="https://t.me/pro_duct_uz"
+              href="https://t.me/Taqsit_store"
               target="_blank"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -408,7 +424,7 @@ export default function App() {
             <h3 className="text-[28px] font-semibold tracking-[-0.01em] mb-1 text-white">Workstation</h3>
             <p className="text-[17px] text-white/70 font-normal">{t.workstationSubtitle}</p>
             <motion.a 
-              href="https://t.me/pro_duct_uz"
+              href="https://t.me/Taqsit_store"
               target="_blank"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -431,6 +447,31 @@ export default function App() {
 
         </div>
       </section>
+
+      {/* How It Works */}
+      <HowItWorks t={t} />
+
+      {/* Catalog with prices */}
+      <Catalog t={t} onSelect={handleSelectProduct} />
+
+      {/* Installment Calculator */}
+      <Calculator
+        t={t}
+        productId={selectedProductId}
+        months={selectedMonths}
+        setProductId={setSelectedProductId}
+        setMonths={setSelectedMonths}
+        onApply={() => scrollToId('application')}
+      />
+
+      {/* Installment Conditions */}
+      <Conditions t={t} />
+
+      {/* Application Form */}
+      <ApplicationForm t={t} productId={selectedProductId} months={selectedMonths} />
+
+      {/* FAQ */}
+      <Faq t={t} />
 
       {/* Target Audience */}
       <section className="w-full max-w-[920px] mx-auto px-4 md:px-0 pb-12 md:pb-24 pt-8 md:pt-10">
@@ -496,7 +537,7 @@ export default function App() {
             viewport={{ once: true }}
             className="flex flex-wrap justify-center text-[24px] sm:text-[32px] md:text-[48px] font-semibold tracking-[-0.015em] mb-12 text-[#1D1D1F] relative z-10 whitespace-nowrap"
           >
-            {"+998(88)414-88-88".split('').map((char, index) => (
+            {"+998(88)604-36-36".split('').map((char, index) => (
               <motion.span
                 key={index}
                 variants={{
@@ -518,7 +559,7 @@ export default function App() {
             <motion.a 
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              href="tel:+998884148888" 
+              href="tel:+998886043636" 
               className="bg-[#1D1D1F] text-white text-[17px] font-normal px-8 py-3.5 rounded-full shadow-[--shadow-apple] hover:shadow-[--shadow-apple-hover] transition-all flex items-center justify-center gap-2"
             >
               <Phone className="w-5 h-5" /> {t.btnCall}
@@ -526,7 +567,7 @@ export default function App() {
             <motion.a 
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              href="https://t.me/Pro_duct_uzb" 
+              href="https://t.me/Taqsit_store"
               target="_blank"
               className="bg-[#0071E3] text-white text-[17px] font-normal px-8 py-3.5 rounded-full shadow-[--shadow-apple] hover:shadow-[--shadow-apple-hover] transition-all flex items-center justify-center gap-2"
             >
@@ -544,13 +585,13 @@ export default function App() {
             className="w-full h-[350px] bg-[#FFFFFF] rounded-[32px] overflow-hidden shadow-[--shadow-apple] relative group border border-[#D2D2D7]/50"
           >
             <iframe 
-              src="https://yandex.com/map-widget/v1/?ll=69.295475%2C41.289287&z=17&pt=69.295475,41.289287,pm2rdm" 
+              src="https://yandex.com/map-widget/v1/?ll=69.271481%2C41.338874&z=17&pt=69.271481,41.338874,pm2rdm"
               width="100%" 
               height="100%" 
               frameBorder="0" 
               allowFullScreen={true}
               loading="lazy"
-              title="ProDuct do'koni joylashuvi / Shop location map"
+              title="Taqsit Store joylashuvi / Shop location map"
               className="grayscale-[0.2] contrast-[1.1] brightness-[0.95] group-hover:grayscale-0 transition-all duration-700"
             ></iframe>
             <div className="absolute top-6 left-6 z-10">
@@ -561,7 +602,7 @@ export default function App() {
                 </div>
                 <p className="text-[12px] text-[#6E6E73]">{t.mapDesc}</p>
                 <a 
-                  href="https://yandex.com/maps/?ll=69.295475%2C41.289287&z=17&pt=69.295475,41.289287,pm2rdm" 
+                  href="https://yandex.com/maps/?ll=69.271481%2C41.338874&z=17&pt=69.271481,41.338874,pm2rdm"
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-[12px] text-[#0071E3] mt-2 flex items-center gap-1 hover:underline"
@@ -576,7 +617,7 @@ export default function App() {
         <div className="max-w-[1024px] mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
           <div className="flex flex-col gap-3">
             <div className="font-semibold text-[21px] tracking-[-0.02em] text-[#1D1D1F] mb-2 flex items-center gap-2">
-              <img src={logo} alt="Logo" className="w-32 h-32 object-contain" />
+              <img src={logo} alt="Logo" className="w-16 h-16 object-contain" />
             </div>
             <p className="text-[13px] text-[#6E6E73] leading-relaxed max-w-[250px]">
               {t.footerDesc}
@@ -584,14 +625,14 @@ export default function App() {
           </div>
           <div className="flex flex-col gap-3">
             <h3 className="text-[12px] font-semibold text-[#1D1D1F] uppercase tracking-widest mb-2">{t.footerContact}</h3>
-            <a href="tel:+998884148888" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-              <Phone className="w-4 h-4" /> +998(88)414-88-88
+            <a href="tel:+998886043636" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+              <Phone className="w-4 h-4" /> +998(88)604-36-36
             </a>
-            <a href="https://t.me/pro_duct_uz" target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-              <Send className="w-4 h-4" /> @pro_duct_uz
+            <a href="https://t.me/Taqsit_store" target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+              <Send className="w-4 h-4" /> @Taqsit_store
             </a>
-            <a href="https://instagram.com/pro_duct.uz" target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-              <Instagram className="w-4 h-4" /> @pro_duct.uz
+            <a href="https://www.instagram.com/taqsit.store/" target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+              <Instagram className="w-4 h-4" /> @taqsit.store
             </a>
           </div>
           <div className="flex flex-col gap-3">
