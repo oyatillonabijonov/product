@@ -1,4 +1,4 @@
-import type { ApiProduct, ApiSettings, Category, Condition, Term } from '../../shared/types';
+import type { ApiCategory, ApiProduct, ApiSettings, Category, Condition, Term } from '../../shared/types';
 
 export class ValidationError extends Error {}
 
@@ -78,4 +78,28 @@ export function parseSettingsInput(body: unknown): ApiSettings {
     return { months, markup };
   });
   return { downPaymentPercent, usdToUzs, terms };
+}
+
+export interface CategoryInput {
+  id: string;
+  name: string;
+  iconUrl: string;
+  sortOrder: number;
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9Ѐ-ӿ]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+export function parseCategoryInput(body: unknown): CategoryInput {
+  const o = asRecord(body);
+  const name = reqString(o, 'name');
+  const id =
+    typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : slugify(name) || crypto.randomUUID();
+  const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : '';
+  const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
+  return { id, name, iconUrl, sortOrder };
 }
