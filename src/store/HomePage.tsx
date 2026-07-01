@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { ApiCategory } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../data/products';
-import { fetchCategories, fetchProductsBy, fetchStore } from '../api/store';
+import { fetchCategories, fetchStore } from '../api/store';
 import type { StoreContext } from './StoreLayout';
 import HeroBanner from './HeroBanner';
 import CategoryCircles from './CategoryCircles';
@@ -16,8 +16,10 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchCategories().then(setCategories);
-    fetchProductsBy({}).then(setProducts);
-    fetchStore().then((s) => setConfig(s.config));
+    fetchStore().then((s) => {
+      setProducts(s.products);
+      setConfig(s.config);
+    });
   }, []);
 
   return (
