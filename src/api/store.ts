@@ -27,16 +27,29 @@ function mapConfig(s: ApiSettings): InstallmentConfig {
   };
 }
 
-export async function fetchStore(): Promise<StoreData> {
+async function fetchProducts(): Promise<Product[]> {
   try {
-    const [pRes, sRes] = await Promise.all([fetch('/api/products'), fetch('/api/settings')]);
-    if (!pRes.ok || !sRes.ok) throw new Error('api_error');
-    const apiProducts = (await pRes.json()) as ApiProduct[];
-    const apiSettings = (await sRes.json()) as ApiSettings;
+    const res = await fetch('/api/products');
+    if (!res.ok) throw new Error('api_error');
+    const apiProducts = (await res.json()) as ApiProduct[];
     if (apiProducts.length === 0) throw new Error('empty');
-    return { products: apiProducts.map(mapProduct), config: mapConfig(apiSettings) };
+    return apiProducts.map(mapProduct);
   } catch {
-    // API mavjud emas (masalan `bun run dev` sof Vite) — NAMUNA ma'lumotga qaytamiz.
-    return { products: fallbackProducts, config: fallbackConfig };
+    return fallbackProducts;
   }
+}
+
+async function fetchConfig(): Promise<InstallmentConfig> {
+  try {
+    const res = await fetch('/api/settings');
+    if (!res.ok) throw new Error('api_error');
+    return mapConfig((await res.json()) as ApiSettings);
+  } catch {
+    return fallbackConfig;
+  }
+}
+
+export async function fetchStore(): Promise<StoreData> {
+  const [products, config] = await Promise.all([fetchProducts(), fetchConfig()]);
+  return { products, config };
 }

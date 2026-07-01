@@ -27,7 +27,7 @@ export default function Catalog({
   if (items.length === 0) return null;
 
   return (
-    <section id="catalog" className="w-full max-w-[920px] mx-auto px-4 md:px-0 pb-12 md:pb-20 pt-8 md:pt-10">
+    <section id={`catalog-${items[0].condition}`} className="w-full max-w-[920px] mx-auto px-4 md:px-0 pb-12 md:pb-20 pt-8 md:pt-10">
       <h2 className="text-[32px] md:text-[40px] font-semibold tracking-[-0.015em] text-center mb-2">
         {title}
       </h2>
