@@ -28,7 +28,7 @@ export function lowestMonthly(product: Product, config: InstallmentConfig): numb
 
 export function formatUzs(value: number): string {
   const rounded = Math.round(value);
-  return `${rounded.toLocaleString('ru-RU').replace(/[, ]/g, ' ')} so'm`;
+  return `${rounded.toLocaleString('ru-RU').replace(/[,\u00A0]/g, ' ')} so'm`;
 }
 
 export interface LeadData {
