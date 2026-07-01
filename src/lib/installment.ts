@@ -15,7 +15,7 @@ export function calcInstallment(
   config: InstallmentConfig,
 ): InstallmentResult {
   const total = product.cashPriceUzs * (1 + term.markup);
-  const downPaymentUzs = config.downPaymentUsd * config.usdToUzs;
+  const downPaymentUzs = product.cashPriceUzs * (config.downPaymentPercent / 100);
   const monthly = Math.max(0, (total - downPaymentUzs) / term.months);
   return { total, downPaymentUzs, monthly };
 }
@@ -28,7 +28,7 @@ export function lowestMonthly(product: Product, config: InstallmentConfig): numb
 
 export function formatUzs(value: number): string {
   const rounded = Math.round(value);
-  return `${rounded.toLocaleString('ru-RU').replace(/,/g, ' ')} so'm`;
+  return `${rounded.toLocaleString('ru-RU').replace(/[, ]/g, ' ')} so'm`;
 }
 
 export interface LeadData {
