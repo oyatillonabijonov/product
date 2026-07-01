@@ -12,7 +12,8 @@ import itImg from './assets/images/it.webp';
 import designImg from './assets/images/design.webp';
 import businessImg from './assets/images/business.webp';
 import { translations } from './locales';
-import { products } from './data/products';
+import type { InstallmentConfig, Product } from './data/products';
+import { fetchStore } from './api/store';
 import HowItWorks from './components/HowItWorks';
 import Catalog from './components/Catalog';
 import Calculator from './components/Calculator';
@@ -23,8 +24,16 @@ import Faq from './components/Faq';
 export default function App() {
   const [lang, setLang] = useState("O'zbek tili");
   const [isLangOpen, setIsLangOpen] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState(products[0].id);
+  const [store, setStore] = useState<{ products: Product[]; config: InstallmentConfig } | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState('');
   const [selectedMonths, setSelectedMonths] = useState(12);
+
+  useEffect(() => {
+    fetchStore().then((data) => {
+      setStore(data);
+      setSelectedProductId((prev) => prev || data.products[0]?.id || '');
+    });
+  }, []);
 
   const scrollToId = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -451,24 +460,49 @@ export default function App() {
       {/* How It Works */}
       <HowItWorks t={t} />
 
-      {/* Catalog with prices */}
-      <Catalog t={t} onSelect={handleSelectProduct} />
+      {/* Catalog: Yangi va Ishlatilgan alohida */}
+      {store && (
+        <>
+          <Catalog
+            t={t}
+            items={store.products.filter((p) => p.condition === 'yangi')}
+            title={t.catalogNewTitle}
+            subtitle={t.catalogNewSubtitle}
+            config={store.config}
+            onSelect={handleSelectProduct}
+          />
+          <Catalog
+            t={t}
+            items={store.products.filter((p) => p.condition === 'ishlatilgan')}
+            title={t.catalogUsedTitle}
+            subtitle={t.catalogUsedSubtitle}
+            config={store.config}
+            onSelect={handleSelectProduct}
+          />
 
-      {/* Installment Calculator */}
-      <Calculator
-        t={t}
-        productId={selectedProductId}
-        months={selectedMonths}
-        setProductId={setSelectedProductId}
-        setMonths={setSelectedMonths}
-        onApply={() => scrollToId('application')}
-      />
+          <Calculator
+            t={t}
+            products={store.products}
+            config={store.config}
+            productId={selectedProductId}
+            months={selectedMonths}
+            setProductId={setSelectedProductId}
+            setMonths={setSelectedMonths}
+            onApply={() => scrollToId('application')}
+          />
+
+          <ApplicationForm
+            t={t}
+            products={store.products}
+            config={store.config}
+            productId={selectedProductId}
+            months={selectedMonths}
+          />
+        </>
+      )}
 
       {/* Installment Conditions */}
       <Conditions t={t} />
-
-      {/* Application Form */}
-      <ApplicationForm t={t} productId={selectedProductId} months={selectedMonths} />
 
       {/* FAQ */}
       <Faq t={t} />

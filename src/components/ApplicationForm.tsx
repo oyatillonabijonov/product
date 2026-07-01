@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Send } from 'lucide-react';
 import type { Translation } from '../locales';
-import { products, installmentConfig } from '../data/products';
+import type { InstallmentConfig, Product } from '../data/products';
 import {
   calcInstallment,
   composeLeadMessage,
@@ -12,10 +12,14 @@ import {
 
 export default function ApplicationForm({
   t,
+  products,
+  config,
   productId,
   months,
 }: {
   t: Translation;
+  products: Product[];
+  config: InstallmentConfig;
   productId: string;
   months: number;
 }) {
@@ -38,9 +42,8 @@ export default function ApplicationForm({
 
     const product = products.find((p) => p.id === device) ?? products[0];
     const selectedTerm =
-      installmentConfig.terms.find((x) => x.months === term) ??
-      installmentConfig.terms[installmentConfig.terms.length - 1];
-    const result = calcInstallment(product, selectedTerm, installmentConfig);
+      config.terms.find((x) => x.months === term) ?? config.terms[config.terms.length - 1];
+    const result = calcInstallment(product, selectedTerm, config);
 
     return composeLeadMessage({
       name: name.trim(),
@@ -128,7 +131,7 @@ export default function ApplicationForm({
               onChange={(e) => setTerm(Number(e.target.value))}
               className={`${inputClass} border-[#D2D2D7]`}
             >
-              {installmentConfig.terms.map((x) => (
+              {config.terms.map((x) => (
                 <option key={x.months} value={x.months}>
                   {x.months} {t.calcMonths}
                 </option>

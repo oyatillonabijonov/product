@@ -1,0 +1,12 @@
+name = "taqsit-store"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "taqsit-store-db"
+database_id = "PLACEHOLDER_RUN_wrangler_d1_create"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "taqsit-store-images"

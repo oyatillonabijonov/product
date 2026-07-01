@@ -1,11 +1,13 @@
 import { motion } from 'motion/react';
 import { Calculator as CalcIcon } from 'lucide-react';
 import type { Translation } from '../locales';
-import { products, installmentConfig } from '../data/products';
+import type { InstallmentConfig, Product } from '../data/products';
 import { calcInstallment, formatUzs } from '../lib/installment';
 
 export default function Calculator({
   t,
+  products,
+  config,
   productId,
   months,
   setProductId,
@@ -13,6 +15,8 @@ export default function Calculator({
   onApply,
 }: {
   t: Translation;
+  products: Product[];
+  config: InstallmentConfig;
   productId: string;
   months: number;
   setProductId: (id: string) => void;
@@ -21,9 +25,8 @@ export default function Calculator({
 }) {
   const product = products.find((p) => p.id === productId) ?? products[0];
   const term =
-    installmentConfig.terms.find((x) => x.months === months) ??
-    installmentConfig.terms[installmentConfig.terms.length - 1];
-  const result = calcInstallment(product, term, installmentConfig);
+    config.terms.find((x) => x.months === months) ?? config.terms[config.terms.length - 1];
+  const result = calcInstallment(product, term, config);
 
   return (
     <section id="calculator" className="w-full max-w-[920px] mx-auto px-4 md:px-0 pb-12 md:pb-20 pt-8 md:pt-10">
@@ -56,7 +59,7 @@ export default function Calculator({
           <div>
             <span className="block text-[13px] font-semibold text-[#6E6E73] mb-2">{t.calcTerm}</span>
             <div className="grid grid-cols-4 gap-2">
-              {installmentConfig.terms.map((x) => (
+              {config.terms.map((x) => (
                 <button
                   key={x.months}
                   onClick={() => setMonths(x.months)}
