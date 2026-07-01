@@ -108,7 +108,13 @@ export const translations = {
     faq4Q: "Qanday hujjatlar kerak?",
     faq4A: "Faqat amaldagi pasportingiz (ID karta). Boshqa hech qanday hujjat shart emas.",
     faq5Q: "Boshlang'ich to'lovsiz bo'ladimi?",
-    faq5A: "Boshlang'ich to'lov $30 dan boshlanadi. Aniq shartlarni mutaxassisimiz bilan kelishasiz."
+    faq5A: "Boshlang'ich to'lov $30 dan boshlanadi. Aniq shartlarni mutaxassisimiz bilan kelishasiz.",
+    navCatalog: "Katalog",
+    navSearchPlaceholder: "Mahsulot qidirish...",
+    navSearch: "Qidirish",
+    navSoon: "Tez orada",
+    utilInstallment: "Muddatli to'lov: pasport + $30 dan",
+    utilDiscounts: "Yangi mahsulotlarga chegirmalar"
   },
   "Rus tili": {
     heroTitle1: "iPhone теперь",
@@ -217,7 +223,13 @@ export const translations = {
     faq4Q: "Какие документы нужны?",
     faq4A: "Только действующий паспорт (ID-карта). Других документов не нужно.",
     faq5Q: "Можно без первоначального взноса?",
-    faq5A: "Первоначальный взнос начинается от $30. Точные условия согласуете со специалистом."
+    faq5A: "Первоначальный взнос начинается от $30. Точные условия согласуете со специалистом.",
+    navCatalog: "Каталог",
+    navSearchPlaceholder: "Поиск товара...",
+    navSearch: "Поиск",
+    navSoon: "Скоро",
+    utilInstallment: "Рассрочка: паспорт + от $30",
+    utilDiscounts: "Скидки на новые товары"
   },
   "English": {
     heroTitle1: "iPhone is now",
@@ -326,7 +338,13 @@ export const translations = {
     faq4Q: "What documents are needed?",
     faq4A: "Just your valid passport (ID card). No other documents required.",
     faq5Q: "Can I get it without a down payment?",
-    faq5A: "The down payment starts from $30. Exact terms are agreed with our specialist."
+    faq5A: "The down payment starts from $30. Exact terms are agreed with our specialist.",
+    navCatalog: "Catalog",
+    navSearchPlaceholder: "Search products...",
+    navSearch: "Search",
+    navSoon: "Coming soon",
+    utilInstallment: "Installment: passport + from $30",
+    utilDiscounts: "Discounts on new products"
   },
   "O'zbek tili (Cyrillic)": {
     heroTitle1: "iPhone олиш энди",
@@ -435,7 +453,13 @@ export const translations = {
     faq4Q: "Қандай ҳужжатлар керак?",
     faq4A: "Фақат амалдаги паспортингиз (ID карта). Бошқа ҳеч қандай ҳужжат шарт эмас.",
     faq5Q: "Бошланғич тўловсиз бўладими?",
-    faq5A: "Бошланғич тўлов $30 дан бошланади. Аниқ шартларни мутахассисимиз билан келишасиз."
+    faq5A: "Бошланғич тўлов $30 дан бошланади. Аниқ шартларни мутахассисимиз билан келишасиз.",
+    navCatalog: "Каталог",
+    navSearchPlaceholder: "Маҳсулот қидириш...",
+    navSearch: "Қидириш",
+    navSoon: "Тез орада",
+    utilInstallment: "Муддатли тўлов: паспорт + $30 дан",
+    utilDiscounts: "Янги маҳсулотларга чегирмалар"
   }
 };
 
