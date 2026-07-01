@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Heart, ShoppingCart } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
+import type { ApiCategory } from '../../shared/types';
+import { fetchCategories } from '../api/store';
 import logo from '../assets/logo.svg';
 
 export default function Header({
@@ -14,7 +16,13 @@ export default function Header({
   setLang: (l: LangKey) => void;
 }) {
   const [q, setQ] = useState('');
+  const [catOpen, setCatOpen] = useState(false);
+  const [cats, setCats] = useState<ApiCategory[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchCategories().then(setCats);
+  }, []);
 
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -27,12 +35,16 @@ export default function Header({
         <Link to="/" className="shrink-0">
           <img src={logo} alt="Taqsit Store" className="h-7" />
         </Link>
-        <Link
-          to="/"
-          className="hidden sm:inline-flex items-center gap-2 rounded-full border border-[#D2D2D7] px-4 py-2 text-[14px] font-semibold text-[#1D1D1F] hover:border-[#0071E3]"
-        >
-          ☰ {t.navCatalog}
-        </Link>
+        <div className="relative hidden sm:block">
+          <button onClick={() => setCatOpen((v) => !v)} className="inline-flex items-center gap-2 rounded-full border border-[#D2D2D7] px-4 py-2 text-[14px] font-semibold hover:border-[#0071E3]">☰ {t.navCatalog}</button>
+          {catOpen && (
+            <div className="absolute left-0 top-full mt-2 w-56 bg-white border border-[#E5E5EA] rounded-2xl shadow-[--shadow-apple] py-2 z-50">
+              {cats.map((c) => (
+                <Link key={c.id} to={`/category/${c.id}`} onClick={() => setCatOpen(false)} className="block px-4 py-2 text-[14px] hover:bg-[#F5F5F7]">{c.name}</Link>
+              ))}
+            </div>
+          )}
+        </div>
         <form onSubmit={submitSearch} className="flex-1 relative">
           <input
             value={q}

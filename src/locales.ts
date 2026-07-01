@@ -114,7 +114,9 @@ export const translations = {
     navSearch: "Qidirish",
     navSoon: "Tez orada",
     utilInstallment: "Muddatli to'lov: pasport + $30 dan",
-    utilDiscounts: "Yangi mahsulotlarga chegirmalar"
+    utilDiscounts: "Yangi mahsulotlarga chegirmalar",
+    homeFeatured: "Tavsiya etilgan mahsulotlar",
+    gridEmpty: "Mahsulotlar topilmadi"
   },
   "Rus tili": {
     heroTitle1: "iPhone теперь",
@@ -229,7 +231,9 @@ export const translations = {
     navSearch: "Поиск",
     navSoon: "Скоро",
     utilInstallment: "Рассрочка: паспорт + от $30",
-    utilDiscounts: "Скидки на новые товары"
+    utilDiscounts: "Скидки на новые товары",
+    homeFeatured: "Рекомендуемые товары",
+    gridEmpty: "Товары не найдены"
   },
   "English": {
     heroTitle1: "iPhone is now",
@@ -344,7 +348,9 @@ export const translations = {
     navSearch: "Search",
     navSoon: "Coming soon",
     utilInstallment: "Installment: passport + from $30",
-    utilDiscounts: "Discounts on new products"
+    utilDiscounts: "Discounts on new products",
+    homeFeatured: "Featured products",
+    gridEmpty: "No products found"
   },
   "O'zbek tili (Cyrillic)": {
     heroTitle1: "iPhone олиш энди",
@@ -459,7 +465,9 @@ export const translations = {
     navSearch: "Қидириш",
     navSoon: "Тез орада",
     utilInstallment: "Муддатли тўлов: паспорт + $30 дан",
-    utilDiscounts: "Янги маҳсулотларга чегирмалар"
+    utilDiscounts: "Янги маҳсулотларга чегирмалар",
+    homeFeatured: "Тавсия этилган маҳсулотлар",
+    gridEmpty: "Маҳсулотлар топилмади"
   }
 };
 
