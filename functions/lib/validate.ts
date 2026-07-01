@@ -5,7 +5,12 @@ export class ValidationError extends Error {}
 const CATEGORIES: Category[] = ['iphone', 'mac', 'ipad', 'pc'];
 const CONDITIONS: Condition[] = ['yangi', 'ishlatilgan'];
 
-export type ProductInput = Omit<ApiProduct, 'id'> & { id: string };
+export type ProductInput = Omit<ApiProduct, 'id'> & {
+  id: string;
+  description: string | null;
+  images: string[];
+  specs: { label: string; value: string }[];
+};
 
 function asRecord(body: unknown): Record<string, unknown> {
   if (typeof body !== 'object' || body === null) throw new ValidationError('body_not_object');
@@ -45,6 +50,16 @@ export function parseProductInput(body: unknown): ProductInput {
 
   const categoryId = typeof o.categoryId === 'string' ? o.categoryId : null;
   const oldPriceUzs = typeof o.oldPriceUzs === 'number' ? o.oldPriceUzs : null;
+  const description =
+    typeof o.description === 'string' && o.description.trim() !== '' ? o.description.trim() : null;
+  const images = Array.isArray(o.images)
+    ? o.images.filter((x): x is string => typeof x === 'string' && x.trim() !== '').map((x) => x.trim())
+    : [];
+  const specs = Array.isArray(o.specs)
+    ? o.specs
+        .map((raw) => asRecord(raw))
+        .map((s) => ({ label: reqString(s, 'label'), value: reqString(s, 'value') }))
+    : [];
 
   return {
     id,
@@ -58,6 +73,9 @@ export function parseProductInput(body: unknown): ProductInput {
     isActive,
     categoryId,
     oldPriceUzs,
+    description,
+    images,
+    specs,
   };
 }
 

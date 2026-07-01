@@ -1,6 +1,7 @@
 import type { Env } from '../../../env';
 import { json, rowToProduct, type ProductRow } from '../../../lib/db';
 import { parseProductInput, ValidationError } from '../../../lib/validate';
+import { writeImagesAndSpecs } from '../products';
 
 export const onRequestPut: PagesFunction<Env> = async ({ request, env, params }) => {
   const id = String(params.id);
@@ -13,7 +14,7 @@ export const onRequestPut: PagesFunction<Env> = async ({ request, env, params })
     throw e;
   }
   await env.DB.prepare(
-    `UPDATE products SET name=?, category=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=? WHERE id=?`,
+    `UPDATE products SET name=?, category=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, old_price_uzs=?, description=? WHERE id=?`,
   )
     .bind(
       input.name,
@@ -24,9 +25,13 @@ export const onRequestPut: PagesFunction<Env> = async ({ request, env, params })
       input.imageUrl,
       input.sortOrder,
       input.isActive ? 1 : 0,
+      input.categoryId,
+      input.oldPriceUzs,
+      input.description,
       id,
     )
     .run();
+  await writeImagesAndSpecs(env, id, input.images, input.specs);
   const row = await env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(id).first<ProductRow>();
   if (!row) return json({ error: 'not_found' }, { status: 404 });
   return json(rowToProduct(row));
@@ -34,6 +39,8 @@ export const onRequestPut: PagesFunction<Env> = async ({ request, env, params })
 
 export const onRequestDelete: PagesFunction<Env> = async ({ env, params }) => {
   const id = String(params.id);
+  await env.DB.prepare('DELETE FROM product_images WHERE product_id = ?').bind(id).run();
+  await env.DB.prepare('DELETE FROM product_specs WHERE product_id = ?').bind(id).run();
   await env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
   return json({ ok: true });
 };
