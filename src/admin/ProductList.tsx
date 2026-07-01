@@ -36,8 +36,8 @@ export default function ProductList() {
 
   return (
     <div>
-      {creating && <ProductForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
-      {editing && <ProductForm initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />}
+      {creating && <ProductForm key="new" initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
+      {editing && <ProductForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />}
 
       {!creating && !editing && (
         <button

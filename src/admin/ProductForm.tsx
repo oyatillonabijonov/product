@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { FC } from 'react';
 import type { ApiProduct, Category, Condition } from '../../shared/types';
 import { createProduct, updateProduct, uploadImage } from './api';
 
@@ -16,15 +17,15 @@ const empty: Partial<ApiProduct> = {
   isActive: true,
 };
 
-export default function ProductForm({
-  initial,
-  onSaved,
-  onCancel,
-}: {
+const ProductForm: FC<{
   initial: ApiProduct | null;
   onSaved: () => void;
   onCancel: () => void;
-}) {
+}> = ({
+  initial,
+  onSaved,
+  onCancel,
+}) => {
   const [form, setForm] = useState<Partial<ApiProduct>>(initial ?? empty);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -145,4 +146,6 @@ export default function ProductForm({
       </div>
     </div>
   );
-}
+};
+
+export default ProductForm;
