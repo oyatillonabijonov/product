@@ -165,45 +165,73 @@ export default function App() {
         className="w-full flex-1 flex flex-col items-center"
       >
         {/* Hero Section */}
-      <section className="w-full pt-20 pb-16 flex flex-col items-center text-center px-6 overflow-x-hidden">
-        <motion.h1 
-          initial={{ opacity: 1, scale: 1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0 }}
+      <section className="relative w-full pt-16 md:pt-24 pb-16 flex flex-col items-center text-center px-6 overflow-x-hidden">
+        {/* Soft ambient glow */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div
+            className="absolute left-1/2 top-[-12%] h-[480px] w-[860px] max-w-[130vw] -translate-x-1/2 rounded-full opacity-70 blur-[120px]"
+            style={{ background: 'radial-gradient(circle at 50% 40%, rgba(0,113,227,0.14), rgba(27,122,52,0.10) 45%, rgba(255,255,255,0) 70%)' }}
+          />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-flex items-center gap-2 rounded-full border border-[#1B7A34]/15 bg-[#1B7A34]/[0.06] px-4 py-1.5 text-[12px] md:text-[13px] font-semibold text-[#1B7A34] mb-6"
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-[#1B7A34]" />
+          {t.heroPill}
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-[40px] sm:text-[48px] md:text-[64px] lg:text-[84px] font-semibold tracking-[-0.02em] mb-4 max-w-5xl leading-[1.1] md:leading-[1.05] break-words hyphens-auto"
         >
           {t.heroTitle1} <span className="text-transparent bg-clip-text bg-gradient-to-b from-[#1D1D1F] to-[#86868B]">{t.heroTitle2}</span>
         </motion.h1>
-        <motion.p 
-          initial={{ opacity: 1, y: 0 }}
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0 }}
-          className="text-[24px] md:text-[28px] text-[#6E6E73] font-normal mt-2"
+          transition={{ duration: 0.6, delay: 0.06, ease: [0.16, 1, 0.3, 1] }}
+          className="text-[22px] md:text-[28px] text-[#6E6E73] font-normal mt-2"
         >
           {t.heroSubtitle}
         </motion.p>
-        <motion.div 
-          initial={{ opacity: 1, y: 0 }}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0 }}
+          transition={{ duration: 0.6, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
           className="flex flex-row gap-4 items-center justify-center mt-10"
         >
-          <motion.a 
+          <motion.a
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            href="#apple" 
+            href="#apple"
             className="bg-[#0071E3] text-white text-[17px] font-medium px-8 py-3 rounded-full shadow-lg shadow-[#0071E3]/20 hover:bg-[#0077ED] transition-colors"
           >
             {t.btnApple}
           </motion.a>
-          <motion.a 
+          <motion.a
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            href="#pc" 
+            href="#pc"
             className="bg-[#F5F5F7] text-[#1D1D1F] text-[17px] font-medium px-8 py-3 rounded-full hover:bg-[#E8E8ED] transition-colors"
           >
             {t.btnPc}
           </motion.a>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-8 flex items-center gap-2 text-[13px] md:text-[14px] text-[#6E6E73]"
+        >
+          <ShieldCheck className="w-4 h-4 text-[#1B7A34] shrink-0" strokeWidth={2} />
+          <span>{t.heroTrust}</span>
         </motion.div>
       </section>
 
