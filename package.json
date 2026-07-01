@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit",
+    "lint": "tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
@@ -24,6 +24,7 @@
     "motion": "^12.23.24"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260701.1",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
@@ -31,6 +32,7 @@
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.9",
+    "wrangler": "^4.106.0"
   }
 }
