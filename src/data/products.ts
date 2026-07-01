@@ -18,6 +18,8 @@ export interface Product {
   image: string;
   /** Naqd (to'liq) narx, so'mda. NAMUNA — egasi keyin almashtiradi. */
   cashPriceUzs: number;
+  /** Eskisida narx, chegirma hisoblash uchun. */
+  oldPriceUzs?: number | null;
 }
 
 export interface Term {

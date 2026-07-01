@@ -61,3 +61,8 @@ export function telegramShareUrl(message: string): string {
 export function whatsappUrl(message: string): string {
   return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
 }
+
+export function discountPercent(cash: number, old: number | null): number | null {
+  if (old === null || old <= cash) return null;
+  return Math.round(((old - cash) / old) * 100);
+}
