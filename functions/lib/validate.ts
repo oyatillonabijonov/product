@@ -43,6 +43,9 @@ export function parseProductInput(body: unknown): ProductInput {
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
 
+  const categoryId = typeof o.categoryId === 'string' ? o.categoryId : null;
+  const oldPriceUzs = typeof o.oldPriceUzs === 'number' ? o.oldPriceUzs : null;
+
   return {
     id,
     name: reqString(o, 'name'),
@@ -53,6 +56,8 @@ export function parseProductInput(body: unknown): ProductInput {
     imageUrl,
     sortOrder,
     isActive,
+    categoryId,
+    oldPriceUzs,
   };
 }
 

@@ -16,10 +16,30 @@ export interface ApiProduct {
   imageUrl: string;
   sortOrder: number;
   isActive: boolean;
+  categoryId: string | null;
+  oldPriceUzs: number | null;
 }
 
 export interface ApiSettings {
   downPaymentPercent: number;
   usdToUzs: number;
   terms: Term[];
+}
+
+export interface ApiCategory {
+  id: string;
+  name: string;
+  iconUrl: string;
+  sortOrder: number;
+}
+
+export interface ApiSpec {
+  label: string;
+  value: string;
+}
+
+export interface ApiProductDetail extends ApiProduct {
+  description: string | null;
+  images: string[];
+  specs: ApiSpec[];
 }
