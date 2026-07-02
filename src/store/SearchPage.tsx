@@ -1,19 +1,11 @@
-import type { InstallmentConfig, Product } from '../data/products';
+import type { InstallmentConfig } from '../data/products';
 import type { Translation } from '../locales';
-import ProductGrid from './ProductGrid';
+import type { ApiBrand } from '../../shared/types';
+import type { CatalogFilters, CatalogResult } from '../../app/lib/catalog';
+import CatalogView from './CatalogView';
 
 export default function SearchPage({
-  t, q, products, config,
-}: { t: Translation; q: string; products: Product[]; config: InstallmentConfig }) {
-  return (
-    <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10">
-      <div className="flex items-baseline gap-3 mb-6">
-        <h1 className="text-[20px] md:text-[26px] font-semibold">
-          {t.searchResults}: <span className="text-[#6E6E73]">"{q}"</span>
-        </h1>
-        <span className="text-[14px] text-[#86868B]">{products.length}</span>
-      </div>
-      <ProductGrid t={t} items={products} config={config} />
-    </div>
-  );
+  t, q, result, config, brands, filters,
+}: { t: Translation; q: string; result: CatalogResult; config: InstallmentConfig; brands: ApiBrand[]; filters: CatalogFilters }) {
+  return <CatalogView t={t} title={`${t.searchResults}: "${q}"`} result={result} config={config} brands={brands} filters={filters} />;
 }
