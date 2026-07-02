@@ -5,11 +5,20 @@ export class ValidationError extends Error {}
 const CATEGORIES: Category[] = ['iphone', 'mac', 'ipad', 'pc'];
 const CONDITIONS: Condition[] = ['yangi', 'ishlatilgan'];
 
-export type ProductInput = Omit<ApiProduct, 'id'> & {
+export type ProductInput = Omit<ApiProduct, 'id' | 'minPriceUzs'> & {
   id: string;
   description: string | null;
   images: string[];
   specs: { label: string; value: string }[];
+  options: { name: string; values: string[] }[];
+  variants: {
+    sku: string | null;
+    cashPriceUzs: number;
+    oldPriceUzs: number | null;
+    imageUrl: string | null;
+    inStock: boolean;
+    optionValues: { optionName: string; value: string }[];
+  }[];
 };
 
 function asRecord(body: unknown): Record<string, unknown> {
@@ -61,6 +70,53 @@ export function parseProductInput(body: unknown): ProductInput {
         .map((s) => ({ label: reqString(s, 'label'), value: reqString(s, 'value') }))
     : [];
 
+  const brandId = typeof o.brandId === 'string' && o.brandId.trim() !== '' ? o.brandId.trim() : null;
+  const slug = typeof o.slug === 'string' && o.slug.trim() !== '' ? slugify(o.slug) : null;
+  const options = Array.isArray(o.options)
+    ? o.options.map((raw) => {
+        const r = asRecord(raw);
+        const name = reqString(r, 'name');
+        const values = Array.isArray(r.values)
+          ? r.values.filter((v): v is string => typeof v === 'string' && v.trim() !== '').map((v) => v.trim())
+          : [];
+        if (values.length === 0) throw new ValidationError('option_values_required');
+        return { name, values };
+      })
+    : [];
+  const optNames = options.map((x) => x.name);
+  if (new Set(optNames).size !== optNames.length) throw new ValidationError('option_names_unique');
+  const variants = Array.isArray(o.variants)
+    ? o.variants.map((raw) => {
+        const r = asRecord(raw);
+        const cashPriceUzsV = reqNumber(r, 'cashPriceUzs');
+        if (cashPriceUzsV <= 0) throw new ValidationError('variant_price_positive');
+        const optionValues = Array.isArray(r.optionValues)
+          ? r.optionValues.map((ov) => {
+              const q = asRecord(ov);
+              return { optionName: reqString(q, 'optionName'), value: reqString(q, 'value') };
+            })
+          : [];
+        return {
+          sku: typeof r.sku === 'string' && r.sku.trim() !== '' ? r.sku.trim() : null,
+          cashPriceUzs: cashPriceUzsV,
+          oldPriceUzs: typeof r.oldPriceUzs === 'number' && r.oldPriceUzs > 0 ? r.oldPriceUzs : null,
+          imageUrl: typeof r.imageUrl === 'string' && r.imageUrl.trim() !== '' ? r.imageUrl.trim() : null,
+          inStock: r.inStock === undefined ? true : Boolean(r.inStock),
+          optionValues,
+        };
+      })
+    : [];
+  if (options.length > 0) {
+    for (const v of variants) {
+      if (v.optionValues.length !== options.length) throw new ValidationError('variant_combination_incomplete');
+      for (const opt of options) {
+        const ov = v.optionValues.find((x) => x.optionName === opt.name);
+        if (!ov) throw new ValidationError('variant_combination_incomplete');
+        if (!opt.values.includes(ov.value)) throw new ValidationError('variant_value_unknown');
+      }
+    }
+  }
+
   return {
     id,
     name: reqString(o, 'name'),
@@ -76,7 +132,30 @@ export function parseProductInput(body: unknown): ProductInput {
     description,
     images,
     specs,
+    brandId,
+    slug,
+    options,
+    variants,
   };
+}
+
+export interface BrandInput {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string;
+  sortOrder: number;
+}
+
+export function parseBrandInput(body: unknown): BrandInput {
+  const o = asRecord(body);
+  const name = reqString(o, 'name');
+  const slug = typeof o.slug === 'string' && o.slug.trim() !== '' ? slugify(o.slug) : slugify(name);
+  const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : slug || crypto.randomUUID();
+  const logoUrl = typeof o.logoUrl === 'string' ? o.logoUrl.trim() : '';
+  const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
+  if (!slug) throw new ValidationError('slug_invalid');
+  return { id, name, slug, logoUrl, sortOrder };
 }
 
 export function parseSettingsInput(body: unknown): ApiSettings {

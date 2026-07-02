@@ -18,9 +18,9 @@ export interface ApiProduct {
   isActive: boolean;
   categoryId: string | null;
   oldPriceUzs: number | null;
-  brandId?: string | null;
-  slug?: string | null;
-  minPriceUzs?: number;
+  brandId: string | null;
+  slug: string | null;
+  minPriceUzs: number;
 }
 
 export interface ApiSettings {
