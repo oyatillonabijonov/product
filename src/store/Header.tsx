@@ -6,6 +6,7 @@ import type { ApiCategory } from '../../shared/types';
 import { fetchCategories } from '../api/store';
 import { localizedPath, langToLocale, stripLocale, type Locale } from '../../app/lib/i18n';
 import logo from '../assets/logo.svg';
+import { useCart } from './CartContext';
 
 export default function Header({
   t,
@@ -22,6 +23,7 @@ export default function Header({
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { count } = useCart();
 
   function switchLang(nextLang: LangKey) {
     const nextLocale = langToLocale(nextLang);
@@ -110,9 +112,18 @@ export default function Header({
         <button title={t.navSoon} className="hidden md:flex text-[#6E6E73] hover:text-[#1D1D1F] transition-colors" aria-label="Sevimlilar">
           <Heart className="w-5 h-5" />
         </button>
-        <button title={t.navSoon} className="text-[#6E6E73] hover:text-[#1D1D1F] transition-colors" aria-label="Savat">
+        <Link
+          to={localizedPath(locale, '/savat')}
+          className="relative text-[#6E6E73] hover:text-[#1D1D1F] transition-colors"
+          aria-label={t.cartTitle}
+        >
           <ShoppingCart className="w-5 h-5" />
-        </button>
+          {count > 0 && (
+            <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-[#0071E3] text-white text-[11px] font-bold flex items-center justify-center">
+              {count}
+            </span>
+          )}
+        </Link>
 
         <div className="flex items-center gap-1 text-[#6E6E73]">
           <Globe className="w-4 h-4 hidden sm:block" />
