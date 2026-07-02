@@ -120,7 +120,11 @@ export const translations = {
     utilDiscounts: "Yangi mahsulotlarga chegirmalar",
     homeFeatured: "Tavsiya etilgan mahsulotlar",
     gridEmpty: "Mahsulotlar topilmadi",
-    searchResults: "Qidiruv natijasi"
+    searchResults: "Qidiruv natijasi",
+    heroCtaPrimary: "Katalogni ko'rish",
+    heroCtaSecondary: "Maslahat olish",
+    homeCategories: "Kategoriyalar",
+    viewAll: "Barchasini ko'rish"
   },
   "Rus tili": {
     heroTitle1: "iPhone теперь",
@@ -241,7 +245,11 @@ export const translations = {
     utilDiscounts: "Скидки на новые товары",
     homeFeatured: "Рекомендуемые товары",
     gridEmpty: "Товары не найдены",
-    searchResults: "Результаты поиска"
+    searchResults: "Результаты поиска",
+    heroCtaPrimary: "Открыть каталог",
+    heroCtaSecondary: "Консультация",
+    homeCategories: "Категории",
+    viewAll: "Смотреть все"
   },
   "English": {
     heroTitle1: "iPhone is now",
@@ -362,7 +370,11 @@ export const translations = {
     utilDiscounts: "Discounts on new products",
     homeFeatured: "Featured products",
     gridEmpty: "No products found",
-    searchResults: "Search results"
+    searchResults: "Search results",
+    heroCtaPrimary: "Browse catalog",
+    heroCtaSecondary: "Get advice",
+    homeCategories: "Categories",
+    viewAll: "View all"
   },
   "O'zbek tili (Cyrillic)": {
     heroTitle1: "iPhone олиш энди",
@@ -483,7 +495,11 @@ export const translations = {
     utilDiscounts: "Янги маҳсулотларга чегирмалар",
     homeFeatured: "Тавсия этилган маҳсулотлар",
     gridEmpty: "Маҳсулотлар топилмади",
-    searchResults: "Қидирув натижаси"
+    searchResults: "Қидирув натижаси",
+    heroCtaPrimary: "Каталогни кўриш",
+    heroCtaSecondary: "Маслаҳат олиш",
+    homeCategories: "Категориялар",
+    viewAll: "Барчасини кўриш"
   }
 };
 
