@@ -67,6 +67,15 @@ export default function Header({
             <>
               <div className="fixed inset-0 z-40" onClick={() => setCatOpen(false)} />
               <div className="absolute left-0 top-full mt-2 w-60 bg-white border border-[#E5E5EA] rounded-2xl shadow-[--shadow-apple-hover] p-2 z-50">
+                <div className="border-b border-[#F0F0F2] mb-1 pb-1">
+                  <Link
+                    to={localizedPath(locale, '/katalog')}
+                    onClick={() => setCatOpen(false)}
+                    className="block px-3 py-2.5 text-[14px] rounded-xl hover:bg-[#F5F5F7] transition-colors"
+                  >
+                    {t.catalogAll}
+                  </Link>
+                </div>
                 {cats.map((c) => (
                   <Link
                     key={c.id}
