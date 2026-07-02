@@ -27,6 +27,8 @@ export default [
   route('api/admin/products/:id', 'routes/api.admin.products.$id.tsx'),
   route('api/admin/categories', 'routes/api.admin.categories.tsx'),
   route('api/admin/categories/:id', 'routes/api.admin.categories.$id.tsx'),
+  route('api/admin/brands', 'routes/api.admin.brands.tsx'),
+  route('api/admin/brands/:id', 'routes/api.admin.brands.$id.tsx'),
   route('api/admin/settings', 'routes/api.admin.settings.tsx'),
   route('api/admin/upload', 'routes/api.admin.upload.tsx'),
   route('*', 'routes/not-found.tsx'),
