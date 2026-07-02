@@ -59,13 +59,13 @@ const ProductCard: FC<{
         <div className="mt-auto pt-4">
           <div className="text-[11px] uppercase tracking-wide text-[#86868B] font-medium">{t.catalogMonthlyLabel}</div>
           <div className="text-[20px] md:text-[23px] font-semibold tracking-[-0.01em] text-[#1D1D1F] leading-tight">
-            {formatUzs(lowestMonthly(product, config))}
+            {formatUzs(lowestMonthly({ ...product, cashPriceUzs: product.minPriceUzs }, config))}
           </div>
           <div className="text-[12px] text-[#6E6E73] mt-1 mb-4 flex items-center gap-2 flex-wrap">
             {product.oldPriceUzs && product.oldPriceUzs > product.cashPriceUzs && (
               <span className="line-through text-[#B0B0B5]">{formatUzs(product.oldPriceUzs)}</span>
             )}
-            <span className="text-[#6E6E73]">{formatUzs(product.cashPriceUzs)}</span>
+            <span className="text-[#6E6E73]">{formatUzs(product.minPriceUzs)}</span>
           </div>
           <LocaleLink
             to={`/product/${product.id}`}

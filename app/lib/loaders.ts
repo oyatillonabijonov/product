@@ -1,15 +1,16 @@
 import type { Env } from '../../functions/env';
-import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec } from '../../shared/types';
+import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
 import {
   installmentConfig as fallbackConfig,
   products as fallbackProducts,
   categories as fallbackCategories,
+  brands as fallbackBrands,
   fallbackCategoryOf,
 } from '../../src/data/products';
 import {
-  rowToProduct, rowToCategory, buildProductDetail,
-  type ProductRow, type CategoryRow, type SettingsRow, rowToSettings,
+  rowToProduct, rowToCategory, rowToBrand, buildProductDetail, PRODUCT_COLS,
+  type ProductRow, type CategoryRow, type SettingsRow, rowToSettings, type BrandRow,
 } from '../../functions/lib/db';
 
 export interface ProductDetail extends Product {
@@ -17,6 +18,9 @@ export interface ProductDetail extends Product {
   description: string | null;
   images: string[];
   specs: ApiSpec[];
+  brand: ApiBrand | null;
+  options: ApiOption[];
+  variants: ApiVariant[];
 }
 
 function mapProduct(p: ApiProduct): Product {
@@ -24,6 +28,7 @@ function mapProduct(p: ApiProduct): Product {
     id: p.id, name: p.name, category: p.category, condition: p.condition,
     conditionNote: p.conditionNote ?? undefined, image: p.imageUrl,
     cashPriceUzs: p.cashPriceUzs, oldPriceUzs: p.oldPriceUzs ?? null,
+    minPriceUzs: p.minPriceUzs, brandId: p.brandId,
   };
 }
 function mapConfig(s: ApiSettings): InstallmentConfig {
@@ -45,7 +50,7 @@ export async function loadStore(env: Env): Promise<{ products: Product[]; config
   const [products, config] = await Promise.all([
     (async () => {
       try {
-        const { results } = await env.DB.prepare('SELECT * FROM products WHERE is_active = 1 ORDER BY sort_order ASC, created_at ASC').all<ProductRow>();
+        const { results } = await env.DB.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE is_active = 1 ORDER BY sort_order ASC, created_at ASC`).all<ProductRow>();
         if (results.length === 0) throw new Error('empty');
         return results.map(rowToProduct).map(mapProduct);
       } catch (err) {
@@ -80,7 +85,7 @@ export async function loadConfig(env: Env): Promise<InstallmentConfig> {
 
 export async function loadProductsBy(env: Env, params: { category?: string; q?: string }): Promise<Product[]> {
   try {
-    let sql = 'SELECT * FROM products WHERE is_active = 1';
+    let sql = `SELECT ${PRODUCT_COLS} FROM products WHERE is_active = 1`;
     const binds: unknown[] = [];
     if (params.category) { sql += ' AND category_id = ?'; binds.push(params.category); }
     if (params.q && params.q.trim() !== '') { sql += ' AND name LIKE ?'; binds.push(`%${params.q.trim()}%`); }
@@ -100,11 +105,28 @@ export async function loadProductDetail(env: Env, id: string): Promise<ProductDe
   try {
     const d = await buildProductDetail(env, id);
     if (!d) throw new Error('not_found');
-    return { ...mapProduct(d), oldPriceUzs: d.oldPriceUzs, description: d.description, images: d.images, specs: d.specs };
+    return {
+      ...mapProduct(d), oldPriceUzs: d.oldPriceUzs, description: d.description, images: d.images, specs: d.specs,
+      brand: d.brand, options: d.options, variants: d.variants,
+    };
   } catch (err) {
     console.error('loadProductDetail fallback:', err);
     const p = fallbackProducts.find((x) => x.id === id);
     if (!p) return null;
-    return { ...p, oldPriceUzs: p.oldPriceUzs ?? null, description: p.description ?? null, images: p.image ? [p.image, ...(p.gallery ?? [])] : (p.gallery ?? []), specs: p.specs ?? [] };
+    return {
+      ...p, oldPriceUzs: p.oldPriceUzs ?? null, description: p.description ?? null, images: p.image ? [p.image, ...(p.gallery ?? [])] : (p.gallery ?? []), specs: p.specs ?? [],
+      brand: null, options: [], variants: [],
+    };
+  }
+}
+
+export async function loadBrands(env: Env): Promise<ApiBrand[]> {
+  try {
+    const { results } = await env.DB.prepare('SELECT * FROM brands ORDER BY sort_order ASC').all<BrandRow>();
+    if (results.length === 0) throw new Error('empty');
+    return results.map(rowToBrand);
+  } catch (err) {
+    console.error('loadBrands fallback:', err);
+    return fallbackBrands;
   }
 }

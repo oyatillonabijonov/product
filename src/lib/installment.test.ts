@@ -19,6 +19,7 @@ const product: Product = {
   condition: 'yangi',
   image: 'x',
   cashPriceUzs: 10_000_000,
+  minPriceUzs: 10_000_000,
 };
 
 describe('calcInstallment', () => {
