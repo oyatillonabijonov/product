@@ -1,6 +1,11 @@
 import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../data/products';
-import { installmentConfig as fallbackConfig, products as fallbackProducts } from '../data/products';
+import {
+  installmentConfig as fallbackConfig,
+  products as fallbackProducts,
+  categories as fallbackCategories,
+  fallbackCategoryOf,
+} from '../data/products';
 
 export interface StoreData {
   products: Product[];
@@ -39,9 +44,11 @@ export async function fetchCategories(): Promise<ApiCategory[]> {
   try {
     const res = await fetch('/api/categories');
     if (!res.ok) throw new Error('api_error');
-    return (await res.json()) as ApiCategory[];
+    const cats = (await res.json()) as ApiCategory[];
+    if (cats.length === 0) throw new Error('empty');
+    return cats;
   } catch {
-    return [];
+    return fallbackCategories;
   }
 }
 
@@ -55,7 +62,13 @@ export async function fetchProductsBy(params: { category?: string; q?: string })
     const apiProducts = (await res.json()) as ApiProduct[];
     return apiProducts.map(mapProduct);
   } catch {
-    return [];
+    let items = fallbackProducts;
+    if (params.category) items = items.filter((p) => fallbackCategoryOf(p) === params.category);
+    if (params.q) {
+      const q = params.q.toLowerCase();
+      items = items.filter((p) => p.name.toLowerCase().includes(q));
+    }
+    return items;
   }
 }
 
@@ -77,7 +90,15 @@ export async function fetchProductDetail(id: string): Promise<ProductDetail | nu
       specs: d.specs,
     };
   } catch {
-    return null;
+    const p = fallbackProducts.find((x) => x.id === id);
+    if (!p) return null;
+    return {
+      ...p,
+      oldPriceUzs: p.oldPriceUzs ?? null,
+      description: null,
+      images: p.image ? [p.image] : [],
+      specs: [],
+    };
   }
 }
 

@@ -36,6 +36,24 @@ export interface InstallmentConfig {
   terms: Term[];
 }
 
+/** Storefront kategoriyalari — API ishlamaganда namuna sifatida (migratsiya 0003 bilan mos). */
+export const categories: { id: string; name: string; iconUrl: string; sortOrder: number }[] = [
+  { id: 'telefonlar', name: 'Telefonlar', iconUrl: '', sortOrder: 10 },
+  { id: 'noutbuklar', name: 'Noutbuklar', iconUrl: '', sortOrder: 20 },
+  { id: 'planshetlar', name: 'Planshetlar', iconUrl: '', sortOrder: 30 },
+  { id: 'kompyuterlar', name: 'Kompyuterlar', iconUrl: '', sortOrder: 40 },
+  { id: 'aksessuarlar', name: 'Aksessuarlar', iconUrl: '', sortOrder: 50 },
+];
+
+/** Sample mahsulotni storefront kategoriyasiga bog'lash (migratsiya 0003 mantig'i). */
+export function fallbackCategoryOf(p: Product): string | null {
+  if (p.category === 'iphone') return 'telefonlar';
+  if (p.category === 'ipad') return 'planshetlar';
+  if (p.category === 'mac') return p.id.includes('macbook') ? 'noutbuklar' : 'kompyuterlar';
+  if (p.category === 'pc') return 'kompyuterlar';
+  return null;
+}
+
 export const installmentConfig: InstallmentConfig = {
   downPaymentPercent: 20, // NAMUNA — admin o'zgartiradi
   usdToUzs: 12600, // NAMUNA kurs
