@@ -1,6 +1,10 @@
 name = "taqsit-store"
 compatibility_date = "2024-11-01"
-pages_build_output_dir = "dist"
+compatibility_flags = ["nodejs_compat"]
+main = "./workers/app.ts"
+
+[assets]
+directory = "./build/client"
 
 [[d1_databases]]
 binding = "DB"

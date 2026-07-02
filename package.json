@@ -4,27 +4,34 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port=3001 --host=0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview",
-    "clean": "rm -rf dist",
-    "lint": "tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
+    "dev": "react-router dev",
+    "build": "react-router build",
+    "start": "wrangler dev",
+    "deploy": "bun run build && wrangler deploy",
+    "typecheck": "react-router typegen && tsc --noEmit",
+    "lint": "react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
+    "@react-router/dev": "^7",
+    "@react-router/node": "^7",
+    "@react-router/serve": "^7",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
+    "isbot": "^5",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router": "^7",
     "react-router-dom": "^7.18.1",
     "vite": "^6.2.0"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.42.4",
     "@cloudflare/workers-types": "^4.20260701.1",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
@@ -33,6 +40,7 @@
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
+    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.9",
     "wrangler": "^4.106.0"
   }

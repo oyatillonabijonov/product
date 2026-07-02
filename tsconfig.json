@@ -21,8 +21,10 @@
       ]
     },
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["@cloudflare/workers-types", "vite/client"],
+    "rootDirs": [".", "./.react-router/types"]
   },
-  "include": ["src", "shared"],
+  "include": ["app", "workers", "src", "shared", ".react-router/types/**/*"],
   "exclude": ["functions", "dist", "node_modules"]
 }
