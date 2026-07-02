@@ -14,9 +14,9 @@ export async function loader({ params, context }: Route.LoaderArgs) {
     loadProductDetail(env, params.id as string), loadConfig(env),
   ]);
   if (!product) throw new Response('Not Found', { status: 404 });
-  const categorySlug = fallbackCategoryOf(product);
-  const similar = categorySlug
-    ? (await loadProductsBy(env, { category: categorySlug }))
+  const categoryId = product.categoryId ?? fallbackCategoryOf(product);
+  const similar = categoryId
+    ? (await loadProductsBy(env, { category: categoryId }))
         .filter((p) => p.id !== product.id)
         .slice(0, 4)
     : [];

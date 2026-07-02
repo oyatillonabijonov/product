@@ -25,6 +25,8 @@ export interface Product {
   oldPriceUzs?: number | null;
   /** Brend id (`brands` massividagi id), bog'lanmagan bo'lsa `null`. */
   brandId?: string | null;
+  /** Storefront kategoriya id (`categories` massividagi id), bog'lanmagan bo'lsa `null`. */
+  categoryId?: string | null;
   /** Qo'shimcha galereya rasmlari (asosiy `image` dan tashqari). */
   gallery?: string[];
   /** Xususiyatlar (label/value). */

@@ -29,7 +29,7 @@ function mapProduct(p: ApiProduct): Product {
     id: p.id, name: p.name, category: p.category, condition: p.condition,
     conditionNote: p.conditionNote ?? undefined, image: p.imageUrl,
     cashPriceUzs: p.cashPriceUzs, oldPriceUzs: p.oldPriceUzs ?? null,
-    minPriceUzs: p.minPriceUzs, brandId: p.brandId,
+    minPriceUzs: p.minPriceUzs, brandId: p.brandId, categoryId: p.categoryId,
   };
 }
 function mapConfig(s: ApiSettings): InstallmentConfig {
