@@ -12,6 +12,7 @@ import {
   rowToProduct, rowToCategory, rowToBrand, buildProductDetail, PRODUCT_COLS,
   type ProductRow, type CategoryRow, type SettingsRow, rowToSettings, type BrandRow,
 } from '../../functions/lib/db';
+import { applyFilters, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 
 export interface ProductDetail extends Product {
   oldPriceUzs: number | null;
@@ -128,5 +129,66 @@ export async function loadBrands(env: Env): Promise<ApiBrand[]> {
   } catch (err) {
     console.error('loadBrands fallback:', err);
     return fallbackBrands;
+  }
+}
+
+const EFFECTIVE = 'COALESCE(min_variant_price, cash_price_uzs)';
+
+function buildConds(f: CatalogFilters, opts: { skipBrands?: boolean; skipPrice?: boolean } = {}): { sql: string; binds: unknown[] } {
+  const conds: string[] = ['is_active = 1'];
+  const binds: unknown[] = [];
+  if (f.category) { conds.push('category_id = ?'); binds.push(f.category); }
+  if (f.condition) { conds.push('condition = ?'); binds.push(f.condition); }
+  if (f.q) { conds.push('name LIKE ?'); binds.push(`%${f.q}%`); }
+  if (f.onlyDeals) conds.push('old_price_uzs IS NOT NULL AND old_price_uzs > cash_price_uzs');
+  if (!opts.skipBrands && f.brands.length > 0) {
+    conds.push(`brand_id IN (${f.brands.map(() => '?').join(',')})`);
+    binds.push(...f.brands);
+  }
+  if (!opts.skipPrice) {
+    if (f.priceMin !== null) { conds.push(`${EFFECTIVE} >= ?`); binds.push(f.priceMin); }
+    if (f.priceMax !== null) { conds.push(`${EFFECTIVE} <= ?`); binds.push(f.priceMax); }
+  }
+  return { sql: conds.join(' AND '), binds };
+}
+
+const ORDERS: Record<CatalogFilters['sort'], string> = {
+  default: 'sort_order ASC, created_at ASC',
+  arzon: `${EFFECTIVE} ASC`,
+  qimmat: `${EFFECTIVE} DESC`,
+  yangi: 'created_at DESC',
+};
+
+export async function queryProducts(env: Env, f: CatalogFilters): Promise<CatalogResult> {
+  try {
+    const inner = `SELECT ${PRODUCT_COLS} FROM products`;
+    const w = buildConds(f);
+    const offset = (f.page - 1) * PAGE_SIZE;
+    const [list, count, brandFacet, priceFacet] = await Promise.all([
+      env.DB.prepare(`SELECT * FROM (${inner}) WHERE ${w.sql} ORDER BY ${ORDERS[f.sort]} LIMIT ? OFFSET ?`)
+        .bind(...w.binds, PAGE_SIZE, offset).all<ProductRow>(),
+      env.DB.prepare(`SELECT COUNT(*) AS cnt FROM (${inner}) WHERE ${w.sql}`)
+        .bind(...w.binds).first<{ cnt: number }>(),
+      (() => {
+        const wb = buildConds(f, { skipBrands: true });
+        return env.DB.prepare(`SELECT brand_id, COUNT(*) AS cnt FROM (${inner}) WHERE ${wb.sql} AND brand_id IS NOT NULL GROUP BY brand_id`)
+          .bind(...wb.binds).all<{ brand_id: string; cnt: number }>();
+      })(),
+      (() => {
+        const wp = buildConds(f, { skipPrice: true });
+        return env.DB.prepare(`SELECT MIN(${EFFECTIVE}) AS lo, MAX(${EFFECTIVE}) AS hi FROM (${inner}) WHERE ${wp.sql}`)
+          .bind(...wp.binds).first<{ lo: number | null; hi: number | null }>();
+      })(),
+    ]);
+    const brandCounts: Record<string, number> = {};
+    for (const r of brandFacet.results) brandCounts[r.brand_id] = r.cnt;
+    return {
+      items: list.results.map(rowToProduct).map(mapProduct),
+      total: count?.cnt ?? 0,
+      facets: { brandCounts, priceMin: priceFacet?.lo ?? 0, priceMax: priceFacet?.hi ?? 0 },
+    };
+  } catch (err) {
+    console.error('queryProducts fallback:', err);
+    return applyFilters(fallbackProducts, f);
   }
 }
