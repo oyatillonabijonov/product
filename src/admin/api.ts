@@ -1,4 +1,4 @@
-import type { ApiProduct, ApiSettings } from '../../shared/types';
+import type { ApiCategory, ApiProduct, ApiSettings, ApiSpec } from '../../shared/types';
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -30,7 +30,19 @@ export async function listProducts(): Promise<ApiProduct[]> {
   return handle(await fetch('/api/admin/products'));
 }
 
-export async function createProduct(p: Partial<ApiProduct>): Promise<ApiProduct> {
+export interface AdminProductInput extends Partial<ApiProduct> {
+  images?: string[];
+  specs?: ApiSpec[];
+  description?: string | null;
+}
+
+export interface AdminProductDetail extends ApiProduct {
+  description: string | null;
+  images: string[];
+  specs: ApiSpec[];
+}
+
+export async function createProduct(p: AdminProductInput): Promise<ApiProduct> {
   return handle(
     await fetch('/api/admin/products', {
       method: 'POST',
@@ -40,7 +52,7 @@ export async function createProduct(p: Partial<ApiProduct>): Promise<ApiProduct>
   );
 }
 
-export async function updateProduct(id: string, p: Partial<ApiProduct>): Promise<ApiProduct> {
+export async function updateProduct(id: string, p: AdminProductInput): Promise<ApiProduct> {
   return handle(
     await fetch(`/api/admin/products/${encodeURIComponent(id)}`, {
       method: 'PUT',
@@ -48,6 +60,38 @@ export async function updateProduct(id: string, p: Partial<ApiProduct>): Promise
       body: JSON.stringify(p),
     }),
   );
+}
+
+export async function getProductDetail(id: string): Promise<AdminProductDetail> {
+  return handle(await fetch(`/api/products/${encodeURIComponent(id)}`));
+}
+
+export async function listCategories(): Promise<ApiCategory[]> {
+  return handle(await fetch('/api/admin/categories'));
+}
+
+export async function createCategory(c: Partial<ApiCategory>): Promise<ApiCategory> {
+  return handle(
+    await fetch('/api/admin/categories', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(c),
+    }),
+  );
+}
+
+export async function updateCategory(id: string, c: Partial<ApiCategory>): Promise<ApiCategory> {
+  return handle(
+    await fetch(`/api/admin/categories/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(c),
+    }),
+  );
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/categories/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
 
 export async function deleteProduct(id: string): Promise<void> {
