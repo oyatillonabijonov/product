@@ -1,17 +1,18 @@
 import { useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck } from 'lucide-react';
-import type { InstallmentConfig } from '../data/products';
+import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
 import type { Translation } from '../locales';
 import { calcInstallment, composeLeadMessage, discountPercent, formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, type VariantSelection } from '../lib/variants';
 import Gallery from './Gallery';
 import LocaleLink from './LocaleLink';
+import ProductGrid from './ProductGrid';
 
 const ProductPage: FC<{
-  t: Translation; product: ProductDetail; config: InstallmentConfig;
-}> = ({ t, product, config }) => {
+  t: Translation; product: ProductDetail; config: InstallmentConfig; similar: Product[];
+}> = ({ t, product, config, similar }) => {
   const [months, setMonths] = useState(12);
   const [selection, setSelection] = useState<VariantSelection | null>(
     () => defaultSelection(product.options, product.variants),
@@ -189,6 +190,13 @@ const ProductPage: FC<{
         <div className="mt-8 max-w-2xl">
           <h2 className="text-[20px] font-semibold mb-3">{t.descTitle}</h2>
           <p className="text-[15px] text-[#3A3A3C] whitespace-pre-line leading-relaxed">{product.description}</p>
+        </div>
+      )}
+
+      {similar.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-[20px] font-semibold mb-4">{t.similarProducts}</h2>
+          <ProductGrid t={t} items={similar} config={config} />
         </div>
       )}
     </div>
