@@ -19,7 +19,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   return { result, config, q, brands, filters };
 }
 export function meta({ data }: Route.MetaArgs) {
-  return [{ title: pageTitle(data?.q ? `"${data.q}"` : undefined) }];
+  return [{ title: pageTitle(data?.q ? `"${data.q}"` : undefined) }, { name: 'robots', content: 'noindex' }];
 }
 export default function SearchRoute() {
   const { result, config, q, brands, filters } = useLoaderData<typeof loader>();

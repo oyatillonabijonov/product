@@ -1,8 +1,19 @@
 import { siteConfig } from './site.config';
 import { LOCALES, htmlLang, localizedPath, DEFAULT_LOCALE, stripLocale } from './i18n';
+import { hasActiveParams } from './catalog';
 
 export function pageTitle(title?: string): string {
   return title ? `${title} — ${siteConfig.seo.titleSuffix}` : siteConfig.seo.titleSuffix;
+}
+
+export function catalogMeta(title: string, requestUrl: string): Array<Record<string, string>> {
+  const url = new URL(requestUrl);
+  const metas: Array<Record<string, string>> = [{ title }];
+  if (hasActiveParams(url.searchParams)) {
+    metas.push({ name: 'robots', content: 'noindex,follow' });
+    metas.push({ tagName: 'link', rel: 'canonical', href: url.pathname });
+  }
+  return metas;
 }
 
 export function organizationJsonLd() {
