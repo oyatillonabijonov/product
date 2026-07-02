@@ -20,13 +20,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {hreflangLinks(location.pathname).map((link) => (
-          // lowercase `hreflang` (not `hrefLang`) so React emits the literal HTML
-          // attribute name `hreflang=` instead of the DOM-property-cased `hrefLang=`.
-          <link key={link.hrefLang} rel={link.rel} hreflang={link.hrefLang} href={link.href} />
-        ))}
-        {/* eslint-disable-next-line react/no-danger */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+        {storeData && (
+          <>
+            {hreflangLinks(location.pathname).map((link) => (
+              // lowercase `hreflang` (not `hrefLang`) so React emits the literal HTML
+              // attribute name `hreflang=` instead of the DOM-property-cased `hrefLang=`.
+              <link key={link.hrefLang} rel={link.rel} hreflang={link.hrefLang} href={link.href} />
+            ))}
+            {/* eslint-disable-next-line react/no-danger */}
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+          </>
+        )}
         <Meta />
         <Links />
       </head>
