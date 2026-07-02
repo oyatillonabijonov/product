@@ -1,4 +1,5 @@
 import type { ApiCategory, ApiProductDetail, ApiProduct, ApiSpec, ApiSettings, Category, Condition, Term } from '../../shared/types';
+import type { Env } from '../env';
 
 export interface ProductRow {
   id: string;
@@ -105,4 +106,24 @@ export function json(data: unknown, init?: ResponseInit): Response {
     ...init,
     headers: { 'content-type': 'application/json; charset=utf-8', ...(init?.headers ?? {}) },
   });
+}
+
+export async function writeImagesAndSpecs(
+  env: Env,
+  productId: string,
+  images: string[],
+  specs: { label: string; value: string }[],
+): Promise<void> {
+  await env.DB.prepare('DELETE FROM product_images WHERE product_id = ?').bind(productId).run();
+  await env.DB.prepare('DELETE FROM product_specs WHERE product_id = ?').bind(productId).run();
+  for (let i = 0; i < images.length; i++) {
+    await env.DB.prepare('INSERT INTO product_images (id, product_id, image_url, sort_order) VALUES (?, ?, ?, ?)')
+      .bind(crypto.randomUUID(), productId, images[i], i)
+      .run();
+  }
+  for (let i = 0; i < specs.length; i++) {
+    await env.DB.prepare('INSERT INTO product_specs (id, product_id, label, value, sort_order) VALUES (?, ?, ?, ?, ?)')
+      .bind(crypto.randomUUID(), productId, specs[i].label, specs[i].value, i)
+      .run();
+  }
 }
