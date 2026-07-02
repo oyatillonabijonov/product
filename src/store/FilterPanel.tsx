@@ -11,7 +11,8 @@ const FilterPanel: FC<{
   filters: CatalogFilters;
   onChange: (next: Partial<CatalogFilters>) => void;
   onClear: () => void;
-}> = ({ t, brands, facets, filters, onChange, onClear }) => {
+  hideBrands?: boolean;
+}> = ({ t, brands, facets, filters, onChange, onClear, hideBrands }) => {
   const [lo, setLo] = useState(filters.priceMin !== null ? String(filters.priceMin) : '');
   const [hi, setHi] = useState(filters.priceMax !== null ? String(filters.priceMax) : '');
 
@@ -29,7 +30,7 @@ const FilterPanel: FC<{
   const input = 'w-full border border-[#D2D2D7] rounded-xl px-3 py-2 text-[14px] focus:outline-none focus:border-[#0071E3]';
   return (
     <div className="flex flex-col gap-6">
-      {visibleBrands.length > 0 && (
+      {!hideBrands && visibleBrands.length > 0 && (
         <section>
           <h3 className="text-[13px] font-bold uppercase tracking-wide text-[#86868B] mb-3">{t.filterBrand}</h3>
           <div className="flex flex-col gap-2">

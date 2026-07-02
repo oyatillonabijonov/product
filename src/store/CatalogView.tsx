@@ -19,7 +19,8 @@ const CatalogView: FC<{
   config: InstallmentConfig;
   brands: ApiBrand[];
   filters: CatalogFilters;
-}> = ({ t, title, result, config, brands, filters }) => {
+  hideBrands?: boolean;
+}> = ({ t, title, result, config, brands, filters, hideBrands }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -49,7 +50,16 @@ const CatalogView: FC<{
   }
 
   const panel = (
-    <FilterPanel t={t} brands={brands} facets={result.facets} filters={filters} onChange={(n) => { update(n); setSheetOpen(false); }} onClear={() => { clearAll(); setSheetOpen(false); }} />
+    <FilterPanel
+      key={`price-${filters.priceMin ?? ''}-${filters.priceMax ?? ''}`}
+      t={t}
+      brands={brands}
+      facets={result.facets}
+      filters={filters}
+      onChange={(n) => { update(n); setSheetOpen(false); }}
+      onClear={() => { clearAll(); setSheetOpen(false); }}
+      hideBrands={hideBrands}
+    />
   );
 
   return (
@@ -67,7 +77,7 @@ const CatalogView: FC<{
         </div>
       </div>
 
-      <div className="mb-4"><ActiveFilterChips t={t} filters={filters} brands={brands} onRemove={removeChip} /></div>
+      <div className="mb-4"><ActiveFilterChips t={t} filters={hideBrands ? { ...filters, brands: [] } : filters} brands={brands} onRemove={removeChip} /></div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
         <aside className="hidden lg:block">{panel}</aside>

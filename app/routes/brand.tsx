@@ -27,5 +27,5 @@ export function meta({ data }: Route.MetaArgs) {
 export default function BrandRoute() {
   const { result, config, brand, brands, filters } = useLoaderData<typeof loader>();
   const { t } = useOutletContext<StoreContext>();
-  return <CatalogView t={t} title={brand.name} result={result} config={config} brands={brands} filters={filters} />;
+  return <CatalogView t={t} title={brand.name} result={result} config={config} brands={brands} filters={filters} hideBrands />;
 }
