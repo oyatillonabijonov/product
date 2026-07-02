@@ -61,11 +61,11 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig }> = ({ t, config
                 <div className="text-[13px] text-[#6E6E73] mt-0.5 tabular-nums">{formatUzs(it.priceUzs * it.qty)}</div>
               </div>
               <div className="flex items-center gap-1.5">
-                <button onClick={() => changeQty(it.productId, it.variantId, it.qty - 1)} aria-label="-" className="w-8 h-8 rounded-full border border-[#D2D2D7] flex items-center justify-center hover:border-[#0071E3]"><Minus className="w-3.5 h-3.5" /></button>
+                <button onClick={() => changeQty(it.productId, it.variantId, it.qty - 1)} aria-label={t.qtyDecrease} className="w-8 h-8 rounded-full border border-[#D2D2D7] flex items-center justify-center hover:border-[#0071E3]"><Minus className="w-3.5 h-3.5" /></button>
                 <span className="w-7 text-center text-[14px] font-semibold tabular-nums">{it.qty}</span>
-                <button onClick={() => changeQty(it.productId, it.variantId, it.qty + 1)} aria-label="+" className="w-8 h-8 rounded-full border border-[#D2D2D7] flex items-center justify-center hover:border-[#0071E3]"><Plus className="w-3.5 h-3.5" /></button>
+                <button onClick={() => changeQty(it.productId, it.variantId, it.qty + 1)} aria-label={t.qtyIncrease} className="w-8 h-8 rounded-full border border-[#D2D2D7] flex items-center justify-center hover:border-[#0071E3]"><Plus className="w-3.5 h-3.5" /></button>
               </div>
-              <button onClick={() => remove(it.productId, it.variantId)} aria-label={t.cartClear} className="text-[#86868B] hover:text-[#E8462D] transition-colors"><Trash2 className="w-4.5 h-4.5" /></button>
+              <button onClick={() => remove(it.productId, it.variantId)} aria-label={t.cartRemoveItem} className="text-[#86868B] hover:text-[#E8462D] transition-colors"><Trash2 className="w-4.5 h-4.5" /></button>
             </div>
           ))}
           <button onClick={clear} className="self-start text-[13px] text-[#6E6E73] hover:text-[#E8462D] font-semibold mt-1">

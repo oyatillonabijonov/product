@@ -24,12 +24,21 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setItems(parseCart(window.localStorage.getItem(CART_KEY)));
+    try {
+      setItems(parseCart(window.localStorage.getItem(CART_KEY)));
+    } catch {
+      /* localStorage unavailable (private mode/quota) */
+    }
     setLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (loaded) window.localStorage.setItem(CART_KEY, serializeCart(items));
+    if (!loaded) return;
+    try {
+      window.localStorage.setItem(CART_KEY, serializeCart(items));
+    } catch {
+      /* localStorage unavailable (private mode/quota) */
+    }
   }, [items, loaded]);
 
   const api: CartApi = {

@@ -1,4 +1,4 @@
-import { calcInstallment, type InstallmentResult } from './installment';
+import { calcInstallment, formatUzs, type InstallmentResult } from './installment';
 import type { InstallmentConfig, Product, Term } from '../data/products';
 
 export interface CartItem {
@@ -98,12 +98,12 @@ export function composeCartLeadMessage(d: CartLeadData): string {
   const lines: string[] = ['🛒 Taqsit Store — yangi ariza (savat)', ''];
   for (const it of d.items) {
     const label = it.variantLabel ? ` (${it.variantLabel})` : '';
-    lines.push(`• ${it.name}${label} ×${it.qty}`);
+    lines.push(`• ${it.name}${label} ×${it.qty} — ${formatUzs(it.priceUzs * it.qty)}`);
   }
   lines.push(
     '',
     `📅 Muddat: ${d.months} oy`,
-    `💰 Jami narx: ${d.totalCash}`,
+    `💰 Jami naqd narx: ${d.totalCash}`,
     `💵 Boshlang'ich to'lov: ${d.downPayment}`,
     `📆 Taxminiy oylik to'lov: ${d.monthly}`,
   );

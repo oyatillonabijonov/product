@@ -153,7 +153,10 @@ export const translations = {
     cartClear: "Savatni tozalash",
     cartTotalCash: "Jami naqd narx",
     cartMonthlyTotal: "Jami oylik to'lov",
-    cartItemsCount: "ta mahsulot"
+    cartItemsCount: "ta mahsulot",
+    cartRemoveItem: "Mahsulotni o'chirish",
+    qtyDecrease: "Kamaytirish",
+    qtyIncrease: "Ko'paytirish"
   },
   "Rus tili": {
     heroTitle1: "iPhone теперь",
@@ -307,7 +310,10 @@ export const translations = {
     cartClear: "Очистить корзину",
     cartTotalCash: "Итого наличными",
     cartMonthlyTotal: "Итого в месяц",
-    cartItemsCount: "товар(ов)"
+    cartItemsCount: "товар(ов)",
+    cartRemoveItem: "Удалить товар",
+    qtyDecrease: "Уменьшить",
+    qtyIncrease: "Увеличить"
   },
   "English": {
     heroTitle1: "iPhone is now",
@@ -461,7 +467,10 @@ export const translations = {
     cartClear: "Clear cart",
     cartTotalCash: "Total cash price",
     cartMonthlyTotal: "Total monthly",
-    cartItemsCount: "items"
+    cartItemsCount: "items",
+    cartRemoveItem: "Remove item",
+    qtyDecrease: "Decrease quantity",
+    qtyIncrease: "Increase quantity"
   },
   "O'zbek tili (Cyrillic)": {
     heroTitle1: "iPhone олиш энди",
@@ -615,7 +624,10 @@ export const translations = {
     cartClear: "Саватни тозалаш",
     cartTotalCash: "Жами нақд нарх",
     cartMonthlyTotal: "Жами ойлик тўлов",
-    cartItemsCount: "та маҳсулот"
+    cartItemsCount: "та маҳсулот",
+    cartRemoveItem: "Маҳсулотни ўчириш",
+    qtyDecrease: "Камайтириш",
+    qtyIncrease: "Кўпайтириш"
   }
 };
 

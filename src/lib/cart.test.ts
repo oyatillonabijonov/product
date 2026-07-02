@@ -89,7 +89,9 @@ describe('composeCartLeadMessage', () => {
     expect(msg).toContain('iPhone 17 Pro (Xotira: 256GB) ×2');
     expect(msg).toContain('AirPods ×1');
     expect(msg).toContain('Muddat: 12 oy');
-    expect(msg).toContain("Jami narx: 5 000 000 so'm");
+    expect(msg).toContain("Jami naqd narx: 5 000 000 so'm");
     expect(msg).toContain("oylik to'lov: 1 000 000 so'm");
+    expect(msg).toContain('×2 — 200 so\'m'); // I() default priceUzs=100, qty 2
+    expect(msg).toContain("Jami naqd narx: 5 000 000 so'm");
   });
 });
