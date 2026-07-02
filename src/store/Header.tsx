@@ -1,25 +1,41 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, Heart, ShoppingCart, Menu, Globe } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import { fetchCategories } from '../api/store';
+import { LOCALES, DEFAULT_LOCALE, localizedPath, langToLocale, type Locale } from '../../app/lib/i18n';
 import logo from '../assets/logo.svg';
+
+function stripLocale(pathname: string): string {
+  const seg = pathname.split('/').filter(Boolean);
+  if (seg[0] && (LOCALES as readonly string[]).includes(seg[0]) && seg[0] !== DEFAULT_LOCALE) {
+    return '/' + seg.slice(1).join('/');
+  }
+  return pathname || '/';
+}
 
 export default function Header({
   t,
   lang,
-  setLang,
+  locale,
 }: {
   t: Translation;
   lang: LangKey;
-  setLang: (l: LangKey) => void;
+  locale: Locale;
 }) {
   const [q, setQ] = useState('');
   const [catOpen, setCatOpen] = useState(false);
   const [cats, setCats] = useState<ApiCategory[]>([]);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  function switchLang(nextLang: LangKey) {
+    const nextLocale = langToLocale(nextLang);
+    const bare = stripLocale(location.pathname);
+    navigate(localizedPath(nextLocale, bare) + location.search);
+  }
 
   useEffect(() => {
     fetchCategories().then(setCats);
@@ -101,7 +117,7 @@ export default function Header({
           <Globe className="w-4 h-4 hidden sm:block" />
           <select
             value={lang}
-            onChange={(e) => setLang(e.target.value as LangKey)}
+            onChange={(e) => switchLang(e.target.value as LangKey)}
             className="text-[13px] bg-transparent focus:outline-none cursor-pointer"
           >
             <option value="O'zbek tili">O'z</option>
