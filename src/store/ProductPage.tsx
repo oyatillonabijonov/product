@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import type { FC } from 'react';
-import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck } from 'lucide-react';
+import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck, ShoppingCart } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
 import type { Translation } from '../locales';
 import { calcInstallment, composeLeadMessage, discountPercent, formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, type VariantSelection } from '../lib/variants';
+import { useCart } from './CartContext';
 import Gallery from './Gallery';
 import LocaleLink from './LocaleLink';
 import ProductGrid from './ProductGrid';
@@ -41,6 +42,21 @@ const ProductPage: FC<{
     const msg = composeLeadMessage({ name: '', phone: '', product: productName, months, monthly: formatUzs(result.monthly) });
     const url = channel === 'telegram' ? telegramShareUrl(msg) : whatsappUrl(msg);
     window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  const cart = useCart();
+  const [added, setAdded] = useState(false);
+  function addToCart() {
+    if (outOfStock) return;
+    const label = selection ? selectionLabel(product.options, selection) : '';
+    cart.add({
+      productId: product.id, name: product.name,
+      image: galleryImages[0] ?? product.image,
+      priceUzs: displayCash,
+      variantId: variant?.id ?? null, variantLabel: label, qty: 1,
+    });
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1500);
   }
 
   return (
@@ -150,7 +166,14 @@ const ProductPage: FC<{
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3 mt-4">
+          <button onClick={addToCart} disabled={outOfStock}
+            className={`w-full py-3.5 mb-3 mt-4 font-semibold rounded-full border-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+              added ? 'border-[#1B7A34] text-[#1B7A34] bg-[#E8F5E9]' : 'border-[#0071E3] text-[#0071E3] hover:bg-[#EAF3FF]'
+            }`}>
+            <ShoppingCart className="w-5 h-5" /> {added ? t.cartAdded : t.cartAdd}
+          </button>
+
+          <div className="flex flex-col sm:flex-row gap-3">
             <button onClick={() => order('telegram')} disabled={outOfStock} className="flex-1 py-3.5 bg-[#0071E3] text-white font-semibold rounded-full hover:bg-[#0077ED] transition-colors flex items-center justify-center gap-2 shadow-[0_10px_24px_-10px_rgba(0,113,227,0.7)] disabled:opacity-50 disabled:cursor-not-allowed">
               <Send className="w-5 h-5" /> {t.formSendTelegram}
             </button>
