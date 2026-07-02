@@ -14,6 +14,7 @@ export default [
   route('api/products', 'routes/api.products.tsx'),
   route('api/products/:id', 'routes/api.products.$id.tsx'),
   route('api/categories', 'routes/api.categories.tsx'),
+  route('api/brands', 'routes/api.brands.tsx'),
   route('api/settings', 'routes/api.settings.tsx'),
   route('images/*', 'routes/images.$.tsx'),
   route('sitemap.xml', 'routes/sitemap[.]xml.tsx'),
