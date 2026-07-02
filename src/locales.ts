@@ -141,7 +141,10 @@ export const translations = {
     sortCheap: "Arzon → qimmat",
     sortExpensive: "Qimmat → arzon",
     sortNew: "Yangi kelganlar",
-    resultsCount: "mahsulot"
+    resultsCount: "mahsulot",
+    similarProducts: "O'xshash mahsulotlar",
+    inStock: "Sotuvda bor",
+    outOfStock: "Sotuvda yo'q"
   },
   "Rus tili": {
     heroTitle1: "iPhone теперь",
@@ -283,7 +286,10 @@ export const translations = {
     sortCheap: "Дешевле → дороже",
     sortExpensive: "Дороже → дешевле",
     sortNew: "Новинки",
-    resultsCount: "товаров"
+    resultsCount: "товаров",
+    similarProducts: "Похожие товары",
+    inStock: "В наличии",
+    outOfStock: "Нет в наличии"
   },
   "English": {
     heroTitle1: "iPhone is now",
@@ -425,7 +431,10 @@ export const translations = {
     sortCheap: "Price: low → high",
     sortExpensive: "Price: high → low",
     sortNew: "New arrivals",
-    resultsCount: "products"
+    resultsCount: "products",
+    similarProducts: "Similar products",
+    inStock: "In stock",
+    outOfStock: "Out of stock"
   },
   "O'zbek tili (Cyrillic)": {
     heroTitle1: "iPhone олиш энди",
@@ -567,7 +576,10 @@ export const translations = {
     sortCheap: "Арзон → қиммат",
     sortExpensive: "Қиммат → арзон",
     sortNew: "Янги келганлар",
-    resultsCount: "маҳсулот"
+    resultsCount: "маҳсулот",
+    similarProducts: "Ўхшаш маҳсулотлар",
+    inStock: "Сотувда бор",
+    outOfStock: "Сотувда йўқ"
   }
 };
 
