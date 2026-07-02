@@ -1,53 +1,24 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useOutletContext, useParams } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router';
 import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck } from 'lucide-react';
 import type { InstallmentConfig } from '../data/products';
-import { fetchProductDetail, fetchStore, type ProductDetail } from '../api/store';
+import type { ProductDetail } from '../../app/lib/loaders';
+import type { Translation } from '../locales';
 import { calcInstallment, composeLeadMessage, discountPercent, formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
-import type { StoreContext } from './StoreLayout';
 import Gallery from './Gallery';
 
-export default function ProductPage() {
-  const { t } = useOutletContext<StoreContext>();
-  const { id } = useParams();
-  const [product, setProduct] = useState<ProductDetail | null>(null);
-  const [config, setConfig] = useState<InstallmentConfig | null>(null);
+export default function ProductPage({
+  t, product, config,
+}: { t: Translation; product: ProductDetail; config: InstallmentConfig }) {
   const [months, setMonths] = useState(12);
-
-  useEffect(() => {
-    if (!id) return;
-    setProduct(null);
-    fetchProductDetail(id).then(setProduct);
-    fetchStore().then((s) => setConfig(s.config));
-  }, [id]);
-
   const result = useMemo(() => {
-    if (!product || !config) return null;
     const term = config.terms.find((x) => x.months === months) ?? config.terms[config.terms.length - 1];
     return calcInstallment(product, term, config);
   }, [product, config, months]);
-
-  if (product === null) {
-    return (
-      <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="skeleton aspect-square rounded-[22px]" />
-          <div className="flex flex-col gap-4">
-            <div className="skeleton h-5 w-24 rounded-full" />
-            <div className="skeleton h-9 w-3/4 rounded-lg" />
-            <div className="skeleton h-6 w-1/3 rounded-md" />
-            <div className="skeleton h-40 w-full rounded-[22px] mt-2" />
-            <div className="skeleton h-12 w-full rounded-full" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const disc = discountPercent(product.cashPriceUzs, product.oldPriceUzs);
 
   function order(channel: 'telegram' | 'whatsapp') {
-    if (!product || !result) return;
+    if (!result) return;
     const msg = composeLeadMessage({ name: '', phone: '', product: product.name, months, monthly: formatUzs(result.monthly) });
     const url = channel === 'telegram' ? telegramShareUrl(msg) : whatsappUrl(msg);
     window.open(url, '_blank', 'noopener,noreferrer');
