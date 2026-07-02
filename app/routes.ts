@@ -16,6 +16,8 @@ export default [
   route('api/categories', 'routes/api.categories.tsx'),
   route('api/settings', 'routes/api.settings.tsx'),
   route('images/*', 'routes/images.$.tsx'),
+  route('sitemap.xml', 'routes/sitemap[.]xml.tsx'),
+  route('robots.txt', 'routes/robots[.]txt.tsx'),
   route('admin/*', 'routes/admin.tsx'),
   route('api/admin/login', 'routes/api.admin.login.tsx'),
   route('api/admin/logout', 'routes/api.admin.logout.tsx'),
