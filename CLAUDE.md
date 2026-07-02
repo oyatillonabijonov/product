@@ -5,56 +5,76 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-bun run dev       # dev server at http://localhost:3001
-bun run build     # production build
-bun run lint      # TypeScript type check (tsc --noEmit)
-bun run preview   # preview production build
+bun run dev            # React Router dev server at http://localhost:5173 — FULL app (SSR + /api/* + local D1/R2 via .dev.vars)
+bun run build          # production build → build/ (client assets + SSR worker)
+bun run start          # wrangler dev on the built output (production-like Workers runtime)
+bun run deploy         # build + wrangler deploy (Cloudflare Workers)
+bun run lint           # react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json
+bun run test           # vitest run (pure-logic tests: installment calc, auth, i18n)
+
+bunx wrangler d1 migrations apply taqsit-store-db --local    # apply migrations to local D1 (run once before dev to get real data)
+bunx vitest run app/lib/i18n.test.ts                         # run a single test file
 ```
+
+Unlike the old Vite SPA, `bun run dev` now serves the **whole app** — SSR pages, `/api/*`, and admin — because `@cloudflare/vite-plugin` runs the Worker (with D1/R2 bindings and `.dev.vars` secrets) in dev. Loaders still fall back to sample data (`src/data/products.ts`) when D1 is empty, so pages render even without migrations applied.
 
 ## Architecture
 
-Single-page landing site for **Taqsit Store** — an Apple & PC store in Tashkent (Malika Bozori, Block A, Shop 17) selling devices on **installment** (muddatli to'lov): passport + $30 down, 3–12 months. No routing; one page composed of sections.
+**Taqsit Store** — an Apple & PC store in Tashkent selling devices on **halol installment** (muddatli to'lov: passport + down payment, 3/6/12 months, no riba, no penalties). **No online payment** — every order goes out as a Telegram/WhatsApp deep link (`composeLeadMessage` + `telegramShareUrl`/`whatsappUrl`).
 
-**`src/App.tsx`** — root component. Holds the page layout (Header, Hero, Trust Badges, Apple/PC Showcase, Audience, CTA, Footer inline) and orchestrates the interactive installment flow by composing the components below. Lifts two state values shared across the flow: `selectedProductId` and `selectedMonths`. `scrollToId()` / `handleSelectProduct()` connect Catalog → Calculator → Form.
+This repo is being built as a **reusable, SEO-optimized platform for electronics installment stores**, with Taqsit Store as the first instance. The guiding split: a **stable core** (routing/IA, data model, business logic, admin, i18n, SEO) that stays constant, and a **per-store skin** (visual components + theme-token values + assets) that gets rebuilt per company. Design changes per store; structure/content/logic do not. The multi-part roadmap and per-part designs live in `docs/superpowers/specs/` and `docs/superpowers/plans/` — read the relevant spec before extending a subsystem.
 
-**`src/components/`** — installment-flow sections, each takes `t: Translation` (and flow props):
-- `HowItWorks.tsx` — 4 steps. `Catalog.tsx` — product cards w/ prices, `onSelect(id)` preselects the calculator. `Calculator.tsx` — controlled by `productId`/`months` props + setters, live recalculation. `ApplicationForm.tsx` — name/phone + device/term (synced from calculator via `useEffect`), validates then opens Telegram/WhatsApp. `Conditions.tsx`, `Faq.tsx` (accordion).
+Deployed on **Cloudflare Workers**: React Router v7 framework-mode SSR + **D1** (SQLite) + **R2** (images), all in one Worker (`workers/app.ts`).
 
-**`src/data/products.ts`** — `Product`/`Term`/`InstallmentConfig` types, `installmentConfig` (downPayment $30, `usdToUzs`, terms 3/6/9/12 with `markup`), and the `products` array. **Prices and markups are placeholder (NAMUNA)** — owner replaces with real values here.
+### Framework: React Router v7 (framework mode / SSR) on Cloudflare Workers
+- `react-router.config.ts` (`ssr: true`), `vite.config.ts` (`cloudflare()` + `reactRouter()` + `tailwindcss()`), `workers/app.ts` — the Worker `fetch` entry that wraps `createRequestHandler` and exposes bindings to loaders as `context.cloudflare.env` (typed `Env` from `functions/env.ts`).
+- `app/root.tsx` — the HTML document (`<html lang>` resolved server-side from the store loader; imports `app/styles.css`; renders hreflang `<link>`s + Organization JSON-LD, gated to storefront routes).
+- `app/routes.ts` — explicit route config. Storefront routes live under a `layout('routes/store.tsx', …)` block, each registered twice (bare + `:lang`-prefixed) pointing at the same module. Resource routes (`api.*`, `api.admin.*`, `images.$`, `sitemap[.]xml`, `robots[.]txt`, `admin/*`) are top-level.
+- `app/lib/` — the core, framework-agnostic logic: `loaders.ts` (server D1 reads + sample fallback: `loadStore`/`loadConfig`/`loadProductsBy`/`loadProductDetail`/`loadCategories`), `i18n.ts` (locale ↔ `LangKey`, `resolveLocale`, `localizedPath`, `stripLocale`), `seo.ts` (`pageTitle`/`organizationJsonLd`/`hreflangLinks`), `site.config.ts` (**the rebrand seam** — brand name, contacts, socials, map, SEO; all store-specific values live here).
 
-**`src/lib/installment.ts`** — pure helpers: `calcInstallment`, `lowestMonthly`, `formatUzs` (so'm formatting), `composeLeadMessage`, `telegramShareUrl`/`whatsappUrl`. No backend — leads go out via deep links (Telegram `share/url` prefills text; WhatsApp `wa.me` prefills reliably).
+### Data flow (SSR)
+Route modules in `app/routes/` are thin: a `loader` (reads D1 via `context.cloudflare.env`, using `functions/lib/db.ts` mappers) + a `meta` export, rendering a **presentational component from `src/store/`** with loader data passed as props. The layout route (`routes/store.tsx`) resolves the locale and provides `StoreContext { t, lang, locale }` via `Outlet` context; pages read it with `useOutletContext`. There is no client-side data fetching on storefront pages (except `Header`'s category dropdown, which uses `src/api/store.ts`'s lone remaining `fetchCategories`). Internal storefront links must be locale-aware — use `src/store/LocaleLink.tsx` (or `localizedPath` with the `locale` prop in `Header`), never a raw `<Link>`.
 
-**`src/locales.ts`** — i18n object keyed by language name (`"O'zbek tili"`, `"Rus tili"`, `"English"`, `"O'zbek tili (Cyrillic)"`). Exports `Translation` type (used by component props) and `LangKey`. `t = translations[lang]` throughout. **Every key must exist in all 4 languages** — the `Translation` union type fails compilation otherwise. Switching languages triggers a blur+fade via `contentControls`.
+### Backend: React Router resource routes (reusing `functions/lib/`)
+The old `functions/api/*` Pages Functions were removed; their logic is re-exposed at the **same URLs** as RR resource routes in `app/routes/`, all reusing the retained `functions/lib/` modules:
+- **Public read:** `api.products.tsx` (`?category=`, `?q=`), `api.products.$id.tsx` (detail), `api.categories.tsx`, `api.settings.tsx`. `images.$.tsx` streams R2 objects (`/images/products/<uuid>.<ext>`). `sitemap[.]xml.tsx` / `robots[.]txt.tsx`.
+- **Admin write:** `api.admin.*.tsx` — every route guarded by `requireAdmin` (`app/routes/api.admin.guard.ts`, HMAC session-cookie check) **except** `login`. Product/category CRUD, settings, R2 `upload`, plus `login`/`logout`/`me`. `resource route`s use `loader` for GET, `action` for POST/PUT/DELETE (branch on `request.method` for the `$id` routes).
+- `functions/lib/db.ts` — D1 row (snake_case) ↔ API type (camelCase) mappers + `buildProductDetail` + `writeImagesAndSpecs` + `json()`. `functions/lib/validate.ts` — body validation (throws `ValidationError` → 400). `functions/lib/auth.ts` — SHA-256, HMAC session cookies (unit-tested). `functions/env.ts` — the `Env` binding type.
 
-**`src/index.css`** — Tailwind v4 (`@import "tailwindcss"`) with custom `@theme` tokens:
-- `--font-sans`: SF Pro / system font stack
-- `--shadow-apple` / `--shadow-apple-hover`: Apple-style card shadows
+### Admin panel (`src/admin/`, unchanged by the SSR migration)
+Password-protected SPA (tabs: Products, Categories, Settings), mounted at `/admin/*` via `app/routes/admin.tsx` and **client-rendered** (its initial SSR output is the loading shell; `getMe()` runs in `useEffect`). `src/admin/api.ts` is its fetch client hitting the `/api/admin/*` resource routes. Uzbek-only UI, `noindex`.
 
-## Design System
+### The installment calculator (the business core)
+`src/lib/installment.ts` — pure, tested helpers. Formula (re-derived in `SettingsForm` preview and `ProductPage`):
+```
+total   = cashPriceUzs * (1 + markup)               // markup on the FULL price
+down    = cashPriceUzs * (downPaymentPercent/100)   // down payment is a PERCENT of price
+monthly = max(0, (total - down) / months)
+```
+`downPaymentPercent`, `usdToUzs`, and per-term `markup` live in the D1 `settings` row and are **admin-editable**. `discountPercent(cash, old)` drives the strikethrough/`-N%` badge.
 
-Colors are hardcoded inline (no Tailwind config file — v4 uses CSS `@theme`):
-- `#1D1D1F` — primary text
-- `#0071E3` — accent blue
-- `#F5F5F7` — light background / card fill
-- `#6E6E73` — secondary text
+### Data model (D1)
+Migrations in `migrations/` (numbered; **never edit an applied migration — add a new one**): `0001` schema (`products`, `settings`), `0002` seed, `0003` storefront (`categories`, `product_images`, `product_specs`, + `products.category_id/old_price_uzs/description`). `shared/types.ts` is the API contract (camelCase); `src/data/products.ts` holds frontend types + sample-fallback data. Prices/markups are **placeholder (NAMUNA)** — replaced via the admin panel.
 
-Product cards use `motion.div` with `whileHover={{ y: -10 }}` and the `springConfig` object (`spring, damping: 30, stiffness: 80`). All product detail links point to `https://t.me/Taqsit_store`.
+## TypeScript projects & the no-`@types/react` shims
 
-## Store Contact Info
+Two tsconfigs, both run by `bun run lint`: the root `tsconfig.json` covers `app`/`workers`/`src`/`shared` (+ generated `.react-router/types`); `functions/tsconfig.json` covers `functions/` with `@cloudflare/workers-types`. Route types come from `react-router typegen` (imported as `./+types/<route>`) — run it (via `bun run lint`) after changing routes.
 
-- Phone: `+998(88)604-36-36` / `tel:+998886043636`
-- Telegram: `https://t.me/Taqsit_store` — used for all product "Batafsil" buttons and CTA
-- Instagram: `https://www.instagram.com/taqsit.store/`
-- Map: Yandex widget at coordinates `ll=69.271481,41.338874` (Malika Bozori, Tashkent)
+**No `@types/react` is installed** — React/JSX is implicitly-any-typed. Minimal ambient shims fill the gaps: `app/react-types.d.ts` (`React.ReactNode` etc. for SSR) and `src/admin/react-events.d.ts` (event handler types). Keep strict TypeScript; **do not introduce `any`**.
 
-## Adding a New Language
+## i18n
 
-Add a new key to the `translations` object in `src/locales.ts` matching the shape of existing entries, then add the same string to the `languages` array in `App.tsx`.
+`src/locales.ts` — `translations` keyed by language name (`"O'zbek tili"`, `"Rus tili"`, `"English"`, `"O'zbek tili (Cyrillic)"`); exports `Translation` and `LangKey`. **Every key must exist in all 4 languages** or `Translation` fails compilation. Locale is now **URL-prefixed** (`/` = uz default, `/ru`, `/en`, `/uz-cyrl`) and resolved server-side in the store layout loader; `app/lib/i18n.ts` maps locale ↔ `LangKey`. Each page emits `hreflang` alternates. Admin UI is Uzbek-only.
 
-## Images
+## Design system & rebrand seam
 
-All product images are `.webp` in `src/assets/images/`. Showcase images are imported at the top of `App.tsx`; catalog images are imported in `src/data/products.ts` and referenced via `Product.image`. Above-the-fold images use `fetchPriority="high"`; below-the-fold use `loading="lazy"`.
+Clean premium palette (olcha *structure*, not its red brand). Tailwind v4 `@theme` tokens in `app/styles.css` (the live stylesheet — `src/index.css` is orphaned): `#1D1D1F` text · `#0071E3` accent · `#F5F5F7` fill · `#6E6E73` secondary · `#1B7A34` trust green · `#E8462D` discount. Font SF Pro / system; card shadows `--shadow-apple`/`--shadow-apple-hover`; `motion.div` hover-lift. **Brand-specific values (name, phone, telegram, instagram, map, SEO) live in `app/lib/site.config.ts`, not hardcoded** — this is the seam a new store's rebrand edits.
 
-## Environment
+## Environment & deploy
 
-`GEMINI_API_KEY` is exposed via `vite.config.ts` → `process.env.GEMINI_API_KEY`. HMR is disabled when `DISABLE_HMR=true` (used in AI Studio).
+- Local secrets in `.dev.vars` (git-ignored): `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` (SHA-256 hex of the password), `SESSION_SECRET`. `bun run dev` loads them. Production: `bunx wrangler secret put …`.
+- `wrangler.toml` is **Workers mode** (`main = workers/app.ts`, `[assets] directory = build/client`), binds `DB` (D1) and `IMAGES` (R2). `database_id` is a **placeholder** until `bunx wrangler d1 create taqsit-store-db` is run and its id pasted in.
+- Product images are `.webp`, uploaded via the admin panel to R2, served at `/images/...`; below-the-fold images use `loading="lazy"`.
+
+## Known dead code (safe to remove in a cleanup pass)
+`src/components/` (legacy single-page landing sections — `Catalog`, `Calculator`, `ApplicationForm`, `HowItWorks`, `Conditions`, `Faq`; superseded by `src/store/`, imported by nothing) and `src/index.css` (superseded by `app/styles.css`). Do not extend these — build on `app/` + `src/store/`.
