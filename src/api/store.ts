@@ -95,9 +95,9 @@ export async function fetchProductDetail(id: string): Promise<ProductDetail | nu
     return {
       ...p,
       oldPriceUzs: p.oldPriceUzs ?? null,
-      description: null,
-      images: p.image ? [p.image] : [],
-      specs: [],
+      description: p.description ?? null,
+      images: p.image ? [p.image, ...(p.gallery ?? [])] : (p.gallery ?? []),
+      specs: p.specs ?? [],
     };
   }
 }

@@ -18,7 +18,18 @@ export default function HeroBanner({ t }: { t: Translation }) {
         style={{ background: 'radial-gradient(circle, rgba(0,113,227,0.16), transparent 70%)' }}
       />
 
-      <div className="relative grid grid-cols-1 md:grid-cols-2 items-center gap-6 px-6 sm:px-10 md:px-12 py-9 md:py-14">
+      {/* Desktop device image — anchored to the hero's bottom edge */}
+      <motion.img
+        src={heroDevice}
+        alt=""
+        aria-hidden
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="hidden md:block absolute bottom-0 right-8 lg:right-16 w-auto h-[112%] max-h-[440px] object-contain object-bottom drop-shadow-[0_30px_50px_rgba(0,60,130,0.28)]"
+      />
+
+      <div className="relative grid grid-cols-1 md:grid-cols-2 items-center gap-6 px-6 sm:px-10 md:px-12 py-9 md:py-14 md:min-h-[380px]">
         <div className="max-w-xl">
           <div className="inline-flex w-fit items-center gap-2 rounded-full bg-[#1B7A34]/[0.08] px-3 py-1.5 text-[12px] font-semibold text-[#1B7A34] mb-5">
             <span className="h-1.5 w-1.5 rounded-full bg-[#1B7A34]" />
@@ -50,15 +61,16 @@ export default function HeroBanner({ t }: { t: Translation }) {
           </div>
         </div>
 
-        <div className="relative flex justify-center md:justify-end">
+        {/* Mobile device image — in-flow below the copy */}
+        <div className="md:hidden flex justify-center pt-2">
           <motion.img
             src={heroDevice}
             alt=""
             aria-hidden
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: [0, -10, 0] }}
-            transition={{ opacity: { duration: 0.6 }, y: { duration: 6, repeat: Infinity, ease: 'easeInOut' } }}
-            className="w-[190px] sm:w-[240px] md:w-[300px] object-contain drop-shadow-[0_30px_50px_rgba(0,60,130,0.28)]"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-auto max-h-[240px] object-contain drop-shadow-[0_24px_40px_rgba(0,60,130,0.26)]"
           />
         </div>
       </div>
