@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
-import type { ApiCategory, ApiProduct, ApiSpec, Category, Condition } from '../../shared/types';
-import { createProduct, getProductDetail, listCategories, updateProduct, uploadImage } from './api';
+import type { ApiBrand, ApiCategory, ApiProduct, ApiSpec, Category, Condition } from '../../shared/types';
+import { createProduct, getProductDetail, listBrands, listCategories, updateProduct, uploadImage } from './api';
+import VariantEditor from './VariantEditor';
+import type { EditableVariant } from './VariantEditor';
 
 const CATEGORIES: Category[] = ['iphone', 'mac', 'ipad', 'pc'];
 const CONDITIONS: Condition[] = ['yangi', 'ishlatilgan'];
@@ -20,11 +22,16 @@ interface FormState {
   specs: ApiSpec[];
   sortOrder: number;
   isActive: boolean;
+  brandId: string | null;
+  slug: string;
+  options: { name: string; values: string[] }[];
+  variants: EditableVariant[];
 }
 
 const empty: FormState = {
   name: '', category: 'iphone', categoryId: null, condition: 'yangi', conditionNote: '',
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
+  brandId: null, slug: '', options: [], variants: [],
 };
 
 const ProductForm: FC<{
@@ -34,20 +41,32 @@ const ProductForm: FC<{
 }> = ({ initial, onSaved, onCancel }) => {
   const [form, setForm] = useState<FormState>(empty);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [brands, setBrands] = useState<ApiBrand[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => { listCategories().then(setCategories); }, []);
+  useEffect(() => { listBrands().then(setBrands); }, []);
 
   useEffect(() => {
     if (!initial) { setForm(empty); return; }
     getProductDetail(initial.id).then((d) => {
       const gallery = d.images.filter((u) => u !== d.imageUrl);
+      const optionValueMap = new Map<string, { optionName: string; value: string }>();
+      for (const o of d.options) {
+        for (const v of o.values) optionValueMap.set(v.id, { optionName: o.name, value: v.value });
+      }
       setForm({
         name: d.name, category: d.category, categoryId: d.categoryId, condition: d.condition,
         conditionNote: d.conditionNote ?? '', cashPriceUzs: d.cashPriceUzs, oldPriceUzs: d.oldPriceUzs ?? 0,
         description: d.description ?? '', imageUrl: d.imageUrl, images: gallery, specs: d.specs,
         sortOrder: d.sortOrder, isActive: d.isActive,
+        brandId: d.brandId, slug: d.slug ?? '',
+        options: d.options.map((o) => ({ name: o.name, values: o.values.map((v) => v.value) })),
+        variants: d.variants.map((v) => ({
+          sku: v.sku, cashPriceUzs: v.cashPriceUzs, oldPriceUzs: v.oldPriceUzs, imageUrl: v.imageUrl, inStock: v.inStock,
+          optionValues: v.optionValueIds.map((id) => optionValueMap.get(id)).filter((x): x is { optionName: string; value: string } => x !== undefined),
+        })),
       });
     });
   }, [initial]);
@@ -83,6 +102,9 @@ const ProductForm: FC<{
         imageUrl: form.imageUrl, images: form.images,
         specs: form.specs.filter((s) => s.label.trim() !== '' && s.value.trim() !== ''),
         sortOrder: form.sortOrder, isActive: form.isActive,
+        brandId: form.brandId, slug: form.slug || null,
+        options: form.options.filter((o) => o.name.trim() && o.values.length),
+        variants: form.variants.filter((v) => v.cashPriceUzs > 0),
       };
       if (initial) await updateProduct(initial.id, payload);
       else await createProduct(payload);
@@ -101,6 +123,15 @@ const ProductForm: FC<{
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <label className="text-[13px] text-[#6E6E73]">Nomi
           <input className={input} value={form.name} onChange={(e) => set('name', e.target.value)} />
+        </label>
+        <label className="text-[13px] text-[#6E6E73]">Slug (ixtiyoriy)
+          <input className={input} value={form.slug} onChange={(e) => set('slug', e.target.value)} />
+        </label>
+        <label className="text-[13px] text-[#6E6E73]">Brend
+          <select className={input} value={form.brandId ?? ''} onChange={(e) => set('brandId', e.target.value || null)}>
+            <option value="">— tanlang —</option>
+            {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+          </select>
         </label>
         <label className="text-[13px] text-[#6E6E73]">Naqd narx (so'm)
           <input type="number" className={input} value={form.cashPriceUzs} onChange={(e) => set('cashPriceUzs', Number(e.target.value))} />
@@ -170,6 +201,13 @@ const ProductForm: FC<{
         </div>
         <button onClick={() => set('specs', [...form.specs, { label: '', value: '' }])} className="text-[13px] text-[#0071E3] font-semibold mt-2">+ xususiyat qo'shish</button>
       </div>
+
+      <VariantEditor
+        options={form.options}
+        variants={form.variants}
+        onOptionsChange={(next) => set('options', next)}
+        onVariantsChange={(next) => set('variants', next)}
+      />
 
       <label className="mt-4 flex items-center gap-2 text-[14px]">
         <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} />

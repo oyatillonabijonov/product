@@ -1,4 +1,4 @@
-import type { ApiBrand, ApiCategory, ApiProduct, ApiSettings, ApiSpec } from '../../shared/types';
+import type { ApiBrand, ApiCategory, ApiOption, ApiProduct, ApiSettings, ApiSpec, ApiVariant } from '../../shared/types';
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -30,16 +30,32 @@ export async function listProducts(): Promise<ApiProduct[]> {
   return handle(await fetch('/api/admin/products'));
 }
 
+export interface AdminVariantInput {
+  sku?: string | null;
+  cashPriceUzs: number;
+  oldPriceUzs?: number | null;
+  imageUrl?: string | null;
+  inStock: boolean;
+  optionValues: { optionName: string; value: string }[];
+}
+
 export interface AdminProductInput extends Partial<ApiProduct> {
   images?: string[];
   specs?: ApiSpec[];
   description?: string | null;
+  brandId?: string | null;
+  slug?: string | null;
+  options?: { name: string; values: string[] }[];
+  variants?: AdminVariantInput[];
 }
 
 export interface AdminProductDetail extends ApiProduct {
   description: string | null;
   images: string[];
   specs: ApiSpec[];
+  brand: ApiBrand | null;
+  options: ApiOption[];
+  variants: ApiVariant[];
 }
 
 export async function createProduct(p: AdminProductInput): Promise<ApiProduct> {
