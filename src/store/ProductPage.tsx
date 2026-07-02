@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useOutletContext, useParams } from 'react-router-dom';
-import { Send, ShieldCheck, BadgeCheck, ChevronRight } from 'lucide-react';
+import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck } from 'lucide-react';
 import type { InstallmentConfig } from '../data/products';
 import { fetchProductDetail, fetchStore, type ProductDetail } from '../api/store';
 import { calcInstallment, composeLeadMessage, discountPercent, formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
@@ -63,46 +63,66 @@ export default function ProductPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
         <Gallery images={product.images} name={product.name} />
-        <div>
+        <div className="md:sticky md:top-24 md:self-start">
           <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full ${product.condition === 'yangi' ? 'bg-[#EAF3FF] text-[#0071E3]' : 'bg-[#E8F5E9] text-[#1B7A34]'}`}>
             {product.condition === 'yangi' ? t.badgeNew : t.badgeUsed}
           </span>
-          <h1 className="text-[26px] md:text-[36px] font-semibold tracking-[-0.02em] mt-3 mb-2 leading-[1.08]">{product.name}</h1>
-          {product.conditionNote && <p className="text-[14px] text-[#6E6E73] mb-3">{product.conditionNote}</p>}
-          <div className="flex items-center gap-3 mb-5 flex-wrap">
+          <h1 className="text-[32px] md:text-[46px] font-semibold text-[#1D1D1F] tracking-[-0.035em] mt-3 leading-[1.0]">{product.name}</h1>
+          {product.conditionNote && <p className="text-[14px] text-[#6E6E73] mt-2.5">{product.conditionNote}</p>}
+
+          <div className="flex items-baseline gap-2.5 mt-4 flex-wrap">
+            <span className="text-[28px] md:text-[34px] font-semibold text-[#1D1D1F] tracking-[-0.025em] tabular-nums">{formatUzs(product.cashPriceUzs)}</span>
             {product.oldPriceUzs && disc !== null && (
               <>
-                <span className="text-[16px] line-through text-[#B0B0B5]">{formatUzs(product.oldPriceUzs)}</span>
+                <span className="text-[16px] md:text-[18px] line-through text-[#B0B0B5] tabular-nums">{formatUzs(product.oldPriceUzs)}</span>
                 <span className="text-[12px] font-bold px-2 py-0.5 rounded-full bg-[#E8462D] text-white">-{disc}%</span>
               </>
             )}
-            <span className="text-[24px] font-semibold">{formatUzs(product.cashPriceUzs)}</span>
           </div>
 
           {config && result && (
-            <div className="bg-[#F5F5F7] border border-[#ECECEF] rounded-[22px] p-5 mb-4">
-              <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="mt-5 bg-white border border-[#ECECEF] rounded-[24px] p-5 shadow-[--shadow-apple]">
+              <div className="text-[13px] font-semibold text-[#6E6E73] mb-3">{t.calcTerm}</div>
+              <div className="grid grid-cols-3 gap-1 bg-[#F0F0F3] rounded-full p-1">
                 {config.terms.map((x) => (
                   <button
                     key={x.months}
                     onClick={() => setMonths(x.months)}
-                    className={`py-2.5 rounded-xl text-[14px] font-semibold transition-colors ${
-                      x.months === months ? 'bg-[#0071E3] text-white shadow-[0_8px_18px_-10px_rgba(0,113,227,0.7)]' : 'bg-white border border-[#D2D2D7] hover:border-[#0071E3]'
+                    className={`py-2.5 rounded-full text-[14px] font-semibold transition-all duration-200 ${
+                      x.months === months
+                        ? 'bg-white text-[#1D1D1F] shadow-[0_1px_3px_rgba(0,0,0,0.14)]'
+                        : 'text-[#6E6E73] hover:text-[#1D1D1F]'
                     }`}
                   >
                     {x.months} {t.calcMonths}
                   </button>
                 ))}
               </div>
-              <div className="text-[13px] text-[#6E6E73]">{t.calcMonthly}</div>
-              <div className="text-[30px] font-semibold text-[#0071E3] tracking-[-0.01em]">{formatUzs(result.monthly)}</div>
-              <div className="flex justify-between text-[13px] text-[#6E6E73] mt-3 pt-3 border-t border-[#E5E5EA]">
-                <span>{t.calcDownPayment}</span><span className="font-medium text-[#1D1D1F]">{formatUzs(result.downPaymentUzs)}</span>
+
+              <div className="flex items-end justify-between mt-5">
+                <div>
+                  <div className="text-[13px] text-[#6E6E73]">{t.calcMonthly}</div>
+                  <div className="text-[32px] md:text-[34px] font-semibold text-[#0071E3] tracking-[-0.02em] leading-none mt-1">
+                    {formatUzs(result.monthly)}
+                  </div>
+                </div>
+                <span className="text-[12px] text-[#86868B] pb-1">× {months} {t.calcMonths}</span>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-[#F0F0F2] space-y-2 text-[13px]">
+                <div className="flex justify-between">
+                  <span className="text-[#6E6E73]">{t.calcDownPayment}</span>
+                  <span className="font-medium text-[#1D1D1F]">{formatUzs(result.downPaymentUzs)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#6E6E73]">{t.calcTotal}</span>
+                  <span className="font-medium text-[#1D1D1F]">{formatUzs(result.total)}</span>
+                </div>
               </div>
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 mt-4">
             <button onClick={() => order('telegram')} className="flex-1 py-3.5 bg-[#0071E3] text-white font-semibold rounded-full hover:bg-[#0077ED] transition-colors flex items-center justify-center gap-2 shadow-[0_10px_24px_-10px_rgba(0,113,227,0.7)]">
               <Send className="w-5 h-5" /> {t.formSendTelegram}
             </button>
@@ -111,26 +131,30 @@ export default function ProductPage() {
             </button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-[13px] text-[#6E6E73]">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-5 border-t border-[#F0F0F2] text-[13px] text-[#6E6E73]">
             <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-[#1B7A34]" /> {t.heroPill.split('•')[0].trim()}</span>
             <span className="inline-flex items-center gap-1.5"><BadgeCheck className="w-4 h-4 text-[#0071E3]" /> {t.feature2}</span>
+            <span className="inline-flex items-center gap-1.5"><Truck className="w-4 h-4 text-[#0071E3]" /> {t.feature3}</span>
           </div>
         </div>
       </div>
 
       {product.specs.length > 0 && (
         <div className="mt-12 max-w-2xl">
-          <h2 className="text-[20px] font-semibold mb-3">{t.specsTitle}</h2>
-          <table className="w-full text-[14px]">
-            <tbody>
-              {product.specs.map((s, i) => (
-                <tr key={i} className="border-b border-[#F0F0F2]">
-                  <td className="py-2.5 text-[#6E6E73] w-1/2">{s.label}</td>
-                  <td className="py-2.5 text-[#1D1D1F] font-medium">{s.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <h2 className="text-[20px] font-semibold mb-4">{t.specsTitle}</h2>
+          <dl className="bg-white border border-[#ECECEF] rounded-[20px] overflow-hidden shadow-[--shadow-apple]">
+            {product.specs.map((s, i) => (
+              <div
+                key={i}
+                className={`flex items-center gap-4 px-5 py-3.5 text-[14px] ${
+                  i % 2 === 1 ? 'bg-[#FAFAFC]' : 'bg-white'
+                }`}
+              >
+                <dt className="text-[#6E6E73] w-2/5 shrink-0">{s.label}</dt>
+                <dd className="text-[#1D1D1F] font-medium">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       )}
 
