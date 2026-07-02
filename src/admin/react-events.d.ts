@@ -1,4 +1,4 @@
-// TODO: delete this file once @types/react is installed and src/App.tsx framer-motion types are fixed.
+// TODO: delete this file once @types/react is installed and framer-motion prop types are fixed.
 // This project has no `@types/react` dependency (see CLAUDE.md architecture notes —
 // JSX/React usage typechecks today only because `noImplicitAny` is off). The admin
 // components use explicit `React.FormEvent` / `React.ChangeEvent<T>` annotations on

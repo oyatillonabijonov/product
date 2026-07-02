@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
 import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck } from 'lucide-react';
 import type { InstallmentConfig } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
 import type { Translation } from '../locales';
 import { calcInstallment, composeLeadMessage, discountPercent, formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
 import Gallery from './Gallery';
+import LocaleLink from './LocaleLink';
 
 export default function ProductPage({
   t, product, config,
@@ -27,7 +27,7 @@ export default function ProductPage({
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10">
       <nav className="flex items-center gap-1 text-[13px] text-[#86868B] mb-5">
-        <Link to="/" className="hover:text-[#1D1D1F] transition-colors">{t.navCatalog}</Link>
+        <LocaleLink to="/" className="hover:text-[#1D1D1F] transition-colors">{t.navCatalog}</LocaleLink>
         <ChevronRight className="w-3.5 h-3.5" />
         <span className="text-[#1D1D1F] truncate max-w-[220px]">{product.name}</span>
       </nav>

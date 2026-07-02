@@ -35,7 +35,8 @@ export async function loadCategories(env: Env): Promise<ApiCategory[]> {
     const { results } = await env.DB.prepare('SELECT * FROM categories ORDER BY sort_order ASC').all<CategoryRow>();
     if (results.length === 0) throw new Error('empty');
     return results.map(rowToCategory);
-  } catch {
+  } catch (err) {
+    console.error('loadCategories fallback:', err);
     return fallbackCategories;
   }
 }
@@ -47,7 +48,8 @@ export async function loadStore(env: Env): Promise<{ products: Product[]; config
         const { results } = await env.DB.prepare('SELECT * FROM products WHERE is_active = 1 ORDER BY sort_order ASC, created_at ASC').all<ProductRow>();
         if (results.length === 0) throw new Error('empty');
         return results.map(rowToProduct).map(mapProduct);
-      } catch {
+      } catch (err) {
+        console.error('loadStore products fallback:', err);
         return fallbackProducts;
       }
     })(),
@@ -56,12 +58,24 @@ export async function loadStore(env: Env): Promise<{ products: Product[]; config
         const row = await env.DB.prepare('SELECT * FROM settings WHERE id = 1').first<SettingsRow>();
         if (!row) throw new Error('no_settings');
         return mapConfig(rowToSettings(row));
-      } catch {
+      } catch (err) {
+        console.error('loadStore config fallback:', err);
         return fallbackConfig;
       }
     })(),
   ]);
   return { products, config };
+}
+
+export async function loadConfig(env: Env): Promise<InstallmentConfig> {
+  try {
+    const row = await env.DB.prepare('SELECT * FROM settings WHERE id = 1').first<SettingsRow>();
+    if (!row) throw new Error('no_settings');
+    return mapConfig(rowToSettings(row));
+  } catch (err) {
+    console.error('loadConfig fallback:', err);
+    return fallbackConfig;
+  }
 }
 
 export async function loadProductsBy(env: Env, params: { category?: string; q?: string }): Promise<Product[]> {
@@ -73,7 +87,8 @@ export async function loadProductsBy(env: Env, params: { category?: string; q?: 
     sql += ' ORDER BY sort_order ASC, created_at ASC';
     const { results } = await env.DB.prepare(sql).bind(...binds).all<ProductRow>();
     return results.map(rowToProduct).map(mapProduct);
-  } catch {
+  } catch (err) {
+    console.error('loadProductsBy fallback:', err);
     let items = fallbackProducts;
     if (params.category) items = items.filter((p) => fallbackCategoryOf(p) === params.category);
     if (params.q) { const q = params.q.toLowerCase(); items = items.filter((p) => p.name.toLowerCase().includes(q)); }
@@ -86,7 +101,8 @@ export async function loadProductDetail(env: Env, id: string): Promise<ProductDe
     const d = await buildProductDetail(env, id);
     if (!d) throw new Error('not_found');
     return { ...mapProduct(d), oldPriceUzs: d.oldPriceUzs, description: d.description, images: d.images, specs: d.specs };
-  } catch {
+  } catch (err) {
+    console.error('loadProductDetail fallback:', err);
     const p = fallbackProducts.find((x) => x.id === id);
     if (!p) return null;
     return { ...p, oldPriceUzs: p.oldPriceUzs ?? null, description: p.description ?? null, images: p.image ? [p.image, ...(p.gallery ?? [])] : (p.gallery ?? []), specs: p.specs ?? [] };
