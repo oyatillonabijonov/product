@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { getMe, logout } from './api';
+import CategoryList from './CategoryList';
 import Login from './Login';
 import ProductList from './ProductList';
 import SettingsForm from './SettingsForm';
 
-type Tab = 'products' | 'settings';
+type Tab = 'products' | 'settings' | 'categories';
 
 export default function AdminApp() {
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -39,6 +40,14 @@ export default function AdminApp() {
           >
             Sozlamalar
           </button>
+          <button
+            onClick={() => setTab('categories')}
+            className={`px-4 py-2 rounded-full text-[14px] font-semibold ${
+              tab === 'categories' ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F]'
+            }`}
+          >
+            Kategoriyalar
+          </button>
         </div>
         <button
           onClick={async () => {
@@ -51,7 +60,7 @@ export default function AdminApp() {
         </button>
       </header>
       <main className="max-w-[900px] mx-auto px-4 md:px-8 py-8">
-        {tab === 'products' ? <ProductList /> : <SettingsForm />}
+        {tab === 'products' ? <ProductList /> : tab === 'settings' ? <SettingsForm /> : <CategoryList />}
       </main>
     </div>
   );
