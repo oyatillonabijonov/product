@@ -1,6 +1,6 @@
 # Reja 2 — Cloudflare backend (o'qish tomoni) va saytni API'ga ulash (Implementation Plan)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Mahsulotlar va kalkulyator sozlamalarini Cloudflare **D1** bazasidan beruvchi ommaviy API qurish, saytni statik importlardan API'ga o'tkazish va **Yangi/Ishlatilgan** alohida bo'limlarni chiqarish. Backend Cloudflare Pages Functions'da, hammasi bepul tarifda.
 
@@ -53,7 +53,7 @@
 - Consumes: yo'q.
 - Produces: `DB` (D1) va `IMAGES` (R2) bindinglari; `bunx wrangler pages dev` lokal muhiti; `bun run lint` `functions`ni ham tekshiradi.
 
-- [ ] **Step 1: Dev paketlarni qo'shish**
+- [x] **Step 1: Dev paketlarni qo'shish**
 
 Run:
 ```bash
@@ -61,7 +61,7 @@ bun add -d wrangler @cloudflare/workers-types
 ```
 Expected: ikkala paket `devDependencies`ga qo'shiladi.
 
-- [ ] **Step 2: D1 bazasi va R2 bucket yaratish**
+- [x] **Step 2: D1 bazasi va R2 bucket yaratish**
 
 Run:
 ```bash
@@ -70,7 +70,7 @@ bunx wrangler r2 bucket create taqsit-store-images
 ```
 Expected: `d1 create` chiqishida `database_id = "..."` qiymati ko'rinadi — uni keyingi qadamda ishlatasiz. (Agar Cloudflare hisobiga login qilinmagan bo'lsa: `bunx wrangler login`.)
 
-- [ ] **Step 3: `wrangler.toml` yaratish**
+- [x] **Step 3: `wrangler.toml` yaratish**
 
 Create `wrangler.toml` (`database_id`ni 2-qadamdagi haqiqiy qiymatga almashtiring):
 
@@ -89,7 +89,7 @@ binding = "IMAGES"
 bucket_name = "taqsit-store-images"
 ```
 
-- [ ] **Step 4: Functions uchun tsconfig yaratish**
+- [x] **Step 4: Functions uchun tsconfig yaratish**
 
 Create `functions/tsconfig.json`:
 
@@ -111,7 +111,7 @@ Create `functions/tsconfig.json`:
 }
 ```
 
-- [ ] **Step 5: Root tsconfig'ni `src`ga cheklash**
+- [x] **Step 5: Root tsconfig'ni `src`ga cheklash**
 
 `tsconfig.json`ga `include` va `exclude` qo'shing (Functions alohida tsconfig bilan tekshiriladi):
 
@@ -138,7 +138,7 @@ Create `functions/tsconfig.json`:
 }
 ```
 
-- [ ] **Step 6: Lint skriptini ikki tsconfig'ni tekshiradigan qilish**
+- [x] **Step 6: Lint skriptini ikki tsconfig'ni tekshiradigan qilish**
 
 `package.json` `scripts` ichida `lint`ni yangilang:
 
@@ -146,7 +146,7 @@ Create `functions/tsconfig.json`:
     "lint": "tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
 ```
 
-- [ ] **Step 7: `.gitignore`ga wrangler lokal fayllarini qo'shish**
+- [x] **Step 7: `.gitignore`ga wrangler lokal fayllarini qo'shish**
 
 `.gitignore` oxiriga qo'shing (fayl bo'lmasa yarating):
 
@@ -155,7 +155,7 @@ Create `functions/tsconfig.json`:
 .dev.vars
 ```
 
-- [ ] **Step 8: Lint toza ekanini tekshirish**
+- [x] **Step 8: Lint toza ekanini tekshirish**
 
 Run:
 ```bash
@@ -163,7 +163,7 @@ bun run lint
 ```
 Expected: xatosiz (hali `functions/`da ts fayl yo'q, `src` avvalgidek toza).
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add package.json bun.lockb wrangler.toml functions/tsconfig.json tsconfig.json .gitignore
@@ -181,7 +181,7 @@ git commit -m "chore: add cloudflare pages tooling (wrangler, d1, r2)"
 - Consumes: Task 1 `DB` bindingi.
 - Produces: `products` va `settings` jadvallari; NAMUNA qatorlar.
 
-- [ ] **Step 1: Sxema migratsiyasini yozish**
+- [x] **Step 1: Sxema migratsiyasini yozish**
 
 Create `migrations/0001_init.sql`:
 
@@ -207,7 +207,7 @@ CREATE TABLE settings (
 );
 ```
 
-- [ ] **Step 2: NAMUNA ma'lumot migratsiyasini yozish**
+- [x] **Step 2: NAMUNA ma'lumot migratsiyasini yozish**
 
 Create `migrations/0002_seed.sql`:
 
@@ -228,7 +228,7 @@ INSERT INTO products (id, name, category, condition, condition_note, cash_price_
   ('macbook-air-used','MacBook Air (ishlatilgan)',  'mac',    'ishlatilgan', '90% holat',  13900000, '',100, 1, unixepoch());
 ```
 
-- [ ] **Step 3: Migratsiyalarni lokal D1'ga qo'llash**
+- [x] **Step 3: Migratsiyalarni lokal D1'ga qo'llash**
 
 Run:
 ```bash
@@ -236,7 +236,7 @@ bunx wrangler d1 migrations apply taqsit-store-db --local
 ```
 Expected: ikkala migratsiya qo'llanadi, "2 migrations applied" (yoki shunga o'xshash).
 
-- [ ] **Step 4: Lokal ma'lumotni tekshirish**
+- [x] **Step 4: Lokal ma'lumotni tekshirish**
 
 Run:
 ```bash
@@ -244,7 +244,7 @@ bunx wrangler d1 execute taqsit-store-db --local --command "SELECT count(*) AS n
 ```
 Expected: `n = 10`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add migrations/0001_init.sql migrations/0002_seed.sql
@@ -265,7 +265,7 @@ git commit -m "feat: add d1 schema and seed data"
   - `functions/env.ts`: `interface Env { DB: D1Database; IMAGES: R2Bucket; ADMIN_USERNAME: string; ADMIN_PASSWORD_HASH: string; SESSION_SECRET: string }`.
   - `functions/lib/db.ts`: `rowToProduct(row: ProductRow): ApiProduct`, `rowToSettings(row: SettingsRow): ApiSettings`, `ProductRow`, `SettingsRow` tiplari, `json(data, init?)` yordamchisi.
 
-- [ ] **Step 1: Umumiy tiplarni yozish**
+- [x] **Step 1: Umumiy tiplarni yozish**
 
 Create `shared/types.ts`:
 
@@ -297,7 +297,7 @@ export interface ApiSettings {
 }
 ```
 
-- [ ] **Step 2: Env tipini yozish**
+- [x] **Step 2: Env tipini yozish**
 
 Create `functions/env.ts`:
 
@@ -311,7 +311,7 @@ export interface Env {
 }
 ```
 
-- [ ] **Step 3: DB xaritalash yordamchilarini yozish**
+- [x] **Step 3: DB xaritalash yordamchilarini yozish**
 
 Create `functions/lib/db.ts`:
 
@@ -369,7 +369,7 @@ export function json(data: unknown, init?: ResponseInit): Response {
 }
 ```
 
-- [ ] **Step 4: Lint tekshiruvi**
+- [x] **Step 4: Lint tekshiruvi**
 
 Run:
 ```bash
@@ -377,7 +377,7 @@ bun run lint
 ```
 Expected: xatosiz.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add shared/types.ts functions/env.ts functions/lib/db.ts
@@ -397,7 +397,7 @@ git commit -m "feat: add shared api types and d1 mappers"
   - `GET /api/products` → `ApiProduct[]` (faqat `is_active = 1`, `sort_order` bo'yicha).
   - `GET /api/settings` → `ApiSettings`.
 
-- [ ] **Step 1: Products endpointini yozish**
+- [x] **Step 1: Products endpointini yozish**
 
 Create `functions/api/products.ts`:
 
@@ -415,7 +415,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
 };
 ```
 
-- [ ] **Step 2: Settings endpointini yozish**
+- [x] **Step 2: Settings endpointini yozish**
 
 Create `functions/api/settings.ts`:
 
@@ -434,7 +434,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
 };
 ```
 
-- [ ] **Step 3: Lokal Pages dev serverni ishga tushirish**
+- [x] **Step 3: Lokal Pages dev serverni ishga tushirish**
 
 Avval build (Functions D1 bindingi `wrangler pages dev` orqali ishlaydi):
 ```bash
@@ -446,7 +446,7 @@ bunx wrangler pages dev --local
 ```
 Expected: `http://localhost:8788` da server ko'tariladi.
 
-- [ ] **Step 4: API'ni curl bilan tekshirish**
+- [x] **Step 4: API'ni curl bilan tekshirish**
 
 Run:
 ```bash
@@ -455,7 +455,7 @@ curl -s http://localhost:8788/api/settings
 ```
 Expected: `products` — 10 elementli JSON massiv (`imageUrl: ""`, `cashPriceUzs` sonlar bilan); `settings` — `{"downPaymentPercent":20,"usdToUzs":12600,"terms":[...]}`.
 
-- [ ] **Step 5: Lint va commit**
+- [x] **Step 5: Lint va commit**
 
 ```bash
 bun run lint
@@ -474,7 +474,7 @@ git commit -m "feat: public read api for products and settings"
 - Consumes: `ApiProduct`/`ApiSettings` (`shared/types`), `Product`/`InstallmentConfig` (`src/data/products`), lokal `products`/`installmentConfig` (fallback).
 - Produces: `fetchStore(): Promise<StoreData>` bu yerda `StoreData = { products: Product[]; config: InstallmentConfig }`.
 
-- [ ] **Step 1: `store.ts`ni yozish**
+- [x] **Step 1: `store.ts`ni yozish**
 
 Create `src/api/store.ts`:
 
@@ -523,7 +523,7 @@ export async function fetchStore(): Promise<StoreData> {
 }
 ```
 
-- [ ] **Step 2: Lint tekshiruvi**
+- [x] **Step 2: Lint tekshiruvi**
 
 Run:
 ```bash
@@ -531,7 +531,7 @@ bun run lint
 ```
 Expected: xatosiz.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/api/store.ts
@@ -552,7 +552,7 @@ git commit -m "feat: frontend store data loader with fallback"
   - `Calculator` proplari: avvalgilariga qo'shimcha `products: Product[]; config: InstallmentConfig`.
   - `ApplicationForm` proplari: avvalgilariga qo'shimcha `products: Product[]; config: InstallmentConfig`.
 
-- [ ] **Step 1: `Catalog.tsx`ni proplar va holat belgisiga o'tkazish**
+- [x] **Step 1: `Catalog.tsx`ni proplar va holat belgisiga o'tkazish**
 
 `src/components/Catalog.tsx` faylini to'liq quyidagiga almashtiring:
 
@@ -656,7 +656,7 @@ export default function Catalog({
 }
 ```
 
-- [ ] **Step 2: `Calculator.tsx`ni proplarga o'tkazish**
+- [x] **Step 2: `Calculator.tsx`ni proplarga o'tkazish**
 
 `src/components/Calculator.tsx`da 4–5-qatordagi importni o'zgartiring — `products`, `installmentConfig`ni statik importdan olib tashlab, proplardan oling. Faqat quyidagi ikki joyni tahrirlang:
 
@@ -696,7 +696,7 @@ export default function Calculator({
 
 Va JSX ichidagi `installmentConfig.terms`ni `config.terms`ga almashtiring (muddat tugmalari `.map` qismida).
 
-- [ ] **Step 3: `ApplicationForm.tsx`ni proplarga o'tkazish**
+- [x] **Step 3: `ApplicationForm.tsx`ni proplarga o'tkazish**
 
 `src/components/ApplicationForm.tsx`da 4-qatordagi `import { products, installmentConfig } from '../data/products';`ni olib tashlab, o'rniga tip importini qo'shing:
 ```tsx
@@ -722,7 +722,7 @@ export default function ApplicationForm({
 
 `buildMessage` ichida `installmentConfig.terms`ni `config.terms`ga, `calcInstallment(product, selectedTerm, installmentConfig)`ni `calcInstallment(product, selectedTerm, config)`ga almashtiring. JSX'dagi `products.map(...)` prop `products`ni ishlatadi (o'zgarmaydi).
 
-- [ ] **Step 4: Lint (App hali yangilanmagani uchun xato bo'lishi mumkin — keyingi taskda tuzatiladi)**
+- [x] **Step 4: Lint (App hali yangilanmagani uchun xato bo'lishi mumkin — keyingi taskda tuzatiladi)**
 
 Run:
 ```bash
@@ -741,7 +741,7 @@ Expected: `App.tsx`da `Catalog`/`Calculator`/`ApplicationForm`ga yangi proplar b
 - Consumes: `fetchStore` (Task 5), yangilangan komponent proplari (Task 6).
 - Produces: ishlaydigan sayt — ma'lumot API'dan (yoki fallback), Yangi/Ishlatilgan alohida bo'limlar.
 
-- [ ] **Step 1: Locales'ga yangi kalitlarni qo'shish (4 tilda)**
+- [x] **Step 1: Locales'ga yangi kalitlarni qo'shish (4 tilda)**
 
 `src/locales.ts`da har bir til blokiga (`catalogSelect` qatoridan keyin) quyidagi kalitlarni qo'shing.
 
@@ -785,7 +785,7 @@ Expected: `App.tsx`da `Catalog`/`Calculator`/`ApplicationForm`ga yangi proplar b
     badgeUsed: "Ишлатилган",
 ```
 
-- [ ] **Step 2: App'da ma'lumotni yuklab, proplarni uzatish**
+- [x] **Step 2: App'da ma'lumotni yuklab, proplarni uzatish**
 
 `src/App.tsx`da 15-qatordagi `import { products } from './data/products';`ni quyidagiga almashtiring:
 ```tsx
@@ -808,7 +808,7 @@ Komponent tepasida (26–27-qatordagi state yonida) ma'lumot state'ini qo'shing 
 ```
 > Eslatma: agar faylda allaqachon `const [selectedProductId, setSelectedProductId] = useState(products[0].id);` bo'lsa, uni yuqoridagi bo'sh string variantiga almashtiring (endi `products` importi yo'q).
 
-- [ ] **Step 3: Katalog/Kalkulyator/Forma render qismini yangilash**
+- [x] **Step 3: Katalog/Kalkulyator/Forma render qismini yangilash**
 
 `src/App.tsx`da 454–471-qatorlardagi bloklarni quyidagiga almashtiring (ma'lumot yuklanmaguncha `store` `null` bo'ladi):
 ```tsx
@@ -855,7 +855,7 @@ Komponent tepasida (26–27-qatordagi state yonida) ma'lumot state'ini qo'shing 
 ```
 > Agar mavjud `<Calculator>` blokida qo'shimcha proplar (masalan `setProductId`/`setMonths`) boshqa nomlarda bo'lsa, ularni saqlab qoling — faqat `products={store.products}` va `config={store.config}` qo'shilishi va statik importlar olib tashlanishi muhim.
 
-- [ ] **Step 4: Lint va build**
+- [x] **Step 4: Lint va build**
 
 Run:
 ```bash
@@ -863,7 +863,7 @@ bun run lint && bun run build
 ```
 Expected: xatosiz — barcha proplar mos, statik import qoldiqlari yo'q.
 
-- [ ] **Step 5: Lokal to'liq oqimni tekshirish (Pages dev)**
+- [x] **Step 5: Lokal to'liq oqimni tekshirish (Pages dev)**
 
 Run:
 ```bash
@@ -872,7 +872,7 @@ bunx wrangler pages dev --local
 ```
 Brauzerda `http://localhost:8788`ni oching. Expected: "Yangi mahsulotlar" va "Ishlatilgan mahsulotlar" bo'limlari ko'rinadi (belgilar bilan), kalkulyator D1 sozlamalari bilan hisoblaydi.
 
-- [ ] **Step 6: Testlar hamon o'tishini tekshirish**
+- [x] **Step 6: Testlar hamon o'tishini tekshirish**
 
 Run:
 ```bash
@@ -880,7 +880,7 @@ bun run test
 ```
 Expected: Reja 1 testlari PASS (o'zgarmagan).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/App.tsx src/locales.ts src/components/Catalog.tsx src/components/Calculator.tsx src/components/ApplicationForm.tsx
@@ -897,7 +897,7 @@ git commit -m "feat: wire site to api with separate new/used catalog sections"
 - Consumes: `wrangler.toml`, migratsiyalar.
 - Produces: Cloudflare'da ishlaydigan sayt + to'ldirilgan D1.
 
-- [ ] **Step 1: Ishlab chiqarish (remote) D1'ga migratsiya qo'llash**
+- [x] **Step 1: Ishlab chiqarish (remote) D1'ga migratsiya qo'llash**
 
 Run:
 ```bash
@@ -905,7 +905,7 @@ bunx wrangler d1 migrations apply taqsit-store-db --remote
 ```
 Expected: 2 migratsiya remote bazaga qo'llanadi.
 
-- [ ] **Step 2: Deploy**
+- [x] **Step 2: Deploy**
 
 Run:
 ```bash
@@ -914,7 +914,7 @@ bunx wrangler pages deploy dist --project-name taqsit-store
 ```
 Expected: deploy tugaydi, `*.pages.dev` URL beriladi. (Birinchi marta loyiha yaratishni so'rasa, `taqsit-store` nomi bilan tasdiqlang.)
 
-- [ ] **Step 3: Jonli API'ni tekshirish**
+- [x] **Step 3: Jonli API'ni tekshirish**
 
 Run (`<URL>`ni deploy bergan manzilga almashtiring):
 ```bash
@@ -922,7 +922,7 @@ curl -s https://<URL>/api/products | head -c 200
 ```
 Expected: 10 elementli JSON massiv.
 
-- [ ] **Step 4: Commit (agar konfiguratsiya o'zgargan bo'lsa)**
+- [x] **Step 4: Commit (agar konfiguratsiya o'zgargan bo'lsa)**
 
 ```bash
 git add -A

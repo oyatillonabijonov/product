@@ -1,6 +1,6 @@
 # Reja 1 — Kalkulyator mantig'i va ma'lumot modeli (Implementation Plan)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Kalkulyator mantig'ini admin-sozlanadigan **foizli boshlang'ich to'lov** + **to'liq narxga ustama** modeliga o'tkazish va vitest bilan testlar bilan qotirish; keyingi rejalar (backend, admin) uchun umumiy tiplarni tayyorlash.
 
@@ -45,7 +45,7 @@ Iste'molchilar (`Calculator.tsx`, `Catalog.tsx`, `ApplicationForm.tsx`) `calcIns
 - Consumes: yo'q.
 - Produces: `bun run test` buyrug'i — vitest'ni bir marta ishga tushiradi (`vitest run`).
 
-- [ ] **Step 1: Vitest'ni dev-paket sifatida qo'shish**
+- [x] **Step 1: Vitest'ni dev-paket sifatida qo'shish**
 
 Run:
 ```bash
@@ -53,7 +53,7 @@ bun add -d vitest
 ```
 Expected: `package.json` `devDependencies` ichida `vitest` paydo bo'ladi, `bun.lockb` yangilanadi.
 
-- [ ] **Step 2: `test` skriptini qo'shish**
+- [x] **Step 2: `test` skriptini qo'shish**
 
 `package.json` ichidagi `scripts` blokiga `test` qatorini qo'shing:
 
@@ -68,7 +68,7 @@ Expected: `package.json` `devDependencies` ichida `vitest` paydo bo'ladi, `bun.l
   },
 ```
 
-- [ ] **Step 3: Vitest config faylini yaratish**
+- [x] **Step 3: Vitest config faylini yaratish**
 
 Create `vitest.config.ts`:
 
@@ -83,7 +83,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 4: Bo'sh holatda testlar ishga tushishini tekshirish**
+- [x] **Step 4: Bo'sh holatda testlar ishga tushishini tekshirish**
 
 Run:
 ```bash
@@ -91,7 +91,7 @@ bun run test
 ```
 Expected: vitest ishga tushadi va "No test files found" (yoki shunga o'xshash) xabari bilan xatosiz tugaydi. (Hali test fayli yo'q.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add package.json bun.lockb vitest.config.ts
@@ -117,7 +117,7 @@ git commit -m "chore: add vitest test runner"
   - `InstallmentResult`: `{ total: number; downPaymentUzs: number; monthly: number }`
   - `lowestMonthly(product: Product, config: InstallmentConfig): number`
 
-- [ ] **Step 1: Failing testlarni yozish**
+- [x] **Step 1: Failing testlarni yozish**
 
 Create `src/lib/installment.test.ts`:
 
@@ -187,7 +187,7 @@ describe('formatUzs', () => {
 });
 ```
 
-- [ ] **Step 2: Testni ishga tushirib, muvaffaqiyatsizligiga ishonch hosil qilish**
+- [x] **Step 2: Testni ishga tushirib, muvaffaqiyatsizligiga ishonch hosil qilish**
 
 Run:
 ```bash
@@ -195,7 +195,7 @@ bun run test
 ```
 Expected: FAIL — `downPaymentPercent` tipi mavjud emas / `calcInstallment` eski `downPaymentUsd` bilan hisoblab, `total` va `downPaymentUzs` kutilganidan farq qiladi.
 
-- [ ] **Step 3: Tiplar va lokal ma'lumotni yangilash**
+- [x] **Step 3: Tiplar va lokal ma'lumotni yangilash**
 
 `src/data/products.ts` faylini to'liq quyidagiga almashtiring:
 
@@ -261,7 +261,7 @@ export const products: Product[] = [
 ];
 ```
 
-- [ ] **Step 4: `calcInstallment`ni foizli modelga o'tkazish**
+- [x] **Step 4: `calcInstallment`ni foizli modelga o'tkazish**
 
 `src/lib/installment.ts` ichidagi `calcInstallment` funksiyasini quyidagiga almashtiring (qolgan funksiyalar — `lowestMonthly`, `formatUzs`, `composeLeadMessage`, `telegramShareUrl`, `whatsappUrl` — o'zgarmaydi):
 
@@ -278,7 +278,7 @@ export function calcInstallment(
 }
 ```
 
-- [ ] **Step 5: Testni ishga tushirib, o'tishini tekshirish**
+- [x] **Step 5: Testni ishga tushirib, o'tishini tekshirish**
 
 Run:
 ```bash
@@ -286,7 +286,7 @@ bun run test
 ```
 Expected: PASS — barcha 5 test o'tadi.
 
-- [ ] **Step 6: Tип tekshiruvi va build**
+- [x] **Step 6: Tип tekshiruvi va build**
 
 Run:
 ```bash
@@ -294,7 +294,7 @@ bun run lint && bun run build
 ```
 Expected: `tsc --noEmit` xatosiz, `vite build` muvaffaqiyatli. (Iste'molchilar `downPaymentUsd`ga to'g'ridan-to'g'ri murojaat qilmaydi, shuning uchun kompilyatsiya buzilmaydi.)
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/data/products.ts src/lib/installment.ts src/lib/installment.test.ts

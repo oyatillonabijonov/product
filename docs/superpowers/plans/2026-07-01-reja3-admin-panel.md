@@ -1,6 +1,6 @@
 # Reja 3 — Admin panel (auth + yozish API + UI) (Implementation Plan)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Login+parol bilan himoyalangan admin panel qurish: admin mahsulotlarni qo'shadi/tahrirlaydi/o'chiradi, rasm yuklaydi (R2), boshlang'ich foizi/kurs/muddat ustamalarini boshqaradi. Hammasi Cloudflare bepul tarifda.
 
@@ -59,14 +59,14 @@
   - `sessionCookie(token: string, ttlSeconds: number): string`
   - `clearedSessionCookie(): string`
 
-- [ ] **Step 1: Vitest include'ini kengaytirish**
+- [x] **Step 1: Vitest include'ini kengaytirish**
 
 `vitest.config.ts`da `include`ni yangilang:
 ```ts
     include: ['src/**/*.test.ts', 'functions/**/*.test.ts'],
 ```
 
-- [ ] **Step 2: Failing testni yozish**
+- [x] **Step 2: Failing testni yozish**
 
 Create `functions/lib/auth.test.ts`:
 ```ts
@@ -112,7 +112,7 @@ describe('getCookie', () => {
 });
 ```
 
-- [ ] **Step 3: Testni ishga tushirib, muvaffaqiyatsizligini ko'rish**
+- [x] **Step 3: Testni ishga tushirib, muvaffaqiyatsizligini ko'rish**
 
 Run:
 ```bash
@@ -120,7 +120,7 @@ bun run test
 ```
 Expected: FAIL — `./auth` moduli yo'q.
 
-- [ ] **Step 4: `auth.ts`ni yozish**
+- [x] **Step 4: `auth.ts`ni yozish**
 
 Create `functions/lib/auth.ts`:
 ```ts
@@ -223,7 +223,7 @@ export function clearedSessionCookie(): string {
 }
 ```
 
-- [ ] **Step 5: Testni ishga tushirib o'tishini ko'rish**
+- [x] **Step 5: Testni ishga tushirib o'tishini ko'rish**
 
 Run:
 ```bash
@@ -231,7 +231,7 @@ bun run test
 ```
 Expected: PASS — auth testlari va Reja 1 testlari o'tadi.
 
-- [ ] **Step 6: Lint va commit**
+- [x] **Step 6: Lint va commit**
 
 ```bash
 bun run lint
@@ -254,7 +254,7 @@ git commit -m "feat: session auth library with hmac-signed cookies"
   - `ProductInput` = `Omit<ApiProduct, 'sortOrder'> & { sortOrder: number }` (barcha maydonlar tekshirilgan).
   - `ValidationError extends Error`.
 
-- [ ] **Step 1: `validate.ts`ni yozish**
+- [x] **Step 1: `validate.ts`ni yozish**
 
 Create `functions/lib/validate.ts`:
 ```ts
@@ -336,7 +336,7 @@ export function parseSettingsInput(body: unknown): ApiSettings {
 }
 ```
 
-- [ ] **Step 2: Lint va commit**
+- [x] **Step 2: Lint va commit**
 
 ```bash
 bun run lint
@@ -359,7 +359,7 @@ git commit -m "feat: input validation for admin api"
   - `POST /api/admin/logout` → cookie tozalaydi.
   - `GET /api/admin/me` → `{ username }`.
 
-- [ ] **Step 1: Middleware'ni yozish**
+- [x] **Step 1: Middleware'ni yozish**
 
 Create `functions/api/admin/_middleware.ts`:
 ```ts
@@ -382,7 +382,7 @@ export const onRequest: PagesFunction<Env, string, { username: string }> = async
 };
 ```
 
-- [ ] **Step 2: Login'ni yozish**
+- [x] **Step 2: Login'ni yozish**
 
 Create `functions/api/admin/login.ts`:
 ```ts
@@ -408,7 +408,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 };
 ```
 
-- [ ] **Step 3: Logout va me'ni yozish**
+- [x] **Step 3: Logout va me'ni yozish**
 
 Create `functions/api/admin/logout.ts`:
 ```ts
@@ -431,7 +431,7 @@ export const onRequestGet: PagesFunction<Env, string, { username: string }> = as
 };
 ```
 
-- [ ] **Step 4: Lokal tekshiruv (secrets bilan)**
+- [x] **Step 4: Lokal tekshiruv (secrets bilan)**
 
 `.dev.vars` faylini yarating (repoga kirmaydi — `.gitignore`da):
 ```
@@ -454,7 +454,7 @@ curl -s -b cookie.txt http://localhost:8788/api/admin/me
 ```
 Expected: birinchi `{"ok":true}`, ikkinchi `{"username":"admin"}`. Noto'g'ri parol → `401 invalid_credentials`.
 
-- [ ] **Step 5: Lint va commit**
+- [x] **Step 5: Lint va commit**
 
 ```bash
 bun run lint
@@ -477,7 +477,7 @@ git commit -m "feat: admin auth endpoints (login, logout, me, guard)"
   - `PUT /api/admin/products/:id` → yangilaydi.
   - `DELETE /api/admin/products/:id` → o'chiradi.
 
-- [ ] **Step 1: List + Create'ni yozish**
+- [x] **Step 1: List + Create'ni yozish**
 
 Create `functions/api/admin/products.ts`:
 ```ts
@@ -521,7 +521,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 };
 ```
 
-- [ ] **Step 2: Update + Delete'ni yozish**
+- [x] **Step 2: Update + Delete'ni yozish**
 
 Create `functions/api/admin/products/[id].ts`:
 ```ts
@@ -565,7 +565,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ env, params }) => {
 };
 ```
 
-- [ ] **Step 3: Lokal tekshiruv**
+- [x] **Step 3: Lokal tekshiruv**
 
 `bunx wrangler pages dev --local` ishlab turganda (Task 3 cookie.txt bilan):
 ```bash
@@ -575,7 +575,7 @@ curl -s -b cookie.txt http://localhost:8788/api/admin/products | grep -c '"id"'
 ```
 Expected: birinchi 201 va yangi mahsulot JSON; ikkinchi — mahsulotlar soni (11+). Cookie'siz `POST` → `401`.
 
-- [ ] **Step 4: Lint va commit**
+- [x] **Step 4: Lint va commit**
 
 ```bash
 bun run lint
@@ -597,7 +597,7 @@ git commit -m "feat: admin product crud api"
   - `POST /api/admin/upload` (multipart, `file` maydoni) → `{ imageUrl }`.
   - `GET /images/*` → R2'dan rasm.
 
-- [ ] **Step 1: Settings PUT'ni yozish**
+- [x] **Step 1: Settings PUT'ni yozish**
 
 Create `functions/api/admin/settings.ts`:
 ```ts
@@ -622,7 +622,7 @@ export const onRequestPut: PagesFunction<Env> = async ({ request, env }) => {
 };
 ```
 
-- [ ] **Step 2: Upload'ni yozish**
+- [x] **Step 2: Upload'ni yozish**
 
 Create `functions/api/admin/upload.ts`:
 ```ts
@@ -651,7 +651,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 };
 ```
 
-- [ ] **Step 3: Rasm berish route'ini yozish**
+- [x] **Step 3: Rasm berish route'ini yozish**
 
 Create `functions/images/[[path]].ts`:
 ```ts
@@ -670,7 +670,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, params }) => {
 };
 ```
 
-- [ ] **Step 4: Lokal tekshiruv**
+- [x] **Step 4: Lokal tekshiruv**
 
 `bunx wrangler pages dev --local` va Task 3 cookie bilan:
 ```bash
@@ -680,7 +680,7 @@ curl -s http://localhost:8788/api/settings
 ```
 Expected: PUT `{"downPaymentPercent":25,...}`; ommaviy `settings` yangilangan qiymatni qaytaradi.
 
-- [ ] **Step 5: Lint va commit**
+- [x] **Step 5: Lint va commit**
 
 ```bash
 bun run lint
@@ -703,7 +703,7 @@ git commit -m "feat: admin settings, image upload (r2) and image serving"
   - `/admin` yo'li `AdminApp`ni render qiladi.
   - `src/admin/api.ts`: `adminGet<T>(path)`, `adminSend<T>(method, path, body)`, `adminUpload(file): Promise<{ imageUrl: string }>`, `login(u,p)`, `logout()`, `getMe()`.
 
-- [ ] **Step 1: SPA fallback qo'shish**
+- [x] **Step 1: SPA fallback qo'shish**
 
 Create `public/_redirects`:
 ```
@@ -711,7 +711,7 @@ Create `public/_redirects`:
 ```
 > Functions (`/api/*`, `/images/*`) bu qoidadan oldin ishlaydi, shuning uchun ular ta'sirlanmaydi.
 
-- [ ] **Step 2: Admin API yordamchisini yozish**
+- [x] **Step 2: Admin API yordamchisini yozish**
 
 Create `src/admin/api.ts`:
 ```ts
@@ -792,7 +792,7 @@ export async function uploadImage(file: File): Promise<{ imageUrl: string }> {
 }
 ```
 
-- [ ] **Step 3: `main.tsx`da yo'lni tekshirish**
+- [x] **Step 3: `main.tsx`da yo'lni tekshirish**
 
 `src/main.tsx`ni quyidagiga almashtiring:
 ```tsx
@@ -809,7 +809,7 @@ createRoot(document.getElementById('root')!).render(
 );
 ```
 
-- [ ] **Step 4: Vaqtinchalik AdminApp zaglushkasi (build o'tishi uchun)**
+- [x] **Step 4: Vaqtinchalik AdminApp zaglushkasi (build o'tishi uchun)**
 
 Create `src/admin/AdminApp.tsx` (Task 7'da to'ldiriladi):
 ```tsx
@@ -818,14 +818,14 @@ export default function AdminApp() {
 }
 ```
 
-- [ ] **Step 5: Lint va build**
+- [x] **Step 5: Lint va build**
 
 ```bash
 bun run lint && bun run build
 ```
 Expected: xatosiz.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add public/_redirects src/main.tsx src/admin/api.ts src/admin/AdminApp.tsx
@@ -844,7 +844,7 @@ git commit -m "feat: spa routing and admin api client"
 - Consumes: `src/admin/api.ts`.
 - Produces: sessiya bo'lsa dashboard (Products/Settings tablar), bo'lmasa Login. `ProductList`/`SettingsForm` Task 8–9'da yaratiladi.
 
-- [ ] **Step 1: Login komponentini yozish**
+- [x] **Step 1: Login komponentini yozish**
 
 Create `src/admin/Login.tsx`:
 ```tsx
@@ -902,7 +902,7 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
 }
 ```
 
-- [ ] **Step 2: AdminApp qobig'ini yozish**
+- [x] **Step 2: AdminApp qobig'ini yozish**
 
 `src/admin/AdminApp.tsx`ni to'liq almashtiring:
 ```tsx
@@ -966,7 +966,7 @@ export default function AdminApp() {
 }
 ```
 
-- [ ] **Step 3: Commit (build Task 8–9'dan keyin toza bo'ladi)**
+- [x] **Step 3: Commit (build Task 8–9'dan keyin toza bo'ladi)**
 
 ```bash
 git add src/admin/AdminApp.tsx src/admin/Login.tsx
@@ -985,7 +985,7 @@ git commit -m "feat: admin login and dashboard shell"
 - Consumes: `src/admin/api.ts`, `ApiProduct` (`shared/types`).
 - Produces: mahsulotlar ro'yxati (tahrir/o'chir/yashir), qo'shish/tahrir formasi (rasm yuklash bilan).
 
-- [ ] **Step 1: ProductForm'ni yozish**
+- [x] **Step 1: ProductForm'ni yozish**
 
 Create `src/admin/ProductForm.tsx`:
 ```tsx
@@ -1139,7 +1139,7 @@ export default function ProductForm({
 }
 ```
 
-- [ ] **Step 2: ProductList'ni yozish**
+- [x] **Step 2: ProductList'ni yozish**
 
 Create `src/admin/ProductList.tsx`:
 ```tsx
@@ -1229,7 +1229,7 @@ export default function ProductList() {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/admin/ProductList.tsx src/admin/ProductForm.tsx
@@ -1247,7 +1247,7 @@ git commit -m "feat: admin product list and form with image upload"
 - Consumes: `src/admin/api.ts`, `ApiSettings`/`Term` (`shared/types`), `calcInstallment`-ga o'xshash lokal hisob (oldindan ko'rish uchun).
 - Produces: boshlang'ich foizi/kurs/muddatlarni tahrirlash + misol narxda oylik to'lov oldindan ko'rish.
 
-- [ ] **Step 1: SettingsForm'ni yozish**
+- [x] **Step 1: SettingsForm'ni yozish**
 
 Create `src/admin/SettingsForm.tsx`:
 ```tsx
@@ -1376,7 +1376,7 @@ export default function SettingsForm() {
 }
 ```
 
-- [ ] **Step 2: Lint va build**
+- [x] **Step 2: Lint va build**
 
 Run:
 ```bash
@@ -1384,7 +1384,7 @@ bun run lint && bun run build
 ```
 Expected: xatosiz (barcha admin komponentlari mavjud).
 
-- [ ] **Step 3: Lokal to'liq oqim tekshiruvi**
+- [x] **Step 3: Lokal to'liq oqim tekshiruvi**
 
 Run:
 ```bash
@@ -1392,7 +1392,7 @@ bun run build && bunx wrangler pages dev --local
 ```
 Brauzerda `http://localhost:8788/admin`ni oching. Expected: login sahifasi → kirish → mahsulot qo'shish/tahrir/o'chir, rasm yuklash, sozlamalarni saqlash. Ommaviy sayt (`/`) yangilangan ma'lumotni ko'rsatadi.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/admin/SettingsForm.tsx
@@ -1409,7 +1409,7 @@ git commit -m "feat: admin settings form with live preview"
 - Consumes: barcha admin API'lar.
 - Produces: jonli, himoyalangan admin panel.
 
-- [ ] **Step 1: Ishlab chiqarish secretlarini o'rnatish**
+- [x] **Step 1: Ishlab chiqarish secretlarini o'rnatish**
 
 Parol hashini oling (masalan `MyStrongPass!`):
 ```bash
@@ -1423,7 +1423,7 @@ bunx wrangler pages secret put SESSION_SECRET --project-name taqsit-store
 ```
 > `SESSION_SECRET` — uzun tasodifiy satr (masalan `openssl rand -hex 32`).
 
-- [ ] **Step 2: Deploy**
+- [x] **Step 2: Deploy**
 
 Run:
 ```bash
@@ -1432,11 +1432,11 @@ bunx wrangler pages deploy dist --project-name taqsit-store
 ```
 Expected: deploy tugaydi.
 
-- [ ] **Step 3: Jonli admin tekshiruvi**
+- [x] **Step 3: Jonli admin tekshiruvi**
 
 Brauzerda `https://<URL>/admin`ni oching. Expected: login → panel ishlaydi; noto'g'ri parol rad etiladi; cookie'siz `/api/admin/products` → 401.
 
-- [ ] **Step 4: Commit (agar o'zgarish bo'lsa)**
+- [x] **Step 4: Commit (agar o'zgarish bo'lsa)**
 
 ```bash
 git add -A

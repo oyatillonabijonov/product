@@ -1,6 +1,6 @@
 # Reja A2 — Storefront frontend (routing + sahifalar) (Implementation Plan)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Bir sahifali saytni React Router bilan ko'p sahifali, olcha tuzilishidagi (toza palitra) storefront'ga aylantirish: umumiy shell, bosh sahifa, kategoriya sahifasi, mahsulot sahifasi (galereya + kalkulyator + Telegram buyurtma), qidiruv.
 
@@ -50,7 +50,7 @@ Mavjud Hero/kartalar yaxshilanishi (commit qilinmagan, ishchi nusxada `src/App.t
 - Consumes: mavjud `translations`, `LangKey`, `<AdminApp>`.
 - Produces: ishlaydigan routing — `/` → HomePage, `/category/:slug` → CategoryPage, `/product/:id` → ProductPage, `/search` → SearchPage, `/admin*` → AdminApp, `*` → NotFoundPage. Til holati `StoreLayout`da (`useState`), `Outlet context` orqali sahifalarga uzatiladi: `useOutletContext<{ t: Translation; lang: LangKey }>()`.
 
-- [ ] **Step 1: react-router-dom qo'shish**
+- [x] **Step 1: react-router-dom qo'shish**
 
 Run:
 ```bash
@@ -58,7 +58,7 @@ bun add react-router-dom
 ```
 Expected: `react-router-dom` (v7) `dependencies`ga qo'shiladi.
 
-- [ ] **Step 2: Vaqtinchalik bo'sh sahifalarni yaratish**
+- [x] **Step 2: Vaqtinchalik bo'sh sahifalarni yaratish**
 
 Create `src/store/HomePage.tsx`, `src/store/CategoryPage.tsx`, `src/store/ProductPage.tsx`, `src/store/SearchPage.tsx` — har biri (keyingi tasklarda to'ldiriladi):
 ```tsx
@@ -83,7 +83,7 @@ export default function NotFoundPage() {
 }
 ```
 
-- [ ] **Step 3: Footer'ni ajratish**
+- [x] **Step 3: Footer'ni ajratish**
 
 `src/App.tsx`dagi mavjud `{/* Footer */}` bo'limi markup'ini (footer `<footer>...</footer>` bloki) `src/store/Footer.tsx`ga ko'chiring:
 ```tsx
@@ -99,7 +99,7 @@ export default function Footer({ t }: { t: Translation }) {
 ```
 > Refaktor: App.tsx footer markup'i o'zgarmaydi, faqat ko'chiriladi. `t` prop orqali uzatiladi.
 
-- [ ] **Step 4: Header'ni yaratish (mavjud header markup'idan)**
+- [x] **Step 4: Header'ni yaratish (mavjud header markup'idan)**
 
 `src/App.tsx`dagi `{/* Header */}` bloki markup'ini asos qilib `src/store/Header.tsx` yarating: logo + **"Katalog"** tugmasi (kategoriyalar dropdown — Task 3'da to'ldiriladi, hozir `/`ga link), **qidiruv** input (Enter → `navigate('/search?q=...')`), til selektori (mavjud markup), va vizual ❤/🛒 ikonalar (`lucide-react` `Heart`, `ShoppingCart`; `title="Tez orada"`, `disabled`/no-op). Logo `<Link to="/">`.
 
@@ -172,7 +172,7 @@ export default function Header({
 }
 ```
 
-- [ ] **Step 5: StoreLayout'ni yaratish**
+- [x] **Step 5: StoreLayout'ni yaratish**
 
 Create `src/store/StoreLayout.tsx`:
 ```tsx
@@ -210,7 +210,7 @@ export default function StoreLayout() {
 }
 ```
 
-- [ ] **Step 6: `App.tsx` ni routerga aylantirish**
+- [x] **Step 6: `App.tsx` ni routerga aylantirish**
 
 `src/App.tsx` faylini to'liq quyidagiga almashtiring (mavjud landing markup HomePage'ga Task 3'da ko'chiriladi; hozir router skeleti):
 ```tsx
@@ -243,7 +243,7 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 7: `main.tsx` ni soddalashtirish**
+- [x] **Step 7: `main.tsx` ni soddalashtirish**
 
 `src/main.tsx` faylini quyidagiga almashtiring (pathname tekshiruvi endi kerak emas — router hal qiladi):
 ```tsx
@@ -259,7 +259,7 @@ createRoot(document.getElementById('root')!).render(
 );
 ```
 
-- [ ] **Step 8: Lint, build, test**
+- [x] **Step 8: Lint, build, test**
 
 Run:
 ```bash
@@ -269,7 +269,7 @@ Expected: xatosiz; 10/10 test. (Sahifalar hali bo'sh — routing skeleti ishlayd
 
 > Eslatma: bu task mavjud landing markup'ini App.tsx'dan olib tashlaydi (footer Footer.tsx'ga, header Header.tsx asosiga). Landing tarkibi (Hero, kartalar, HowItWorks, Conditions, Faq) Task 3'da HomePage'ga ko'chiriladi. Oraliqda bosh sahifa "Bosh sahifa (A2)" placeholder ko'rsatadi — bu **kutilgan**.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add package.json bun.lockb src/main.tsx src/App.tsx src/store/
@@ -289,7 +289,7 @@ git commit -m "feat: react-router shell with store layout, header and routes"
   - `src/api/store.ts`: `fetchCategories(): Promise<ApiCategory[]>`, `fetchProductsBy(params: { category?: string; q?: string }): Promise<Product[]>`, `fetchProductDetail(id: string): Promise<ProductDetail | null>` (bu yerda `ProductDetail = Product & { description: string | null; images: string[]; specs: ApiSpec[]; oldPriceUzs: number | null }`).
   - `src/lib/installment.ts`: `discountPercent(cash: number, old: number | null): number | null` (null agar chegirma yo'q).
 
-- [ ] **Step 1: `discountPercent` yordamchisini yozish**
+- [x] **Step 1: `discountPercent` yordamchisini yozish**
 
 `src/lib/installment.ts` oxiriga:
 ```ts
@@ -299,7 +299,7 @@ export function discountPercent(cash: number, old: number | null): number | null
 }
 ```
 
-- [ ] **Step 2: `store.ts` yuklovchilarni qo'shish**
+- [x] **Step 2: `store.ts` yuklovchilarni qo'shish**
 
 `src/api/store.ts` da (mavjud `mapProduct`/`mapConfig` saqlanadi) qo'shing:
 ```ts
@@ -360,11 +360,11 @@ export async function fetchProductDetail(id: string): Promise<ProductDetail | nu
 ```
 > Eslatma: `mapProduct` `Product` (image, condition va h.k.) qaytaradi; `oldPriceUzs` `Product`da yo'q, shuning uchun `ProductDetail`da alohida qo'shiladi. Ro'yxat kartalari uchun chegirma kerak bo'lsa, `fetchProductsBy` `ApiProduct.oldPriceUzs`ni ham uzatishi kerak — buning uchun `mapProduct`ga `oldPriceUzs` qo'shiladi (keyingi step).
 
-- [ ] **Step 3: `mapProduct`ga oldPriceUzs qo'shish**
+- [x] **Step 3: `mapProduct`ga oldPriceUzs qo'shish**
 
 `Product` interfeysi (`src/data/products.ts`) ga `oldPriceUzs?: number | null` qo'shing va `mapProduct` (`src/api/store.ts`) ga `oldPriceUzs: p.oldPriceUzs ?? null` qo'shing. Lokal fallback `products` massiviga tegilmaydi (ixtiyoriy maydon).
 
-- [ ] **Step 4: Lint va test**
+- [x] **Step 4: Lint va test**
 
 Run:
 ```bash
@@ -372,7 +372,7 @@ bun run lint && bun run test
 ```
 Expected: xatosiz; 10/10.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/api/store.ts src/lib/installment.ts src/data/products.ts
@@ -391,7 +391,7 @@ git commit -m "feat: storefront data loaders and discount helper"
 - Consumes: `Product` (oldPriceUzs bilan), `fetchCategories`, `fetchProductsBy`, `formatUzs`, `lowestMonthly`, `discountPercent`, `installmentConfig` (fallback config uchun — yoki `fetchStore`), `useOutletContext<StoreContext>()`.
 - Produces: `ProductCard` (`{ t, product, config }`), `HomePage` to'liq.
 
-- [ ] **Step 1: ProductCard'ni yozish (chegirma bilan)**
+- [x] **Step 1: ProductCard'ni yozish (chegirma bilan)**
 
 Create `src/store/ProductCard.tsx` (mavjud Catalog kartasi asosida, chegirma qo'shilgan, `<Link>` bilan):
 ```tsx
@@ -452,7 +452,7 @@ export default function ProductCard({
 }
 ```
 
-- [ ] **Step 2: ProductGrid, CategoryCircles, HeroBanner'ni yozish**
+- [x] **Step 2: ProductGrid, CategoryCircles, HeroBanner'ni yozish**
 
 Create `src/store/ProductGrid.tsx`:
 ```tsx
@@ -510,7 +510,7 @@ export default function HeroBanner({ t }: { t: Translation }) {
 }
 ```
 
-- [ ] **Step 3: HomePage'ni yig'ish**
+- [x] **Step 3: HomePage'ni yig'ish**
 
 `src/store/HomePage.tsx` faylini to'liq almashtiring:
 ```tsx
@@ -549,7 +549,7 @@ export default function HomePage() {
 }
 ```
 
-- [ ] **Step 4: Header "Katalog" dropdown'ini to'ldirish**
+- [x] **Step 4: Header "Katalog" dropdown'ini to'ldirish**
 
 `src/store/Header.tsx`da "Katalog" linkini kategoriyalar dropdown'iga aylantiring: `useState` bilan ochilish, `fetchCategories` bilan ro'yxat, har biri `<Link to={`/category/${c.id}`}>`. (Sodda: `useEffect`da kategoriyalarni yuklab, tugma bosilганда ochiladigan `absolute` panel ko'rsating.)
 ```tsx
@@ -573,7 +573,7 @@ Tugma:
 ```
 (`fetchCategories`ni import qiling; avvalgi statik "Katalog" linkini bu blok bilan almashtiring.)
 
-- [ ] **Step 5: Lint, build, test**
+- [x] **Step 5: Lint, build, test**
 
 Run:
 ```bash
@@ -581,7 +581,7 @@ bun run lint && bun run build && bun run test
 ```
 Expected: xatosiz; 10/10.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/store/
@@ -599,7 +599,7 @@ git commit -m "feat: home page with banner, category circles and product grid"
 - Consumes: `useParams`, `useSearchParams`, `useOutletContext<StoreContext>`, `fetchProductsBy`, `fetchStore`, `fetchCategories`, `ProductGrid`.
 - Produces: kategoriya va qidiruv natijasi sahifalari.
 
-- [ ] **Step 1: CategoryPage'ni yozish**
+- [x] **Step 1: CategoryPage'ni yozish**
 
 `src/store/CategoryPage.tsx` faylini to'liq almashtiring:
 ```tsx
@@ -633,7 +633,7 @@ export default function CategoryPage() {
 }
 ```
 
-- [ ] **Step 2: SearchPage'ni yozish**
+- [x] **Step 2: SearchPage'ni yozish**
 
 `src/store/SearchPage.tsx` faylini to'liq almashtiring:
 ```tsx
@@ -667,7 +667,7 @@ export default function SearchPage() {
 }
 ```
 
-- [ ] **Step 3: Lint, build, commit**
+- [x] **Step 3: Lint, build, commit**
 
 ```bash
 bun run lint && bun run build && bun run test
@@ -687,7 +687,7 @@ git commit -m "feat: category and search pages"
 - Consumes: `useParams`, `fetchProductDetail` (`ProductDetail`), `fetchStore` (config), `calcInstallment`, `formatUzs`, `discountPercent`, `composeLeadMessage`, `telegramShareUrl`, `whatsappUrl`.
 - Produces: to'liq mahsulot sahifasi.
 
-- [ ] **Step 1: Gallery'ni yozish**
+- [x] **Step 1: Gallery'ni yozish**
 
 Create `src/store/Gallery.tsx`:
 ```tsx
@@ -715,7 +715,7 @@ export default function Gallery({ images, name }: { images: string[]; name: stri
 }
 ```
 
-- [ ] **Step 2: ProductPage'ni yozish**
+- [x] **Step 2: ProductPage'ni yozish**
 
 `src/store/ProductPage.tsx` faylini to'liq almashtiring:
 ```tsx
@@ -835,7 +835,7 @@ export default function ProductPage() {
 ```
 > `calcInstallment(product, ...)` `product` `ProductDetail`ni qabul qiladi — u `Product` (cashPriceUzs) ni kengaytiradi, shuning uchun imzo mos keladi.
 
-- [ ] **Step 3: Lint, build, test**
+- [x] **Step 3: Lint, build, test**
 
 Run:
 ```bash
@@ -843,7 +843,7 @@ bun run lint && bun run build && bun run test
 ```
 Expected: xatosiz; 10/10.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/store/Gallery.tsx src/store/ProductPage.tsx
@@ -861,7 +861,7 @@ git commit -m "feat: product detail page with gallery, calculator and telegram o
 - Consumes: yo'q.
 - Produces: yangi kalitlar barcha 4 tilda: `navCatalog`, `navSearch`, `navSearchPlaceholder`, `navSoon`, `utilInstallment`, `utilDiscounts`, `homeFeatured`, `gridEmpty`, `searchResults`, `specsTitle`, `descTitle`, `loading`.
 
-- [ ] **Step 1: Kalitlarni 4 tilga qo'shish**
+- [x] **Step 1: Kalitlarni 4 tilga qo'shish**
 
 Har bir til blokiga (mos joyga) quyidagilarni qo'shing.
 
@@ -929,7 +929,7 @@ Har bir til blokiga (mos joyga) quyidagilarni qo'shing.
     loading: "Юкланмоқда…",
 ```
 
-- [ ] **Step 2: Lint, build, test**
+- [x] **Step 2: Lint, build, test**
 
 Run:
 ```bash
@@ -937,7 +937,7 @@ bun run lint && bun run build && bun run test
 ```
 Expected: xatosiz (Translation tipi to'liq); 10/10.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/locales.ts

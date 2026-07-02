@@ -1,6 +1,6 @@
 # Reja A1 — Storefront ma'lumot + backend poydevori (Implementation Plan)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Storefront uchun ma'lumot modelini kengaytirish (kategoriyalar, galereya, xususiyatlar, eski narx) va ommaviy + admin API'larni shu ma'lumot bilan ta'minlash. Frontend (A2) va admin UI (A3) shu poydevorga tayanadi.
 
@@ -44,7 +44,7 @@
 - Consumes: mavjud `products` jadvali.
 - Produces: `categories`, `product_images`, `product_specs` jadvallari; `products`ga `category_id`, `old_price_uzs`, `description` ustunlari; 5 kategoriya + mahsulot biriktirmalari.
 
-- [ ] **Step 1: Migratsiyani yozish**
+- [x] **Step 1: Migratsiyani yozish**
 
 Create `migrations/0003_storefront.sql`:
 
@@ -90,7 +90,7 @@ UPDATE products SET category_id = 'planshetlar' WHERE category = 'ipad';
 UPDATE products SET category_id = 'kompyuterlar' WHERE category = 'pc' OR (category = 'mac' AND id NOT LIKE '%macbook%');
 ```
 
-- [ ] **Step 2: Lokal sqlite'da barcha migratsiyalarni quruq ishga tushirish**
+- [x] **Step 2: Lokal sqlite'da barcha migratsiyalarni quruq ishga tushirish**
 
 Run:
 ```bash
@@ -105,7 +105,7 @@ rm -rf "$TMP"
 ```
 Expected: `0003 OK`; `categories: 5`; `categorized products: 10` (har mahsulotda `category_id` bor).
 
-- [ ] **Step 3: Lokal D1'ga migratsiya qo'llash (agar wrangler local mavjud bo'lsa)**
+- [x] **Step 3: Lokal D1'ga migratsiya qo'llash (agar wrangler local mavjud bo'lsa)**
 
 Run:
 ```bash
@@ -113,7 +113,7 @@ bunx wrangler d1 migrations apply taqsit-store-db --local
 ```
 Expected: `0003_storefront.sql` qo'llanadi. (Bajarilmasa — muammo emas, Step 2 quruq ishga tushirishi asosiy tekshiruv.)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add migrations/0003_storefront.sql
@@ -134,7 +134,7 @@ git commit -m "feat: add storefront schema (categories, images, specs, discounts
   - `shared/types.ts`: `ApiCategory` (`{ id: string; name: string; iconUrl: string; sortOrder: number }`), `ApiSpec` (`{ label: string; value: string }`), `ApiProduct` kengaytmasi (`categoryId: string | null; oldPriceUzs: number | null`), `ApiProductDetail` (`ApiProduct & { description: string | null; images: string[]; specs: ApiSpec[] }`).
   - `functions/lib/db.ts`: `CategoryRow`, `SpecRow`, `ImageRow`, `rowToCategory(row): ApiCategory`, `rowToSpec(row): ApiSpec`, kengaytirilgan `ProductRow`/`rowToProduct`, `buildProductDetail(env, id): Promise<ApiProductDetail | null>`.
 
-- [ ] **Step 1: `shared/types.ts` ni kengaytirish**
+- [x] **Step 1: `shared/types.ts` ni kengaytirish**
 
 `shared/types.ts` faylida `ApiProduct` interfeysiga ikki maydon qo'shing va oxiriga yangi tiplarni qo'shing:
 
@@ -165,7 +165,7 @@ export interface ApiProductDetail extends ApiProduct {
 }
 ```
 
-- [ ] **Step 2: `functions/lib/db.ts` — ProductRow va rowToProduct kengaytmasi**
+- [x] **Step 2: `functions/lib/db.ts` — ProductRow va rowToProduct kengaytmasi**
 
 `ProductRow` interfeysiga qo'shing:
 ```ts
@@ -180,7 +180,7 @@ export interface ApiProductDetail extends ApiProduct {
     oldPriceUzs: row.old_price_uzs,
 ```
 
-- [ ] **Step 3: `functions/lib/db.ts` — yangi row tiplar va mapperlar**
+- [x] **Step 3: `functions/lib/db.ts` — yangi row tiplar va mapperlar**
 
 `functions/lib/db.ts` importiga `ApiCategory`, `ApiSpec`, `ApiProductDetail` qo'shing va fayl oxiriga:
 ```ts
@@ -237,7 +237,7 @@ export async function buildProductDetail(
 }
 ```
 
-- [ ] **Step 4: Lint va test**
+- [x] **Step 4: Lint va test**
 
 Run:
 ```bash
@@ -245,7 +245,7 @@ bun run lint && bun run test
 ```
 Expected: xatosiz; 10/10 test (mavjud frontend `mapProduct` qo'shimcha maydonlarni e'tiborsiz qoldiradi).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add shared/types.ts functions/lib/db.ts
@@ -267,7 +267,7 @@ git commit -m "feat: storefront api types and d1 mappers (category, specs, detai
   - `GET /api/products` → `ApiProduct[]`; `?category=slug` va `?q=matn` (nom LIKE) filtrlari.
   - `GET /api/products/:id` → `ApiProductDetail` (404 agar topilmasa/faol emas).
 
-- [ ] **Step 1: Categories endpointini yozish**
+- [x] **Step 1: Categories endpointini yozish**
 
 Create `functions/api/categories.ts`:
 ```ts
@@ -280,7 +280,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
 };
 ```
 
-- [ ] **Step 2: Products endpointiga query filtrini qo'shish**
+- [x] **Step 2: Products endpointiga query filtrini qo'shish**
 
 `functions/api/products.ts` faylini to'liq almashtiring:
 ```ts
@@ -309,7 +309,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, request }) => {
 };
 ```
 
-- [ ] **Step 3: Product detail endpointini yozish**
+- [x] **Step 3: Product detail endpointini yozish**
 
 Create `functions/api/products/[id].ts`:
 ```ts
@@ -323,7 +323,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, params }) => {
 };
 ```
 
-- [ ] **Step 4: Lokal tekshiruv (agar wrangler pages dev mavjud bo'lsa) yoki lint**
+- [x] **Step 4: Lokal tekshiruv (agar wrangler pages dev mavjud bo'lsa) yoki lint**
 
 Run:
 ```bash
@@ -331,7 +331,7 @@ bun run lint && bun run build
 ```
 Expected: xatosiz. (Runtime curl tekshiruvi ixtiyoriy — deferred.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add functions/api/categories.ts functions/api/products.ts "functions/api/products/[id].ts"
@@ -352,7 +352,7 @@ git commit -m "feat: public api for categories, product filters and product deta
   - `functions/lib/validate.ts`: `parseCategoryInput(body): CategoryInput` (`{ id: string; name: string; iconUrl: string; sortOrder: number }`).
   - `GET/POST /api/admin/categories`, `PUT/DELETE /api/admin/categories/:id`.
 
-- [ ] **Step 1: `parseCategoryInput` ni yozish**
+- [x] **Step 1: `parseCategoryInput` ni yozish**
 
 `functions/lib/validate.ts` importiga `ApiCategory` qo'shing va fayl oxiriga:
 ```ts
@@ -381,7 +381,7 @@ export function parseCategoryInput(body: unknown): CategoryInput {
 }
 ```
 
-- [ ] **Step 2: List + Create endpointini yozish**
+- [x] **Step 2: List + Create endpointini yozish**
 
 Create `functions/api/admin/categories.ts`:
 ```ts
@@ -410,7 +410,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 };
 ```
 
-- [ ] **Step 3: Update + Delete endpointini yozish**
+- [x] **Step 3: Update + Delete endpointini yozish**
 
 Create `functions/api/admin/categories/[id].ts`:
 ```ts
@@ -443,7 +443,7 @@ export const onRequestDelete: PagesFunction<Env> = async ({ env, params }) => {
 };
 ```
 
-- [ ] **Step 4: Lint va commit**
+- [x] **Step 4: Lint va commit**
 
 ```bash
 bun run lint && bun run test
@@ -462,7 +462,7 @@ git commit -m "feat: admin category crud api"
 - Consumes: `parseProductInput` (kengaytiriladi), `ImageRow`, `SpecRow`.
 - Produces: `ProductInput` kengaytmasi (`categoryId: string | null; oldPriceUzs: number | null; description: string | null; images: string[]; specs: ApiSpec[]`); INSERT/UPDATE `category_id`/`old_price_uzs`/`description`ni saqlaydi va `product_images`/`product_specs`ni qayta yozadi.
 
-- [ ] **Step 1: `parseProductInput` ni kengaytirish**
+- [x] **Step 1: `parseProductInput` ni kengaytirish**
 
 `functions/lib/validate.ts`da `ProductInput` tipini va `parseProductInput` return'ini kengaytiring. `ProductInput` tipini quyidagiga almashtiring:
 ```ts
@@ -503,7 +503,7 @@ Va `return { ... }` obyektiga (mavjud maydonlardan keyin) qo'shing:
     specs,
 ```
 
-- [ ] **Step 2: Create (POST) — yangi maydonlar + images/specs saqlash**
+- [x] **Step 2: Create (POST) — yangi maydonlar + images/specs saqlash**
 
 `functions/api/admin/products.ts`da import qatoriga `type ImageRow, type SpecRow` **kerak emas** (INSERT bilan yoziladi). `onRequestPost` ичida INSERT va u 'ndan keyingi qismni quyidagiga almashtiring (validatsiya bloki o'zgarmaydi):
 ```ts
@@ -553,7 +553,7 @@ async function writeImagesAndSpecs(
 ```
 > `writeImagesAndSpecs` `products.ts` faylining pastida (export qilinmagan) yordamchi sifatida qo'shiladi va `[id].ts` PUT'da qayta ishlatish uchun **eksport** qilinadi: `export async function writeImagesAndSpecs(...)`. `products.ts`da uni `export` bilan e'lon qiling.
 
-- [ ] **Step 3: Update (PUT) — yangi maydonlar + images/specs qayta yozish**
+- [x] **Step 3: Update (PUT) — yangi maydonlar + images/specs qayta yozish**
 
 `functions/api/admin/products/[id].ts` importiga qo'shing:
 ```ts
@@ -591,7 +591,7 @@ import { writeImagesAndSpecs } from '../products';
   await env.DB.prepare('DELETE FROM product_specs WHERE product_id = ?').bind(id).run();
 ```
 
-- [ ] **Step 4: Lint, test, build**
+- [x] **Step 4: Lint, test, build**
 
 Run:
 ```bash
@@ -599,7 +599,7 @@ bun run lint && bun run test && bun run build
 ```
 Expected: xatosiz; 10/10 test.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add functions/lib/validate.ts functions/api/admin/products.ts "functions/api/admin/products/[id].ts"

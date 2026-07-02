@@ -1,6 +1,6 @@
 # Reja A3 — Admin kengaytmasi (kategoriyalar + boyitilgan mahsulot formasi) (Implementation Plan)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Admin panelga **Kategoriyalar** tabini (CRUD + ikonka yuklash) qo'shish va mahsulot formasini boyitish: kategoriya tanlash, eski narx, tavsif, ko'p rasmli galereya, xususiyatlar muharriri.
 
@@ -40,7 +40,7 @@
   - `AdminProductInput` tipi (`Partial<ApiProduct> & { images?: string[]; specs?: ApiSpec[] }`) — `createProduct`/`updateProduct` shu tipni qabul qiladi.
   - `getProductDetail(id): Promise<AdminProductDetail>` (`ApiProduct & { description: string | null; images: string[]; specs: ApiSpec[] }`) — tahrirlashda galereya/specs'ni yuklash uchun.
 
-- [ ] **Step 1: Categories client funksiyalarini qo'shish**
+- [x] **Step 1: Categories client funksiyalarini qo'shish**
 
 `src/admin/api.ts` importiga `ApiCategory`, `ApiSpec` qo'shing va fayl oxiriga:
 ```ts
@@ -73,7 +73,7 @@ export async function deleteCategory(id: string): Promise<void> {
 }
 ```
 
-- [ ] **Step 2: Boyitilgan product tiplarini qo'shish va create/update imzosini yangilash**
+- [x] **Step 2: Boyitilgan product tiplarini qo'shish va create/update imzosini yangilash**
 
 `src/admin/api.ts` da (mavjud `createProduct`/`updateProduct` o'rniga) quyidagini qo'ying:
 ```ts
@@ -115,7 +115,7 @@ export async function getProductDetail(id: string): Promise<AdminProductDetail> 
 ```
 > Eski `createProduct(p: Partial<ApiProduct>)`/`updateProduct` imzolari shu bilan almashtiriladi (kengaytirilgan tip mavjud chaqiruvlarga mos, chunki barcha yangi maydonlar ixtiyoriy).
 
-- [ ] **Step 3: Lint va commit**
+- [x] **Step 3: Lint va commit**
 
 ```bash
 bun run lint && bun run test
@@ -135,7 +135,7 @@ git commit -m "feat: admin api client for categories and enriched products"
 - Consumes: `listCategories`, `createCategory`, `updateCategory`, `deleteCategory`, `uploadImage`, `ApiCategory`.
 - Produces: `AdminApp`da "Kategoriyalar" tabi.
 
-- [ ] **Step 1: CategoryForm'ni yozish**
+- [x] **Step 1: CategoryForm'ni yozish**
 
 Create `src/admin/CategoryForm.tsx`:
 ```tsx
@@ -211,7 +211,7 @@ export default function CategoryForm({
 }
 ```
 
-- [ ] **Step 2: CategoryList'ni yozish**
+- [x] **Step 2: CategoryList'ni yozish**
 
 Create `src/admin/CategoryList.tsx`:
 ```tsx
@@ -264,7 +264,7 @@ export default function CategoryList() {
 }
 ```
 
-- [ ] **Step 3: AdminApp'ga tab qo'shish**
+- [x] **Step 3: AdminApp'ga tab qo'shish**
 
 `src/admin/AdminApp.tsx`da `type Tab`ni `'products' | 'settings' | 'categories'` ga kengaytiring, `CategoryList`ni import qiling, header'ga uchinchi tugma ("Kategoriyalar") qo'shing va `<main>` ichida shart qo'shing:
 ```tsx
@@ -278,7 +278,7 @@ type Tab = 'products' | 'settings' | 'categories';
 {tab === 'products' ? <ProductList /> : tab === 'settings' ? <SettingsForm /> : <CategoryList />}
 ```
 
-- [ ] **Step 4: Lint, build, commit**
+- [x] **Step 4: Lint, build, commit**
 
 ```bash
 bun run lint && bun run build && bun run test
@@ -297,7 +297,7 @@ git commit -m "feat: admin categories tab (crud + icon upload)"
 - Consumes: `AdminProductInput`, `AdminProductDetail`, `getProductDetail`, `createProduct`, `updateProduct`, `uploadImage`, `listCategories`, `ApiCategory`, `ApiSpec`.
 - Produces: mahsulot formasi kategoriya select, eski narx, tavsif, ko'p rasmli galereya, specs muharriri bilan.
 
-- [ ] **Step 1: ProductForm'ni to'liq almashtirish**
+- [x] **Step 1: ProductForm'ni to'liq almashtirish**
 
 `src/admin/ProductForm.tsx` faylini to'liq quyidagiga almashtiring:
 ```tsx
@@ -492,14 +492,14 @@ export default function ProductForm({
 ```
 > Eslatma: `specs` bo'sh label/value bilan yuborilsa A1 `parseProductInput` `label_required`/`value_required` bilan 400 beradi — admin bo'sh qatorlarni to'ldirishi yoki o'chirishi kerak. (Ixtiyoriy yaxshilash: saqlashdan oldin bo'sh specs'ni filtrlash — `form.specs.filter(s => s.label && s.value)`.)
 
-- [ ] **Step 2: Bo'sh specs'ni saqlashdan oldin filtrlash**
+- [x] **Step 2: Bo'sh specs'ni saqlashdan oldin filtrlash**
 
 `save()` ichidagi `payload` da `specs: form.specs` o'rniga:
 ```ts
         specs: form.specs.filter((s) => s.label.trim() !== '' && s.value.trim() !== ''),
 ```
 
-- [ ] **Step 3: Lint, build, test**
+- [x] **Step 3: Lint, build, test**
 
 Run:
 ```bash
@@ -507,7 +507,7 @@ bun run lint && bun run build && bun run test
 ```
 Expected: xatosiz; 10/10.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/admin/ProductForm.tsx
