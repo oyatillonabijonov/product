@@ -1,25 +1,43 @@
 import { useMemo, useState } from 'react';
+import type { FC } from 'react';
 import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck } from 'lucide-react';
 import type { InstallmentConfig } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
 import type { Translation } from '../locales';
 import { calcInstallment, composeLeadMessage, discountPercent, formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
+import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, type VariantSelection } from '../lib/variants';
 import Gallery from './Gallery';
 import LocaleLink from './LocaleLink';
 
-export default function ProductPage({
-  t, product, config,
-}: { t: Translation; product: ProductDetail; config: InstallmentConfig }) {
+const ProductPage: FC<{
+  t: Translation; product: ProductDetail; config: InstallmentConfig;
+}> = ({ t, product, config }) => {
   const [months, setMonths] = useState(12);
+  const [selection, setSelection] = useState<VariantSelection | null>(
+    () => defaultSelection(product.options, product.variants),
+  );
+  const variant = useMemo(
+    () => (selection ? resolveVariant(product.options, product.variants, selection) : null),
+    [product, selection],
+  );
+  const displayCash = variant?.cashPriceUzs ?? product.cashPriceUzs;
+  const displayOld = variant ? variant.oldPriceUzs : product.oldPriceUzs;
+  const outOfStock = variant !== null && !variant.inStock;
+  const disc = discountPercent(displayCash, displayOld);
   const result = useMemo(() => {
     const term = config.terms.find((x) => x.months === months) ?? config.terms[config.terms.length - 1];
-    return calcInstallment(product, term, config);
-  }, [product, config, months]);
-  const disc = discountPercent(product.cashPriceUzs, product.oldPriceUzs);
+    return calcInstallment({ ...product, cashPriceUzs: displayCash }, term, config);
+  }, [product, config, months, displayCash]);
+
+  const galleryImages = variant?.imageUrl
+    ? [variant.imageUrl, ...product.images.filter((i) => i !== variant.imageUrl)]
+    : product.images;
 
   function order(channel: 'telegram' | 'whatsapp') {
-    if (!result) return;
-    const msg = composeLeadMessage({ name: '', phone: '', product: product.name, months, monthly: formatUzs(result.monthly) });
+    if (!result || outOfStock) return;
+    const label = selection ? selectionLabel(product.options, selection) : '';
+    const productName = label ? `${product.name} (${label})` : product.name;
+    const msg = composeLeadMessage({ name: '', phone: '', product: productName, months, monthly: formatUzs(result.monthly) });
     const url = channel === 'telegram' ? telegramShareUrl(msg) : whatsappUrl(msg);
     window.open(url, '_blank', 'noopener,noreferrer');
   }
@@ -33,7 +51,7 @@ export default function ProductPage({
       </nav>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-        <Gallery images={product.images} name={product.name} />
+        <Gallery key={variant?.id ?? 'base'} images={galleryImages} name={product.name} />
         <div className="md:sticky md:top-24 md:self-start">
           <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full ${product.condition === 'yangi' ? 'bg-[#EAF3FF] text-[#0071E3]' : 'bg-[#E8F5E9] text-[#1B7A34]'}`}>
             {product.condition === 'yangi' ? t.badgeNew : t.badgeUsed}
@@ -42,14 +60,52 @@ export default function ProductPage({
           {product.conditionNote && <p className="text-[14px] text-[#6E6E73] mt-2.5">{product.conditionNote}</p>}
 
           <div className="flex items-baseline gap-2.5 mt-4 flex-wrap">
-            <span className="text-[28px] md:text-[34px] font-semibold text-[#1D1D1F] tracking-[-0.025em] tabular-nums">{formatUzs(product.cashPriceUzs)}</span>
-            {product.oldPriceUzs && disc !== null && (
+            <span className="text-[28px] md:text-[34px] font-semibold text-[#1D1D1F] tracking-[-0.025em] tabular-nums">{formatUzs(displayCash)}</span>
+            {displayOld && disc !== null && (
               <>
-                <span className="text-[16px] md:text-[18px] line-through text-[#B0B0B5] tabular-nums">{formatUzs(product.oldPriceUzs)}</span>
+                <span className="text-[16px] md:text-[18px] line-through text-[#B0B0B5] tabular-nums">{formatUzs(displayOld)}</span>
                 <span className="text-[12px] font-bold px-2 py-0.5 rounded-full bg-[#E8462D] text-white">-{disc}%</span>
               </>
             )}
           </div>
+
+          {variant && (
+            <div className={`mt-1.5 text-[13px] font-semibold ${outOfStock ? 'text-[#E8462D]' : 'text-[#1B7A34]'}`}>
+              {outOfStock ? t.outOfStock : t.inStock}
+            </div>
+          )}
+
+          {product.options.length > 0 && selection && (
+            <div className="mt-5 flex flex-col gap-4">
+              {product.options.map((o) => (
+                <div key={o.id}>
+                  <div className="text-[13px] font-semibold text-[#6E6E73] mb-2">{o.name}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {o.values.map((v) => {
+                      const active = selection[o.name] === v.value;
+                      const available = isValueAvailable(product.options, product.variants, selection, o.name, v.value);
+                      return (
+                        <button
+                          key={v.id}
+                          disabled={!available}
+                          onClick={() => setSelection({ ...selection, [o.name]: v.value })}
+                          className={`px-4 py-2 rounded-xl text-[14px] font-semibold border transition-colors ${
+                            active
+                              ? 'border-[#0071E3] bg-[#EAF3FF] text-[#0071E3]'
+                              : available
+                                ? 'border-[#D2D2D7] bg-white text-[#1D1D1F] hover:border-[#0071E3]'
+                                : 'border-[#F0F0F2] bg-[#FAFAFC] text-[#C7C7CC] cursor-not-allowed line-through'
+                          }`}
+                        >
+                          {v.value}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {config && result && (
             <div className="mt-5 bg-white border border-[#ECECEF] rounded-[24px] p-5 shadow-[--shadow-apple]">
@@ -94,10 +150,10 @@ export default function ProductPage({
           )}
 
           <div className="flex flex-col sm:flex-row gap-3 mt-4">
-            <button onClick={() => order('telegram')} className="flex-1 py-3.5 bg-[#0071E3] text-white font-semibold rounded-full hover:bg-[#0077ED] transition-colors flex items-center justify-center gap-2 shadow-[0_10px_24px_-10px_rgba(0,113,227,0.7)]">
+            <button onClick={() => order('telegram')} disabled={outOfStock} className="flex-1 py-3.5 bg-[#0071E3] text-white font-semibold rounded-full hover:bg-[#0077ED] transition-colors flex items-center justify-center gap-2 shadow-[0_10px_24px_-10px_rgba(0,113,227,0.7)] disabled:opacity-50 disabled:cursor-not-allowed">
               <Send className="w-5 h-5" /> {t.formSendTelegram}
             </button>
-            <button onClick={() => order('whatsapp')} className="flex-1 py-3.5 bg-[#1D1D1F] text-white font-semibold rounded-full hover:bg-[#25D366] transition-colors">
+            <button onClick={() => order('whatsapp')} disabled={outOfStock} className="flex-1 py-3.5 bg-[#1D1D1F] text-white font-semibold rounded-full hover:bg-[#25D366] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               {t.formSendWhatsapp}
             </button>
           </div>
@@ -137,4 +193,6 @@ export default function ProductPage({
       )}
     </div>
   );
-}
+};
+
+export default ProductPage;

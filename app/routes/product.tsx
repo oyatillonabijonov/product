@@ -23,5 +23,5 @@ export function meta({ data }: Route.MetaArgs) {
 export default function ProductRoute() {
   const { product, config } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
-  return <ProductPage t={ctx.t} product={product} config={config} />;
+  return <ProductPage key={product.id} t={ctx.t} product={product} config={config} />;
 }

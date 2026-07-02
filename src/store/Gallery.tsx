@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import type { FC } from 'react';
 
-export default function Gallery({ images, name }: { images: string[]; name: string }) {
+const Gallery: FC<{ images: string[]; name: string }> = ({ images, name }) => {
   const [active, setActive] = useState(0);
   const main = images[active] ?? images[0] ?? '';
   return (
@@ -19,4 +20,6 @@ export default function Gallery({ images, name }: { images: string[]; name: stri
       )}
     </div>
   );
-}
+};
+
+export default Gallery;
