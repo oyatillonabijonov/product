@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Phone, Send, Instagram, MapPin, Clock, ExternalLink } from 'lucide-react';
 import type { Translation } from '../locales';
+import { siteConfig } from '../../app/lib/site.config';
 import logo from '../assets/logo.svg';
 
 const fadeInUp = {
@@ -8,6 +9,11 @@ const fadeInUp = {
   whileInView: { opacity: 1, y: 0 },
   transition: { duration: 0.1 },
 };
+
+const mapWidgetSrc = `https://yandex.com/map-widget/v1/?ll=${encodeURIComponent(siteConfig.map.ll)}&z=17&pt=${siteConfig.map.ll},pm2rdm`;
+const mapLinkHref = `https://yandex.com/maps/?ll=${encodeURIComponent(siteConfig.map.ll)}&z=17&pt=${siteConfig.map.ll},pm2rdm`;
+const telegramHandle = `@${siteConfig.telegram.replace(/^https?:\/\/t\.me\//, '')}`;
+const instagramHandle = `@${siteConfig.instagram.replace(/^https?:\/\/www\.instagram\.com\//, '').replace(/\/$/, '')}`;
 
 export default function Footer({ t }: { t: Translation }) {
   return (
@@ -18,7 +24,7 @@ export default function Footer({ t }: { t: Translation }) {
           className="w-full h-[350px] bg-[#FFFFFF] rounded-[32px] overflow-hidden shadow-[--shadow-apple] relative group border border-[#D2D2D7]/50"
         >
           <iframe
-            src="https://yandex.com/map-widget/v1/?ll=69.271481%2C41.338874&z=17&pt=69.271481,41.338874,pm2rdm"
+            src={mapWidgetSrc}
             width="100%"
             height="100%"
             frameBorder="0"
@@ -35,7 +41,7 @@ export default function Footer({ t }: { t: Translation }) {
               </div>
               <p className="text-[12px] text-[#6E6E73]">{t.mapDesc}</p>
               <a
-                href="https://yandex.com/maps/?ll=69.271481%2C41.338874&z=17&pt=69.271481,41.338874,pm2rdm"
+                href={mapLinkHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[12px] text-[#0071E3] mt-2 flex items-center gap-1 hover:underline"
@@ -58,14 +64,14 @@ export default function Footer({ t }: { t: Translation }) {
         </div>
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-semibold text-[#1D1D1F] uppercase tracking-widest mb-2">{t.footerContact}</h3>
-          <a href="tel:+998886043636" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-            <Phone className="w-4 h-4" /> +998(88)604-36-36
+          <a href={`tel:${siteConfig.phone}`} className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+            <Phone className="w-4 h-4" /> {siteConfig.phoneDisplay}
           </a>
-          <a href="https://t.me/Taqsit_store" target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-            <Send className="w-4 h-4" /> @Taqsit_store
+          <a href={siteConfig.telegram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+            <Send className="w-4 h-4" /> {telegramHandle}
           </a>
-          <a href="https://www.instagram.com/taqsit.store/" target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-            <Instagram className="w-4 h-4" /> @taqsit.store
+          <a href={siteConfig.instagram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+            <Instagram className="w-4 h-4" /> {instagramHandle}
           </a>
         </div>
         <div className="flex flex-col gap-3">

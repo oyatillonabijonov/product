@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import type { FC } from 'react';
 import type { Translation } from '../locales';
 import type { InstallmentConfig, Product } from '../data/products';
 import { discountPercent, formatUzs, lowestMonthly } from '../lib/installment';
+import LocaleLink from './LocaleLink';
 
 const ProductCard: FC<{
   t: Translation;
@@ -18,7 +18,7 @@ const ProductCard: FC<{
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
       className="group bg-white border border-[#F0F0F2] rounded-[24px] overflow-hidden flex flex-col shadow-[--shadow-apple] hover:shadow-[--shadow-apple-hover] hover:border-[#E5E5EA] transition-shadow duration-300"
     >
-      <Link
+      <LocaleLink
         to={`/product/${product.id}`}
         className="h-[168px] md:h-[196px] w-full flex items-center justify-center p-6 relative bg-gradient-to-b from-[#FAFAFC] to-[#F0F0F3]"
       >
@@ -46,15 +46,15 @@ const ProductCard: FC<{
         ) : (
           <div className="text-[#C7C7CC] text-[13px]">{product.name}</div>
         )}
-      </Link>
+      </LocaleLink>
 
       <div className="p-4 md:p-5 flex flex-col flex-1">
-        <Link
+        <LocaleLink
           to={`/product/${product.id}`}
           className="text-[15px] md:text-[16.5px] font-semibold tracking-[-0.01em] leading-snug hover:text-[#0071E3] transition-colors"
         >
           {product.name}
-        </Link>
+        </LocaleLink>
 
         <div className="mt-auto pt-4">
           <div className="text-[11px] uppercase tracking-wide text-[#86868B] font-medium">{t.catalogMonthlyLabel}</div>
@@ -67,12 +67,12 @@ const ProductCard: FC<{
             )}
             <span className="text-[#6E6E73]">{formatUzs(product.cashPriceUzs)}</span>
           </div>
-          <Link
+          <LocaleLink
             to={`/product/${product.id}`}
             className="block text-center w-full py-2.5 bg-[#1D1D1F] text-white text-[14px] font-semibold rounded-full group-hover:bg-[#0071E3] transition-colors"
           >
             {t.catalogSelect}
-          </Link>
+          </LocaleLink>
         </div>
       </div>
     </motion.div>

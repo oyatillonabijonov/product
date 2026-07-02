@@ -34,3 +34,10 @@ export function localizedPath(locale: Locale, path: string): string {
 export function htmlLang(locale: Locale): string {
   return HTML_LANG[locale];
 }
+export function stripLocale(pathname: string): string {
+  const seg = pathname.split('/').filter(Boolean);
+  if (seg[0] && (LOCALES as readonly string[]).includes(seg[0]) && seg[0] !== DEFAULT_LOCALE) {
+    return '/' + seg.slice(1).join('/');
+  }
+  return pathname || '/';
+}

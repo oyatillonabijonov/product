@@ -1,19 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router';
 import { Search, Heart, ShoppingCart, Menu, Globe } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import { fetchCategories } from '../api/store';
-import { LOCALES, DEFAULT_LOCALE, localizedPath, langToLocale, type Locale } from '../../app/lib/i18n';
+import { localizedPath, langToLocale, stripLocale, type Locale } from '../../app/lib/i18n';
 import logo from '../assets/logo.svg';
-
-function stripLocale(pathname: string): string {
-  const seg = pathname.split('/').filter(Boolean);
-  if (seg[0] && (LOCALES as readonly string[]).includes(seg[0]) && seg[0] !== DEFAULT_LOCALE) {
-    return '/' + seg.slice(1).join('/');
-  }
-  return pathname || '/';
-}
 
 export default function Header({
   t,
@@ -50,7 +42,7 @@ export default function Header({
 
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (q.trim()) navigate(`/search?q=${encodeURIComponent(q.trim())}`);
+    if (q.trim()) navigate(localizedPath(locale, `/search?q=${encodeURIComponent(q.trim())}`));
   }
 
   return (
@@ -60,7 +52,7 @@ export default function Header({
       }`}
     >
       <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center gap-3 md:gap-4">
-        <Link to="/" className="shrink-0">
+        <Link to={localizedPath(locale, '/')} className="shrink-0">
           <img src={logo} alt="Taqsit Store" className="h-8 md:h-9" />
         </Link>
 
@@ -78,7 +70,7 @@ export default function Header({
                 {cats.map((c) => (
                   <Link
                     key={c.id}
-                    to={`/category/${c.id}`}
+                    to={localizedPath(locale, `/category/${c.id}`)}
                     onClick={() => setCatOpen(false)}
                     className="block px-3 py-2.5 text-[14px] rounded-xl hover:bg-[#F5F5F7] transition-colors"
                   >

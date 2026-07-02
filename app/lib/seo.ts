@@ -1,5 +1,5 @@
 import { siteConfig } from './site.config';
-import { LOCALES, htmlLang, localizedPath, DEFAULT_LOCALE } from './i18n';
+import { LOCALES, htmlLang, localizedPath, DEFAULT_LOCALE, stripLocale } from './i18n';
 
 export function pageTitle(title?: string): string {
   return title ? `${title} — ${siteConfig.seo.titleSuffix}` : siteConfig.seo.titleSuffix;
@@ -23,12 +23,4 @@ export function hreflangLinks(pathname: string) {
   }));
   links.push({ tagName: 'link', rel: 'alternate', hrefLang: 'x-default', href: localizedPath(DEFAULT_LOCALE, bare) });
   return links;
-}
-
-function stripLocale(pathname: string): string {
-  const seg = pathname.split('/').filter(Boolean);
-  if (seg[0] && (LOCALES as readonly string[]).includes(seg[0]) && seg[0] !== DEFAULT_LOCALE) {
-    return '/' + seg.slice(1).join('/');
-  }
-  return pathname || '/';
 }

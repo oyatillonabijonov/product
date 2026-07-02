@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
 import { Smartphone, Laptop, Tablet, Monitor, Headphones, Package } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ApiCategory } from '../../shared/types';
+import LocaleLink from './LocaleLink';
 
 const ICONS: Record<string, LucideIcon> = {
   telefonlar: Smartphone,
@@ -18,7 +18,7 @@ export default function CategoryCircles({ categories }: { categories: ApiCategor
       {categories.map((c) => {
         const Icon = ICONS[c.id] ?? Package;
         return (
-          <Link
+          <LocaleLink
             key={c.id}
             to={`/category/${c.id}`}
             className="shrink-0 flex flex-col items-center gap-2.5 w-[88px] group"
@@ -35,7 +35,7 @@ export default function CategoryCircles({ categories }: { categories: ApiCategor
             <span className="text-[12.5px] text-center text-[#1D1D1F] leading-tight group-hover:text-[#0071E3] transition-colors">
               {c.name}
             </span>
-          </Link>
+          </LocaleLink>
         );
       })}
     </div>

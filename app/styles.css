@@ -5,6 +5,12 @@
   --shadow-apple: 0 1px 2px rgba(0, 0, 0, 0.03), 0 8px 24px -10px rgba(0, 0, 0, 0.10);
   --shadow-apple-hover: 0 8px 18px -10px rgba(0, 0, 0, 0.10), 0 28px 50px -18px rgba(0, 0, 0, 0.18);
   --shadow-float: 0 30px 60px -22px rgba(0, 60, 130, 0.22), 0 12px 24px -14px rgba(0, 0, 0, 0.12);
+  --color-primary: #1D1D1F;
+  --color-accent: #0071E3;
+  --color-bg: #F5F5F7;
+  --color-trust: #1B7A34;
+  --color-sale: #E8462D;
+  --radius-card: 24px;
 }
 
 html {
