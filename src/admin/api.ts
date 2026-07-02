@@ -1,4 +1,4 @@
-import type { ApiCategory, ApiProduct, ApiSettings, ApiSpec } from '../../shared/types';
+import type { ApiBrand, ApiCategory, ApiProduct, ApiSettings, ApiSpec } from '../../shared/types';
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -92,6 +92,34 @@ export async function updateCategory(id: string, c: Partial<ApiCategory>): Promi
 
 export async function deleteCategory(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/categories/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function listBrands(): Promise<ApiBrand[]> {
+  return handle(await fetch('/api/admin/brands'));
+}
+
+export async function createBrand(b: Partial<ApiBrand>): Promise<ApiBrand> {
+  return handle(
+    await fetch('/api/admin/brands', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(b),
+    }),
+  );
+}
+
+export async function updateBrand(id: string, b: Partial<ApiBrand>): Promise<ApiBrand> {
+  return handle(
+    await fetch(`/api/admin/brands/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(b),
+    }),
+  );
+}
+
+export async function deleteBrand(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/brands/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
 
 export async function deleteProduct(id: string): Promise<void> {
