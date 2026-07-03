@@ -1,7 +1,7 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/home';
 import { resolveLocale } from '../lib/i18n';
-import { pageTitle } from '../lib/seo';
+import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { siteConfig } from '../lib/site.config';
 import { loadStore, loadCategories, loadBanners, loadBrands, loadRail } from '../lib/loaders';
 import type { StoreContext } from '../../src/store/StoreLayout';
@@ -18,8 +18,12 @@ export async function loader({ params, context }: Route.LoaderArgs) {
   return { products, config, categories, banners, deals, latest, brands, locale };
 }
 
-export function meta(_: Route.MetaArgs) {
-  return [{ title: pageTitle() }, { name: 'description', content: siteConfig.seo.description }];
+export function meta({ matches }: Route.MetaArgs) {
+  const cfg = storeConfigFrom(matches);
+  return [
+    { title: pageTitle(undefined, cfg?.seoTitleSuffix) },
+    { name: 'description', content: cfg?.seoDescription ?? siteConfig.seo.description },
+  ];
 }
 
 export default function HomeRoute() {

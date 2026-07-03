@@ -58,8 +58,12 @@ export function renderMarkdown(src: string): MdBlock[] {
 }
 
 export function firstParagraph(src: string): string {
-  for (const b of renderMarkdown(src)) {
+  const blocks = renderMarkdown(src);
+  for (const b of blocks) {
     if (b.type === 'p') return b.inlines.map((s) => s.text).join('');
+  }
+  for (const b of blocks) {
+    if (b.type === 'ul' && b.items.length > 0) return b.items[0].map((s) => s.text).join('');
   }
   return '';
 }

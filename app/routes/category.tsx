@@ -1,7 +1,7 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/category';
 import { resolveLocale } from '../lib/i18n';
-import { pageTitle, catalogMeta } from '../lib/seo';
+import { pageTitle, catalogMeta, storeConfigFrom } from '../lib/seo';
 import { parseCatalogFilters } from '../lib/catalog';
 import { queryProducts, loadConfig, loadCategories, loadBrands } from '../lib/loaders';
 import type { StoreContext } from '../../src/store/StoreLayout';
@@ -19,9 +19,10 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   return { result, config, title, brands, filters, requestUrl: request.url };
 }
 
-export function meta({ data }: Route.MetaArgs) {
-  if (!data) return [{ title: pageTitle() }];
-  return catalogMeta(pageTitle(data.title), data.requestUrl);
+export function meta({ data, matches }: Route.MetaArgs) {
+  const sfx = storeConfigFrom(matches)?.seoTitleSuffix;
+  if (!data) return [{ title: pageTitle(undefined, sfx) }];
+  return catalogMeta(pageTitle(data.title, sfx), data.requestUrl);
 }
 
 export default function CategoryRoute() {

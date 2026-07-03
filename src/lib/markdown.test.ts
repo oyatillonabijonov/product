@@ -67,4 +67,7 @@ describe('firstParagraph', () => {
   it('returns empty string when there is no paragraph', () => {
     expect(firstParagraph('## Faqat sarlavha')).toBe('');
   });
+  it('falls back to the first list item when there is no paragraph', () => {
+    expect(firstParagraph('- Birinchi **shart**\n- Ikkinchi')).toBe('Birinchi shart');
+  });
 });

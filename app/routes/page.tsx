@@ -2,7 +2,7 @@ import { useLoaderData } from 'react-router';
 import type { Route } from './+types/page';
 import { loadPage } from '../lib/loaders';
 import { resolveLocale, localeToTextKey } from '../lib/i18n';
-import { pageTitle } from '../lib/seo';
+import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { firstParagraph } from '../../src/lib/markdown';
 import Markdown from '../../src/store/Markdown';
 
@@ -14,12 +14,13 @@ export async function loader({ params, context }: Route.LoaderArgs) {
   return { page, locale };
 }
 
-export function meta({ data }: Route.MetaArgs) {
-  if (!data) return [{ title: pageTitle() }];
+export function meta({ data, matches }: Route.MetaArgs) {
+  const sfx = storeConfigFrom(matches)?.seoTitleSuffix;
+  if (!data) return [{ title: pageTitle(undefined, sfx) }];
   const key = localeToTextKey(data.locale);
   const desc = firstParagraph(data.page.content[key]);
   return [
-    { title: pageTitle(data.page.title[key]) },
+    { title: pageTitle(data.page.title[key], sfx) },
     ...(desc ? [{ name: 'description', content: desc }] : []),
   ];
 }
