@@ -17,14 +17,14 @@ const Pagination: FC<{ page: number; total: number; onPage: (n: number) => void 
     <nav className="flex items-center justify-center gap-1.5 mt-8">
       {withGaps.map((p, i) =>
         p === '…' ? (
-          <span key={`gap-${i}`} className="px-2 text-[#86868B]">…</span>
+          <span key={`gap-${i}`} className="px-2 text-muted-2">…</span>
         ) : (
           <button
             key={p}
             onClick={() => onPage(p)}
             disabled={p === page}
             className={`min-w-9 h-9 px-2 rounded-full text-[14px] font-semibold transition-colors ${
-              p === page ? 'bg-[#0071E3] text-white' : 'bg-white border border-[#D2D2D7] hover:border-[#0071E3]'
+              p === page ? 'bg-accent text-white' : 'bg-white border border-line hover:border-accent'
             }`}
           >
             {p}

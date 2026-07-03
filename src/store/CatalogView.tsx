@@ -75,10 +75,10 @@ const CatalogView: FC<{
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div className="flex items-baseline gap-3">
           <h1 className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em]">{title}</h1>
-          <span className="text-[14px] text-[#86868B]">{result.total} {t.resultsCount}</span>
+          <span className="text-[14px] text-muted-2">{result.total} {t.resultsCount}</span>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setSheetOpen(true)} className="lg:hidden inline-flex items-center gap-2 border border-[#D2D2D7] rounded-full px-4 py-2 text-[14px] font-semibold">
+          <button onClick={() => setSheetOpen(true)} className="lg:hidden inline-flex items-center gap-2 border border-line rounded-full px-4 py-2 text-[14px] font-semibold">
             <SlidersHorizontal className="w-4 h-4" /> {t.filterTitle}
           </button>
           <SortSelect t={t} value={filters.sort} onChange={(v: SortKey) => update({ sort: v })} />

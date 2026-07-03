@@ -30,7 +30,7 @@ export default function ContentPage() {
   const key = localeToTextKey(locale);
   return (
     <div className="max-w-[760px] mx-auto px-4 py-10 md:py-14">
-      <h1 className="text-[32px] md:text-[40px] font-semibold text-[#1D1D1F] tracking-[-0.03em] mb-6">{page.title[key]}</h1>
+      <h1 className="text-[32px] md:text-[40px] font-semibold text-primary tracking-[-0.03em] mb-6">{page.title[key]}</h1>
       <Markdown source={page.content[key]} />
     </div>
   );

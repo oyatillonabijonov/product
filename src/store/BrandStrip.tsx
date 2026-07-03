@@ -12,11 +12,11 @@ const BrandStrip: FC<{ title: string; brands: ApiBrand[] }> = ({ title, brands }
           <LocaleLink
             key={b.id}
             to={`/brand/${b.slug}`}
-            className="shrink-0 h-16 min-w-[120px] px-6 bg-white border border-[#ECECEF] rounded-2xl flex items-center justify-center shadow-[--shadow-apple] hover:border-[#0071E3] transition-colors"
+            className="shrink-0 h-16 min-w-[120px] px-6 bg-white border border-line-3 rounded-2xl flex items-center justify-center shadow-[--shadow-apple] hover:border-accent transition-colors"
           >
             {b.logoUrl
               ? <img src={b.logoUrl} alt={b.name} loading="lazy" className="max-h-8 max-w-[96px] object-contain" />
-              : <span className="text-[15px] font-semibold text-[#1D1D1F]">{b.name}</span>}
+              : <span className="text-[15px] font-semibold text-primary">{b.name}</span>}
           </LocaleLink>
         ))}
       </div>

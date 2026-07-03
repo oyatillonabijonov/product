@@ -32,5 +32,5 @@ export default function StoreRoot() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  return <div className="p-16 text-center text-[#6E6E73]">Xatolik yuz berdi.</div>;
+  return <div className="p-16 text-center text-muted">Xatolik yuz berdi.</div>;
 }

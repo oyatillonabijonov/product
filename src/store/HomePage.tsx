@@ -33,7 +33,7 @@ export default function HomePage({
       <section id="featured" className="scroll-mt-24">
         <div className="flex items-baseline justify-between mb-6">
           <h2 className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em]">{t.homeFeatured}</h2>
-          <LocaleLink to="/katalog" className="text-[14px] font-semibold text-[#0071E3] hover:underline inline-flex items-center gap-0.5">
+          <LocaleLink to="/katalog" className="text-[14px] font-semibold text-accent hover:underline inline-flex items-center gap-0.5">
             {t.railAll} <ChevronRight className="w-4 h-4" />
           </LocaleLink>
         </div>

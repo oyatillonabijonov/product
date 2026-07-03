@@ -10,6 +10,25 @@
   --color-bg: #F5F5F7;
   --color-trust: #1B7A34;
   --color-sale: #E8462D;
+  --color-body: #3A3A3C;
+  --color-muted: #6E6E73;
+  --color-muted-2: #86868B;
+  --color-muted-3: #9A9AA0;
+  --color-disabled: #C7C7CC;
+  --color-disabled-2: #B0B0B5;
+  --color-accent-hover: #0077ED;
+  --color-accent-soft: #EAF3FF;
+  --color-accent-soft-2: #DCEBFF;
+  --color-accent-bright: #00A2FF;
+  --color-row-alt: #FAFAFC;
+  --color-fill-2: #E8E8ED;
+  --color-line: #D2D2D7;
+  --color-line-2: #E5E5EA;
+  --color-line-3: #ECECEF;
+  --color-divider: #F0F0F2;
+  --color-segment: #F0F0F3;
+  --color-trust-soft: #E8F5E9;
+  --color-danger: #E30000;
   --radius-card: 24px;
 }
 
