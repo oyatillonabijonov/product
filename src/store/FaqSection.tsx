@@ -2,6 +2,7 @@ import { useState, type FC } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus } from 'lucide-react';
 import { renderMarkdown, type MdBlock, type MdInline } from '../lib/markdown';
+import { Inlines } from './Markdown';
 
 interface FaqItem {
   question: MdInline[];
@@ -21,24 +22,6 @@ function toFaqItems(source: string): FaqItem[] {
   return items;
 }
 
-const Inlines: FC<{ inlines: MdInline[] }> = ({ inlines }) => (
-  <>
-    {inlines.map((seg, i) => {
-      if (seg.href) {
-        const external = !seg.href.startsWith('/');
-        return (
-          <a key={i} href={seg.href} className="text-accent hover:underline"
-            target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
-            {seg.text}
-          </a>
-        );
-      }
-      if (seg.bold) return <strong key={i} className="font-semibold text-primary">{seg.text}</strong>;
-      return <span key={i}>{seg.text}</span>;
-    })}
-  </>
-);
-
 const AnswerBody: FC<{ blocks: MdBlock[] }> = ({ blocks }) => (
   <div className="flex flex-col gap-3 text-[15px] text-muted leading-relaxed">
     {blocks.map((b, i) => {
@@ -57,7 +40,7 @@ const AnswerBody: FC<{ blocks: MdBlock[] }> = ({ blocks }) => (
 const FaqRow: FC<{ item: FaqItem; isOpen: boolean; onToggle: () => void }> = ({ item, isOpen, onToggle }) => (
   <div
     className={`rounded-[20px] border bg-white transition-colors ${
-      isOpen ? 'border-accent/40 shadow-[--shadow-apple]' : 'border-line/60 hover:border-line-2'
+      isOpen ? 'border-accent/40 shadow-apple' : 'border-line/60 hover:border-line-2'
     }`}
   >
     <button

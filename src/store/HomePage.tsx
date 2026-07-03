@@ -1,4 +1,4 @@
-import type { ApiBanner, ApiBrand, ApiCategory, ApiPage } from '../../shared/types';
+import type { ApiBanner, ApiBrand, ApiCategory, ApiPage, ApiSiteConfig } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { Translation } from '../locales';
 import { localeToTextKey, type Locale } from '../../app/lib/i18n';
@@ -15,16 +15,16 @@ import LocaleLink from './LocaleLink';
 import { ChevronRight } from 'lucide-react';
 
 export default function HomePage({
-  t, products, config, categories, banners, deals, latest, brands, locale, faqPage,
+  t, products, config, categories, banners, deals, latest, brands, locale, faqPage, site,
 }: {
   t: Translation; products: Product[]; config: InstallmentConfig; categories: ApiCategory[];
   banners: ApiBanner[]; deals: Product[]; latest: Product[]; brands: ApiBrand[]; locale: Locale;
-  faqPage: ApiPage | null;
+  faqPage: ApiPage | null; site: ApiSiteConfig;
 }) {
   const textKey = localeToTextKey(locale);
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10 flex flex-col gap-10 md:gap-14">
-      {banners.length > 0 ? <BannerSlider banners={banners} locale={locale} /> : <HeroBanner t={t} />}
+      {banners.length > 0 ? <BannerSlider banners={banners} locale={locale} t={t} /> : <HeroBanner t={t} phone={site.phone} />}
       <TrustBar t={t} />
       <section className="flex flex-col gap-6">
         <h2 className="text-[22px] md:text-[28px] font-semibold tracking-[-0.02em]">{t.homeCategories}</h2>

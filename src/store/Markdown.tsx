@@ -1,16 +1,24 @@
 import type { FC } from 'react';
 import { renderMarkdown, type MdInline } from '../lib/markdown';
+import LocaleLink from './LocaleLink';
 
-const Inlines: FC<{ inlines: MdInline[] }> = ({ inlines }) => (
+export const Inlines: FC<{ inlines: MdInline[] }> = ({ inlines }) => (
   <>
     {inlines.map((seg, i) => {
       if (seg.href) {
         const external = !seg.href.startsWith('/');
+        if (external) {
+          return (
+            <a key={i} href={seg.href} className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
+              {seg.text}
+            </a>
+          );
+        }
+        // Ichki link — locale prefiksini saqlaydi va to'liq reload qilmaydi.
         return (
-          <a key={i} href={seg.href} className="text-accent hover:underline"
-            target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
+          <LocaleLink key={i} to={seg.href} className="text-accent hover:underline">
             {seg.text}
-          </a>
+          </LocaleLink>
         );
       }
       if (seg.bold) return <strong key={i} className="font-semibold text-primary">{seg.text}</strong>;

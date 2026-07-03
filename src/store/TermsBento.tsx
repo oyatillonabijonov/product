@@ -22,10 +22,10 @@ const CELLS: Cell[] = [
     eyebrow: L('Muddat', 'Срок', 'Term', 'Муддат'),
     title: L('3 – 12 oy', '3 – 12 мес.', '3 – 12 mo.', '3 – 12 ой'),
     desc: L(
-      "O'zingizga qulay to'lov muddatini tanlang — 3, 6, 9 yoki 12 oy.",
-      'Выберите удобный срок оплаты — 3, 6, 9 или 12 месяцев.',
-      'Choose a payment term that suits you — 3, 6, 9 or 12 months.',
-      'Ўзингизга қулай тўлов муддатини танланг — 3, 6, 9 ёки 12 ой.',
+      "O'zingizga qulay to'lov muddatini tanlang.",
+      'Выберите удобный срок оплаты.',
+      'Choose a payment term that suits you.',
+      'Ўзингизга қулай тўлов муддатини танланг.',
     ),
     span: 'md:col-span-2 md:row-span-2',
     tone: 'accent',
@@ -99,7 +99,7 @@ const CELLS: Cell[] = [
 
 const TONE: Record<Tone, { card: string; eyebrow: string; title: string; desc: string; icon: string }> = {
   accent: {
-    card: 'bg-gradient-to-br from-accent to-accent-hover text-white border-transparent shadow-[--shadow-apple]',
+    card: 'bg-gradient-to-br from-accent to-accent-hover text-white border-transparent shadow-apple',
     eyebrow: 'text-white/70',
     title: 'text-white',
     desc: 'text-white/85',

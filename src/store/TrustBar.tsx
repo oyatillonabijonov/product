@@ -13,7 +13,7 @@ export default function TrustBar({ t }: { t: Translation }) {
       {items.map(({ icon: Icon, label }, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 bg-white border border-divider rounded-2xl px-4 py-3.5 shadow-[--shadow-apple]"
+          className="flex items-center gap-3 bg-white border border-divider rounded-2xl px-4 py-3.5 shadow-apple"
         >
           <span className="shrink-0 w-10 h-10 rounded-xl bg-accent-soft text-accent flex items-center justify-center">
             <Icon className="w-5 h-5" strokeWidth={2} />

@@ -22,8 +22,8 @@ const ActiveFilterChips: FC<{
     chips.push({ key: `b-${b}`, label: name, remove: () => onRemove('brand', b) });
   }
   if (filters.priceMin !== null || filters.priceMax !== null) {
-    const lo = filters.priceMin !== null ? formatUzs(filters.priceMin) : '0';
-    const hi = filters.priceMax !== null ? formatUzs(filters.priceMax) : '∞';
+    const lo = filters.priceMin !== null ? formatUzs(filters.priceMin, t.sum) : '0';
+    const hi = filters.priceMax !== null ? formatUzs(filters.priceMax, t.sum) : '∞';
     chips.push({ key: 'price', label: `${lo} – ${hi}`, remove: () => onRemove('price') });
   }
   if (filters.condition) {

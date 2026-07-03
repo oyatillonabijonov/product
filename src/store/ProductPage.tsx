@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck, ShoppingCart } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
+import type { ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import { calcInstallment, composeLeadMessage, discountPercent, formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, type VariantSelection } from '../lib/variants';
@@ -10,11 +11,14 @@ import { useCart } from './CartContext';
 import Gallery from './Gallery';
 import LocaleLink from './LocaleLink';
 import ProductGrid from './ProductGrid';
+import TermSegments from './TermSegments';
 
 const ProductPage: FC<{
-  t: Translation; product: ProductDetail; config: InstallmentConfig; similar: Product[];
-}> = ({ t, product, config, similar }) => {
-  const [months, setMonths] = useState(12);
+  t: Translation; product: ProductDetail; config: InstallmentConfig; similar: Product[]; site: ApiSiteConfig;
+}> = ({ t, product, config, similar, site }) => {
+  // Default — sozlamalardagi eng uzun muddat (qattiq 12 emas: admin muddatlarni o'zgartirsa
+  // tanlanmagan segment + noto'g'ri yorliq chiqib qolardi).
+  const [months, setMonths] = useState(() => config.terms[config.terms.length - 1]?.months ?? 12);
   const [selection, setSelection] = useState<VariantSelection | null>(
     () => defaultSelection(product.options, product.variants),
   );
@@ -39,8 +43,11 @@ const ProductPage: FC<{
     if (!result || outOfStock) return;
     const label = selection ? selectionLabel(product.options, selection) : '';
     const productName = label ? `${product.name} (${label})` : product.name;
-    const msg = composeLeadMessage({ name: '', phone: '', product: productName, months, monthly: formatUzs(result.monthly) });
-    const url = channel === 'telegram' ? telegramShareUrl(msg) : whatsappUrl(msg);
+    const msg = composeLeadMessage({
+      name: '', phone: '', product: productName, months,
+      monthly: formatUzs(result.monthly, t.sum), brand: site.name,
+    });
+    const url = channel === 'telegram' ? telegramShareUrl(msg, site.telegram) : whatsappUrl(msg, site.whatsapp);
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
@@ -77,10 +84,10 @@ const ProductPage: FC<{
           {product.conditionNote && <p className="text-[14px] text-muted mt-2.5">{product.conditionNote}</p>}
 
           <div className="flex items-baseline gap-2.5 mt-4 flex-wrap">
-            <span className="text-[28px] md:text-[34px] font-semibold text-primary tracking-[-0.025em] tabular-nums">{formatUzs(displayCash)}</span>
+            <span className="text-[28px] md:text-[34px] font-semibold text-primary tracking-[-0.025em] tabular-nums">{formatUzs(displayCash, t.sum)}</span>
             {displayOld && disc !== null && (
               <>
-                <span className="text-[16px] md:text-[18px] line-through text-disabled-2 tabular-nums">{formatUzs(displayOld)}</span>
+                <span className="text-[16px] md:text-[18px] line-through text-disabled-2 tabular-nums">{formatUzs(displayOld, t.sum)}</span>
                 <span className="text-[12px] font-bold px-2 py-0.5 rounded-full bg-sale text-white">-{disc}%</span>
               </>
             )}
@@ -125,29 +132,15 @@ const ProductPage: FC<{
           )}
 
           {config && result && (
-            <div className="mt-5 bg-white border border-line-3 rounded-[24px] p-5 shadow-[--shadow-apple]">
+            <div className="mt-5 bg-white border border-line-3 rounded-[24px] p-5 shadow-apple">
               <div className="text-[13px] font-semibold text-muted mb-3">{t.calcTerm}</div>
-              <div className="grid grid-cols-3 gap-1 bg-segment rounded-full p-1">
-                {config.terms.map((x) => (
-                  <button
-                    key={x.months}
-                    onClick={() => setMonths(x.months)}
-                    className={`py-2.5 rounded-full text-[14px] font-semibold transition-all duration-200 ${
-                      x.months === months
-                        ? 'bg-white text-primary shadow-[0_1px_3px_rgba(0,0,0,0.14)]'
-                        : 'text-muted hover:text-primary'
-                    }`}
-                  >
-                    {x.months} {t.calcMonths}
-                  </button>
-                ))}
-              </div>
+              <TermSegments t={t} terms={config.terms} months={months} onChange={setMonths} />
 
               <div className="flex items-end justify-between mt-5">
                 <div>
                   <div className="text-[13px] text-muted">{t.calcMonthly}</div>
                   <div className="text-[32px] md:text-[34px] font-semibold text-accent tracking-[-0.02em] leading-none mt-1">
-                    {formatUzs(result.monthly)}
+                    {formatUzs(result.monthly, t.sum)}
                   </div>
                 </div>
                 <span className="text-[12px] text-muted-2 pb-1">× {months} {t.calcMonths}</span>
@@ -156,11 +149,11 @@ const ProductPage: FC<{
               <div className="mt-4 pt-4 border-t border-divider space-y-2 text-[13px]">
                 <div className="flex justify-between">
                   <span className="text-muted">{t.calcDownPayment}</span>
-                  <span className="font-medium text-primary">{formatUzs(result.downPaymentUzs)}</span>
+                  <span className="font-medium text-primary">{formatUzs(result.downPaymentUzs, t.sum)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">{t.calcTotal}</span>
-                  <span className="font-medium text-primary">{formatUzs(result.total)}</span>
+                  <span className="font-medium text-primary">{formatUzs(result.total, t.sum)}</span>
                 </div>
               </div>
             </div>
@@ -183,7 +176,7 @@ const ProductPage: FC<{
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-5 border-t border-divider text-[13px] text-muted">
-            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-trust" /> {t.heroPill.split('•')[0].trim()}</span>
+            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-trust" /> {t.trustShort}</span>
             <span className="inline-flex items-center gap-1.5"><BadgeCheck className="w-4 h-4 text-accent" /> {t.feature2}</span>
             <span className="inline-flex items-center gap-1.5"><Truck className="w-4 h-4 text-accent" /> {t.feature3}</span>
           </div>
@@ -193,7 +186,7 @@ const ProductPage: FC<{
       {product.specs.length > 0 && (
         <div className="mt-12 max-w-2xl">
           <h2 className="text-[20px] font-semibold mb-4">{t.specsTitle}</h2>
-          <dl className="bg-white border border-line-3 rounded-[20px] overflow-hidden shadow-[--shadow-apple]">
+          <dl className="bg-white border border-line-3 rounded-[20px] overflow-hidden shadow-apple">
             {product.specs.map((s, i) => (
               <div
                 key={i}

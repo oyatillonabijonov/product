@@ -1,13 +1,13 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/home';
 import { resolveLocale } from '../lib/i18n';
-import { pageTitle, storeConfigFrom } from '../lib/seo';
+import { pageTitle, storeConfigFrom, ogMeta } from '../lib/seo';
 import { siteConfig } from '../lib/site.config';
 import { loadStore, loadCategories, loadBanners, loadBrands, loadRail, loadPage } from '../lib/loaders';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import HomePage from '../../src/store/HomePage';
 
-export async function loader({ params, context }: Route.LoaderArgs) {
+export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.cloudflare.env;
@@ -15,14 +15,23 @@ export async function loader({ params, context }: Route.LoaderArgs) {
     loadStore(env, { limit: 12 }), loadCategories(env), loadBanners(env),
     loadRail(env, 'deals'), loadRail(env, 'latest'), loadBrands(env), loadPage(env, 'faq'),
   ]);
-  return { products, config, categories, banners, deals, latest, brands, faqPage, locale };
+  return { products, config, categories, banners, deals, latest, brands, faqPage, locale, origin: new URL(request.url).origin };
 }
 
-export function meta({ matches }: Route.MetaArgs) {
+export function meta({ data, matches }: Route.MetaArgs) {
   const cfg = storeConfigFrom(matches);
+  const title = pageTitle(undefined, cfg?.seoTitleSuffix);
+  const desc = cfg?.seoDescription ?? siteConfig.seo.description;
+  const img = cfg?.ogImage;
   return [
-    { title: pageTitle(undefined, cfg?.seoTitleSuffix) },
-    { name: 'description', content: cfg?.seoDescription ?? siteConfig.seo.description },
+    { title },
+    { name: 'description', content: desc },
+    ...ogMeta({
+      title,
+      description: desc,
+      image: img ? (img.startsWith('http') ? img : (data?.origin ?? '') + img) : undefined,
+      url: data ? data.origin + (data.locale === 'uz' ? '/' : `/${data.locale}`) : undefined,
+    }),
   ];
 }
 
@@ -33,6 +42,7 @@ export default function HomeRoute() {
     <HomePage
       t={ctx.t} products={products} config={config} categories={categories}
       banners={banners} deals={deals} latest={latest} brands={brands} locale={locale} faqPage={faqPage}
+      site={ctx.config}
     />
   );
 }

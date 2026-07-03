@@ -3,9 +3,9 @@ import { ArrowRight, Phone } from 'lucide-react';
 import type { Translation } from '../locales';
 import heroDevice from '../assets/images/iph1.webp';
 
-export default function HeroBanner({ t }: { t: Translation }) {
+export default function HeroBanner({ t, phone }: { t: Translation; phone: string }) {
   return (
-    <div className="relative overflow-hidden rounded-[28px] bg-bg border border-line-3 shadow-[--shadow-apple]">
+    <div className="relative overflow-hidden rounded-[28px] bg-bg border border-line-3 shadow-apple">
       {/* Soft color mesh */}
       <div
         aria-hidden
@@ -52,7 +52,7 @@ export default function HeroBanner({ t }: { t: Translation }) {
               <ArrowRight className="w-4 h-4" />
             </a>
             <a
-              href="tel:+998886043636"
+              href={`tel:${phone}`}
               className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-primary text-[15px] font-semibold rounded-full border border-line hover:border-accent transition-colors"
             >
               <Phone className="w-4 h-4" />

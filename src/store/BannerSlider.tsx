@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { FC } from 'react';
 import { Link } from 'react-router';
 import type { ApiBanner } from '../../shared/types';
+import type { Translation } from '../locales';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
 import { safeHref } from '../lib/safe-href';
 
@@ -21,7 +22,7 @@ const Slide: FC<{ banner: ApiBanner; locale: Locale; eager: boolean }> = ({ bann
   return <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{img}</a>;
 };
 
-const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale }> = ({ banners, locale }) => {
+const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale; t: Translation }> = ({ banners, locale, t }) => {
   const track = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(0);
 
@@ -38,7 +39,7 @@ const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale }> = ({ banners, l
 
   if (banners.length === 0) return null;
   return (
-    <div className="relative rounded-[24px] overflow-hidden shadow-[--shadow-apple]">
+    <div className="relative rounded-[24px] overflow-hidden shadow-apple">
       <div
         ref={track}
         onScroll={onScroll}
@@ -51,14 +52,17 @@ const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale }> = ({ banners, l
       {banners.length > 1 && (
         <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
           {banners.map((b, i) => (
+            // 24px tugma (minimal touch-target), ko'rinadigan nuqta 8px bo'lib qoladi
             <button
               key={b.id}
               type="button"
               onClick={() => goTo(i)}
-              aria-label={`Slayd ${i + 1}`}
+              aria-label={`${t.slideLabel} ${i + 1}`}
               aria-current={i === active || undefined}
-              className={`w-2 h-2 rounded-full transition-colors ${i === active ? 'bg-white' : 'bg-white/45'}`}
-            />
+              className="w-6 h-6 -m-1.5 flex items-center justify-center"
+            >
+              <span className={`w-2 h-2 rounded-full transition-colors ${i === active ? 'bg-white' : 'bg-white/45'}`} />
+            </button>
           ))}
         </div>
       )}

@@ -15,7 +15,7 @@ export default function CategoryCircles({ categories }: { categories: ApiCategor
             className="shrink-0 flex flex-col items-center gap-2.5 w-[88px] group"
           >
             <div className="w-[76px] h-[76px] rounded-full p-[2px] bg-gradient-to-br from-fill-2 to-bg group-hover:from-accent group-hover:to-accent-bright transition-all duration-300">
-              <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden shadow-[--shadow-apple] group-hover:-translate-y-0.5 transition-transform">
+              <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden shadow-apple group-hover:-translate-y-0.5 transition-transform">
                 {c.iconUrl ? (
                   <img src={c.iconUrl} alt={c.name} className="w-full h-full object-cover rounded-full" />
                 ) : (

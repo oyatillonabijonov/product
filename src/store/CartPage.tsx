@@ -3,14 +3,17 @@ import type { FC } from 'react';
 import { Send, Trash2, ShoppingCart, Minus, Plus } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { InstallmentConfig } from '../data/products';
+import type { ApiSiteConfig } from '../../shared/types';
 import { cartSum, cartInstallment, composeCartLeadMessage } from '../lib/cart';
 import { formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
 import { useCart } from './CartContext';
 import LocaleLink from './LocaleLink';
+import TermSegments from './TermSegments';
 
-const CartPage: FC<{ t: Translation; config: InstallmentConfig }> = ({ t, config }) => {
+const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteConfig }> = ({ t, config, site }) => {
   const { items, count, remove, changeQty, clear } = useCart();
-  const [months, setMonths] = useState(12);
+  // Default — sozlamalardagi eng uzun muddat (qattiq 12 emas).
+  const [months, setMonths] = useState(() => config.terms[config.terms.length - 1]?.months ?? 12);
   const sum = cartSum(items);
   const result = useMemo(() => {
     const term = config.terms.find((x) => x.months === months) ?? config.terms[config.terms.length - 1];
@@ -21,11 +24,12 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig }> = ({ t, config
     if (items.length === 0) return;
     const msg = composeCartLeadMessage({
       items, months,
-      monthly: formatUzs(result.monthly),
-      downPayment: formatUzs(result.downPaymentUzs),
-      totalCash: formatUzs(sum),
+      monthly: formatUzs(result.monthly, t.sum),
+      downPayment: formatUzs(result.downPaymentUzs, t.sum),
+      totalCash: formatUzs(sum, t.sum),
+      brand: site.name,
     });
-    const url = channel === 'telegram' ? telegramShareUrl(msg) : whatsappUrl(msg);
+    const url = channel === 'telegram' ? telegramShareUrl(msg, site.telegram) : whatsappUrl(msg, site.whatsapp);
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 
@@ -51,14 +55,14 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig }> = ({ t, config
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
         <div className="flex flex-col gap-3">
           {items.map((it) => (
-            <div key={`${it.productId}-${it.variantId ?? ''}`} className="bg-white border border-divider rounded-2xl p-4 flex items-center gap-4 shadow-[--shadow-apple]">
+            <div key={`${it.productId}-${it.variantId ?? ''}`} className="bg-white border border-divider rounded-2xl p-4 flex items-center gap-4 shadow-apple">
               <div className="w-16 h-16 rounded-xl bg-bg flex items-center justify-center p-2 shrink-0">
                 {it.image ? <img src={it.image} alt="" className="max-w-full max-h-full object-contain" /> : null}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-[15px] truncate">{it.name}</div>
                 {it.variantLabel && <div className="text-[12px] text-muted">{it.variantLabel}</div>}
-                <div className="text-[13px] text-muted mt-0.5 tabular-nums">{formatUzs(it.priceUzs * it.qty)}</div>
+                <div className="text-[13px] text-muted mt-0.5 tabular-nums">{formatUzs(it.priceUzs * it.qty, t.sum)}</div>
               </div>
               <div className="flex items-center gap-1.5">
                 <button onClick={() => changeQty(it.productId, it.variantId, it.qty - 1)} aria-label={t.qtyDecrease} className="w-8 h-8 rounded-full border border-line flex items-center justify-center hover:border-accent"><Minus className="w-3.5 h-3.5" /></button>
@@ -73,26 +77,17 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig }> = ({ t, config
           </button>
         </div>
 
-        <div className="bg-white border border-line-3 rounded-[24px] p-5 shadow-[--shadow-apple] lg:sticky lg:top-24">
+        <div className="bg-white border border-line-3 rounded-[24px] p-5 shadow-apple lg:sticky lg:top-24">
           <div className="text-[13px] font-semibold text-muted mb-3">{t.calcTerm}</div>
-          <div className="grid grid-cols-3 gap-1 bg-segment rounded-full p-1 mb-5">
-            {config.terms.map((x) => (
-              <button key={x.months} onClick={() => setMonths(x.months)}
-                className={`py-2.5 rounded-full text-[14px] font-semibold transition-all duration-200 ${
-                  x.months === months ? 'bg-white text-primary shadow-[0_1px_3px_rgba(0,0,0,0.14)]' : 'text-muted hover:text-primary'
-                }`}>
-                {x.months} {t.calcMonths}
-              </button>
-            ))}
-          </div>
+          <TermSegments t={t} terms={config.terms} months={months} onChange={setMonths} className="mb-5" />
           <div className="space-y-2 text-[13px]">
-            <div className="flex justify-between"><span className="text-muted">{t.cartTotalCash}</span><span className="font-medium tabular-nums">{formatUzs(sum)}</span></div>
-            <div className="flex justify-between"><span className="text-muted">{t.calcDownPayment}</span><span className="font-medium tabular-nums">{formatUzs(result.downPaymentUzs)}</span></div>
+            <div className="flex justify-between"><span className="text-muted">{t.cartTotalCash}</span><span className="font-medium tabular-nums">{formatUzs(sum, t.sum)}</span></div>
+            <div className="flex justify-between"><span className="text-muted">{t.calcDownPayment}</span><span className="font-medium tabular-nums">{formatUzs(result.downPaymentUzs, t.sum)}</span></div>
           </div>
           <div className="mt-4 pt-4 border-t border-divider">
             <div className="text-[13px] text-muted">{t.cartMonthlyTotal}</div>
             <div className="text-[28px] font-semibold text-accent tracking-[-0.02em] leading-none mt-1 tabular-nums">
-              {formatUzs(result.monthly)} <span className="text-[13px] text-muted-2 font-normal">× {months} {t.calcMonths}</span>
+              {formatUzs(result.monthly, t.sum)} <span className="text-[13px] text-muted-2 font-normal">× {months} {t.calcMonths}</span>
             </div>
           </div>
           <div className="flex flex-col gap-2.5 mt-5">

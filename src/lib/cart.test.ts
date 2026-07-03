@@ -85,7 +85,9 @@ describe('composeCartLeadMessage', () => {
     const msg = composeCartLeadMessage({
       items: [I({ productId: 'a', name: 'iPhone 17 Pro', variantLabel: 'Xotira: 256GB', qty: 2 }), I({ productId: 'b', name: 'AirPods' })],
       months: 12, monthly: "1 000 000 so'm", downPayment: "500 000 so'm", totalCash: "5 000 000 so'm",
+      brand: 'Test Store',
     });
+    expect(msg).toContain('Test Store — yangi ariza');
     expect(msg).toContain('iPhone 17 Pro (Xotira: 256GB) ×2');
     expect(msg).toContain('AirPods ×1');
     expect(msg).toContain('Muddat: 12 oy');

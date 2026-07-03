@@ -89,13 +89,19 @@ export async function loadConfig(env: Env): Promise<InstallmentConfig> {
   }
 }
 
-export async function loadProductsBy(env: Env, params: { category?: string; q?: string }): Promise<Product[]> {
+/** LIKE'dagi %/_ belgilarini escape qiladi — foydalanuvchi kiritgan qidiruv wildcard bo'lib ketmasin. */
+function escapeLike(s: string): string {
+  return s.replace(/[\\%_]/g, (m) => `\\${m}`);
+}
+
+export async function loadProductsBy(env: Env, params: { category?: string; q?: string; limit?: number }): Promise<Product[]> {
   try {
     let sql = `SELECT ${PRODUCT_COLS} FROM products WHERE is_active = 1`;
     const binds: unknown[] = [];
     if (params.category) { sql += ' AND category_id = ?'; binds.push(params.category); }
-    if (params.q && params.q.trim() !== '') { sql += ' AND name LIKE ?'; binds.push(`%${params.q.trim()}%`); }
+    if (params.q && params.q.trim() !== '') { sql += " AND name LIKE ? ESCAPE '\\'"; binds.push(`%${escapeLike(params.q.trim())}%`); }
     sql += ' ORDER BY sort_order ASC, created_at ASC';
+    if (params.limit) { sql += ' LIMIT ?'; binds.push(params.limit); }
     const { results } = await env.DB.prepare(sql).bind(...binds).all<ProductRow>();
     return results.map(rowToProduct).map(mapProduct);
   } catch (err) {
@@ -145,10 +151,10 @@ function buildConds(f: CatalogFilters, opts: { skipBrands?: boolean; skipPrice?:
   if (f.category) { conds.push('category_id = ?'); binds.push(f.category); }
   if (f.condition) { conds.push('condition = ?'); binds.push(f.condition); }
   if (f.q) {
-    const like = `%${f.q}%`;
+    const like = `%${escapeLike(f.q)}%`;
     // Match product name, brand name, or category name so a search like "Apple" or "telefon" works.
     conds.push(
-      '(name LIKE ? OR brand_id IN (SELECT id FROM brands WHERE name LIKE ?) OR category_id IN (SELECT id FROM categories WHERE name LIKE ?))',
+      "(name LIKE ? ESCAPE '\\' OR brand_id IN (SELECT id FROM brands WHERE name LIKE ? ESCAPE '\\') OR category_id IN (SELECT id FROM categories WHERE name LIKE ? ESCAPE '\\'))",
     );
     binds.push(like, like, like);
   }

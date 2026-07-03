@@ -14,9 +14,22 @@ export function catalogMeta(title: string, requestUrl: string): Array<Record<str
   const metas: Array<Record<string, string>> = [{ title }];
   if (hasActiveParams(url.searchParams)) {
     metas.push({ name: 'robots', content: 'noindex,follow' });
-    metas.push({ tagName: 'link', rel: 'canonical', href: url.pathname });
+    // Canonical absolut bo'lishi shart — nisbiy URL'ni qidiruv tizimlari e'tiborsiz qoldiradi.
+    metas.push({ tagName: 'link', rel: 'canonical', href: url.origin + url.pathname });
   }
   return metas;
+}
+
+/** OG/Twitter meta deskriptorlari — TG/WA'ga ulashilganda preview chiqishi uchun (asosiy lead kanal). */
+export function ogMeta(o: { title: string; description?: string; image?: string; url?: string }): Array<Record<string, string>> {
+  return [
+    { property: 'og:title', content: o.title },
+    { property: 'og:type', content: 'website' },
+    { name: 'twitter:card', content: o.image ? 'summary_large_image' : 'summary' },
+    ...(o.url ? [{ property: 'og:url', content: o.url }] : []),
+    ...(o.description ? [{ property: 'og:description', content: o.description }] : []),
+    ...(o.image ? [{ property: 'og:image', content: o.image }] : []),
+  ];
 }
 
 export function organizationJsonLd(config?: ApiSiteConfig) {
@@ -29,13 +42,14 @@ export function organizationJsonLd(config?: ApiSiteConfig) {
   };
 }
 
-export function hreflangLinks(pathname: string) {
+// hreflang faqat to'liq (absolut) URL bilan ishlaydi — Google nisbiy qiymatlarni tashlab yuboradi.
+export function hreflangLinks(pathname: string, origin = '') {
   const bare = stripLocale(pathname);
   const links = LOCALES.map((loc) => ({
     tagName: 'link' as const, rel: 'alternate' as const,
-    hrefLang: htmlLang(loc), href: localizedPath(loc, bare),
+    hrefLang: htmlLang(loc), href: origin + localizedPath(loc, bare),
   }));
-  links.push({ tagName: 'link', rel: 'alternate', hrefLang: 'x-default', href: localizedPath(DEFAULT_LOCALE, bare) });
+  links.push({ tagName: 'link', rel: 'alternate', hrefLang: 'x-default', href: origin + localizedPath(DEFAULT_LOCALE, bare) });
   return links;
 }
 

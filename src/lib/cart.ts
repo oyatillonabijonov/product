@@ -92,10 +92,12 @@ export interface CartLeadData {
   monthly: string;
   downPayment: string;
   totalCash: string;
+  /** Do'kon nomi — site_config'dan (admin tahrirlaydi), kodga qotirilmaydi. */
+  brand: string;
 }
 
 export function composeCartLeadMessage(d: CartLeadData): string {
-  const lines: string[] = ['🛒 Taqsit Store — yangi ariza (savat)', ''];
+  const lines: string[] = [`🛒 ${d.brand} — yangi ariza (savat)`, ''];
   for (const it of d.items) {
     const label = it.variantLabel ? ` (${it.variantLabel})` : '';
     lines.push(`• ${it.name}${label} ×${it.qty} — ${formatUzs(it.priceUzs * it.qty)}`);

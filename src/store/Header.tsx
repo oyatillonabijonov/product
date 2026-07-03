@@ -17,11 +17,13 @@ export default function Header({
   lang,
   locale,
   pageLinks,
+  brandName,
 }: {
   t: Translation;
   lang: LangKey;
   locale: Locale;
   pageLinks: PageLink[];
+  brandName: string;
 }) {
   const [q, setQ] = useState('');
   const [catOpen, setCatOpen] = useState(false);
@@ -65,20 +67,21 @@ export default function Header({
     >
       <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center gap-3 md:gap-4">
         <Link to={localizedPath(locale, '/')} className="shrink-0">
-          <img src={logo} alt="Taqsit Store" className="h-8 md:h-9" />
+          <img src={logo} alt={brandName} className="h-8 md:h-9" />
         </Link>
 
-        <div className="relative hidden sm:block">
+        <div className="relative">
           <button
             onClick={() => setCatOpen((v) => !v)}
-            className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-[14px] font-semibold hover:border-accent hover:text-accent transition-colors"
+            aria-label={t.navCatalog}
+            className="inline-flex items-center gap-2 rounded-full border border-line px-3 sm:px-4 py-2 text-[14px] font-semibold hover:border-accent hover:text-accent transition-colors"
           >
-            <Menu className="w-4 h-4" /> {t.navCatalog}
+            <Menu className="w-4 h-4" /> <span className="hidden sm:inline">{t.navCatalog}</span>
           </button>
           {catOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setCatOpen(false)} />
-              <div className="absolute left-0 top-full mt-2 w-60 bg-white border border-line-2 rounded-2xl shadow-[--shadow-apple-hover] p-2 z-50">
+              <div className="absolute left-0 top-full mt-2 w-60 bg-white border border-line-2 rounded-2xl shadow-apple-hover p-2 z-50">
                 <div className="border-b border-divider mb-1 pb-1">
                   <Link
                     to={localizedPath(locale, '/katalog')}
@@ -122,6 +125,7 @@ export default function Header({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={t.navSearchPlaceholder}
+            aria-label={t.navSearch}
             className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-[15px] placeholder:text-muted-3 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-white transition-colors"
           />
           <button
@@ -154,7 +158,8 @@ export default function Header({
           <select
             value={lang}
             onChange={(e) => switchLang(e.target.value as LangKey)}
-            className="text-[13px] bg-transparent focus:outline-none cursor-pointer"
+            aria-label={t.langLabel}
+            className="text-[13px] bg-transparent cursor-pointer rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             <option value="O'zbek tili">O'z</option>
             <option value="Rus tili">Рус</option>

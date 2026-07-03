@@ -26,9 +26,10 @@ export function lowestMonthly(product: Product, config: InstallmentConfig): numb
   return calcInstallment(product, longest, config).monthly;
 }
 
-export function formatUzs(value: number): string {
+/** `suffix` \u2014 locale'ga mos valyuta yozuvi (uz "so'm", ru "\u0441\u0443\u043C"); default admin/uz uchun. */
+export function formatUzs(value: number, suffix = "so'm"): string {
   const rounded = Math.round(value);
-  return `${rounded.toLocaleString('ru-RU').replace(/[,\u00A0]/g, ' ')} so'm`;
+  return `${rounded.toLocaleString('ru-RU').replace(/[,\u00A0]/g, ' ')} ${suffix}`;
 }
 
 export interface LeadData {
@@ -37,11 +38,13 @@ export interface LeadData {
   product: string;
   months: number;
   monthly: string;
+  /** Do'kon nomi — site_config'dan (admin tahrirlaydi), kodga qotirilmaydi. */
+  brand: string;
 }
 
 export function composeLeadMessage(data: LeadData): string {
   return [
-    '🛒 Taqsit Store — yangi ariza',
+    `🛒 ${data.brand} — yangi ariza`,
     '',
     `👤 Ism: ${data.name}`,
     `📞 Telefon: ${data.phone}`,
@@ -51,15 +54,14 @@ export function composeLeadMessage(data: LeadData): string {
   ].join('\n');
 }
 
-const TELEGRAM_USER = 'Taqsit_store';
-const WHATSAPP_PHONE = '998886043636';
-
-export function telegramShareUrl(message: string): string {
-  return `https://t.me/share/url?url=${encodeURIComponent('https://t.me/' + TELEGRAM_USER)}&text=${encodeURIComponent(message)}`;
+/** `telegramUrl` — site_config.telegram (masalan https://t.me/Taqsit_store). */
+export function telegramShareUrl(message: string, telegramUrl: string): string {
+  return `https://t.me/share/url?url=${encodeURIComponent(telegramUrl)}&text=${encodeURIComponent(message)}`;
 }
 
-export function whatsappUrl(message: string): string {
-  return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+/** `whatsappBase` — site_config.whatsapp (masalan https://wa.me/998886043636). */
+export function whatsappUrl(message: string, whatsappBase: string): string {
+  return `${whatsappBase.replace(/\/+$/, '')}?text=${encodeURIComponent(message)}`;
 }
 
 export function discountPercent(cash: number, old: number | null): number | null {

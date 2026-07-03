@@ -1,18 +1,11 @@
 import type { FC } from 'react';
 import { Link } from 'react-router';
-import { motion } from 'motion/react';
 import { Phone, Send, Instagram, MapPin, Clock, ExternalLink } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
 import { localizedPath, localeToTextKey, type Locale } from '../../app/lib/i18n';
 import logo from '../assets/logo.svg';
-
-const fadeInUp = {
-  initial: { opacity: 1, y: 0 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.1 },
-};
 
 const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLinks: PageLink[] }> = ({ t, locale, config, pageLinks }) => {
   const mapWidgetSrc = `https://yandex.com/map-widget/v1/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm`;
@@ -23,9 +16,8 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
   return (
     <footer className="w-full bg-bg pt-16 pb-10 px-4 md:px-16 flex flex-col mt-auto border-t border-line/50">
       <div className="max-w-[1024px] mx-auto w-full mb-16">
-        <motion.div
-          {...fadeInUp}
-          className="w-full h-[350px] bg-[#FFFFFF] rounded-[32px] overflow-hidden shadow-[--shadow-apple] relative group border border-line/50"
+        <div
+          className="w-full h-[350px] bg-white rounded-[32px] overflow-hidden shadow-apple relative group border border-line/50"
         >
           <iframe
             src={mapWidgetSrc}
@@ -38,7 +30,7 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
             className="grayscale-[0.2] contrast-[1.1] brightness-[0.95] group-hover:grayscale-0 transition-all duration-700"
           ></iframe>
           <div className="absolute top-6 left-6 z-10">
-            <div className="bg-white/80 backdrop-blur-md px-4 py-3 rounded-2xl border border-line/50 shadow-[--shadow-apple]">
+            <div className="bg-white/80 backdrop-blur-md px-4 py-3 rounded-2xl border border-line/50 shadow-apple">
               <div className="flex items-center gap-2 mb-1">
                 <MapPin className="w-4 h-4 text-accent" />
                 <span className="text-[14px] font-semibold">{t.mapTitle}</span>
@@ -54,13 +46,13 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
               </a>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <div className="max-w-[1024px] mx-auto w-full grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
         <div className="flex flex-col gap-3">
           <div className="font-semibold text-[21px] tracking-[-0.02em] text-primary mb-2 flex items-center gap-2">
-            <img src={logo} alt="Logo" className="w-16 h-16 object-contain" />
+            <img src={logo} alt={config.name} className="w-16 h-16 object-contain" />
           </div>
           <p className="text-[13px] text-muted leading-relaxed max-w-[250px]">
             {t.footerDesc}
@@ -74,12 +66,12 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
             </a>
           )}
           {config.telegram && (
-            <a href={config.telegram} target="_blank" className="text-[13px] text-muted hover:text-primary flex items-center gap-2 transition-colors">
+            <a href={config.telegram} target="_blank" rel="noopener noreferrer" className="text-[13px] text-muted hover:text-primary flex items-center gap-2 transition-colors">
               <Send className="w-4 h-4" /> {telegramHandle}
             </a>
           )}
           {config.instagram && (
-            <a href={config.instagram} target="_blank" className="text-[13px] text-muted hover:text-primary flex items-center gap-2 transition-colors">
+            <a href={config.instagram} target="_blank" rel="noopener noreferrer" className="text-[13px] text-muted hover:text-primary flex items-center gap-2 transition-colors">
               <Instagram className="w-4 h-4" /> {instagramHandle}
             </a>
           )}
@@ -100,7 +92,7 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
       <div className="w-full h-[1px] bg-line/50 mb-6 max-w-[1024px] mx-auto"></div>
 
       <div className="max-w-[1024px] mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[12px] text-muted">
-        <p>{t.footerCopyright}</p>
+        <p>{`© ${new Date().getFullYear()} ${config.name}. ${t.footerCopyright}`}</p>
         <div className="flex gap-6">
           {(() => {
             const shartlar = pageLinks.find((p) => p.slug === 'muddatli-tolov');
@@ -110,9 +102,9 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
               </Link>
             ) : null;
           })()}
-          <a href={`${localizedPath(locale, '/')}#faq`} className="hover:text-primary transition-colors">
+          <Link to={`${localizedPath(locale, '/')}#faq`} className="hover:text-primary transition-colors">
             FAQ
-          </a>
+          </Link>
         </div>
       </div>
     </footer>

@@ -29,7 +29,7 @@ const CookieBanner: FC<{ t: Translation }> = ({ t }) => {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-4">
-      <div className="max-w-[720px] mx-auto bg-white border border-line-2 rounded-2xl shadow-[--shadow-apple-hover] px-4 py-3 flex items-center gap-3">
+      <div className="max-w-[720px] mx-auto bg-white border border-line-2 rounded-2xl shadow-apple-hover px-4 py-3 flex items-center gap-3">
         <Cookie className="w-5 h-5 shrink-0 text-accent" />
         <p className="flex-1 text-[13px] text-body leading-snug">{t.cookieText}</p>
         <button

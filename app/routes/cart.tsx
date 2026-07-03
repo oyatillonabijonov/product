@@ -25,6 +25,6 @@ export function meta({ data, matches }: Route.MetaArgs) {
 
 export default function CartRoute() {
   const { config } = useLoaderData<typeof loader>();
-  const { t } = useOutletContext<StoreContext>();
-  return <CartPage t={t} config={config} />;
+  const { t, config: site } = useOutletContext<StoreContext>();
+  return <CartPage t={t} config={config} site={site} />;
 }

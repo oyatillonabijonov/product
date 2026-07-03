@@ -16,10 +16,10 @@ export default function HowItWorks({ t }: { t: Translation }) {
         {steps.map(({ icon: Icon, title, desc }, i) => (
           <div key={i} className="relative">
             <div className="flex items-center gap-3 mb-3">
-              <span className="w-11 h-11 rounded-2xl bg-white text-accent flex items-center justify-center shadow-[--shadow-apple]">
+              <span className="w-11 h-11 rounded-2xl bg-white text-accent flex items-center justify-center shadow-apple">
                 <Icon className="w-5 h-5" strokeWidth={1.9} />
               </span>
-              <span className="text-[13px] font-bold text-disabled">0{i + 1}</span>
+              <span className="text-[13px] font-bold text-muted-2">0{i + 1}</span>
             </div>
             <h3 className="text-[15px] font-semibold mb-1.5">{title}</h3>
             <p className="text-[13px] text-muted leading-relaxed">{desc}</p>

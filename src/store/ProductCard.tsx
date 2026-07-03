@@ -16,7 +16,7 @@ const ProductCard: FC<{
     <motion.div
       whileHover={{ y: -6 }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-      className="group bg-white border border-divider rounded-[24px] overflow-hidden flex flex-col shadow-[--shadow-apple] hover:shadow-[--shadow-apple-hover] hover:border-line-2 transition-shadow duration-300"
+      className="group bg-white border border-divider rounded-[24px] overflow-hidden flex flex-col shadow-apple hover:shadow-apple-hover hover:border-line-2 transition-shadow duration-300"
     >
       <LocaleLink
         to={`/product/${product.id}`}
@@ -44,7 +44,7 @@ const ProductCard: FC<{
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="text-disabled text-[13px]">{product.name}</div>
+          <div className="text-muted-2 text-[13px]">{product.name}</div>
         )}
       </LocaleLink>
 
@@ -59,13 +59,13 @@ const ProductCard: FC<{
         <div className="mt-auto pt-4">
           <div className="text-[11px] uppercase tracking-wide text-muted-2 font-medium">{t.catalogMonthlyLabel}</div>
           <div className="text-[20px] md:text-[23px] font-semibold tracking-[-0.01em] text-primary leading-tight">
-            {formatUzs(lowestMonthly({ ...product, cashPriceUzs: product.minPriceUzs }, config))}
+            {formatUzs(lowestMonthly({ ...product, cashPriceUzs: product.minPriceUzs }, config), t.sum)}
           </div>
           <div className="text-[12px] text-muted mt-1 mb-4 flex items-center gap-2 flex-wrap">
             {product.oldPriceUzs && product.oldPriceUzs > product.cashPriceUzs && (
-              <span className="line-through text-disabled-2">{formatUzs(product.oldPriceUzs)}</span>
+              <span className="line-through text-disabled-2">{formatUzs(product.oldPriceUzs, t.sum)}</span>
             )}
-            <span className="text-muted">{formatUzs(product.minPriceUzs)}</span>
+            <span className="text-muted">{formatUzs(product.minPriceUzs, t.sum)}</span>
           </div>
           <LocaleLink
             to={`/product/${product.id}`}

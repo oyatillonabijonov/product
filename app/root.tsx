@@ -12,7 +12,7 @@ import './styles.css';
 // it ever reaches <Meta />. Rendering them here in the root Layout (which always wraps
 // every page) guarantees they appear on every page regardless of leaf meta overrides.
 export function Layout({ children }: { children: React.ReactNode }) {
-  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig } | undefined;
+  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig; origin?: string } | undefined;
   const lang = htmlLang(storeData?.locale ?? DEFAULT_LOCALE);
   const location = useLocation();
   const jsonLd = JSON.stringify(organizationJsonLd(storeData?.siteConfig)).replace(/</g, '\\u003c');
@@ -23,7 +23,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {storeData && (
           <>
-            {hreflangLinks(location.pathname).map((link) => (
+            {hreflangLinks(location.pathname, storeData.origin ?? '').map((link) => (
               // lowercase `hreflang` (not `hrefLang`) so React emits the literal HTML
               // attribute name `hreflang=` instead of the DOM-property-cased `hrefLang=`.
               <link key={link.hrefLang} rel={link.rel} hreflang={link.hrefLang} href={link.href} />

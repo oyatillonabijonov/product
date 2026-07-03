@@ -91,6 +91,14 @@ const CatalogView: FC<{
         <aside className="hidden lg:block">{panel}</aside>
         <div>
           <ProductGrid t={t} items={result.items} config={config} />
+          {result.total === 0 &&
+            (filters.brands.length > 0 || filters.priceMin !== null || filters.priceMax !== null || filters.condition !== null) && (
+              <div className="mt-4 text-center">
+                <button onClick={clearAll} className="px-6 py-2.5 rounded-full border border-line text-[14px] font-semibold hover:border-accent hover:text-accent transition-colors">
+                  {t.filterClear}
+                </button>
+              </div>
+            )}
           <Pagination page={filters.page} total={result.total} onPage={(n) => update({ page: n }, false)} />
         </div>
       </div>
@@ -101,7 +109,7 @@ const CatalogView: FC<{
           <div role="dialog" aria-modal="true" aria-label={t.filterTitle} className="absolute bottom-0 inset-x-0 bg-white rounded-t-[24px] p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold">{t.filterTitle}</h2>
-              <button ref={closeBtn} onClick={() => setSheetOpen(false)} aria-label={t.filterClear}><X className="w-5 h-5" /></button>
+              <button ref={closeBtn} onClick={() => setSheetOpen(false)} aria-label={t.close}><X className="w-5 h-5" /></button>
             </div>
             {panel}
           </div>

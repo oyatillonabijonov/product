@@ -15,7 +15,9 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const [result, config, categories, brands] = await Promise.all([
     queryProducts(env, filters), loadConfig(env), loadCategories(env), loadBrands(env),
   ]);
-  const title = categories.find((c) => c.id === slug)?.name ?? slug;
+  const category = categories.find((c) => c.id === slug);
+  if (!category) throw new Response('Not Found', { status: 404 }); // noma'lum slug 200 + soft-404 bo'lib indekslanmasin
+  const title = category.name;
   return { result, config, title, brands, filters, requestUrl: request.url };
 }
 
