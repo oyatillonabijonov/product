@@ -1,5 +1,5 @@
 import type { Env } from '../../functions/env';
-import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant } from '../../shared/types';
+import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiPage, ApiSiteConfig, LocalizedText } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
 import {
   installmentConfig as fallbackConfig,
@@ -11,8 +11,10 @@ import {
 import {
   rowToProduct, rowToCategory, rowToBrand, buildProductDetail, PRODUCT_COLS,
   type ProductRow, type CategoryRow, type SettingsRow, rowToSettings, type BrandRow,
+  rowToBanner, rowToPage, rowToSiteConfig, type BannerRow, type PageRow, type SiteConfigRow,
 } from '../../functions/lib/db';
 import { applyFilters, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
+import { siteConfig as staticSiteConfig } from './site.config';
 
 export interface ProductDetail extends Product {
   oldPriceUzs: number | null;
@@ -190,5 +192,67 @@ export async function queryProducts(env: Env, f: CatalogFilters): Promise<Catalo
   } catch (err) {
     console.error('queryProducts fallback:', err);
     return applyFilters(fallbackProducts, f);
+  }
+}
+
+export interface PageLink {
+  slug: string;
+  title: LocalizedText;
+}
+
+export function staticSiteConfigAsApi(): ApiSiteConfig {
+  return {
+    name: staticSiteConfig.name,
+    phone: staticSiteConfig.phone,
+    phoneDisplay: staticSiteConfig.phoneDisplay,
+    telegram: staticSiteConfig.telegram,
+    instagram: staticSiteConfig.instagram,
+    whatsapp: staticSiteConfig.whatsapp,
+    mapLl: staticSiteConfig.map.ll,
+    mapLabel: staticSiteConfig.map.label,
+    seoTitleSuffix: staticSiteConfig.seo.titleSuffix,
+    seoDescription: staticSiteConfig.seo.description,
+    ogImage: staticSiteConfig.seo.ogImage,
+  };
+}
+
+export async function loadSiteConfig(env: Env): Promise<ApiSiteConfig> {
+  try {
+    const row = await env.DB.prepare('SELECT * FROM site_config WHERE id = 1').first<SiteConfigRow>();
+    if (!row) throw new Error('no_site_config');
+    return rowToSiteConfig(row);
+  } catch (err) {
+    console.error('loadSiteConfig fallback:', err);
+    return staticSiteConfigAsApi();
+  }
+}
+
+export async function loadBanners(env: Env): Promise<ApiBanner[]> {
+  try {
+    const { results } = await env.DB.prepare('SELECT * FROM banners WHERE is_active = 1 ORDER BY sort_order ASC').all<BannerRow>();
+    return results.map(rowToBanner);
+  } catch (err) {
+    console.error('loadBanners fallback:', err);
+    return [];
+  }
+}
+
+export async function loadPages(env: Env): Promise<ApiPage[]> {
+  try {
+    const { results } = await env.DB.prepare('SELECT * FROM pages WHERE is_active = 1 ORDER BY sort_order ASC, slug ASC').all<PageRow>();
+    return results.map(rowToPage);
+  } catch (err) {
+    console.error('loadPages fallback:', err);
+    return [];
+  }
+}
+
+export async function loadPage(env: Env, slug: string): Promise<ApiPage | null> {
+  try {
+    const row = await env.DB.prepare('SELECT * FROM pages WHERE slug = ? AND is_active = 1').bind(slug).first<PageRow>();
+    return row ? rowToPage(row) : null;
+  } catch (err) {
+    console.error('loadPage fallback:', err);
+    return null;
   }
 }

@@ -1,5 +1,5 @@
 import type { Route } from './+types/sitemap[.]xml';
-import { loadStore, loadCategories, loadBrands } from '../lib/loaders';
+import { loadStore, loadCategories, loadBrands, loadPages } from '../lib/loaders';
 import { LOCALES, localizedPath } from '../lib/i18n';
 
 function xmlEscape(s: string): string {
@@ -9,11 +9,12 @@ function xmlEscape(s: string): string {
 export async function loader({ request, context }: Route.LoaderArgs) {
   const env = context.cloudflare.env;
   const origin = new URL(request.url).origin;
-  const [{ products }, categories, brands] = await Promise.all([loadStore(env), loadCategories(env), loadBrands(env)]);
+  const [{ products }, categories, brands, pages] = await Promise.all([loadStore(env), loadCategories(env), loadBrands(env), loadPages(env)]);
   const paths = ['/', '/katalog', '/chegirmalar',
     ...categories.map((c) => `/category/${c.id}`),
     ...brands.map((b) => `/brand/${b.slug}`),
-    ...products.map((p) => `/product/${p.id}`)];
+    ...products.map((p) => `/product/${p.id}`),
+    ...pages.map((p) => `/page/${p.slug}`)];
   const urls = paths.flatMap((p) => LOCALES.map((loc) => `${origin}${localizedPath(loc, p)}`));
   const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
     .map((u) => `  <url><loc>${xmlEscape(u)}</loc></url>`)
