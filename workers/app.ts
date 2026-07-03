@@ -13,7 +13,24 @@ const requestHandler = createRequestHandler(
 );
 
 // Storefront HTML edge cache: short TTL + stale-while-revalidate. Cheap on Cloudflare's free tier.
-const EDGE_CACHE_CONTROL = 'public, max-age=0, s-maxage=60, stale-while-revalidate=600';
+// SWR 240s: Workers Cache API hit'ni fon-yangilashsiz qaytaradi, ya'ni SWR oynasi to'liq
+// eskirish oynasi — admin tahriri eng ko'pi ~5 daqiqada ko'rinadi (oldingi 600s = ~11 daqiqa edi).
+const EDGE_CACHE_CONTROL = 'public, max-age=0, s-maxage=60, stale-while-revalidate=240';
+
+// Marketing/trafik parametrlari sahifa mazmunini o'zgartirmaydi — kesh kalitidan olib
+// tashlanadi, aks holda har bir ?utm_* varianti alohida nusxa bo'lib keshni to'ldiradi.
+const JUNK_PARAMS = new Set(['fbclid', 'gclid', 'yclid', 'wbraid', 'gbraid', 'ref', '_ga']);
+
+function cacheKey(url: URL): Request {
+  const u = new URL(url.href);
+  const drop: string[] = [];
+  u.searchParams.forEach((_, k) => {
+    if (k.startsWith('utm_') || JUNK_PARAMS.has(k)) drop.push(k);
+  });
+  for (const k of drop) u.searchParams.delete(k);
+  u.hash = '';
+  return new Request(u.href, { method: 'GET' });
+}
 
 /** Only cache safe, non-personalized storefront GET pages. Everything dynamic/private is skipped. */
 function isCacheable(request: Request, url: URL): boolean {
@@ -36,18 +53,19 @@ export default {
     const edgeCache = (caches as unknown as { default: Cache }).default;
     const cache = import.meta.env.PROD && isCacheable(request, url) ? edgeCache : null;
 
-    if (cache) {
-      const hit = await cache.match(request);
+    const key = cache ? cacheKey(url) : null;
+    if (cache && key) {
+      const hit = await cache.match(key);
       if (hit) return hit;
     }
 
     const response = await requestHandler(request, { cloudflare: { env, ctx } });
 
     // Store a fresh copy at the edge; return the response to the user unchanged.
-    if (cache && response.status === 200 && !response.headers.has('set-cookie')) {
+    if (cache && key && response.status === 200 && !response.headers.has('set-cookie')) {
       const cached = new Response(response.body, response);
       cached.headers.set('Cache-Control', EDGE_CACHE_CONTROL);
-      ctx.waitUntil(cache.put(request, cached.clone()));
+      ctx.waitUntil(cache.put(key, cached.clone()));
       return cached;
     }
 
