@@ -53,6 +53,7 @@ describe('safeHref', () => {
     expect(safeHref('')).toBeNull();
     expect(safeHref('   ')).toBeNull();
     expect(safeHref('katalog')).toBeNull();
+    expect(safeHref('//evil.com')).toBeNull();
   });
 });
 ```
@@ -80,7 +81,7 @@ Expected: safe-href module missing; `link_invalid` test fails.
 - [ ] **Step 3: Implement** — create `src/lib/safe-href.ts`:
 
 ```ts
-const SAFE_HREF_RE = /^(\/|https?:\/\/)/i;
+const SAFE_HREF_RE = /^(\/(?!\/)|https?:\/\/)/i; // (?!\/) — '//evil.com' protocol-relative emas
 
 export function safeHref(url: string): string | null {
   const u = url.trim();
@@ -93,7 +94,7 @@ In `functions/lib/validate.ts`, inside `parseBannerInput`, replace the `linkUrl`
 
 ```ts
   const linkUrl = typeof o.linkUrl === 'string' ? o.linkUrl.trim() : '';
-  if (linkUrl !== '' && !/^(\/|https?:\/\/)/i.test(linkUrl)) throw new ValidationError('link_invalid');
+  if (linkUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(linkUrl)) throw new ValidationError('link_invalid');
 ```
 
 - [ ] **Step 4: Run to verify PASS**
