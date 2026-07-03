@@ -224,7 +224,8 @@ export function parseBannerInput(body: unknown): BannerInput {
   const imageUrl = reqString(o, 'imageUrl');
   const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID();
   const linkUrl = typeof o.linkUrl === 'string' ? o.linkUrl.trim() : '';
-  if (linkUrl !== '' && !/^(\/|https?:\/\/)/i.test(linkUrl)) throw new ValidationError('link_invalid');
+  // nusxasi src/lib/safe-href.ts da (functions tsconfig src/ ni ko'rmaydi)
+  if (linkUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(linkUrl)) throw new ValidationError('link_invalid');
   const altText = typeof o.altText === 'string' ? o.altText.trim() : '';
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);

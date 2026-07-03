@@ -90,6 +90,7 @@ describe('parseBannerInput linkUrl', () => {
   });
   it('rejects unsafe schemes', () => {
     expect(() => parseBannerInput({ imageUrl: '/i.webp', linkUrl: 'javascript:alert(1)' })).toThrow('link_invalid');
+    expect(() => parseBannerInput({ imageUrl: '/i.webp', linkUrl: '//evil.com' })).toThrow('link_invalid');
   });
 });
 

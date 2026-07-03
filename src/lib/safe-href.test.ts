@@ -16,5 +16,6 @@ describe('safeHref', () => {
     expect(safeHref('')).toBeNull();
     expect(safeHref('   ')).toBeNull();
     expect(safeHref('katalog')).toBeNull();
+    expect(safeHref('//evil.com')).toBeNull();
   });
 });

@@ -1,4 +1,5 @@
-const SAFE_HREF_RE = /^(\/|https?:\/\/)/i;
+// nusxasi functions/lib/validate.ts da (functions tsconfig src/ ni ko'rmaydi)
+const SAFE_HREF_RE = /^(\/(?!\/)|https?:\/\/)/i;
 
 export function safeHref(url: string): string | null {
   const u = url.trim();
