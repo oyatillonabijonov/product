@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { translations, type LangKey, type Translation } from '../locales';
+import type { LangKey, Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
-import { siteConfig } from '../../app/lib/site.config';
+import type { ApiSiteConfig } from '../../shared/types';
+import type { PageLink } from '../../app/lib/loaders';
 import Header from './Header';
 import Footer from './Footer';
 import { CartProvider } from './CartContext';
@@ -13,8 +14,8 @@ export interface StoreContext {
 }
 
 export default function StoreLayout({
-  locale, lang, t, children,
-}: { locale: Locale; lang: LangKey; t: Translation; children: ReactNode }) {
+  locale, lang, t, config, pageLinks, children,
+}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; pageLinks: PageLink[]; children: ReactNode }) {
   return (
     <CartProvider>
       <div className="min-h-screen flex flex-col bg-white">
@@ -22,12 +23,12 @@ export default function StoreLayout({
           <div className="max-w-[1200px] mx-auto px-4 h-9 flex items-center gap-4">
             <span className="font-semibold text-[#1B7A34]">{t.utilInstallment}</span>
             <span className="hidden sm:inline">{t.utilDiscounts}</span>
-            <a href={`tel:${siteConfig.phone}`} className="ml-auto font-medium text-[#1D1D1F]">{siteConfig.phoneDisplay}</a>
+            <a href={`tel:${config.phone}`} className="ml-auto font-medium text-[#1D1D1F]">{config.phoneDisplay}</a>
           </div>
         </div>
         <Header t={t} lang={lang} locale={locale} />
         <main className="flex-1">{children}</main>
-        <Footer t={t} />
+        <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} />
       </div>
     </CartProvider>
   );

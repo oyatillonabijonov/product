@@ -1,7 +1,11 @@
+import type { FC } from 'react';
+import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { Phone, Send, Instagram, MapPin, Clock, ExternalLink } from 'lucide-react';
 import type { Translation } from '../locales';
-import { siteConfig } from '../../app/lib/site.config';
+import type { ApiSiteConfig } from '../../shared/types';
+import type { PageLink } from '../../app/lib/loaders';
+import { localizedPath, localeToTextKey, type Locale } from '../../app/lib/i18n';
 import logo from '../assets/logo.svg';
 
 const fadeInUp = {
@@ -10,12 +14,12 @@ const fadeInUp = {
   transition: { duration: 0.1 },
 };
 
-const mapWidgetSrc = `https://yandex.com/map-widget/v1/?ll=${encodeURIComponent(siteConfig.map.ll)}&z=17&pt=${siteConfig.map.ll},pm2rdm`;
-const mapLinkHref = `https://yandex.com/maps/?ll=${encodeURIComponent(siteConfig.map.ll)}&z=17&pt=${siteConfig.map.ll},pm2rdm`;
-const telegramHandle = `@${siteConfig.telegram.replace(/^https?:\/\/t\.me\//, '')}`;
-const instagramHandle = `@${siteConfig.instagram.replace(/^https?:\/\/www\.instagram\.com\//, '').replace(/\/$/, '')}`;
-
-export default function Footer({ t }: { t: Translation }) {
+const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLinks: PageLink[] }> = ({ t, locale, config, pageLinks }) => {
+  const mapWidgetSrc = `https://yandex.com/map-widget/v1/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm`;
+  const mapLinkHref = `https://yandex.com/maps/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm`;
+  const telegramHandle = `@${config.telegram.replace(/^https?:\/\/t\.me\//, '')}`;
+  const instagramHandle = `@${config.instagram.replace(/^https?:\/\/www\.instagram\.com\//, '').replace(/\/$/, '')}`;
+  const textKey = localeToTextKey(locale);
   return (
     <footer className="w-full bg-[#F5F5F7] pt-16 pb-10 px-4 md:px-16 flex flex-col mt-auto border-t border-[#D2D2D7]/50">
       <div className="max-w-[1024px] mx-auto w-full mb-16">
@@ -64,13 +68,13 @@ export default function Footer({ t }: { t: Translation }) {
         </div>
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-semibold text-[#1D1D1F] uppercase tracking-widest mb-2">{t.footerContact}</h3>
-          <a href={`tel:${siteConfig.phone}`} className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-            <Phone className="w-4 h-4" /> {siteConfig.phoneDisplay}
+          <a href={`tel:${config.phone}`} className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+            <Phone className="w-4 h-4" /> {config.phoneDisplay}
           </a>
-          <a href={siteConfig.telegram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+          <a href={config.telegram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
             <Send className="w-4 h-4" /> {telegramHandle}
           </a>
-          <a href={siteConfig.instagram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+          <a href={config.instagram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
             <Instagram className="w-4 h-4" /> {instagramHandle}
           </a>
         </div>
@@ -92,10 +96,15 @@ export default function Footer({ t }: { t: Translation }) {
       <div className="max-w-[1024px] mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[12px] text-[#6E6E73]">
         <p>{t.footerCopyright}</p>
         <div className="flex gap-6">
-          <span className="hover:text-[#1D1D1F] transition-colors cursor-pointer">{t.footerPrivacy}</span>
-          <span className="hover:text-[#1D1D1F] transition-colors cursor-pointer">{t.footerTerms}</span>
+          {pageLinks.map((p) => (
+            <Link key={p.slug} to={localizedPath(locale, `/page/${p.slug}`)} className="hover:text-[#1D1D1F] transition-colors">
+              {p.title[textKey]}
+            </Link>
+          ))}
         </div>
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;

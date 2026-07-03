@@ -1,6 +1,7 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation, useRouteLoaderData } from 'react-router';
 import { htmlLang, DEFAULT_LOCALE, type Locale } from './lib/i18n';
 import { hreflangLinks, organizationJsonLd } from './lib/seo';
+import type { ApiSiteConfig } from '../shared/types';
 import './styles.css';
 
 // NOTE: RR v7's `meta` export uses "last matching route wins, entire array replaced"
@@ -11,10 +12,10 @@ import './styles.css';
 // it ever reaches <Meta />. Rendering them here in the root Layout (which always wraps
 // every page) guarantees they appear on every page regardless of leaf meta overrides.
 export function Layout({ children }: { children: React.ReactNode }) {
-  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale } | undefined;
+  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig } | undefined;
   const lang = htmlLang(storeData?.locale ?? DEFAULT_LOCALE);
   const location = useLocation();
-  const jsonLd = JSON.stringify(organizationJsonLd()).replace(/</g, '\\u003c');
+  const jsonLd = JSON.stringify(organizationJsonLd(storeData?.siteConfig)).replace(/</g, '\\u003c');
   return (
     <html lang={lang}>
       <head>

@@ -1,3 +1,4 @@
+import type { ApiSiteConfig } from '../../shared/types';
 import { siteConfig } from './site.config';
 import { LOCALES, htmlLang, localizedPath, DEFAULT_LOCALE, stripLocale } from './i18n';
 import { hasActiveParams } from './catalog';
@@ -16,13 +17,13 @@ export function catalogMeta(title: string, requestUrl: string): Array<Record<str
   return metas;
 }
 
-export function organizationJsonLd() {
+export function organizationJsonLd(config?: ApiSiteConfig) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Store',
-    name: siteConfig.name,
-    telephone: siteConfig.phone,
-    sameAs: [siteConfig.telegram, siteConfig.instagram],
+    name: config?.name ?? siteConfig.name,
+    telephone: config?.phone ?? siteConfig.phone,
+    sameAs: [config?.telegram ?? siteConfig.telegram, config?.instagram ?? siteConfig.instagram],
   };
 }
 
