@@ -1,4 +1,15 @@
-import type { ApiBrand, ApiCategory, ApiOption, ApiProduct, ApiSettings, ApiSpec, ApiVariant } from '../../shared/types';
+import type {
+  ApiBanner,
+  ApiBrand,
+  ApiCategory,
+  ApiOption,
+  ApiPage,
+  ApiProduct,
+  ApiSettings,
+  ApiSiteConfig,
+  ApiSpec,
+  ApiVariant,
+} from '../../shared/types';
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -160,4 +171,47 @@ export async function uploadImage(file: File): Promise<{ imageUrl: string }> {
   const fd = new FormData();
   fd.append('file', file);
   return handle(await fetch('/api/admin/upload', { method: 'POST', body: fd }));
+}
+
+export async function listBanners(): Promise<ApiBanner[]> {
+  return handle(await fetch('/api/admin/banners'));
+}
+export async function createBanner(b: Partial<ApiBanner>): Promise<ApiBanner> {
+  return handle(await fetch('/api/admin/banners', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b),
+  }));
+}
+export async function updateBanner(id: string, b: Partial<ApiBanner>): Promise<ApiBanner> {
+  return handle(await fetch(`/api/admin/banners/${encodeURIComponent(id)}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b),
+  }));
+}
+export async function deleteBanner(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/banners/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function listPages(): Promise<ApiPage[]> {
+  return handle(await fetch('/api/admin/pages'));
+}
+export async function createPage(p: Partial<ApiPage>): Promise<ApiPage> {
+  return handle(await fetch('/api/admin/pages', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p),
+  }));
+}
+export async function updatePage(id: string, p: Partial<ApiPage>): Promise<ApiPage> {
+  return handle(await fetch(`/api/admin/pages/${encodeURIComponent(id)}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p),
+  }));
+}
+export async function deletePage(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/pages/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function getSiteConfig(): Promise<ApiSiteConfig> {
+  return handle(await fetch('/api/admin/site-config'));
+}
+export async function updateSiteConfig(c: ApiSiteConfig): Promise<ApiSiteConfig> {
+  return handle(await fetch('/api/admin/site-config', {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(c),
+  }));
 }

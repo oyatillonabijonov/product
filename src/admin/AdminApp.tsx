@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { getMe, logout } from './api';
+import BannerList from './BannerList';
 import BrandList from './BrandList';
 import CategoryList from './CategoryList';
 import Login from './Login';
+import PageList from './PageList';
 import ProductList from './ProductList';
 import SettingsForm from './SettingsForm';
+import SiteConfigForm from './SiteConfigForm';
 
-type Tab = 'products' | 'settings' | 'categories' | 'brands';
+type Tab = 'products' | 'settings' | 'categories' | 'brands' | 'banners' | 'pages';
 
 export default function AdminApp() {
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -57,6 +60,22 @@ export default function AdminApp() {
           >
             Brendlar
           </button>
+          <button
+            onClick={() => setTab('banners')}
+            className={`px-4 py-2 rounded-full text-[14px] font-semibold ${
+              tab === 'banners' ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F]'
+            }`}
+          >
+            Bannerlar
+          </button>
+          <button
+            onClick={() => setTab('pages')}
+            className={`px-4 py-2 rounded-full text-[14px] font-semibold ${
+              tab === 'pages' ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F]'
+            }`}
+          >
+            Sahifalar
+          </button>
         </div>
         <button
           onClick={async () => {
@@ -69,15 +88,19 @@ export default function AdminApp() {
         </button>
       </header>
       <main className="max-w-[900px] mx-auto px-4 md:px-8 py-8">
-        {tab === 'products' ? (
-          <ProductList />
-        ) : tab === 'settings' ? (
-          <SettingsForm />
-        ) : tab === 'categories' ? (
-          <CategoryList />
-        ) : (
-          <BrandList />
+        {tab === 'products' && <ProductList />}
+        {tab === 'settings' && (
+          <>
+            <SettingsForm />
+            <div className="mt-8">
+              <SiteConfigForm />
+            </div>
+          </>
         )}
+        {tab === 'categories' && <CategoryList />}
+        {tab === 'brands' && <BrandList />}
+        {tab === 'banners' && <BannerList />}
+        {tab === 'pages' && <PageList />}
       </main>
     </div>
   );
