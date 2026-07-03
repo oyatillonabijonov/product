@@ -36,6 +36,28 @@ describe('renderMarkdown', () => {
     if (blocks[0].type === 'ul') throw new Error('expected p');
     expect(blocks[0].inlines[0].text).toBe('<script>alert(1)</script>');
   });
+
+  it('drops unsafe URL schemes from links, keeping the link text', () => {
+    const blocks = renderMarkdown('[bosish](javascript:alert(1))');
+    if (blocks[0].type === 'ul') throw new Error('expected p');
+    const inl = blocks[0].inlines;
+    expect(inl.some((s) => s.href)).toBe(false);
+    expect(inl.map((s) => s.text).join('')).toContain('bosish');
+  });
+
+  it('preserves links with allowlisted schemes', () => {
+    const httpsBlocks = renderMarkdown('[ok](https://example.com)');
+    if (httpsBlocks[0].type === 'ul') throw new Error('expected p');
+    expect(httpsBlocks[0].inlines.find((s) => s.href)?.href).toBe('https://example.com');
+
+    const internalBlocks = renderMarkdown('[ichki](/katalog)');
+    if (internalBlocks[0].type === 'ul') throw new Error('expected p');
+    expect(internalBlocks[0].inlines.find((s) => s.href)?.href).toBe('/katalog');
+
+    const telBlocks = renderMarkdown('[tel](tel:+998901234567)');
+    if (telBlocks[0].type === 'ul') throw new Error('expected p');
+    expect(telBlocks[0].inlines.find((s) => s.href)?.href).toBe('tel:+998901234567');
+  });
 });
 
 describe('firstParagraph', () => {

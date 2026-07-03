@@ -9,6 +9,7 @@ export type MdBlock =
   | { type: 'ul'; items: MdInline[][] };
 
 const INLINE_RE = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
+const SAFE_HREF_RE = /^(\/|https?:|mailto:|tel:)/i;
 
 export function parseInlines(src: string): MdInline[] {
   const out: MdInline[] = [];
@@ -18,7 +19,8 @@ export function parseInlines(src: string): MdInline[] {
   while ((m = INLINE_RE.exec(src)) !== null) {
     if (m.index > last) out.push({ text: src.slice(last, m.index) });
     if (m[1] !== undefined) out.push({ text: m[1], bold: true });
-    else out.push({ text: m[2], href: m[3] });
+    else if (SAFE_HREF_RE.test(m[3])) out.push({ text: m[2], href: m[3] });
+    else out.push({ text: m[2] });
     last = m.index + m[0].length;
   }
   if (last < src.length) out.push({ text: src.slice(last) });
