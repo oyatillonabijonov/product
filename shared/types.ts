@@ -107,6 +107,19 @@ export interface ApiPage {
   isActive: boolean;
 }
 
+export interface ApiDeviceModel {
+  id: string;
+  name: string;
+  brandId: string;
+  categoryId: string;
+  legacyCategory: Category;
+  chip: string;
+  ram: string;
+  camera: string;
+  display: string;
+  sortOrder: number;
+}
+
 export interface ApiSiteConfig {
   name: string;
   phone: string;

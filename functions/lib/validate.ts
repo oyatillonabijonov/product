@@ -8,6 +8,7 @@ import type {
   LocalizedText,
   Term,
 } from '../../shared/types';
+import { deriveLegacyCategory } from '../../shared/legacy-category';
 
 export class ValidationError extends Error {}
 
@@ -267,6 +268,26 @@ export function parsePageInput(body: unknown): PageInput {
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
   return { id, slug, title, content, sortOrder, isActive };
+}
+
+export interface DeviceModelInput {
+  id: string; name: string; brandId: string; categoryId: string;
+  legacyCategory: Category; chip: string; ram: string; camera: string;
+  display: string; sortOrder: number;
+}
+
+export function parseDeviceModelInput(body: unknown): DeviceModelInput {
+  const o = asRecord(body);
+  const name = reqString(o, 'name');
+  const brandId = reqString(o, 'brandId');
+  const categoryId = reqString(o, 'categoryId');
+  const rawLegacy = typeof o.legacyCategory === 'string' && o.legacyCategory.trim() !== '' ? (o.legacyCategory.trim() as Category) : null;
+  if (rawLegacy !== null && !CATEGORIES.includes(rawLegacy)) throw new ValidationError('legacy_category_invalid');
+  const legacyCategory = rawLegacy ?? deriveLegacyCategory(categoryId);
+  const opt = (key: string): string => (typeof o[key] === 'string' ? (o[key] as string).trim() : '');
+  const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : (slugify(name) || crypto.randomUUID());
+  const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
+  return { id, name, brandId, categoryId, legacyCategory, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
 }
 
 export function parseSiteConfigInput(body: unknown): ApiSiteConfig {

@@ -5,8 +5,10 @@ import {
   parseBannerInput,
   parsePageInput,
   parseSiteConfigInput,
+  parseDeviceModelInput,
   ValidationError,
 } from './validate';
+import { deriveLegacyCategory } from '../../shared/legacy-category';
 
 const base = { name: 'iPhone 17', category: 'iphone', condition: 'yangi', cashPriceUzs: 1000, imageUrl: '' };
 
@@ -120,5 +122,57 @@ describe('parseSiteConfigInput', () => {
   });
   it('rejects missing name', () => {
     expect(() => parseSiteConfigInput({ phone: '+998900000000' })).toThrow('name_required');
+  });
+});
+
+describe('deriveLegacyCategory', () => {
+  it('maps telefonlar to iphone', () => {
+    expect(deriveLegacyCategory('telefonlar')).toBe('iphone');
+  });
+  it('maps planshetlar to ipad', () => {
+    expect(deriveLegacyCategory('planshetlar')).toBe('ipad');
+  });
+  it('maps noutbuklar to mac', () => {
+    expect(deriveLegacyCategory('noutbuklar')).toBe('mac');
+  });
+  it('maps aksessuarlar to pc', () => {
+    expect(deriveLegacyCategory('aksessuarlar')).toBe('pc');
+  });
+  it('maps kompyuterlar to pc', () => {
+    expect(deriveLegacyCategory('kompyuterlar')).toBe('pc');
+  });
+  it('maps null to pc', () => {
+    expect(deriveLegacyCategory(null)).toBe('pc');
+  });
+});
+
+describe('parseDeviceModelInput', () => {
+  it('happy path derives legacyCategory and slugified id, defaults', () => {
+    const m = parseDeviceModelInput({ name: 'iPhone 16 Pro', brandId: 'apple', categoryId: 'telefonlar' });
+    expect(m.legacyCategory).toBe('iphone');
+    expect(m.id).toBe('iphone-16-pro');
+    expect(m.chip).toBe('');
+    expect(m.ram).toBe('');
+    expect(m.camera).toBe('');
+    expect(m.display).toBe('');
+    expect(m.sortOrder).toBe(0);
+  });
+  it('respects explicit legacyCategory', () => {
+    const m = parseDeviceModelInput({ name: 'Mac Studio', brandId: 'apple', categoryId: 'noutbuklar', legacyCategory: 'pc' });
+    expect(m.legacyCategory).toBe('pc');
+  });
+  it('rejects invalid legacyCategory', () => {
+    expect(() =>
+      parseDeviceModelInput({ name: 'X', brandId: 'apple', categoryId: 'telefonlar', legacyCategory: 'junk' }),
+    ).toThrow('legacy_category_invalid');
+  });
+  it('rejects missing name', () => {
+    expect(() => parseDeviceModelInput({ brandId: 'apple', categoryId: 'telefonlar' })).toThrow('name_required');
+  });
+  it('rejects missing brandId', () => {
+    expect(() => parseDeviceModelInput({ name: 'X', categoryId: 'telefonlar' })).toThrow('brandId_required');
+  });
+  it('rejects missing categoryId', () => {
+    expect(() => parseDeviceModelInput({ name: 'X', brandId: 'apple' })).toThrow('categoryId_required');
   });
 });

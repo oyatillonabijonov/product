@@ -2,6 +2,7 @@ import type {
   ApiBanner,
   ApiBrand,
   ApiCategory,
+  ApiDeviceModel,
   ApiOption,
   ApiOptionValue,
   ApiPage,
@@ -387,6 +388,21 @@ export interface SiteConfigRow {
   telegram: string; instagram: string; whatsapp: string;
   map_ll: string; map_label: string;
   seo_title_suffix: string; seo_description: string; og_image: string;
+}
+
+export interface DeviceModelRow {
+  id: string; name: string; brand_id: string; category_id: string;
+  legacy_category: string; chip: string; ram: string; camera: string;
+  display: string; sort_order: number;
+}
+
+export function rowToDeviceModel(r: DeviceModelRow): ApiDeviceModel {
+  return {
+    id: r.id, name: r.name, brandId: r.brand_id, categoryId: r.category_id,
+    legacyCategory: r.legacy_category as Category,
+    chip: r.chip, ram: r.ram, camera: r.camera, display: r.display,
+    sortOrder: r.sort_order,
+  };
 }
 
 export function rowToSiteConfig(r: SiteConfigRow): ApiSiteConfig {

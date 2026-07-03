@@ -2,6 +2,7 @@ import type {
   ApiBanner,
   ApiBrand,
   ApiCategory,
+  ApiDeviceModel,
   ApiOption,
   ApiPage,
   ApiProduct,
@@ -205,6 +206,23 @@ export async function updatePage(id: string, p: Partial<ApiPage>): Promise<ApiPa
 }
 export async function deletePage(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/pages/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function listDeviceModels(): Promise<ApiDeviceModel[]> {
+  return handle(await fetch('/api/admin/models'));
+}
+export async function createDeviceModel(m: Partial<ApiDeviceModel>): Promise<ApiDeviceModel> {
+  return handle(await fetch('/api/admin/models', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(m),
+  }));
+}
+export async function updateDeviceModel(id: string, m: Partial<ApiDeviceModel>): Promise<ApiDeviceModel> {
+  return handle(await fetch(`/api/admin/models/${encodeURIComponent(id)}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(m),
+  }));
+}
+export async function deleteDeviceModel(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/models/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
 
 export async function getSiteConfig(): Promise<ApiSiteConfig> {
