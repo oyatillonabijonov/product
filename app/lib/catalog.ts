@@ -64,7 +64,14 @@ export function applyFilters(products: Product[], f: CatalogFilters): CatalogRes
   let xs = products;
   if (f.category) xs = xs.filter((p) => fallbackCategoryOf(p) === f.category);
   if (f.condition) xs = xs.filter((p) => p.condition === f.condition);
-  if (f.q) { const q = f.q.toLowerCase(); xs = xs.filter((p) => p.name.toLowerCase().includes(q)); }
+  if (f.q) {
+    const q = f.q.toLowerCase();
+    xs = xs.filter((p) =>
+      p.name.toLowerCase().includes(q) ||
+      (p.brandId ?? '').toLowerCase().includes(q) ||
+      fallbackCategoryOf(p).toLowerCase().includes(q),
+    );
+  }
   if (f.onlyDeals) xs = xs.filter((p) => p.oldPriceUzs != null && p.oldPriceUzs > p.cashPriceUzs);
   // fasetlar brend filtridan OLDIN (brend hisoblagichlari boshqa filtrlar bo'yicha)
   const brandCounts: Record<string, number> = {};

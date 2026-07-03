@@ -144,7 +144,14 @@ function buildConds(f: CatalogFilters, opts: { skipBrands?: boolean; skipPrice?:
   const binds: unknown[] = [];
   if (f.category) { conds.push('category_id = ?'); binds.push(f.category); }
   if (f.condition) { conds.push('condition = ?'); binds.push(f.condition); }
-  if (f.q) { conds.push('name LIKE ?'); binds.push(`%${f.q}%`); }
+  if (f.q) {
+    const like = `%${f.q}%`;
+    // Match product name, brand name, or category name so a search like "Apple" or "telefon" works.
+    conds.push(
+      '(name LIKE ? OR brand_id IN (SELECT id FROM brands WHERE name LIKE ?) OR category_id IN (SELECT id FROM categories WHERE name LIKE ?))',
+    );
+    binds.push(like, like, like);
+  }
   if (f.onlyDeals) conds.push('old_price_uzs IS NOT NULL AND old_price_uzs > cash_price_uzs');
   if (!opts.skipBrands && f.brands.length > 0) {
     conds.push(`brand_id IN (${f.brands.map(() => '?').join(',')})`);
