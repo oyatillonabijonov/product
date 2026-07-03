@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { uploadImage } from './api';
 import type { AdminVariantInput } from './api';
 import { generateVariants, type OptionDraft } from './lib/variant-gen';
+import PriceInput from './PriceInput';
 
 export type EditableVariant = AdminVariantInput;
 
@@ -143,19 +144,17 @@ const VariantEditor: FC<{
                   {opt.values.map((val) => <option key={val} value={val}>{val}</option>)}
                 </select>
               ))}
-              <input
-                type="number"
+              <PriceInput
                 placeholder="Narx"
                 className={`${input} w-32`}
                 value={v.cashPriceUzs}
-                onChange={(e) => updateVariant(i, { cashPriceUzs: Number(e.target.value) })}
+                onChange={(n) => updateVariant(i, { cashPriceUzs: n })}
               />
-              <input
-                type="number"
+              <PriceInput
                 placeholder="Eski narx"
                 className={`${input} w-32`}
-                value={v.oldPriceUzs ?? ''}
-                onChange={(e) => updateVariant(i, { oldPriceUzs: e.target.value ? Number(e.target.value) : null })}
+                value={v.oldPriceUzs ?? 0}
+                onChange={(n) => updateVariant(i, { oldPriceUzs: n > 0 ? n : null })}
               />
               <input
                 placeholder="SKU"
