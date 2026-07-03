@@ -4,6 +4,7 @@ import {
   rowToProduct,
   writeImagesAndSpecs,
   writeOptionsAndVariants,
+  ensureUniqueSlug,
   PRODUCT_COLS,
   type ProductRow,
 } from '../../functions/lib/db';
@@ -25,6 +26,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
       throw e;
     }
+    if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
     await env.DB.prepare(
       `UPDATE products SET name=?, category=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, old_price_uzs=?, description=?, brand_id=?, slug=? WHERE id=?`,
     )

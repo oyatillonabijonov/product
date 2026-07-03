@@ -50,8 +50,12 @@ function reqNumber(o: Record<string, unknown>, key: string): number {
 
 export function parseProductInput(body: unknown): ProductInput {
   const o = asRecord(body);
-  const category = reqString(o, 'category') as Category;
-  if (!CATEGORIES.includes(category)) throw new ValidationError('category_invalid');
+  const name = reqString(o, 'name');
+  const categoryId = typeof o.categoryId === 'string' ? o.categoryId : null;
+  const rawCategory =
+    typeof o.category === 'string' && o.category.trim() !== '' ? (o.category.trim() as Category) : null;
+  if (rawCategory !== null && !CATEGORIES.includes(rawCategory)) throw new ValidationError('category_invalid');
+  const category = rawCategory ?? deriveLegacyCategory(categoryId);
   const condition = reqString(o, 'condition') as Condition;
   if (!CONDITIONS.includes(condition)) throw new ValidationError('condition_invalid');
   const cashPriceUzs = reqNumber(o, 'cashPriceUzs');
@@ -67,7 +71,6 @@ export function parseProductInput(body: unknown): ProductInput {
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
 
-  const categoryId = typeof o.categoryId === 'string' ? o.categoryId : null;
   const oldPriceUzs = typeof o.oldPriceUzs === 'number' ? o.oldPriceUzs : null;
   const description =
     typeof o.description === 'string' && o.description.trim() !== '' ? o.description.trim() : null;
@@ -81,7 +84,8 @@ export function parseProductInput(body: unknown): ProductInput {
     : [];
 
   const brandId = typeof o.brandId === 'string' && o.brandId.trim() !== '' ? o.brandId.trim() : null;
-  const slug = typeof o.slug === 'string' && o.slug.trim() !== '' ? slugify(o.slug) : null;
+  const slug =
+    typeof o.slug === 'string' && o.slug.trim() !== '' ? slugify(o.slug) : (slugify(name) || null);
   const options = Array.isArray(o.options)
     ? o.options.map((raw) => {
         const r = asRecord(raw);
@@ -129,7 +133,7 @@ export function parseProductInput(body: unknown): ProductInput {
 
   return {
     id,
-    name: reqString(o, 'name'),
+    name,
     category,
     condition,
     conditionNote,

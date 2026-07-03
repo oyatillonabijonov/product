@@ -69,6 +69,62 @@ describe('parseProductInput variants', () => {
   });
 });
 
+describe('parseProductInput category default (T7)', () => {
+  it('derives category from categoryId telefonlar when category omitted', () => {
+    const p = parseProductInput({
+      name: base.name, condition: base.condition, cashPriceUzs: base.cashPriceUzs, imageUrl: base.imageUrl,
+      categoryId: 'telefonlar',
+    });
+    expect(p.category).toBe('iphone');
+  });
+  it('defaults to pc when category and categoryId are both omitted', () => {
+    const p = parseProductInput({
+      name: base.name, condition: base.condition, cashPriceUzs: base.cashPriceUzs, imageUrl: base.imageUrl,
+    });
+    expect(p.category).toBe('pc');
+  });
+  it('defaults to pc when categoryId is null', () => {
+    const p = parseProductInput({
+      name: base.name, condition: base.condition, cashPriceUzs: base.cashPriceUzs, imageUrl: base.imageUrl,
+      categoryId: null,
+    });
+    expect(p.category).toBe('pc');
+  });
+  it('respects an explicit category (mac)', () => {
+    const p = parseProductInput({ ...base, category: 'mac' });
+    expect(p.category).toBe('mac');
+  });
+  it('throws on an explicit invalid category', () => {
+    expect(() => parseProductInput({ ...base, category: 'junk' })).toThrow('category_invalid');
+  });
+});
+
+describe('parseProductInput slug auto-derive (T7)', () => {
+  it('derives the slug from the name when slug is omitted', () => {
+    const p = parseProductInput({ ...base, name: 'iPhone 17 Pro' });
+    expect(p.slug).toBe('iphone-17-pro');
+  });
+  it('derives the slug from a Cyrillic name', () => {
+    const p = parseProductInput({ ...base, name: 'Айфон 17' });
+    expect(p.slug).toBe('айфон-17');
+  });
+  it('slugifies an explicitly given slug', () => {
+    const p = parseProductInput({ ...base, slug: 'Custom Slug!!' });
+    expect(p.slug).toBe('custom-slug');
+  });
+});
+
+describe('parseProductInput required fields unchanged (T7)', () => {
+  it('still throws when condition is missing', () => {
+    expect(() =>
+      parseProductInput({ name: base.name, cashPriceUzs: base.cashPriceUzs, imageUrl: base.imageUrl }),
+    ).toThrow('condition_required');
+  });
+  it('still throws when price <= 0', () => {
+    expect(() => parseProductInput({ ...base, cashPriceUzs: 0 })).toThrow('price_positive');
+  });
+});
+
 describe('parseBannerInput', () => {
   it('accepts minimal input and fills defaults', () => {
     const b = parseBannerInput({ imageUrl: '/images/banner.webp' });

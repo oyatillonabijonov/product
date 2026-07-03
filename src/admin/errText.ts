@@ -8,11 +8,14 @@ const MESSAGES: Record<string, string> = {
   title_ru_required: 'Sarlavha (rus) majburiy',
   title_en_required: 'Sarlavha (ingliz) majburiy',
   title_uzCyrl_required: 'Sarlavha (kirill) majburiy',
-  name_required: "Do'kon nomi majburiy",
+  name_required: 'Nomi majburiy',
   phone_required: 'Telefon majburiy',
   id_taken: 'Bu model allaqachon mavjud',
   brandId_required: 'Brend majburiy',
   categoryId_required: 'Kategoriya majburiy',
+  price_positive: "Narx 0 dan katta bo'lishi kerak",
+  variant_price_positive: "Variant narxi 0 dan katta bo'lishi kerak",
+  category_invalid: "Kategoriya noto'g'ri",
 };
 
 export function errText(e: unknown): string {

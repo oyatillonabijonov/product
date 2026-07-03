@@ -237,6 +237,15 @@ export async function buildProductDetail(
   };
 }
 
+export async function ensureUniqueSlug(env: { DB: D1Database }, slug: string, excludeId: string): Promise<string> {
+  let candidate = slug;
+  for (let i = 2; ; i++) {
+    const row = await env.DB.prepare('SELECT id FROM products WHERE slug = ? AND id <> ?').bind(candidate, excludeId).first<{ id: string }>();
+    if (!row) return candidate;
+    candidate = `${slug}-${i}`;
+  }
+}
+
 export function json(data: unknown, init?: ResponseInit): Response {
   return new Response(JSON.stringify(data), {
     ...init,

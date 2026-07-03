@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
-import type { ApiBrand, ApiCategory, ApiProduct, ApiSpec, Category, Condition } from '../../shared/types';
-import { createProduct, getProductDetail, listBrands, listCategories, updateProduct, uploadImage } from './api';
+import type { ApiBrand, ApiCategory, ApiDeviceModel, ApiProduct, ApiSpec, Category, Condition } from '../../shared/types';
+import { deriveLegacyCategory } from '../../shared/legacy-category';
+import { createProduct, getProductDetail, listBrands, listCategories, listDeviceModels, updateProduct, uploadImage } from './api';
 import VariantEditor from './VariantEditor';
 import type { EditableVariant } from './VariantEditor';
+import ModelCombobox from './ModelCombobox';
+import PriceInput from './PriceInput';
+import { generateVariants } from './lib/variant-gen';
+import { modelToSpecs, mergeSpecs } from './lib/models';
+import { errText } from './errText';
 
-const CATEGORIES: Category[] = ['iphone', 'mac', 'ipad', 'pc'];
-const CONDITIONS: Condition[] = ['yangi', 'ishlatilgan'];
+const STORAGE_VALUES = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB'];
 
 interface FormState {
   name: string;
@@ -42,11 +47,13 @@ const ProductForm: FC<{
   const [form, setForm] = useState<FormState>(empty);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [brands, setBrands] = useState<ApiBrand[]>([]);
+  const [models, setModels] = useState<ApiDeviceModel[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => { listCategories().then(setCategories); }, []);
   useEffect(() => { listBrands().then(setBrands); }, []);
+  useEffect(() => { listDeviceModels().then(setModels).catch(() => {}); }, []);
 
   useEffect(() => {
     if (!initial) { setForm(empty); return; }
@@ -75,6 +82,28 @@ const ProductForm: FC<{
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  function pickModel(m: ApiDeviceModel) {
+    setForm((f) => ({
+      ...f,
+      name: m.name,
+      brandId: m.brandId,
+      categoryId: m.categoryId,
+      category: m.legacyCategory,
+      specs: mergeSpecs(f.specs, modelToSpecs(m)),
+    }));
+  }
+
+  function toggleStorage(v: string) {
+    setForm((f) => {
+      const current = f.options.find((o) => o.name === 'Xotira')?.values ?? [];
+      const nextValues = (current.includes(v) ? current.filter((x) => x !== v) : [...current, v])
+        .sort((a, b) => STORAGE_VALUES.indexOf(a) - STORAGE_VALUES.indexOf(b));
+      const others = f.options.filter((o) => o.name !== 'Xotira');
+      const options = nextValues.length ? [...others, { name: 'Xotira', values: nextValues }] : others;
+      return { ...f, options, variants: generateVariants(options, f.variants) };
+    });
+  }
+
   async function uploadMain(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -95,9 +124,16 @@ const ProductForm: FC<{
     setBusy(true);
     setError('');
     try {
+      const pricedVariants = form.variants.filter((v) => v.cashPriceUzs > 0);
+      const cashPriceUzs =
+        form.cashPriceUzs > 0
+          ? form.cashPriceUzs
+          : pricedVariants.length
+            ? Math.min(...pricedVariants.map((v) => v.cashPriceUzs))
+            : 0;
       const payload = {
         name: form.name, category: form.category, categoryId: form.categoryId, condition: form.condition,
-        conditionNote: form.conditionNote || null, cashPriceUzs: form.cashPriceUzs,
+        conditionNote: form.conditionNote || null, cashPriceUzs,
         oldPriceUzs: form.oldPriceUzs > 0 ? form.oldPriceUzs : null, description: form.description || null,
         imageUrl: form.imageUrl, images: form.images,
         specs: form.specs.filter((s) => s.label.trim() !== '' && s.value.trim() !== ''),
@@ -110,7 +146,7 @@ const ProductForm: FC<{
       else await createProduct(payload);
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'xatolik');
+      setError(errText(err));
     } finally {
       setBusy(false);
     }
@@ -121,11 +157,14 @@ const ProductForm: FC<{
     <div className="bg-white rounded-[20px] p-6 mb-6 shadow-[--shadow-apple]">
       <h3 className="font-semibold mb-4">{initial ? 'Mahsulotni tahrirlash' : 'Yangi mahsulot'}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <label className="text-[13px] text-muted">Nomi
-          <input className={input} value={form.name} onChange={(e) => set('name', e.target.value)} />
-        </label>
-        <label className="text-[13px] text-muted">Slug (ixtiyoriy)
-          <input className={input} value={form.slug} onChange={(e) => set('slug', e.target.value)} />
+        <label className="text-[13px] text-muted">Nomi / Model qidirish
+          <ModelCombobox
+            models={models}
+            value={form.name}
+            onChange={(t) => set('name', t)}
+            onPick={pickModel}
+            className={input}
+          />
         </label>
         <label className="text-[13px] text-muted">Brend
           <select className={input} value={form.brandId ?? ''} onChange={(e) => set('brandId', e.target.value || null)}>
@@ -133,39 +172,54 @@ const ProductForm: FC<{
             {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
           </select>
         </label>
-        <label className="text-[13px] text-muted">Naqd narx (so'm)
-          <input type="number" className={input} value={form.cashPriceUzs} onChange={(e) => set('cashPriceUzs', Number(e.target.value))} />
-        </label>
-        <label className="text-[13px] text-muted">Eski narx (chegirma uchun, ixtiyoriy)
-          <input type="number" className={input} value={form.oldPriceUzs} onChange={(e) => set('oldPriceUzs', Number(e.target.value))} />
-        </label>
         <label className="text-[13px] text-muted">Kategoriya (storefront)
-          <select className={input} value={form.categoryId ?? ''} onChange={(e) => set('categoryId', e.target.value || null)}>
+          <select
+            className={input}
+            value={form.categoryId ?? ''}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, categoryId: e.target.value || null, category: deriveLegacyCategory(e.target.value || null) }))
+            }
+          >
             <option value="">— tanlang —</option>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
-        <label className="text-[13px] text-muted">Tur (eski)
-          <select className={input} value={form.category} onChange={(e) => set('category', e.target.value as Category)}>
-            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
+        <label className="text-[13px] text-muted">Naqd narx (so'm)
+          <PriceInput className={input} value={form.cashPriceUzs} onChange={(v) => set('cashPriceUzs', v)} />
         </label>
-        <label className="text-[13px] text-muted">Holati
-          <select className={input} value={form.condition} onChange={(e) => set('condition', e.target.value as Condition)}>
-            {CONDITIONS.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
+        <label className="text-[13px] text-muted">Eski narx (ixtiyoriy)
+          <PriceInput className={input} value={form.oldPriceUzs} onChange={(v) => set('oldPriceUzs', v)} />
         </label>
-        <label className="text-[13px] text-muted">Holat izohi (ixtiyoriy)
-          <input className={input} value={form.conditionNote} onChange={(e) => set('conditionNote', e.target.value)} />
-        </label>
-        <label className="text-[13px] text-muted">Tartib raqami
-          <input type="number" className={input} value={form.sortOrder} onChange={(e) => set('sortOrder', Number(e.target.value))} />
+        <label className="flex items-center gap-2 text-[14px] text-primary">
+          <input
+            type="checkbox"
+            checked={form.condition === 'ishlatilgan'}
+            onChange={(e) => set('condition', e.target.checked ? 'ishlatilgan' : 'yangi')}
+          />
+          Ishlatilgan
         </label>
       </div>
 
-      <label className="block text-[13px] text-muted mt-3">Tavsif
-        <textarea className={`${input} min-h-[90px]`} value={form.description} onChange={(e) => set('description', e.target.value)} />
-      </label>
+      <div className="mt-4">
+        <div className="text-[13px] text-muted mb-2">Xotira (har biri alohida narxli variant bo'ladi)</div>
+        <div className="flex flex-wrap gap-2">
+          {STORAGE_VALUES.map((v) => {
+            const selected = (form.options.find((o) => o.name === 'Xotira')?.values ?? []).includes(v);
+            return (
+              <button
+                key={v}
+                type="button"
+                onClick={() => toggleStorage(v)}
+                className={`rounded-full px-4 py-1.5 text-[13px] font-semibold border transition-colors ${
+                  selected ? 'bg-accent text-white border-accent' : 'border-line text-primary hover:border-accent'
+                }`}
+              >
+                {v}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="mt-4">
         <div className="text-[13px] text-muted mb-2">Asosiy rasm</div>
