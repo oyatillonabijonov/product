@@ -45,7 +45,7 @@ Qabul qilingan tanlovlar:
 - `app/lib/loaders.ts`: `loadBanners(env)` (faol, sort bo'yicha; xato → `[]`), `loadPages(env)` (faol, footer linklari uchun slug+title), `loadPage(env, slug)` (topilmasa null), `loadSiteConfig(env)` (D1 qator → ApiSiteConfig; xato/bo'sh → statik `siteConfig`dan hosil qilingan qiymat).
 - Yangi route: `page/:slug` + `:lang/page/:slug` → loader (`loadPage` + `resolveLocale`; topilmasa 404), `meta` (lokalizatsiya qilingan title + description = kontentning birinchi paragrafi, indekslanadi), `PageView` komponenti (sarlavha + Markdown).
 - `store.tsx` loader `loadSiteConfig` + `loadPages` qo'shadi → `StoreLayout` orqali `Header`/`Footer`ga prop. Footer: kontakt/karta qiymatlari propdan (statik import o'rniga), pastki qatorda sahifa linklari (`footerPrivacy/footerTerms` statik spanlar o'rniga haqiqiy `LocaleLink`lar).
-- `root.tsx` / `seo.ts`: `organizationJsonLd(config)` va `pageTitle(title, suffix?)` config-parametrli bo'ladi; root Layout store loader qaytargan config bilan chaqiradi (fallback statik).
+- `root.tsx` / `seo.ts`: `organizationJsonLd(config?)` config-parametrli bo'ladi; root Layout store loader qaytargan config bilan chaqiradi (fallback statik). `pageTitle` suffiksi **bu bo'lakda statik qoladi** (har route meta'siga D1 o'qish qo'shmaslik uchun — 7-bo'lak SEO polishda ko'rib chiqiladi).
 - `sitemap[.]xml.tsx`: faol sahifalar barcha locale'larda qo'shiladi.
 
 ## 7. Admin UI (`src/admin/`)
