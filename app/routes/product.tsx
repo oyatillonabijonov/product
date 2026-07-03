@@ -1,14 +1,16 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/product';
-import { resolveLocale } from '../lib/i18n';
-import { pageTitle } from '../lib/seo';
+import { resolveLocale, localizedPath, localeToLang } from '../lib/i18n';
+import { pageTitle, storeConfigFrom, productJsonLd, breadcrumbJsonLd } from '../lib/seo';
 import { loadProductDetail, loadConfig, loadProductsBy } from '../lib/loaders';
 import { fallbackCategoryOf } from '../../src/data/products';
+import { translations } from '../../src/locales';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import ProductPage from '../../src/store/ProductPage';
 
 export async function loader({ params, context }: Route.LoaderArgs) {
-  if (!resolveLocale(params.lang)) throw new Response('Not Found', { status: 404 });
+  const locale = resolveLocale(params.lang);
+  if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.cloudflare.env;
   const [product, config] = await Promise.all([
     loadProductDetail(env, params.id as string), loadConfig(env),
@@ -20,11 +22,24 @@ export async function loader({ params, context }: Route.LoaderArgs) {
         .filter((p) => p.id !== product.id)
         .slice(0, 4)
     : [];
-  return { product, config, similar };
+  return { product, config, similar, locale };
 }
 
-export function meta({ data }: Route.MetaArgs) {
-  return [{ title: pageTitle(data?.product.name) }];
+export function meta({ data, matches }: Route.MetaArgs) {
+  const cfg = storeConfigFrom(matches);
+  if (!data) return [{ title: pageTitle(undefined, cfg?.seoTitleSuffix) }];
+  const t = translations[localeToLang(data.locale)];
+  const path = localizedPath(data.locale, `/product/${data.product.id}`);
+  const desc = (data.product.conditionNote ?? data.product.description?.split('\n')[0] ?? '').slice(0, 160);
+  return [
+    { title: pageTitle(data.product.name, cfg?.seoTitleSuffix) },
+    ...(desc ? [{ name: 'description', content: desc }] : []),
+    { 'script:ld+json': productJsonLd(data.product, path) },
+    { 'script:ld+json': breadcrumbJsonLd([
+      { name: t.breadcrumbHome, url: localizedPath(data.locale, '/') },
+      { name: data.product.name, url: path },
+    ]) },
+  ];
 }
 
 export default function ProductRoute() {

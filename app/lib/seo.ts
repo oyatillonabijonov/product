@@ -2,9 +2,11 @@ import type { ApiSiteConfig } from '../../shared/types';
 import { siteConfig } from './site.config';
 import { LOCALES, htmlLang, localizedPath, DEFAULT_LOCALE, stripLocale } from './i18n';
 import { hasActiveParams } from './catalog';
+import type { ProductDetail } from './loaders';
 
-export function pageTitle(title?: string): string {
-  return title ? `${title} — ${siteConfig.seo.titleSuffix}` : siteConfig.seo.titleSuffix;
+export function pageTitle(title?: string, suffix?: string): string {
+  const sfx = suffix ?? siteConfig.seo.titleSuffix;
+  return title ? `${title} — ${sfx}` : sfx;
 }
 
 export function catalogMeta(title: string, requestUrl: string): Array<Record<string, string>> {
@@ -35,4 +37,42 @@ export function hreflangLinks(pathname: string) {
   }));
   links.push({ tagName: 'link', rel: 'alternate', hrefLang: 'x-default', href: localizedPath(DEFAULT_LOCALE, bare) });
   return links;
+}
+
+export function storeConfigFrom(matches: unknown): ApiSiteConfig | undefined {
+  if (!Array.isArray(matches)) return undefined;
+  for (const m of matches) {
+    const c = (m as { data?: { siteConfig?: ApiSiteConfig } } | null | undefined)?.data?.siteConfig;
+    if (c && typeof c.seoTitleSuffix === 'string') return c;
+  }
+  return undefined;
+}
+
+export function productJsonLd(p: ProductDetail, url: string) {
+  const inStock = p.variants.length === 0 || p.variants.some((v) => v.inStock);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: p.name,
+    image: p.images,
+    ...(p.description ? { description: p.description } : {}),
+    ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand.name } } : {}),
+    offers: {
+      '@type': 'Offer',
+      price: p.minPriceUzs,
+      priceCurrency: 'UZS',
+      availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url,
+    },
+  };
+}
+
+export function breadcrumbJsonLd(items: { name: string; url: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem', position: i + 1, name: it.name, item: it.url,
+    })),
+  };
 }
