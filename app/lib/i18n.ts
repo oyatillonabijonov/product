@@ -1,21 +1,19 @@
 import type { LangKey } from '../../src/locales';
 import type { LocalizedText } from '../../shared/types';
 
-export const LOCALES = ['uz', 'ru', 'en', 'uz-cyrl'] as const;
+export const LOCALES = ['uz', 'ru'] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'uz';
 
 const LOCALE_TO_LANG: Record<Locale, LangKey> = {
   uz: "O'zbek tili",
   ru: 'Rus tili',
-  en: 'English',
-  'uz-cyrl': "O'zbek tili (Cyrillic)",
 };
 const LANG_TO_LOCALE = Object.fromEntries(
   Object.entries(LOCALE_TO_LANG).map(([l, k]) => [k, l as Locale]),
 ) as Record<LangKey, Locale>;
 
-const HTML_LANG: Record<Locale, string> = { uz: 'uz', ru: 'ru', en: 'en', 'uz-cyrl': 'uz-Cyrl' };
+const HTML_LANG: Record<Locale, string> = { uz: 'uz', ru: 'ru' };
 
 export function localeToLang(locale: Locale): LangKey {
   return LOCALE_TO_LANG[locale];
@@ -44,10 +42,5 @@ export function stripLocale(pathname: string): string {
 }
 
 export function localeToTextKey(locale: Locale): keyof LocalizedText {
-  switch (locale) {
-    case 'ru': return 'ru';
-    case 'en': return 'en';
-    case 'uz-cyrl': return 'uzCyrl';
-    default: return 'uz';
-  }
+  return locale === 'ru' ? 'ru' : 'uz';
 }

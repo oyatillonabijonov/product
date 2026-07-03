@@ -5,9 +5,10 @@ describe('i18n', () => {
   it('resolves valid and default locales', () => {
     expect(resolveLocale(undefined)).toBe('uz');
     expect(resolveLocale('ru')).toBe('ru');
-    expect(resolveLocale('uz-cyrl')).toBe('uz-cyrl');
   });
-  it('rejects unknown locale', () => {
+  it('rejects unknown / removed locales', () => {
+    expect(resolveLocale('en')).toBeNull();
+    expect(resolveLocale('uz-cyrl')).toBeNull();
     expect(resolveLocale('de')).toBeNull();
     expect(resolveLocale('product')).toBeNull();
   });
@@ -18,11 +19,11 @@ describe('i18n', () => {
   });
   it('maps locale to LangKey and back', () => {
     expect(localeToLang('ru')).toBe('Rus tili');
-    expect(langToLocale("O'zbek tili (Cyrillic)")).toBe('uz-cyrl');
+    expect(langToLocale("O'zbek tili")).toBe('uz');
   });
   it('produces html lang codes', () => {
-    expect(htmlLang('uz-cyrl')).toBe('uz-Cyrl');
-    expect(htmlLang('en')).toBe('en');
+    expect(htmlLang('uz')).toBe('uz');
+    expect(htmlLang('ru')).toBe('ru');
     expect(DEFAULT_LOCALE).toBe('uz');
   });
 });
@@ -31,7 +32,5 @@ describe('localeToTextKey', () => {
   it('maps every locale to a LocalizedText key', () => {
     expect(localeToTextKey('uz')).toBe('uz');
     expect(localeToTextKey('ru')).toBe('ru');
-    expect(localeToTextKey('en')).toBe('en');
-    expect(localeToTextKey('uz-cyrl')).toBe('uzCyrl');
   });
 });

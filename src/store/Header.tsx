@@ -158,8 +158,6 @@ export default function Header({
           >
             <option value="O'zbek tili">O'z</option>
             <option value="Rus tili">Рус</option>
-            <option value="English">EN</option>
-            <option value="O'zbek tili (Cyrillic)">Ўз</option>
           </select>
         </div>
       </div>
