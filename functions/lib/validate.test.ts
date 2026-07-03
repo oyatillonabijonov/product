@@ -82,6 +82,17 @@ describe('parseBannerInput', () => {
   });
 });
 
+describe('parseBannerInput linkUrl', () => {
+  it('accepts empty, internal and http(s) links', () => {
+    expect(parseBannerInput({ imageUrl: '/i.webp' }).linkUrl).toBe('');
+    expect(parseBannerInput({ imageUrl: '/i.webp', linkUrl: '/katalog' }).linkUrl).toBe('/katalog');
+    expect(parseBannerInput({ imageUrl: '/i.webp', linkUrl: 'https://t.me/x' }).linkUrl).toBe('https://t.me/x');
+  });
+  it('rejects unsafe schemes', () => {
+    expect(() => parseBannerInput({ imageUrl: '/i.webp', linkUrl: 'javascript:alert(1)' })).toThrow('link_invalid');
+  });
+});
+
 describe('parsePageInput', () => {
   const title = { uz: 'FAQ', ru: 'FAQ', en: 'FAQ', uzCyrl: 'FAQ' };
   it('accepts a valid page and defaults empty content', () => {
