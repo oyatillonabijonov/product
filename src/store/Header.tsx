@@ -3,19 +3,25 @@ import { Link, useNavigate, useLocation } from 'react-router';
 import { Search, Heart, ShoppingCart, Menu, Globe } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
+import type { PageLink } from '../../app/lib/loaders';
 import { fetchCategories } from '../api/store';
-import { localizedPath, langToLocale, stripLocale, type Locale } from '../../app/lib/i18n';
+import { localizedPath, langToLocale, stripLocale, localeToTextKey, type Locale } from '../../app/lib/i18n';
 import logo from '../assets/logo.svg';
 import { useCart } from './CartContext';
+
+/** Curated navbar links, in order. Other active pages (faq, biz-haqimizda, kontakt, trade-in, yangiliklar) stay in the footer only. */
+const NAV_SLUGS = ['muddatli-tolov'];
 
 export default function Header({
   t,
   lang,
   locale,
+  pageLinks,
 }: {
   t: Translation;
   lang: LangKey;
   locale: Locale;
+  pageLinks: PageLink[];
 }) {
   const [q, setQ] = useState('');
   const [catOpen, setCatOpen] = useState(false);
@@ -24,6 +30,10 @@ export default function Header({
   const navigate = useNavigate();
   const location = useLocation();
   const { count } = useCart();
+  const textKey = localeToTextKey(locale);
+  const navPages = NAV_SLUGS
+    .map((slug) => pageLinks.find((p) => p.slug === slug))
+    .filter((p): p is PageLink => Boolean(p));
 
   function switchLang(nextLang: LangKey) {
     const nextLocale = langToLocale(nextLang);
@@ -93,6 +103,20 @@ export default function Header({
           )}
         </div>
 
+        {navPages.length > 0 && (
+          <nav className="hidden lg:flex items-center gap-5 shrink-0">
+            {navPages.map((p) => (
+              <Link
+                key={p.slug}
+                to={localizedPath(locale, `/page/${p.slug}`)}
+                className="text-[14px] font-medium text-muted hover:text-accent transition-colors whitespace-nowrap"
+              >
+                {p.title[textKey]}
+              </Link>
+            ))}
+          </nav>
+        )}
+
         <form onSubmit={submitSearch} className="flex-1 relative">
           <input
             value={q}
@@ -139,6 +163,22 @@ export default function Header({
           </select>
         </div>
       </div>
+
+      {navPages.length > 0 && (
+        <div className="lg:hidden border-t border-line/50 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <nav className="max-w-[1200px] mx-auto px-4 flex items-center gap-2 py-2 min-w-max">
+            {navPages.map((p) => (
+              <Link
+                key={p.slug}
+                to={localizedPath(locale, `/page/${p.slug}`)}
+                className="whitespace-nowrap rounded-full bg-segment px-3.5 py-1.5 text-[13px] font-medium text-muted hover:text-accent transition-colors"
+              >
+                {p.title[textKey]}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

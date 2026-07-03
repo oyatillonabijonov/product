@@ -5,6 +5,16 @@ import { resolveLocale, localeToTextKey } from '../lib/i18n';
 import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { firstParagraph } from '../../src/lib/markdown';
 import Markdown from '../../src/store/Markdown';
+import TermsBento from '../../src/store/TermsBento';
+
+/** Slug rendered with the bespoke bento layout instead of generic markdown. */
+const TERMS_SLUG = 'muddatli-tolov';
+const TERMS_LEAD: Record<string, string> = {
+  uz: "Muddatli to'lovni rasmiylashtirish juda oddiy — quyidagi shartlar bilan tanishing.",
+  ru: 'Оформить рассрочку очень просто — ознакомьтесь с условиями ниже.',
+  en: 'Getting installment is simple — here are the conditions.',
+  uzCyrl: 'Муддатли тўловни расмийлаштириш жуда оддий — қуйидаги шартлар билан танишинг.',
+};
 
 export async function loader({ params, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
@@ -28,6 +38,11 @@ export function meta({ data, matches }: Route.MetaArgs) {
 export default function ContentPage() {
   const { page, locale } = useLoaderData<typeof loader>();
   const key = localeToTextKey(locale);
+
+  if (page.slug === TERMS_SLUG) {
+    return <TermsBento locale={locale} heading={page.title[key]} lead={TERMS_LEAD[key]} />;
+  }
+
   return (
     <div className="max-w-[760px] mx-auto px-4 py-10 md:py-14">
       <h1 className="text-[32px] md:text-[40px] font-semibold text-primary tracking-[-0.03em] mb-6">{page.title[key]}</h1>

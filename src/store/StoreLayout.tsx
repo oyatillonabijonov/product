@@ -26,7 +26,7 @@ export default function StoreLayout({
             <a href={`tel:${config.phone}`} className="ml-auto font-medium text-primary">{config.phoneDisplay}</a>
           </div>
         </div>
-        <Header t={t} lang={lang} locale={locale} />
+        <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} />
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} />
       </div>

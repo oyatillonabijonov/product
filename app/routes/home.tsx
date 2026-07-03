@@ -3,7 +3,7 @@ import type { Route } from './+types/home';
 import { resolveLocale } from '../lib/i18n';
 import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { siteConfig } from '../lib/site.config';
-import { loadStore, loadCategories, loadBanners, loadBrands, loadRail } from '../lib/loaders';
+import { loadStore, loadCategories, loadBanners, loadBrands, loadRail, loadPage } from '../lib/loaders';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import HomePage from '../../src/store/HomePage';
 
@@ -11,11 +11,11 @@ export async function loader({ params, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.cloudflare.env;
-  const [{ products, config }, categories, banners, deals, latest, brands] = await Promise.all([
+  const [{ products, config }, categories, banners, deals, latest, brands, faqPage] = await Promise.all([
     loadStore(env, { limit: 12 }), loadCategories(env), loadBanners(env),
-    loadRail(env, 'deals'), loadRail(env, 'latest'), loadBrands(env),
+    loadRail(env, 'deals'), loadRail(env, 'latest'), loadBrands(env), loadPage(env, 'faq'),
   ]);
-  return { products, config, categories, banners, deals, latest, brands, locale };
+  return { products, config, categories, banners, deals, latest, brands, faqPage, locale };
 }
 
 export function meta({ matches }: Route.MetaArgs) {
@@ -27,12 +27,12 @@ export function meta({ matches }: Route.MetaArgs) {
 }
 
 export default function HomeRoute() {
-  const { products, config, categories, banners, deals, latest, brands, locale } = useLoaderData<typeof loader>();
+  const { products, config, categories, banners, deals, latest, brands, faqPage, locale } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
   return (
     <HomePage
       t={ctx.t} products={products} config={config} categories={categories}
-      banners={banners} deals={deals} latest={latest} brands={brands} locale={locale}
+      banners={banners} deals={deals} latest={latest} brands={brands} locale={locale} faqPage={faqPage}
     />
   );
 }
