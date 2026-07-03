@@ -33,9 +33,14 @@ const NAV: NavItem[] = [
   { id: 'settings', label: 'Sozlamalar', Icon: Gear },
 ];
 
+const DEFAULT_PW_KEY = 'admin-default-pw';
+
 export default function AdminApp() {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [tab, setTab] = useState<Tab>('products');
+  const [defaultPw, setDefaultPw] = useState(
+    () => typeof window !== 'undefined' && sessionStorage.getItem(DEFAULT_PW_KEY) === '1',
+  );
 
   useEffect(() => {
     getMe()
@@ -44,7 +49,23 @@ export default function AdminApp() {
   }, []);
 
   if (authed === null) return <div className="p-8 text-muted">Yuklanmoqda…</div>;
-  if (!authed) return <Login onSuccess={() => setAuthed(true)} />;
+  if (!authed) {
+    return (
+      <Login
+        onSuccess={(defaultPassword) => {
+          setAuthed(true);
+          setDefaultPw(defaultPassword);
+          if (defaultPassword) sessionStorage.setItem(DEFAULT_PW_KEY, '1');
+          else sessionStorage.removeItem(DEFAULT_PW_KEY);
+        }}
+      />
+    );
+  }
+
+  const clearDefaultPw = () => {
+    setDefaultPw(false);
+    sessionStorage.removeItem(DEFAULT_PW_KEY);
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -104,6 +125,15 @@ export default function AdminApp() {
       </header>
       <main className="flex-1 min-w-0">
         <div className="max-w-[900px] mx-auto px-4 md:px-8 py-8">
+          {defaultPw && (
+            <div className="mb-6 rounded-2xl border border-danger/30 bg-danger/5 px-4 py-3 text-[14px] text-danger flex flex-wrap items-center gap-2">
+              <span className="font-semibold">Diqqat:</span>
+              Standart «admin» paroli ishlatilmoqda — hoziroq o'zgartiring.
+              <button onClick={() => setTab('settings')} className="font-semibold underline underline-offset-2">
+                Sozlamalarga o'tish
+              </button>
+            </div>
+          )}
           {tab === 'products' && <ProductList />}
           {tab === 'models' && <ModelList />}
           {tab === 'settings' && (
@@ -113,7 +143,7 @@ export default function AdminApp() {
                 <SiteConfigForm />
               </div>
               <div className="mt-8">
-                <AccountForm />
+                <AccountForm onPasswordChanged={clearDefaultPw} />
               </div>
             </>
           )}

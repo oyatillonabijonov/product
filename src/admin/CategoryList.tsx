@@ -37,7 +37,7 @@ export default function CategoryList() {
         {items.map((c) => {
           const Icon = categoryIcon(c.icon);
           return (
-          <div key={c.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-[--shadow-apple]">
+          <div key={c.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-apple">
             {c.iconUrl ? (
               <img src={c.iconUrl} alt="" className="w-10 h-10 rounded-full object-cover bg-bg" />
             ) : (

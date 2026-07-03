@@ -226,7 +226,7 @@ export async function buildProductDetail(
 
   const base = rowToProduct(row);
   const gallery = imgRows.map((r) => r.image_url);
-  const images = row.image_url ? [row.image_url, ...gallery] : gallery;
+  const images = row.image_url ? [row.image_url, ...gallery.filter((g) => g !== row.image_url)] : gallery;
   return {
     ...base,
     description: row.description,
@@ -259,6 +259,8 @@ export interface AdminAuth {
   passwordHash: string;
   passwordSalt: string;
   sessionSecret: string;
+  failedAttempts: number;
+  lockUntil: number;
 }
 
 interface AdminAuthRow {
@@ -266,11 +268,13 @@ interface AdminAuthRow {
   password_hash: string;
   password_salt: string;
   session_secret: string;
+  failed_attempts: number;
+  lock_until: number;
 }
 
 export async function loadAdminAuth(env: Env): Promise<AdminAuth | null> {
   const row = await env.DB
-    .prepare('SELECT username, password_hash, password_salt, session_secret FROM admin_auth WHERE id = 1')
+    .prepare('SELECT username, password_hash, password_salt, session_secret, failed_attempts, lock_until FROM admin_auth WHERE id = 1')
     .first<AdminAuthRow>();
   if (!row) return null;
   return {
@@ -278,40 +282,58 @@ export async function loadAdminAuth(env: Env): Promise<AdminAuth | null> {
     passwordHash: row.password_hash,
     passwordSalt: row.password_salt,
     sessionSecret: row.session_secret,
+    failedAttempts: row.failed_attempts,
+    lockUntil: row.lock_until,
   };
 }
 
 export async function updateAdminAuth(
   env: Env,
-  fields: { username?: string; passwordHash?: string; passwordSalt?: string },
+  fields: { username?: string; passwordHash?: string; passwordSalt?: string; sessionSecret?: string },
 ): Promise<void> {
   const sets: string[] = [];
   const binds: (string | number)[] = [];
   if (fields.username !== undefined) { sets.push('username = ?'); binds.push(fields.username); }
   if (fields.passwordHash !== undefined) { sets.push('password_hash = ?'); binds.push(fields.passwordHash); }
   if (fields.passwordSalt !== undefined) { sets.push('password_salt = ?'); binds.push(fields.passwordSalt); }
+  if (fields.sessionSecret !== undefined) { sets.push('session_secret = ?'); binds.push(fields.sessionSecret); }
   if (sets.length === 0) return;
   await env.DB.prepare(`UPDATE admin_auth SET ${sets.join(', ')} WHERE id = 1`).bind(...binds).run();
 }
 
-export async function writeImagesAndSpecs(
+export async function updateLoginThrottle(env: Env, failedAttempts: number, lockUntil: number): Promise<void> {
+  await env.DB.prepare('UPDATE admin_auth SET failed_attempts = ?, lock_until = ? WHERE id = 1')
+    .bind(failedAttempts, lockUntil)
+    .run();
+}
+
+// Replace-all writers below return prepared statements instead of running them, so the
+// caller can execute the whole product write in one atomic env.DB.batch() — a mid-write
+// failure must not leave the old rows deleted and the new ones half-inserted.
+
+export function imagesAndSpecsStatements(
   env: Env,
   productId: string,
   images: string[],
   specs: { label: string; value: string }[],
-): Promise<void> {
-  await env.DB.prepare('DELETE FROM product_images WHERE product_id = ?').bind(productId).run();
-  await env.DB.prepare('DELETE FROM product_specs WHERE product_id = ?').bind(productId).run();
+): D1PreparedStatement[] {
+  const stmts: D1PreparedStatement[] = [
+    env.DB.prepare('DELETE FROM product_images WHERE product_id = ?').bind(productId),
+    env.DB.prepare('DELETE FROM product_specs WHERE product_id = ?').bind(productId),
+  ];
   for (let i = 0; i < images.length; i++) {
-    await env.DB.prepare('INSERT INTO product_images (id, product_id, image_url, sort_order) VALUES (?, ?, ?, ?)')
-      .bind(crypto.randomUUID(), productId, images[i], i)
-      .run();
+    stmts.push(
+      env.DB.prepare('INSERT INTO product_images (id, product_id, image_url, sort_order) VALUES (?, ?, ?, ?)')
+        .bind(crypto.randomUUID(), productId, images[i], i),
+    );
   }
   for (let i = 0; i < specs.length; i++) {
-    await env.DB.prepare('INSERT INTO product_specs (id, product_id, label, value, sort_order) VALUES (?, ?, ?, ?, ?)')
-      .bind(crypto.randomUUID(), productId, specs[i].label, specs[i].value, i)
-      .run();
+    stmts.push(
+      env.DB.prepare('INSERT INTO product_specs (id, product_id, label, value, sort_order) VALUES (?, ?, ?, ?, ?)')
+        .bind(crypto.randomUUID(), productId, specs[i].label, specs[i].value, i),
+    );
   }
+  return stmts;
 }
 
 export interface OptionInput {
@@ -328,61 +350,57 @@ export interface VariantInput {
   optionValues: { optionName: string; value: string }[];
 }
 
-export async function writeOptionsAndVariants(
+export function optionsAndVariantsStatements(
   env: Env,
   productId: string,
   options: OptionInput[],
   variants: VariantInput[],
-): Promise<void> {
+): D1PreparedStatement[] {
   // Delete in FK-safe order: variant_option_values (via variants) -> product_variants
   // -> product_option_values (via options) -> product_options.
-  await env.DB.prepare(
-    'DELETE FROM variant_option_values WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id = ?)',
-  )
-    .bind(productId)
-    .run();
-  await env.DB.prepare('DELETE FROM product_variants WHERE product_id = ?').bind(productId).run();
-
-  await env.DB.prepare(
-    'DELETE FROM product_option_values WHERE option_id IN (SELECT id FROM product_options WHERE product_id = ?)',
-  )
-    .bind(productId)
-    .run();
-  await env.DB.prepare('DELETE FROM product_options WHERE product_id = ?').bind(productId).run();
+  const stmts: D1PreparedStatement[] = [
+    env.DB.prepare(
+      'DELETE FROM variant_option_values WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id = ?)',
+    ).bind(productId),
+    env.DB.prepare('DELETE FROM product_variants WHERE product_id = ?').bind(productId),
+    env.DB.prepare(
+      'DELETE FROM product_option_values WHERE option_id IN (SELECT id FROM product_options WHERE product_id = ?)',
+    ).bind(productId),
+    env.DB.prepare('DELETE FROM product_options WHERE product_id = ?').bind(productId),
+  ];
 
   // Insert options + values, building { optionName: { value: option_value_id } }.
   const valueIdMap = new Map<string, Map<string, string>>();
   for (let i = 0; i < options.length; i++) {
     const option = options[i];
     const optionId = crypto.randomUUID();
-    await env.DB.prepare(
-      'INSERT INTO product_options (id, product_id, name, sort_order) VALUES (?, ?, ?, ?)',
-    )
-      .bind(optionId, productId, option.name, i)
-      .run();
+    stmts.push(
+      env.DB.prepare('INSERT INTO product_options (id, product_id, name, sort_order) VALUES (?, ?, ?, ?)')
+        .bind(optionId, productId, option.name, i),
+    );
     const values = new Map<string, string>();
     for (let j = 0; j < option.values.length; j++) {
       const valueId = crypto.randomUUID();
-      await env.DB.prepare(
-        'INSERT INTO product_option_values (id, option_id, value, sort_order) VALUES (?, ?, ?, ?)',
-      )
-        .bind(valueId, optionId, option.values[j], j)
-        .run();
+      stmts.push(
+        env.DB.prepare('INSERT INTO product_option_values (id, option_id, value, sort_order) VALUES (?, ?, ?, ?)')
+          .bind(valueId, optionId, option.values[j], j),
+      );
       values.set(option.values[j], valueId);
     }
     valueIdMap.set(option.name, values);
   }
 
-  // Insert variants + their variant_option_values rows from the map.
+  // Insert variants + their variant_option_values rows from the map. The mismatch throw
+  // happens while building, i.e. before anything executes.
   for (let i = 0; i < variants.length; i++) {
     const variant = variants[i];
     const variantId = crypto.randomUUID();
-    await env.DB.prepare(
-      `INSERT INTO product_variants
-        (id, product_id, sku, cash_price_uzs, old_price_uzs, image_url, in_stock, sort_order)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    )
-      .bind(
+    stmts.push(
+      env.DB.prepare(
+        `INSERT INTO product_variants
+          (id, product_id, sku, cash_price_uzs, old_price_uzs, image_url, in_stock, sort_order)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).bind(
         variantId,
         productId,
         variant.sku,
@@ -391,18 +409,18 @@ export async function writeOptionsAndVariants(
         variant.imageUrl,
         variant.inStock ? 1 : 0,
         i,
-      )
-      .run();
+      ),
+    );
     for (const ov of variant.optionValues) {
       const optionValueId = valueIdMap.get(ov.optionName)?.get(ov.value);
       if (!optionValueId) throw new Error('option_value_mismatch');
-      await env.DB.prepare(
-        'INSERT INTO variant_option_values (variant_id, option_value_id) VALUES (?, ?)',
-      )
-        .bind(variantId, optionValueId)
-        .run();
+      stmts.push(
+        env.DB.prepare('INSERT INTO variant_option_values (variant_id, option_value_id) VALUES (?, ?)')
+          .bind(variantId, optionValueId),
+      );
     }
   }
+  return stmts;
 }
 
 export interface BannerRow {

@@ -13,6 +13,12 @@ import { deriveLegacyCategory } from '../../shared/legacy-category';
 export class ValidationError extends Error {}
 
 const CATEGORIES: Category[] = ['iphone', 'mac', 'ipad', 'pc'];
+// Payload chegaralari — chegarasiz massivlar minglab ketma-ket INSERT bo'lib ketardi.
+const MAX_IMAGES = 24;
+const MAX_SPECS = 60;
+const MAX_OPTIONS = 4;
+const MAX_OPTION_VALUES = 30;
+const MAX_VARIANTS = 300;
 const CONDITIONS: Condition[] = ['yangi', 'ishlatilgan'];
 
 export type ProductInput = Omit<ApiProduct, 'id' | 'minPriceUzs'> & {
@@ -71,17 +77,21 @@ export function parseProductInput(body: unknown): ProductInput {
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
 
-  const oldPriceUzs = typeof o.oldPriceUzs === 'number' ? o.oldPriceUzs : null;
+  // Variant yo'lidagi kabi sanitizatsiya: manfiy/0 eski narx manfiy chegirma badge'iga aylanardi.
+  const oldPriceUzs = typeof o.oldPriceUzs === 'number' && Number.isFinite(o.oldPriceUzs) && o.oldPriceUzs > 0 ? o.oldPriceUzs : null;
   const description =
     typeof o.description === 'string' && o.description.trim() !== '' ? o.description.trim() : null;
   const images = Array.isArray(o.images)
     ? o.images.filter((x): x is string => typeof x === 'string' && x.trim() !== '').map((x) => x.trim())
     : [];
+  if (images.length > MAX_IMAGES) throw new ValidationError('images_limit');
   const specs = Array.isArray(o.specs)
     ? o.specs
         .map((raw) => asRecord(raw))
         .map((s) => ({ label: reqString(s, 'label'), value: reqString(s, 'value') }))
     : [];
+
+  if (specs.length > MAX_SPECS) throw new ValidationError('specs_limit');
 
   const brandId = typeof o.brandId === 'string' && o.brandId.trim() !== '' ? o.brandId.trim() : null;
   const slug =
@@ -97,6 +107,8 @@ export function parseProductInput(body: unknown): ProductInput {
         return { name, values };
       })
     : [];
+  if (options.length > MAX_OPTIONS) throw new ValidationError('options_limit');
+  if (options.some((x) => x.values.length > MAX_OPTION_VALUES)) throw new ValidationError('option_values_limit');
   const optNames = options.map((x) => x.name);
   if (new Set(optNames).size !== optNames.length) throw new ValidationError('option_names_unique');
   const variants = Array.isArray(o.variants)
@@ -120,7 +132,9 @@ export function parseProductInput(body: unknown): ProductInput {
         };
       })
     : [];
+  if (variants.length > MAX_VARIANTS) throw new ValidationError('variants_limit');
   if (options.length > 0) {
+    const seenCombos = new Set<string>();
     for (const v of variants) {
       if (v.optionValues.length !== options.length) throw new ValidationError('variant_combination_incomplete');
       for (const opt of options) {
@@ -128,6 +142,10 @@ export function parseProductInput(body: unknown): ProductInput {
         if (!ov) throw new ValidationError('variant_combination_incomplete');
         if (!opt.values.includes(ov.value)) throw new ValidationError('variant_value_unknown');
       }
+      // Bir xil kombinatsiyali ikki variant defaultSelection/resolveVariant'ni buzadi.
+      const key = v.optionValues.map((x) => `${x.optionName}=${x.value}`).sort().join('|');
+      if (seenCombos.has(key)) throw new ValidationError('variant_duplicate');
+      seenCombos.add(key);
     }
   }
 

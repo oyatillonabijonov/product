@@ -26,7 +26,19 @@ function hexToBytes(hex: string): Uint8Array {
   return out;
 }
 
+// Cloudflare Workers caps PBKDF2 at 100,000 iterations (throws above that), so this
+// cannot reach the OWASP-recommended 600k. Online brute-force is instead blocked by
+// the login lockout below; the hash still slows offline cracking of a leaked D1 row.
 const PBKDF2_ITERATIONS = 100_000;
+
+export const LOGIN_LOCK_THRESHOLD = 5;
+
+/** Lock duration (seconds) after `failedAttempts` consecutive failures: 0 below the
+ * threshold, then 60s doubling per extra failure, capped at 1 hour. */
+export function lockDelaySeconds(failedAttempts: number): number {
+  if (failedAttempts < LOGIN_LOCK_THRESHOLD) return 0;
+  return Math.min(60 * 2 ** (failedAttempts - LOGIN_LOCK_THRESHOLD), 3600);
+}
 
 /** PBKDF2-SHA256 hash of a password with a hex salt → 256-bit hex. Salted + slow so a leaked hash resists brute-force. */
 export async function hashPassword(password: string, saltHex: string): Promise<string> {
@@ -45,6 +57,11 @@ export async function verifyPassword(password: string, saltHex: string, expected
 
 export function randomSaltHex(): string {
   return bytesToHex(crypto.getRandomValues(new Uint8Array(16)).buffer);
+}
+
+/** 256-bit random hex — used to rotate session_secret (invalidates every session). */
+export function randomSecretHex(): string {
+  return bytesToHex(crypto.getRandomValues(new Uint8Array(32)).buffer);
 }
 
 async function hmac(payload: string, secret: string): Promise<string> {

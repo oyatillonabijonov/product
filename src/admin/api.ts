@@ -19,14 +19,15 @@ async function handle<T>(res: Response): Promise<T> {
   return (await res.json()) as T;
 }
 
-export async function login(username: string, password: string): Promise<void> {
-  await handle(
+export async function login(username: string, password: string): Promise<{ defaultPassword: boolean }> {
+  const res = await handle<{ ok: true; defaultPassword?: boolean }>(
     await fetch('/api/admin/login', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ username, password }),
     }),
   );
+  return { defaultPassword: res.defaultPassword === true };
 }
 
 export async function logout(): Promise<void> {
@@ -103,6 +104,17 @@ export async function updateProduct(id: string, p: AdminProductInput): Promise<A
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(p),
+    }),
+  );
+}
+
+/** Faqat ko'rinishni almashtiradi (PATCH) — PUT'dan farqli, variant/galereya/spec'larga tegmaydi. */
+export async function setProductActive(id: string, isActive: boolean): Promise<ApiProduct> {
+  return handle(
+    await fetch(`/api/admin/products/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ isActive }),
     }),
   );
 }

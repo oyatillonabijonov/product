@@ -57,7 +57,7 @@ export default function ModelList() {
       )}
       <div className="space-y-2">
         {filtered.map((m) => (
-          <div key={m.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-[--shadow-apple]">
+          <div key={m.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-apple">
             <div className="flex-1 min-w-0">
               <div className="font-semibold">{m.name}</div>
               <div className="text-[12px] text-muted">{m.brandId} · {m.categoryId} · {m.chip}</div>

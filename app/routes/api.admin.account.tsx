@@ -1,7 +1,16 @@
 import type { Route } from './+types/api.admin.account';
 import { json, loadAdminAuth, updateAdminAuth } from '../../functions/lib/db';
-import { hashPassword, randomSaltHex, verifyPassword } from '../../functions/lib/auth';
+import {
+  createSession,
+  hashPassword,
+  randomSaltHex,
+  randomSecretHex,
+  sessionCookie,
+  verifyPassword,
+} from '../../functions/lib/auth';
 import { requireAdmin } from './api.admin.guard';
+
+const TTL = 60 * 60 * 24 * 7; // 7 kun — api.admin.login bilan bir xil
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const env = context.cloudflare.env;
@@ -29,7 +38,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     return json({ error: 'invalid_current_password' }, { status: 401 });
   }
 
-  const fields: { username?: string; passwordHash?: string; passwordSalt?: string } = {};
+  const fields: { username?: string; passwordHash?: string; passwordSalt?: string; sessionSecret?: string } = {};
 
   const username = body.username?.trim();
   if (username && username !== auth.username) {
@@ -42,6 +51,9 @@ export async function action({ request, context }: Route.ActionArgs) {
     const salt = randomSaltHex();
     fields.passwordSalt = salt;
     fields.passwordHash = await hashPassword(body.newPassword, salt);
+    // Parol almashganda session_secret ham aylantiriladi — o'g'irlangan/eski cookie'lar
+    // shu zahoti bekor bo'ladi.
+    fields.sessionSecret = randomSecretHex();
   }
 
   if (fields.username === undefined && fields.passwordHash === undefined) {
@@ -49,5 +61,17 @@ export async function action({ request, context }: Route.ActionArgs) {
   }
 
   await updateAdminAuth(env, fields);
+
+  // Rotatsiya joriy klientning cookie'sini ham bekor qiladi — yangi secret bilan
+  // qayta imzolangan sessiya beramiz, admin qayta login qilmasin.
+  if (fields.sessionSecret) {
+    const token = await createSession(
+      fields.username ?? auth.username,
+      fields.sessionSecret,
+      TTL,
+      Math.floor(Date.now() / 1000),
+    );
+    return json({ ok: true }, { headers: { 'set-cookie': sessionCookie(token, TTL) } });
+  }
   return json({ ok: true });
 }

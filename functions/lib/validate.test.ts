@@ -23,6 +23,36 @@ describe('parseBrandInput', () => {
   });
 });
 
+describe('parseProductInput hardening', () => {
+  it('manfiy/0 eski narxni null qiladi', () => {
+    expect(parseProductInput({ ...base, oldPriceUzs: -5000 }).oldPriceUzs).toBeNull();
+    expect(parseProductInput({ ...base, oldPriceUzs: 0 }).oldPriceUzs).toBeNull();
+    expect(parseProductInput({ ...base, oldPriceUzs: 2000 }).oldPriceUzs).toBe(2000);
+  });
+  it('bir xil kombinatsiyali dublikat variantni rad etadi', () => {
+    const dup = {
+      ...base,
+      options: [{ name: 'Xotira', values: ['256GB'] }],
+      variants: [
+        { cashPriceUzs: 1200, optionValues: [{ optionName: 'Xotira', value: '256GB' }] },
+        { cashPriceUzs: 1300, optionValues: [{ optionName: 'Xotira', value: '256GB' }] },
+      ],
+    };
+    expect(() => parseProductInput(dup)).toThrow('variant_duplicate');
+  });
+  it('opsiyalar sonini cheklaydi', () => {
+    const many = {
+      ...base,
+      options: Array.from({ length: 5 }, (_, i) => ({ name: `O${i}`, values: ['a'] })),
+      variants: [],
+    };
+    expect(() => parseProductInput(many)).toThrow('options_limit');
+  });
+  it('rasmlar sonini cheklaydi', () => {
+    expect(() => parseProductInput({ ...base, images: Array.from({ length: 25 }, (_, i) => `/i${i}.webp`) })).toThrow('images_limit');
+  });
+});
+
 describe('parseProductInput variants', () => {
   it('defaults: no brand/slug/options/variants', () => {
     const p = parseProductInput(base);

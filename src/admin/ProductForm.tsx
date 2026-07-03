@@ -154,7 +154,7 @@ const ProductForm: FC<{
 
   const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
   return (
-    <div className="bg-white rounded-[20px] p-6 mb-6 shadow-[--shadow-apple]">
+    <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple">
       <h3 className="font-semibold mb-4">{initial ? 'Mahsulotni tahrirlash' : 'Yangi mahsulot'}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <label className="text-[13px] text-muted">Nomi / Model qidirish

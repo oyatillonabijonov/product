@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ApiProduct } from '../../shared/types';
-import { deleteProduct, listProducts, updateProduct } from './api';
+import { deleteProduct, listProducts, setProductActive } from './api';
 import ProductForm from './ProductForm';
 
 export default function ProductList() {
@@ -22,7 +22,7 @@ export default function ProductList() {
   }, []);
 
   async function toggle(p: ApiProduct) {
-    await updateProduct(p.id, { ...p, isActive: !p.isActive });
+    await setProductActive(p.id, !p.isActive);
     refresh();
   }
 
@@ -52,7 +52,7 @@ export default function ProductList() {
         {items.map((p) => (
           <div
             key={p.id}
-            className={`bg-white rounded-2xl p-3 flex items-center gap-3 shadow-[--shadow-apple] ${
+            className={`bg-white rounded-2xl p-3 flex items-center gap-3 shadow-apple ${
               p.isActive ? '' : 'opacity-50'
             }`}
           >

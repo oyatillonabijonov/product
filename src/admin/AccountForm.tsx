@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getAccount, updateAccount } from './api';
 import { errText } from './errText';
 
-export default function AccountForm() {
+export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?: () => void }) {
   const [username, setUsername] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -19,6 +19,7 @@ export default function AccountForm() {
   async function save() {
     if (!currentPassword) { setMsg(errText(new Error('current_password_required'))); return; }
     setBusy(true); setMsg('');
+    const changedPassword = Boolean(newPassword);
     try {
       await updateAccount({
         currentPassword,
@@ -28,6 +29,7 @@ export default function AccountForm() {
       setMsg('Saqlandi ✓ — keyingi kirishда yangi maʼlumotlardan foydalaning');
       setCurrentPassword('');
       setNewPassword('');
+      if (changedPassword) onPasswordChanged?.();
     } catch (e) {
       setMsg(errText(e));
     } finally {
@@ -38,7 +40,7 @@ export default function AccountForm() {
   if (!loaded && !msg) return <p className="text-muted">Yuklanmoqda…</p>;
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-[--shadow-apple] space-y-3 max-w-xl">
+    <div className="bg-white rounded-2xl p-5 shadow-apple space-y-3 max-w-xl">
       <h3 className="font-semibold text-[17px]">Kirish maʼlumotlari</h3>
       <p className="text-[13px] text-muted">Login va parolni oʻzgartirish. Tasdiqlash uchun joriy parolni kiriting.</p>
 

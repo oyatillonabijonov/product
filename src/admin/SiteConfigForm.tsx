@@ -38,7 +38,7 @@ export default function SiteConfigForm() {
   }
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-[--shadow-apple] space-y-3 max-w-xl">
+    <div className="bg-white rounded-2xl p-5 shadow-apple space-y-3 max-w-xl">
       <h3 className="font-semibold text-[17px]">Sayt ma'lumotlari</h3>
       {FIELDS.map((f) => (
         <label key={f.key} className="block text-[13px] text-muted">

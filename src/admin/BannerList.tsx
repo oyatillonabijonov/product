@@ -42,7 +42,7 @@ export default function BannerList() {
       )}
       <div className="space-y-2">
         {items.map((b) => (
-          <div key={b.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-[--shadow-apple]">
+          <div key={b.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-apple">
             <img src={b.imageUrl} alt={b.altText} className="w-24 h-14 rounded-xl object-cover bg-bg" />
             <div className="flex-1 min-w-0">
               <div className="text-[13px] text-muted truncate">{b.linkUrl || '—'}</div>

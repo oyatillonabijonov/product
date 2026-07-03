@@ -35,7 +35,7 @@ const BannerForm: FC<{ initial: ApiBanner | null; onSaved: () => void; onCancel:
   }
 
   return (
-    <div className="bg-white rounded-2xl p-5 mb-4 shadow-[--shadow-apple] space-y-3">
+    <div className="bg-white rounded-2xl p-5 mb-4 shadow-apple space-y-3">
       <h3 className="font-semibold">{initial ? 'Bannerni tahrirlash' : 'Yangi banner'}</h3>
       <div className="flex items-center gap-3">
         {imageUrl ? <img src={imageUrl} alt="" className="h-20 rounded-xl object-cover bg-bg" /> : <div className="h-20 w-40 rounded-xl bg-bg" />}

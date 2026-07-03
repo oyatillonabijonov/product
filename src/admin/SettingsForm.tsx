@@ -54,7 +54,7 @@ export default function SettingsForm() {
   const input = 'w-24 border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
 
   return (
-    <div className="bg-white rounded-[20px] p-6 shadow-[--shadow-apple] max-w-lg">
+    <div className="bg-white rounded-[20px] p-6 shadow-apple max-w-lg">
       <h3 className="font-semibold mb-4">Kalkulyator sozlamalari</h3>
 
       <label className="flex items-center justify-between mb-3 text-[14px]">
@@ -83,6 +83,7 @@ export default function SettingsForm() {
           <div key={i} className="flex items-center gap-2 text-[14px]">
             <input
               type="number"
+              aria-label="Muddat (oy)"
               className={input}
               value={t.months}
               onChange={(e) => setTerm(i, 'months', Number(e.target.value))}
@@ -91,12 +92,13 @@ export default function SettingsForm() {
             <input
               type="number"
               step="0.01"
+              aria-label="Ustama koeffitsiyenti"
               className={input}
               value={t.markup}
               onChange={(e) => setTerm(i, 'markup', Number(e.target.value))}
             />
             <span className="text-muted">({fmt(monthly(SAMPLE, s.downPaymentPercent, t))}/oy)</span>
-            <button onClick={() => removeTerm(i)} className="text-danger ml-auto">×</button>
+            <button onClick={() => removeTerm(i)} aria-label="Muddatni o'chirish" className="text-danger ml-auto">×</button>
           </div>
         ))}
       </div>

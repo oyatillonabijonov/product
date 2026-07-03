@@ -22,6 +22,13 @@ const MESSAGES: Record<string, string> = {
   password_too_short: "Yangi parol kamida 6 belgidan iborat bo'lishi kerak",
   nothing_to_update: "O'zgartirish uchun ma'lumot yo'q",
   not_initialized: "Admin sozlanmagan (migratsiya qo'llanganmi?)",
+  too_many_attempts: "Urinishlar ko'payib ketdi — birozdan so'ng qayta urining",
+  variant_duplicate: "Bir xil kombinatsiyali ikkita variant bor",
+  images_limit: "Rasmlar soni chegaradan oshdi",
+  specs_limit: "Xususiyatlar soni chegaradan oshdi",
+  options_limit: "Opsiyalar soni chegaradan oshdi",
+  option_values_limit: "Opsiya qiymatlari soni chegaradan oshdi",
+  variants_limit: "Variantlar soni chegaradan oshdi",
 };
 
 export function errText(e: unknown): string {

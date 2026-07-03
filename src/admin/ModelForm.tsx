@@ -57,7 +57,7 @@ const ModelForm: FC<{
 
   const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
   return (
-    <div className="bg-white rounded-[20px] p-6 mb-6 shadow-[--shadow-apple] max-w-2xl">
+    <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple max-w-2xl">
       <h3 className="font-semibold mb-4">{initial ? 'Modelni tahrirlash' : 'Yangi model'}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <label className="block text-[13px] text-muted">Nomi

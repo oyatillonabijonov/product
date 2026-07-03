@@ -34,7 +34,7 @@ export default function BrandList() {
       )}
       <div className="space-y-2">
         {items.map((b) => (
-          <div key={b.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-[--shadow-apple]">
+          <div key={b.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-apple">
             {b.logoUrl ? <img src={b.logoUrl} alt="" className="w-10 h-10 rounded-full object-cover bg-bg" /> : <div className="w-10 h-10 rounded-full bg-bg" />}
             <div className="flex-1">
               <div className="font-semibold">{b.name}</div>

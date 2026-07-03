@@ -50,7 +50,7 @@ const ModelCombobox: FC<{
       />
       {showDropdown && (
         <div
-          className="absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-white border border-line rounded-xl shadow-[--shadow-apple]"
+          className="absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-white border border-line rounded-xl shadow-apple"
           onMouseDown={(e) => e.preventDefault()}
         >
           {suggestions.map((m, i) => (

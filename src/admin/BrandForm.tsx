@@ -46,7 +46,7 @@ const BrandForm: FC<{
 
   const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
   return (
-    <div className="bg-white rounded-[20px] p-6 mb-6 shadow-[--shadow-apple] max-w-lg">
+    <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple max-w-lg">
       <h3 className="font-semibold mb-4">{initial ? 'Brendni tahrirlash' : 'Yangi brend'}</h3>
       <label className="block text-[13px] text-muted mb-3">Nomi
         <input className={input} value={name} onChange={(e) => setName(e.target.value)} />
