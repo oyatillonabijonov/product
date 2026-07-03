@@ -84,7 +84,8 @@ Clean premium palette (olcha *structure*, not its red brand), fully tokenized as
 
 - **No Worker auth secrets** — admin credentials + session secret live in the D1 `admin_auth` row (seeded `admin`/`admin` by migration `0010`; `session_secret` auto-generated). Change the default password immediately via the admin panel. The whole site therefore runs on Cloudflare's **free tier** with no `wrangler secret put` step. (`.dev.vars` may still hold legacy `ADMIN_*` keys — unused, safe to delete.)
 - `wrangler.toml` is **Workers mode** (`main = workers/app.ts`, `[assets] directory = build/client`), binds `DB` (D1) + `IMAGES` (R2). `database_id` is a **placeholder** until `bunx wrangler d1 create taqsit-store-db` is run.
-- Product images `.webp`, uploaded via admin to R2, served at `/images/...`; below-the-fold images use `loading="lazy"`.
+- Product images `.webp`, uploaded via admin to R2, served at `/images/...`; below-the-fold images use `loading="lazy"`. Seed/placeholder product photos live in `public/products/*.webp` (git-tracked, served at `/products/...`); migration `0012` backfills empty `image_url`s with them.
+- **Edge caching** (`workers/app.ts`): storefront GET pages are cached in Cloudflare's `caches.default` with `s-maxage=60, stale-while-revalidate=600` (PROD only — dev is always fresh). `/admin`, `/api/*`, `/search`, `/savat` are never cached; `/images/*` are already `immutable`.
 
 ## Known dead code (safe to remove in a cleanup pass)
 `src/components/` (legacy landing sections — superseded by `src/store/`, imported by nothing) and `src/index.css`. Do not extend these.
