@@ -2,37 +2,11 @@ import { useState } from 'react';
 import type { FC } from 'react';
 import { uploadImage } from './api';
 import type { AdminVariantInput } from './api';
+import { generateVariants, type OptionDraft } from './lib/variant-gen';
 
 export type EditableVariant = AdminVariantInput;
 
-interface OptionDraft {
-  name: string;
-  values: string[];
-}
-
 const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
-
-function optionValuesKey(optionValues: { optionName: string; value: string }[]): string {
-  return JSON.stringify(
-    [...optionValues].sort((a, b) => a.optionName.localeCompare(b.optionName) || a.value.localeCompare(b.value)),
-  );
-}
-
-function cartesianProduct(options: OptionDraft[]): { optionName: string; value: string }[][] {
-  return options.reduce<{ optionName: string; value: string }[][]>(
-    (acc, opt) => {
-      if (opt.values.length === 0) return acc;
-      const next: { optionName: string; value: string }[][] = [];
-      for (const combo of acc) {
-        for (const value of opt.values) {
-          next.push([...combo, { optionName: opt.name, value }]);
-        }
-      }
-      return next;
-    },
-    [[]],
-  );
-}
 
 const VariantEditor: FC<{
   options: OptionDraft[];
@@ -67,13 +41,7 @@ const VariantEditor: FC<{
   }
 
   function generateCombinations() {
-    const existing = new Map<string, EditableVariant>(variants.map((v) => [optionValuesKey(v.optionValues), v]));
-    const combos = cartesianProduct(options);
-    const next: EditableVariant[] = combos.map((combo) => {
-      const key = optionValuesKey(combo);
-      return existing.get(key) ?? { sku: null, cashPriceUzs: 0, oldPriceUzs: null, imageUrl: null, inStock: true, optionValues: combo };
-    });
-    onVariantsChange(next);
+    onVariantsChange(generateVariants(options, variants));
   }
 
   function addEmptyVariant() {
