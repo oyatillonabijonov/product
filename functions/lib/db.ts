@@ -253,6 +253,46 @@ export function json(data: unknown, init?: ResponseInit): Response {
   });
 }
 
+export interface AdminAuth {
+  username: string;
+  passwordHash: string;
+  passwordSalt: string;
+  sessionSecret: string;
+}
+
+interface AdminAuthRow {
+  username: string;
+  password_hash: string;
+  password_salt: string;
+  session_secret: string;
+}
+
+export async function loadAdminAuth(env: Env): Promise<AdminAuth | null> {
+  const row = await env.DB
+    .prepare('SELECT username, password_hash, password_salt, session_secret FROM admin_auth WHERE id = 1')
+    .first<AdminAuthRow>();
+  if (!row) return null;
+  return {
+    username: row.username,
+    passwordHash: row.password_hash,
+    passwordSalt: row.password_salt,
+    sessionSecret: row.session_secret,
+  };
+}
+
+export async function updateAdminAuth(
+  env: Env,
+  fields: { username?: string; passwordHash?: string; passwordSalt?: string },
+): Promise<void> {
+  const sets: string[] = [];
+  const binds: (string | number)[] = [];
+  if (fields.username !== undefined) { sets.push('username = ?'); binds.push(fields.username); }
+  if (fields.passwordHash !== undefined) { sets.push('password_hash = ?'); binds.push(fields.passwordHash); }
+  if (fields.passwordSalt !== undefined) { sets.push('password_salt = ?'); binds.push(fields.passwordSalt); }
+  if (sets.length === 0) return;
+  await env.DB.prepare(`UPDATE admin_auth SET ${sets.join(', ')} WHERE id = 1`).bind(...binds).run();
+}
+
 export async function writeImagesAndSpecs(
   env: Env,
   productId: string,

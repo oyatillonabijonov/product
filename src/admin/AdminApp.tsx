@@ -1,6 +1,5 @@
 import {
   DeviceMobile,
-  FileText,
   Gear,
   type Icon,
   ImageSquare,
@@ -11,17 +10,17 @@ import {
 } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { getMe, logout } from './api';
+import AccountForm from './AccountForm';
 import BannerList from './BannerList';
 import BrandList from './BrandList';
 import CategoryList from './CategoryList';
 import Login from './Login';
 import ModelList from './ModelList';
-import PageList from './PageList';
 import ProductList from './ProductList';
 import SettingsForm from './SettingsForm';
 import SiteConfigForm from './SiteConfigForm';
 
-type Tab = 'products' | 'models' | 'settings' | 'categories' | 'brands' | 'banners' | 'pages';
+type Tab = 'products' | 'models' | 'settings' | 'categories' | 'brands' | 'banners';
 
 type NavItem = { id: Tab; label: string; Icon: Icon };
 
@@ -31,7 +30,6 @@ const NAV: NavItem[] = [
   { id: 'categories', label: 'Kategoriyalar', Icon: SquaresFour },
   { id: 'brands', label: 'Brendlar', Icon: Tag },
   { id: 'banners', label: 'Bannerlar', Icon: ImageSquare },
-  { id: 'pages', label: 'Sahifalar', Icon: FileText },
   { id: 'settings', label: 'Sozlamalar', Icon: Gear },
 ];
 
@@ -114,12 +112,14 @@ export default function AdminApp() {
               <div className="mt-8">
                 <SiteConfigForm />
               </div>
+              <div className="mt-8">
+                <AccountForm />
+              </div>
             </>
           )}
           {tab === 'categories' && <CategoryList />}
           {tab === 'brands' && <BrandList />}
           {tab === 'banners' && <BannerList />}
-          {tab === 'pages' && <PageList />}
         </div>
       </main>
     </div>

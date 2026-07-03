@@ -16,6 +16,12 @@ const MESSAGES: Record<string, string> = {
   price_positive: "Narx 0 dan katta bo'lishi kerak",
   variant_price_positive: "Variant narxi 0 dan katta bo'lishi kerak",
   category_invalid: "Kategoriya noto'g'ri",
+  current_password_required: 'Joriy parolni kiriting',
+  invalid_current_password: "Joriy parol noto'g'ri",
+  username_too_short: "Login kamida 3 belgidan iborat bo'lishi kerak",
+  password_too_short: "Yangi parol kamida 6 belgidan iborat bo'lishi kerak",
+  nothing_to_update: "O'zgartirish uchun ma'lumot yo'q",
+  not_initialized: "Admin sozlanmagan (migratsiya qo'llanganmi?)",
 };
 
 export function errText(e: unknown): string {

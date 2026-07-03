@@ -33,6 +33,7 @@ export default [
   route('api/admin/login', 'routes/api.admin.login.tsx'),
   route('api/admin/logout', 'routes/api.admin.logout.tsx'),
   route('api/admin/me', 'routes/api.admin.me.tsx'),
+  route('api/admin/account', 'routes/api.admin.account.tsx'),
   route('api/admin/products', 'routes/api.admin.products.tsx'),
   route('api/admin/products/:id', 'routes/api.admin.products.$id.tsx'),
   route('api/admin/categories', 'routes/api.admin.categories.tsx'),

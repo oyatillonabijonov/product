@@ -20,9 +20,31 @@ function fromB64url(s: string): Uint8Array {
   return out;
 }
 
-export async function sha256Hex(text: string): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', enc.encode(text));
-  return bytesToHex(digest);
+function hexToBytes(hex: string): Uint8Array {
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  return out;
+}
+
+const PBKDF2_ITERATIONS = 100_000;
+
+/** PBKDF2-SHA256 hash of a password with a hex salt → 256-bit hex. Salted + slow so a leaked hash resists brute-force. */
+export async function hashPassword(password: string, saltHex: string): Promise<string> {
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: hexToBytes(saltHex), iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+    keyMaterial,
+    256,
+  );
+  return bytesToHex(bits);
+}
+
+export async function verifyPassword(password: string, saltHex: string, expectedHash: string): Promise<boolean> {
+  return safeEqual(await hashPassword(password, saltHex), expectedHash);
+}
+
+export function randomSaltHex(): string {
+  return bytesToHex(crypto.getRandomValues(new Uint8Array(16)).buffer);
 }
 
 async function hmac(payload: string, secret: string): Promise<string> {

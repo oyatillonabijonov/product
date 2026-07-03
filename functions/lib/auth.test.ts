@@ -1,12 +1,24 @@
 import { describe, it, expect } from 'vitest';
-import { createSession, verifySession, sha256Hex, getCookie } from './auth';
+import { createSession, verifySession, hashPassword, verifyPassword, randomSaltHex, getCookie } from './auth';
 
 const SECRET = 'test-secret';
 
-describe('sha256Hex', () => {
-  it('barqaror hex hash beradi', async () => {
-    expect(await sha256Hex('parol')).toBe(await sha256Hex('parol'));
-    expect(await sha256Hex('parol')).not.toBe(await sha256Hex('boshqa'));
+describe('password (PBKDF2)', () => {
+  it('bir xil salt bilan barqaror hash beradi', async () => {
+    const salt = randomSaltHex();
+    expect(await hashPassword('parol', salt)).toBe(await hashPassword('parol', salt));
+    expect(await hashPassword('parol', salt)).not.toBe(await hashPassword('boshqa', salt));
+  });
+
+  it('har xil salt har xil hash beradi', async () => {
+    expect(await hashPassword('parol', randomSaltHex())).not.toBe(await hashPassword('parol', randomSaltHex()));
+  });
+
+  it('togri parolni tasdiqlaydi, notogrini rad etadi', async () => {
+    const salt = randomSaltHex();
+    const hash = await hashPassword('parol', salt);
+    expect(await verifyPassword('parol', salt, hash)).toBe(true);
+    expect(await verifyPassword('boshqa', salt, hash)).toBe(false);
   });
 });
 

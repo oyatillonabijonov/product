@@ -4,7 +4,6 @@ import type {
   ApiCategory,
   ApiDeviceModel,
   ApiOption,
-  ApiPage,
   ApiProduct,
   ApiSettings,
   ApiSiteConfig,
@@ -36,6 +35,24 @@ export async function logout(): Promise<void> {
 
 export async function getMe(): Promise<{ username: string }> {
   return handle(await fetch('/api/admin/me'));
+}
+
+export async function getAccount(): Promise<{ username: string }> {
+  return handle(await fetch('/api/admin/account'));
+}
+
+export async function updateAccount(body: {
+  currentPassword: string;
+  username?: string;
+  newPassword?: string;
+}): Promise<{ ok: true }> {
+  return handle(
+    await fetch('/api/admin/account', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+  );
 }
 
 export async function listProducts(): Promise<ApiProduct[]> {
@@ -189,23 +206,6 @@ export async function updateBanner(id: string, b: Partial<ApiBanner>): Promise<A
 }
 export async function deleteBanner(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/banners/${encodeURIComponent(id)}`, { method: 'DELETE' }));
-}
-
-export async function listPages(): Promise<ApiPage[]> {
-  return handle(await fetch('/api/admin/pages'));
-}
-export async function createPage(p: Partial<ApiPage>): Promise<ApiPage> {
-  return handle(await fetch('/api/admin/pages', {
-    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p),
-  }));
-}
-export async function updatePage(id: string, p: Partial<ApiPage>): Promise<ApiPage> {
-  return handle(await fetch(`/api/admin/pages/${encodeURIComponent(id)}`, {
-    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p),
-  }));
-}
-export async function deletePage(id: string): Promise<void> {
-  await handle(await fetch(`/api/admin/pages/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
 
 export async function listDeviceModels(): Promise<ApiDeviceModel[]> {
