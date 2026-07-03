@@ -1,10 +1,13 @@
 import type {
+  ApiBanner,
   ApiBrand,
   ApiCategory,
   ApiOption,
   ApiOptionValue,
+  ApiPage,
   ApiProductDetail,
   ApiProduct,
+  ApiSiteConfig,
   ApiSpec,
   ApiSettings,
   ApiVariant,
@@ -349,4 +352,48 @@ export async function writeOptionsAndVariants(
         .run();
     }
   }
+}
+
+export interface BannerRow {
+  id: string; image_url: string; link_url: string; alt_text: string;
+  sort_order: number; is_active: number;
+}
+
+export function rowToBanner(r: BannerRow): ApiBanner {
+  return {
+    id: r.id, imageUrl: r.image_url, linkUrl: r.link_url, altText: r.alt_text,
+    sortOrder: r.sort_order, isActive: r.is_active === 1,
+  };
+}
+
+export interface PageRow {
+  id: string; slug: string;
+  title_uz: string; title_ru: string; title_en: string; title_cyrl: string;
+  content_uz: string; content_ru: string; content_en: string; content_cyrl: string;
+  sort_order: number; is_active: number;
+}
+
+export function rowToPage(r: PageRow): ApiPage {
+  return {
+    id: r.id, slug: r.slug,
+    title: { uz: r.title_uz, ru: r.title_ru, en: r.title_en, uzCyrl: r.title_cyrl },
+    content: { uz: r.content_uz, ru: r.content_ru, en: r.content_en, uzCyrl: r.content_cyrl },
+    sortOrder: r.sort_order, isActive: r.is_active === 1,
+  };
+}
+
+export interface SiteConfigRow {
+  id: number; name: string; phone: string; phone_display: string;
+  telegram: string; instagram: string; whatsapp: string;
+  map_ll: string; map_label: string;
+  seo_title_suffix: string; seo_description: string; og_image: string;
+}
+
+export function rowToSiteConfig(r: SiteConfigRow): ApiSiteConfig {
+  return {
+    name: r.name, phone: r.phone, phoneDisplay: r.phone_display,
+    telegram: r.telegram, instagram: r.instagram, whatsapp: r.whatsapp,
+    mapLl: r.map_ll, mapLabel: r.map_label,
+    seoTitleSuffix: r.seo_title_suffix, seoDescription: r.seo_description, ogImage: r.og_image,
+  };
 }

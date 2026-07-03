@@ -39,5 +39,10 @@ export default [
   route('api/admin/brands/:id', 'routes/api.admin.brands.$id.tsx'),
   route('api/admin/settings', 'routes/api.admin.settings.tsx'),
   route('api/admin/upload', 'routes/api.admin.upload.tsx'),
+  route('api/admin/banners', 'routes/api.admin.banners.tsx'),
+  route('api/admin/banners/:id', 'routes/api.admin.banners.$id.tsx'),
+  route('api/admin/pages', 'routes/api.admin.pages.tsx'),
+  route('api/admin/pages/:id', 'routes/api.admin.pages.$id.tsx'),
+  route('api/admin/site-config', 'routes/api.admin.site-config.tsx'),
   route('*', 'routes/not-found.tsx'),
 ] satisfies RouteConfig;

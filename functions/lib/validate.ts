@@ -1,4 +1,13 @@
-import type { ApiCategory, ApiProduct, ApiSettings, Category, Condition, Term } from '../../shared/types';
+import type {
+  ApiCategory,
+  ApiProduct,
+  ApiSettings,
+  ApiSiteConfig,
+  Category,
+  Condition,
+  LocalizedText,
+  Term,
+} from '../../shared/types';
 
 export class ValidationError extends Error {}
 
@@ -199,4 +208,81 @@ export function parseCategoryInput(body: unknown): CategoryInput {
   const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : '';
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   return { id, name, iconUrl, sortOrder };
+}
+
+export interface BannerInput {
+  id: string;
+  imageUrl: string;
+  linkUrl: string;
+  altText: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export function parseBannerInput(body: unknown): BannerInput {
+  const o = asRecord(body);
+  const imageUrl = reqString(o, 'imageUrl');
+  const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID();
+  const linkUrl = typeof o.linkUrl === 'string' ? o.linkUrl.trim() : '';
+  const altText = typeof o.altText === 'string' ? o.altText.trim() : '';
+  const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
+  const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
+  return { id, imageUrl, linkUrl, altText, sortOrder, isActive };
+}
+
+const PAGE_SLUG_RE = /^[a-z0-9-]+$/;
+const TEXT_KEYS: (keyof LocalizedText)[] = ['uz', 'ru', 'en', 'uzCyrl'];
+
+function localizedText(o: Record<string, unknown>, key: string, required: boolean): LocalizedText {
+  const raw = o[key];
+  const r = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+  const out = {} as LocalizedText;
+  for (const k of TEXT_KEYS) {
+    const v = r[k];
+    const s = typeof v === 'string' ? v.trim() : '';
+    if (required && s === '') throw new ValidationError(`${key}_${k}_required`);
+    out[k] = s;
+  }
+  return out;
+}
+
+export interface PageInput {
+  id: string;
+  slug: string;
+  title: LocalizedText;
+  content: LocalizedText;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export function parsePageInput(body: unknown): PageInput {
+  const o = asRecord(body);
+  const slug = reqString(o, 'slug').toLowerCase();
+  if (!PAGE_SLUG_RE.test(slug)) throw new ValidationError('slug_invalid');
+  const title = localizedText(o, 'title', true);
+  const content = localizedText(o, 'content', false);
+  const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID();
+  const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
+  const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
+  return { id, slug, title, content, sortOrder, isActive };
+}
+
+export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
+  const o = asRecord(body);
+  const name = reqString(o, 'name');
+  const phone = reqString(o, 'phone');
+  const opt = (key: string): string => (typeof o[key] === 'string' ? (o[key] as string).trim() : '');
+  return {
+    name,
+    phone,
+    phoneDisplay: opt('phoneDisplay') || phone,
+    telegram: opt('telegram'),
+    instagram: opt('instagram'),
+    whatsapp: opt('whatsapp'),
+    mapLl: opt('mapLl'),
+    mapLabel: opt('mapLabel'),
+    seoTitleSuffix: opt('seoTitleSuffix') || name,
+    seoDescription: opt('seoDescription'),
+    ogImage: opt('ogImage'),
+  };
 }

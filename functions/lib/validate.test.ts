@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { parseProductInput, parseBrandInput, ValidationError } from './validate';
+import {
+  parseProductInput,
+  parseBrandInput,
+  parseBannerInput,
+  parsePageInput,
+  parseSiteConfigInput,
+  ValidationError,
+} from './validate';
 
 const base = { name: 'iPhone 17', category: 'iphone', condition: 'yangi', cashPriceUzs: 1000, imageUrl: '' };
 
@@ -57,5 +64,49 @@ describe('parseProductInput variants', () => {
         variants: [{ cashPriceUzs: 100, optionValues: [{ optionName: 'Rang', value: 'Yashil' }] }],
       }),
     ).toThrow(ValidationError);
+  });
+});
+
+describe('parseBannerInput', () => {
+  it('accepts minimal input and fills defaults', () => {
+    const b = parseBannerInput({ imageUrl: '/images/banner.webp' });
+    expect(b.imageUrl).toBe('/images/banner.webp');
+    expect(b.linkUrl).toBe('');
+    expect(b.altText).toBe('');
+    expect(b.sortOrder).toBe(0);
+    expect(b.isActive).toBe(true);
+    expect(b.id.length).toBeGreaterThan(0);
+  });
+  it('rejects missing imageUrl', () => {
+    expect(() => parseBannerInput({ linkUrl: '/katalog' })).toThrow('imageUrl_required');
+  });
+});
+
+describe('parsePageInput', () => {
+  const title = { uz: 'FAQ', ru: 'FAQ', en: 'FAQ', uzCyrl: 'FAQ' };
+  it('accepts a valid page and defaults empty content', () => {
+    const p = parsePageInput({ slug: 'faq', title });
+    expect(p.slug).toBe('faq');
+    expect(p.title.uzCyrl).toBe('FAQ');
+    expect(p.content).toEqual({ uz: '', ru: '', en: '', uzCyrl: '' });
+    expect(p.isActive).toBe(true);
+  });
+  it('rejects invalid slug', () => {
+    expect(() => parsePageInput({ slug: 'Bad Slug!', title })).toThrow('slug_invalid');
+  });
+  it('rejects when a title locale is empty', () => {
+    expect(() => parsePageInput({ slug: 'faq', title: { ...title, ru: '' } })).toThrow('title_ru_required');
+  });
+});
+
+describe('parseSiteConfigInput', () => {
+  it('requires name and phone, defaults the rest', () => {
+    const c = parseSiteConfigInput({ name: 'Store', phone: '+998900000000' });
+    expect(c.phoneDisplay).toBe('+998900000000');
+    expect(c.seoTitleSuffix).toBe('Store');
+    expect(c.telegram).toBe('');
+  });
+  it('rejects missing name', () => {
+    expect(() => parseSiteConfigInput({ phone: '+998900000000' })).toThrow('name_required');
   });
 });
