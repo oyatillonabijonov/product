@@ -8,13 +8,20 @@ export default function BannerList() {
   const [editing, setEditing] = useState<ApiBanner | null>(null);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   async function refresh() {
     setLoading(true);
-    setItems(await listBanners());
-    setLoading(false);
-    setEditing(null);
-    setCreating(false);
+    try {
+      setItems(await listBanners());
+      setError('');
+    } catch {
+      setError("Yuklashda xatolik (migratsiya qo'llanganmi?)");
+    } finally {
+      setLoading(false);
+      setEditing(null);
+      setCreating(false);
+    }
   }
   useEffect(() => { refresh(); }, []);
 
@@ -25,6 +32,7 @@ export default function BannerList() {
   }
 
   if (loading) return <p className="text-[#6E6E73]">Yuklanmoqda…</p>;
+  if (error) return <p className="text-[#E8462D]">{error}</p>;
   return (
     <div>
       {creating && <BannerForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}

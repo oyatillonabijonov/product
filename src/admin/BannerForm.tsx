@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FC } from 'react';
 import type { ApiBanner } from '../../shared/types';
 import { createBanner, updateBanner, uploadImage } from './api';
+import { errText } from './errText';
 
 const BannerForm: FC<{ initial: ApiBanner | null; onSaved: () => void; onCancel: () => void }> = ({ initial, onSaved, onCancel }) => {
   const [imageUrl, setImageUrl] = useState(initial?.imageUrl ?? '');
@@ -29,7 +30,7 @@ const BannerForm: FC<{ initial: ApiBanner | null; onSaved: () => void; onCancel:
       if (initial) await updateBanner(initial.id, body);
       else await createBanner(body);
       onSaved();
-    } catch (e) { setError(e instanceof Error ? e.message : 'Xatolik'); }
+    } catch (e) { setError(errText(e)); }
     finally { setBusy(false); }
   }
 

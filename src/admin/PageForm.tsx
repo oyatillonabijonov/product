@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FC } from 'react';
 import type { ApiPage, LocalizedText } from '../../shared/types';
 import { createPage, updatePage } from './api';
+import { errText } from './errText';
 
 const EMPTY: LocalizedText = { uz: '', ru: '', en: '', uzCyrl: '' };
 const LANGS: { key: keyof LocalizedText; label: string }[] = [
@@ -21,13 +22,18 @@ const PageForm: FC<{ initial: ApiPage | null; onSaved: () => void; onCancel: () 
   const [error, setError] = useState('');
 
   async function save() {
+    const SLUG_RE = /^[a-z0-9-]+$/;
+    if (!SLUG_RE.test(slug.trim())) { setError(errText(new Error(slug.trim() ? 'slug_invalid' : 'slug_required'))); return; }
+    for (const l of LANGS) {
+      if (!title[l.key].trim()) { setError(`Sarlavha (${l.label}) majburiy`); return; }
+    }
     setBusy(true); setError('');
     try {
       const body = { slug, title, content, sortOrder, isActive };
       if (initial) await updatePage(initial.id, body);
       else await createPage(body);
       onSaved();
-    } catch (e) { setError(e instanceof Error ? e.message : 'Xatolik'); }
+    } catch (e) { setError(errText(e)); }
     finally { setBusy(false); }
   }
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ApiSiteConfig } from '../../shared/types';
 import { getSiteConfig, updateSiteConfig } from './api';
+import { errText } from './errText';
 
 const FIELDS: { key: keyof ApiSiteConfig; label: string; placeholder?: string }[] = [
   { key: 'name', label: 'Do\'kon nomi' },
@@ -29,9 +30,10 @@ export default function SiteConfigForm() {
 
   async function save() {
     if (!form) return;
+    if (!form.name.trim() || !form.phone.trim()) { setMsg(errText(new Error(!form.name.trim() ? 'name_required' : 'phone_required'))); return; }
     setBusy(true); setMsg('');
     try { await updateSiteConfig(form); setMsg('Saqlandi ✓'); }
-    catch (e) { setMsg(e instanceof Error ? e.message : 'Xatolik'); }
+    catch (e) { setMsg(errText(e)); }
     finally { setBusy(false); }
   }
 

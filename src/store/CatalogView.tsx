@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import { useSearchParams } from 'react-router';
 import { SlidersHorizontal, X } from 'lucide-react';
@@ -23,6 +23,14 @@ const CatalogView: FC<{
 }> = ({ t, title, result, config, brands, filters, hideBrands }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const closeBtn = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    if (!sheetOpen) return;
+    closeBtn.current?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSheetOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [sheetOpen]);
 
   function update(next: Partial<CatalogFilters>, resetPage = true) {
     const p = new URLSearchParams(sp);
@@ -90,10 +98,10 @@ const CatalogView: FC<{
       {sheetOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setSheetOpen(false)} />
-          <div className="absolute bottom-0 inset-x-0 bg-white rounded-t-[24px] p-6 max-h-[80vh] overflow-y-auto">
+          <div role="dialog" aria-modal="true" aria-label={t.filterTitle} className="absolute bottom-0 inset-x-0 bg-white rounded-t-[24px] p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold">{t.filterTitle}</h2>
-              <button onClick={() => setSheetOpen(false)} aria-label={t.filterClear}><X className="w-5 h-5" /></button>
+              <button ref={closeBtn} onClick={() => setSheetOpen(false)} aria-label={t.filterClear}><X className="w-5 h-5" /></button>
             </div>
             {panel}
           </div>
