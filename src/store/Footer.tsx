@@ -102,11 +102,17 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
       <div className="max-w-[1024px] mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[12px] text-muted">
         <p>{t.footerCopyright}</p>
         <div className="flex gap-6">
-          {pageLinks.map((p) => (
-            <Link key={p.slug} to={localizedPath(locale, `/page/${p.slug}`)} className="hover:text-primary transition-colors">
-              {p.title[textKey]}
-            </Link>
-          ))}
+          {(() => {
+            const shartlar = pageLinks.find((p) => p.slug === 'muddatli-tolov');
+            return shartlar ? (
+              <Link to={localizedPath(locale, `/page/${shartlar.slug}`)} className="hover:text-primary transition-colors">
+                {shartlar.title[textKey]}
+              </Link>
+            ) : null;
+          })()}
+          <a href={`${localizedPath(locale, '/')}#faq`} className="hover:text-primary transition-colors">
+            FAQ
+          </a>
         </div>
       </div>
     </footer>

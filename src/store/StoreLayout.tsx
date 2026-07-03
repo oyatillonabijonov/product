@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Sparkles, Phone } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import type { ApiSiteConfig } from '../../shared/types';
@@ -20,11 +21,19 @@ export default function StoreLayout({
   return (
     <CartProvider>
       <div className="min-h-screen flex flex-col bg-white">
-        <div className="bg-bg text-muted text-[12px]">
-          <div className="max-w-[1200px] mx-auto px-4 h-9 flex items-center gap-4">
-            <span className="font-semibold text-trust">{t.utilInstallment}</span>
-            <span className="hidden sm:inline">{t.utilDiscounts}</span>
-            <a href={`tel:${config.phone}`} className="ml-auto font-medium text-primary">{config.phoneDisplay}</a>
+        <div className="bg-bg border-b border-line/60 text-[12.5px]">
+          <div className="max-w-[1200px] mx-auto px-4 h-10 flex items-center justify-between gap-3">
+            <span className="inline-flex items-center gap-1.5 font-medium text-body min-w-0">
+              <Sparkles className="w-3.5 h-3.5 text-accent shrink-0" />
+              <span className="truncate">{t.utilInstallment}</span>
+            </span>
+            <a
+              href={`tel:${config.phone}`}
+              className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-accent transition-colors shrink-0"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              {config.phoneDisplay}
+            </a>
           </div>
         </div>
         <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} />
