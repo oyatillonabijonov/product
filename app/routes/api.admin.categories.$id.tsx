@@ -17,8 +17,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
       throw e;
     }
-    await env.DB.prepare('UPDATE categories SET name=?, icon_url=?, sort_order=? WHERE id=?')
-      .bind(input.name, input.iconUrl, input.sortOrder, id)
+    await env.DB.prepare('UPDATE categories SET name=?, icon_url=?, icon=?, sort_order=? WHERE id=?')
+      .bind(input.name, input.iconUrl, input.icon, input.sortOrder, id)
       .run();
     const row = await env.DB.prepare('SELECT * FROM categories WHERE id = ?').bind(id).first<CategoryRow>();
     if (!row) return json({ error: 'not_found' }, { status: 404 });

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ApiCategory } from '../../shared/types';
 import { deleteCategory, listCategories } from './api';
+import { categoryIcon } from '../lib/category-icons';
 import CategoryForm from './CategoryForm';
 
 export default function CategoryList() {
@@ -33,14 +34,23 @@ export default function CategoryList() {
         <button onClick={() => setCreating(true)} className="mb-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-full">+ Yangi kategoriya</button>
       )}
       <div className="space-y-2">
-        {items.map((c) => (
+        {items.map((c) => {
+          const Icon = categoryIcon(c.icon);
+          return (
           <div key={c.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-[--shadow-apple]">
-            {c.iconUrl ? <img src={c.iconUrl} alt="" className="w-10 h-10 rounded-full object-cover bg-bg" /> : <div className="w-10 h-10 rounded-full bg-bg" />}
+            {c.iconUrl ? (
+              <img src={c.iconUrl} alt="" className="w-10 h-10 rounded-full object-cover bg-bg" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-bg flex items-center justify-center text-primary">
+                <Icon className="w-5 h-5" strokeWidth={1.7} />
+              </div>
+            )}
             <div className="flex-1 font-semibold">{c.name}</div>
             <button onClick={() => setEditing(c)} className="text-[13px] text-accent font-semibold px-2">Tahrir</button>
             <button onClick={() => remove(c)} className="text-[13px] text-danger px-2">O'chir</button>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

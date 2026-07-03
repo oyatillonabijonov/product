@@ -33,6 +33,8 @@ export interface ApiCategory {
   id: string;
   name: string;
   iconUrl: string;
+  /** Preset icon key (see src/lib/category-icons); falls back to a generic icon when empty/unknown. */
+  icon: string;
   sortOrder: number;
 }
 

@@ -23,8 +23,8 @@ export async function action({ request, context }: Route.ActionArgs) {
     if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
     throw e;
   }
-  await env.DB.prepare('INSERT INTO categories (id, name, icon_url, sort_order) VALUES (?, ?, ?, ?)')
-    .bind(input.id, input.name, input.iconUrl, input.sortOrder)
+  await env.DB.prepare('INSERT INTO categories (id, name, icon_url, icon, sort_order) VALUES (?, ?, ?, ?, ?)')
+    .bind(input.id, input.name, input.iconUrl, input.icon, input.sortOrder)
     .run();
   const row = await env.DB.prepare('SELECT * FROM categories WHERE id = ?').bind(input.id).first<CategoryRow>();
   return json(row ? rowToCategory(row) : { error: 'insert_failed' }, { status: row ? 201 : 500 });

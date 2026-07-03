@@ -1,22 +1,13 @@
-import { Smartphone, Laptop, Tablet, Monitor, Headphones, Package } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import type { ApiCategory } from '../../shared/types';
+import { categoryIcon } from '../lib/category-icons';
 import LocaleLink from './LocaleLink';
-
-const ICONS: Record<string, LucideIcon> = {
-  telefonlar: Smartphone,
-  noutbuklar: Laptop,
-  planshetlar: Tablet,
-  kompyuterlar: Monitor,
-  aksessuarlar: Headphones,
-};
 
 export default function CategoryCircles({ categories }: { categories: ApiCategory[] }) {
   if (categories.length === 0) return null;
   return (
     <div className="flex gap-4 md:gap-7 overflow-x-auto pb-1 no-scrollbar">
       {categories.map((c) => {
-        const Icon = ICONS[c.id] ?? Package;
+        const Icon = categoryIcon(c.icon);
         return (
           <LocaleLink
             key={c.id}

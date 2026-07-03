@@ -79,6 +79,7 @@ export interface CategoryRow {
   id: string;
   name: string;
   icon_url: string;
+  icon: string;
   sort_order: number;
 }
 
@@ -98,7 +99,7 @@ export interface ImageRow {
 }
 
 export function rowToCategory(row: CategoryRow): ApiCategory {
-  return { id: row.id, name: row.name, iconUrl: row.icon_url, sortOrder: row.sort_order };
+  return { id: row.id, name: row.name, iconUrl: row.icon_url, icon: row.icon ?? '', sortOrder: row.sort_order };
 }
 
 export function rowToSpec(row: SpecRow): ApiSpec {

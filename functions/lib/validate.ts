@@ -195,6 +195,7 @@ export interface CategoryInput {
   id: string;
   name: string;
   iconUrl: string;
+  icon: string;
   sortOrder: number;
 }
 
@@ -211,8 +212,9 @@ export function parseCategoryInput(body: unknown): CategoryInput {
   const id =
     typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : slugify(name) || crypto.randomUUID();
   const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : '';
+  const icon = typeof o.icon === 'string' ? o.icon.trim() : '';
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
-  return { id, name, iconUrl, sortOrder };
+  return { id, name, iconUrl, icon, sortOrder };
 }
 
 export interface BannerInput {
