@@ -73,7 +73,7 @@ Filtered/paginated catalog pages get `noindex,follow` + canonical to the clean p
 
 ## Design system & rebrand seam
 
-Clean premium palette (olcha *structure*, not its red brand). Tailwind v4 `@theme` tokens in `app/styles.css` (the live stylesheet; `src/index.css` is orphaned): `#1D1D1F` text · `#0071E3` accent · `#F5F5F7` fill · `#6E6E73` secondary · `#1B7A34` trust green · `#E8462D` discount. SF Pro/system font; `--shadow-apple`(-hover); minimal `motion.div` hover effects. **Brand-specific values live in `app/lib/site.config.ts`** — a new store's rebrand edits tokens + config + component styling, never the core.
+Clean premium palette (olcha *structure*, not its red brand), fully tokenized as the first theme ("Taqsit skin"). The palette lives **only** in the `@theme` block of `app/styles.css` (the live stylesheet; `src/index.css` is orphaned) — 24 semantic `--color-*` tokens: `primary`/`body`/`muted`(-2/-3)/`disabled`(-2) text scale · `accent`(+`-hover`/`-soft`/`-soft-2`/`-bright`) · `bg`/`row-alt`/`fill-2` fills · `line`(-2/-3)/`divider`/`segment` borders · `trust`(+`-soft`) · `sale` · `danger` (admin). **Hex colors are banned in components** — new UI code uses the generated utilities (`text-muted`, `border-line/50`, `bg-accent-soft`, …). Allowed literals: white, `#25D366` (WhatsApp brand), rgba values inside shadows. SF Pro/system font; `--shadow-apple`(-hover); minimal `motion.div` hover effects. **A rebrand = `@theme` values + `app/lib/site.config.ts` (or the admin "Sayt ma'lumotlari" tab) + logo/images — never component code.**
 
 ## Environment & deploy
 

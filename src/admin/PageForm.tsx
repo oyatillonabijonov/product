@@ -41,27 +41,27 @@ const PageForm: FC<{ initial: ApiPage | null; onSaved: () => void; onCancel: () 
     <div className="bg-white rounded-2xl p-5 mb-4 shadow-[--shadow-apple] space-y-4">
       <h3 className="font-semibold">{initial ? 'Sahifani tahrirlash' : 'Yangi sahifa'}</h3>
       <div className="flex items-center gap-4 flex-wrap">
-        <label className="text-[13px] text-[#6E6E73]">Slug
-          <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="masalan: faq" className="ml-2 border border-[#E5E5EA] rounded-xl px-3 py-2 text-[14px]" />
+        <label className="text-[13px] text-muted">Slug
+          <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="masalan: faq" className="ml-2 border border-line-2 rounded-xl px-3 py-2 text-[14px]" />
         </label>
-        <label className="text-[13px] text-[#6E6E73]">Tartib
-          <input type="number" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} className="ml-2 w-20 border border-[#E5E5EA] rounded-xl px-2 py-1.5" />
+        <label className="text-[13px] text-muted">Tartib
+          <input type="number" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} className="ml-2 w-20 border border-line-2 rounded-xl px-2 py-1.5" />
         </label>
-        <label className="text-[13px] text-[#6E6E73] flex items-center gap-2">
+        <label className="text-[13px] text-muted flex items-center gap-2">
           <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} /> Faol
         </label>
       </div>
       {LANGS.map((l) => (
         <div key={l.key} className="space-y-2">
-          <div className="text-[13px] font-semibold text-[#1D1D1F]">{l.label}</div>
-          <input value={title[l.key]} onChange={(e) => setTitle({ ...title, [l.key]: e.target.value })} placeholder="Sarlavha" className="w-full border border-[#E5E5EA] rounded-xl px-3 py-2 text-[14px]" />
-          <textarea value={content[l.key]} onChange={(e) => setContent({ ...content, [l.key]: e.target.value })} rows={6} placeholder="Matn (markdown: ## sarlavha, **qalin**, - ro'yxat, [link](/url))" className="w-full border border-[#E5E5EA] rounded-xl px-3 py-2 text-[14px] font-mono" />
+          <div className="text-[13px] font-semibold text-primary">{l.label}</div>
+          <input value={title[l.key]} onChange={(e) => setTitle({ ...title, [l.key]: e.target.value })} placeholder="Sarlavha" className="w-full border border-line-2 rounded-xl px-3 py-2 text-[14px]" />
+          <textarea value={content[l.key]} onChange={(e) => setContent({ ...content, [l.key]: e.target.value })} rows={6} placeholder="Matn (markdown: ## sarlavha, **qalin**, - ro'yxat, [link](/url))" className="w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] font-mono" />
         </div>
       ))}
-      {error && <p className="text-[13px] text-[#E8462D]">{error}</p>}
+      {error && <p className="text-[13px] text-sale">{error}</p>}
       <div className="flex gap-2">
-        <button onClick={save} disabled={busy} className="px-5 py-2.5 bg-[#0071E3] text-white font-semibold rounded-full disabled:opacity-50">Saqlash</button>
-        <button onClick={onCancel} className="px-5 py-2.5 text-[#6E6E73] font-semibold rounded-full">Bekor qilish</button>
+        <button onClick={save} disabled={busy} className="px-5 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-50">Saqlash</button>
+        <button onClick={onCancel} className="px-5 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
       </div>
     </div>
   );

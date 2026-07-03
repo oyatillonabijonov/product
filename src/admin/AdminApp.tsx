@@ -21,17 +21,17 @@ export default function AdminApp() {
       .catch(() => setAuthed(false));
   }, []);
 
-  if (authed === null) return <div className="p-8 text-[#6E6E73]">Yuklanmoqda…</div>;
+  if (authed === null) return <div className="p-8 text-muted">Yuklanmoqda…</div>;
   if (!authed) return <Login onSuccess={() => setAuthed(true)} />;
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7]">
-      <header className="bg-white border-b border-[#E5E5EA] px-4 md:px-8 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-bg">
+      <header className="bg-white border-b border-line-2 px-4 md:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setTab('products')}
             className={`px-4 py-2 rounded-full text-[14px] font-semibold ${
-              tab === 'products' ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F]'
+              tab === 'products' ? 'bg-accent text-white' : 'text-primary'
             }`}
           >
             Mahsulotlar
@@ -39,7 +39,7 @@ export default function AdminApp() {
           <button
             onClick={() => setTab('settings')}
             className={`px-4 py-2 rounded-full text-[14px] font-semibold ${
-              tab === 'settings' ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F]'
+              tab === 'settings' ? 'bg-accent text-white' : 'text-primary'
             }`}
           >
             Sozlamalar
@@ -47,7 +47,7 @@ export default function AdminApp() {
           <button
             onClick={() => setTab('categories')}
             className={`px-4 py-2 rounded-full text-[14px] font-semibold ${
-              tab === 'categories' ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F]'
+              tab === 'categories' ? 'bg-accent text-white' : 'text-primary'
             }`}
           >
             Kategoriyalar
@@ -55,7 +55,7 @@ export default function AdminApp() {
           <button
             onClick={() => setTab('brands')}
             className={`px-4 py-2 rounded-full text-[14px] font-semibold ${
-              tab === 'brands' ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F]'
+              tab === 'brands' ? 'bg-accent text-white' : 'text-primary'
             }`}
           >
             Brendlar
@@ -63,7 +63,7 @@ export default function AdminApp() {
           <button
             onClick={() => setTab('banners')}
             className={`px-4 py-2 rounded-full text-[14px] font-semibold ${
-              tab === 'banners' ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F]'
+              tab === 'banners' ? 'bg-accent text-white' : 'text-primary'
             }`}
           >
             Bannerlar
@@ -71,7 +71,7 @@ export default function AdminApp() {
           <button
             onClick={() => setTab('pages')}
             className={`px-4 py-2 rounded-full text-[14px] font-semibold ${
-              tab === 'pages' ? 'bg-[#0071E3] text-white' : 'text-[#1D1D1F]'
+              tab === 'pages' ? 'bg-accent text-white' : 'text-primary'
             }`}
           >
             Sahifalar
@@ -82,7 +82,7 @@ export default function AdminApp() {
             await logout();
             setAuthed(false);
           }}
-          className="text-[14px] text-[#6E6E73] hover:text-[#1D1D1F]"
+          className="text-[14px] text-muted hover:text-primary"
         >
           Chiqish
         </button>

@@ -24,21 +24,21 @@ export default function CategoryList() {
     refresh();
   }
 
-  if (loading) return <p className="text-[#6E6E73]">Yuklanmoqda…</p>;
+  if (loading) return <p className="text-muted">Yuklanmoqda…</p>;
   return (
     <div>
       {creating && <CategoryForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
       {editing && <CategoryForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />}
       {!creating && !editing && (
-        <button onClick={() => setCreating(true)} className="mb-4 px-5 py-2.5 bg-[#1D1D1F] text-white font-semibold rounded-full">+ Yangi kategoriya</button>
+        <button onClick={() => setCreating(true)} className="mb-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-full">+ Yangi kategoriya</button>
       )}
       <div className="space-y-2">
         {items.map((c) => (
           <div key={c.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-[--shadow-apple]">
-            {c.iconUrl ? <img src={c.iconUrl} alt="" className="w-10 h-10 rounded-full object-cover bg-[#F5F5F7]" /> : <div className="w-10 h-10 rounded-full bg-[#F5F5F7]" />}
+            {c.iconUrl ? <img src={c.iconUrl} alt="" className="w-10 h-10 rounded-full object-cover bg-bg" /> : <div className="w-10 h-10 rounded-full bg-bg" />}
             <div className="flex-1 font-semibold">{c.name}</div>
-            <button onClick={() => setEditing(c)} className="text-[13px] text-[#0071E3] font-semibold px-2">Tahrir</button>
-            <button onClick={() => remove(c)} className="text-[13px] text-[#E30000] px-2">O'chir</button>
+            <button onClick={() => setEditing(c)} className="text-[13px] text-accent font-semibold px-2">Tahrir</button>
+            <button onClick={() => remove(c)} className="text-[13px] text-danger px-2">O'chir</button>
           </div>
         ))}
       </div>

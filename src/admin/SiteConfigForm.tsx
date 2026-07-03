@@ -26,7 +26,7 @@ export default function SiteConfigForm() {
     getSiteConfig().then(setForm).catch(() => setMsg('Yuklashda xatolik (migratsiya qo\'llanganmi?)'));
   }, []);
 
-  if (!form) return <p className="text-[#6E6E73]">{msg || 'Yuklanmoqda…'}</p>;
+  if (!form) return <p className="text-muted">{msg || 'Yuklanmoqda…'}</p>;
 
   async function save() {
     if (!form) return;
@@ -41,18 +41,18 @@ export default function SiteConfigForm() {
     <div className="bg-white rounded-2xl p-5 shadow-[--shadow-apple] space-y-3 max-w-xl">
       <h3 className="font-semibold text-[17px]">Sayt ma'lumotlari</h3>
       {FIELDS.map((f) => (
-        <label key={f.key} className="block text-[13px] text-[#6E6E73]">
+        <label key={f.key} className="block text-[13px] text-muted">
           {f.label}
           <input
             value={form[f.key]}
             placeholder={f.placeholder}
             onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-            className="mt-1 w-full border border-[#E5E5EA] rounded-xl px-3 py-2 text-[14px] text-[#1D1D1F]"
+            className="mt-1 w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] text-primary"
           />
         </label>
       ))}
-      {msg && <p className={`text-[13px] ${msg.includes('✓') ? 'text-[#1B7A34]' : 'text-[#E8462D]'}`}>{msg}</p>}
-      <button onClick={save} disabled={busy} className="px-5 py-2.5 bg-[#0071E3] text-white font-semibold rounded-full disabled:opacity-50">Saqlash</button>
+      {msg && <p className={`text-[13px] ${msg.includes('✓') ? 'text-trust' : 'text-sale'}`}>{msg}</p>}
+      <button onClick={save} disabled={busy} className="px-5 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-50">Saqlash</button>
     </div>
   );
 }

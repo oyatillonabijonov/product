@@ -22,27 +22,27 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5F5F7] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-bg px-4">
       <form onSubmit={submit} className="bg-white rounded-[24px] p-8 w-full max-w-sm shadow-[--shadow-apple]">
         <h1 className="text-[24px] font-semibold mb-6 text-center">Admin panel</h1>
         <input
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Foydalanuvchi"
-          className="w-full border border-[#D2D2D7] rounded-2xl px-4 py-3 mb-3 focus:outline-none focus:border-[#0071E3]"
+          className="w-full border border-line rounded-2xl px-4 py-3 mb-3 focus:outline-none focus:border-accent"
         />
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Parol"
-          className="w-full border border-[#D2D2D7] rounded-2xl px-4 py-3 mb-4 focus:outline-none focus:border-[#0071E3]"
+          className="w-full border border-line rounded-2xl px-4 py-3 mb-4 focus:outline-none focus:border-accent"
         />
-        {error && <p className="text-[13px] text-[#E30000] mb-3">{error}</p>}
+        {error && <p className="text-[13px] text-danger mb-3">{error}</p>}
         <button
           type="submit"
           disabled={busy}
-          className="w-full py-3 bg-[#0071E3] text-white font-semibold rounded-full hover:bg-[#0077ED] disabled:opacity-60"
+          className="w-full py-3 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover disabled:opacity-60"
         >
           {busy ? 'Kirilmoqda…' : 'Kirish'}
         </button>

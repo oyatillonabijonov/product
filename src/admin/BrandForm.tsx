@@ -44,27 +44,27 @@ const BrandForm: FC<{
     }
   }
 
-  const input = 'w-full border border-[#D2D2D7] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0071E3]';
+  const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
   return (
     <div className="bg-white rounded-[20px] p-6 mb-6 shadow-[--shadow-apple] max-w-lg">
       <h3 className="font-semibold mb-4">{initial ? 'Brendni tahrirlash' : 'Yangi brend'}</h3>
-      <label className="block text-[13px] text-[#6E6E73] mb-3">Nomi
+      <label className="block text-[13px] text-muted mb-3">Nomi
         <input className={input} value={name} onChange={(e) => setName(e.target.value)} />
       </label>
-      <label className="block text-[13px] text-[#6E6E73] mb-3">Slug (ixtiyoriy — bo'sh qoldirilsa server nomdan yasaydi)
+      <label className="block text-[13px] text-muted mb-3">Slug (ixtiyoriy — bo'sh qoldirilsa server nomdan yasaydi)
         <input className={input} value={slug} onChange={(e) => setSlug(e.target.value)} />
       </label>
-      <label className="block text-[13px] text-[#6E6E73] mb-3">Tartib raqami
+      <label className="block text-[13px] text-muted mb-3">Tartib raqami
         <input type="number" className={input} value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} />
       </label>
       <div className="flex items-center gap-4 mb-4">
-        {logoUrl ? <img src={logoUrl} alt="" className="w-14 h-14 rounded-full object-cover bg-[#F5F5F7]" /> : <div className="w-14 h-14 rounded-full bg-[#F5F5F7]" />}
+        {logoUrl ? <img src={logoUrl} alt="" className="w-14 h-14 rounded-full object-cover bg-bg" /> : <div className="w-14 h-14 rounded-full bg-bg" />}
         <input type="file" accept="image/png,image/jpeg,image/webp" onChange={onFile} />
       </div>
-      {error && <p className="text-[13px] text-[#E30000] mb-3">{error}</p>}
+      {error && <p className="text-[13px] text-danger mb-3">{error}</p>}
       <div className="flex gap-3">
-        <button onClick={save} disabled={busy} className="px-6 py-2.5 bg-[#0071E3] text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
-        <button onClick={onCancel} className="px-6 py-2.5 text-[#6E6E73] font-semibold rounded-full">Bekor qilish</button>
+        <button onClick={save} disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
+        <button onClick={onCancel} className="px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
       </div>
     </div>
   );

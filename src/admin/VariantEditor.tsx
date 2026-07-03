@@ -10,7 +10,7 @@ interface OptionDraft {
   values: string[];
 }
 
-const input = 'w-full border border-[#D2D2D7] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0071E3]';
+const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
 
 function optionValuesKey(optionValues: { optionName: string; value: string }[]): string {
   return JSON.stringify(
@@ -108,10 +108,10 @@ const VariantEditor: FC<{
 
   return (
     <div className="mt-4">
-      <div className="text-[13px] text-[#6E6E73] mb-2">Option'lar</div>
+      <div className="text-[13px] text-muted mb-2">Option'lar</div>
       <div className="space-y-3">
         {options.map((opt, i) => (
-          <div key={i} className="border border-[#D2D2D7] rounded-xl p-3">
+          <div key={i} className="border border-line rounded-xl p-3">
             <div className="flex gap-2 items-center">
               <input
                 placeholder="Nomi (Xotira)"
@@ -119,13 +119,13 @@ const VariantEditor: FC<{
                 value={opt.name}
                 onChange={(e) => setOptionName(i, e.target.value)}
               />
-              <button onClick={() => removeOption(i)} className="text-[#E30000] px-2">×</button>
+              <button onClick={() => removeOption(i)} className="text-danger px-2">×</button>
             </div>
             <div className="flex items-center gap-2 flex-wrap mt-2">
               {opt.values.map((v) => (
-                <span key={v} className="flex items-center gap-1 bg-[#F5F5F7] rounded-full px-3 py-1 text-[13px]">
+                <span key={v} className="flex items-center gap-1 bg-bg rounded-full px-3 py-1 text-[13px]">
                   {v}
-                  <button onClick={() => removeOptionValue(i, v)} className="text-[#E30000]">×</button>
+                  <button onClick={() => removeOptionValue(i, v)} className="text-danger">×</button>
                 </span>
               ))}
             </div>
@@ -142,19 +142,19 @@ const VariantEditor: FC<{
                   }
                 }}
               />
-              <button onClick={() => addOptionValue(i)} className="px-3 text-[#0071E3] font-semibold">+</button>
+              <button onClick={() => addOptionValue(i)} className="px-3 text-accent font-semibold">+</button>
             </div>
           </div>
         ))}
       </div>
-      <button onClick={addOption} className="text-[13px] text-[#0071E3] font-semibold mt-2">+ option qo'shish</button>
+      <button onClick={addOption} className="text-[13px] text-accent font-semibold mt-2">+ option qo'shish</button>
 
       <div className="mt-4 flex items-center gap-3">
-        <div className="text-[13px] text-[#6E6E73]">Variantlar</div>
+        <div className="text-[13px] text-muted">Variantlar</div>
         <button
           onClick={generateCombinations}
           disabled={options.length === 0 || options.some((o) => !o.name.trim() || o.values.length === 0)}
-          className="text-[13px] text-[#0071E3] font-semibold disabled:opacity-40"
+          className="text-[13px] text-accent font-semibold disabled:opacity-40"
         >
           Kombinatsiyalarni generatsiya
         </button>
@@ -162,7 +162,7 @@ const VariantEditor: FC<{
 
       <div className="space-y-2 mt-2">
         {variants.map((v, i) => (
-          <div key={i} className="border border-[#D2D2D7] rounded-xl p-3">
+          <div key={i} className="border border-line rounded-xl p-3">
             <div className="flex flex-wrap gap-2 items-center">
               {options.map((opt) => (
                 <select
@@ -199,14 +199,14 @@ const VariantEditor: FC<{
                 <input type="checkbox" checked={v.inStock} onChange={(e) => updateVariant(i, { inStock: e.target.checked })} />
                 Mavjud
               </label>
-              {v.imageUrl ? <img src={v.imageUrl} alt="" className="w-10 h-10 object-contain rounded-lg bg-[#F5F5F7]" /> : null}
+              {v.imageUrl ? <img src={v.imageUrl} alt="" className="w-10 h-10 object-contain rounded-lg bg-bg" /> : null}
               <input type="file" accept="image/png,image/jpeg,image/webp" disabled={busyRow === i} onChange={(e) => uploadVariantImage(i, e)} />
-              <button onClick={() => removeVariant(i)} className="text-[#E30000] px-2 ml-auto">×</button>
+              <button onClick={() => removeVariant(i)} className="text-danger px-2 ml-auto">×</button>
             </div>
           </div>
         ))}
       </div>
-      <button onClick={addEmptyVariant} className="text-[13px] text-[#0071E3] font-semibold mt-2">+ variant qo'shish</button>
+      <button onClick={addEmptyVariant} className="text-[13px] text-accent font-semibold mt-2">+ variant qo'shish</button>
     </div>
   );
 };

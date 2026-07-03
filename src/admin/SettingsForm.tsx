@@ -23,7 +23,7 @@ export default function SettingsForm() {
     getSettings().then(setS);
   }, []);
 
-  if (!s) return <p className="text-[#6E6E73]">Yuklanmoqda…</p>;
+  if (!s) return <p className="text-muted">Yuklanmoqda…</p>;
 
   function setTerm(i: number, key: keyof Term, value: number) {
     setS((prev) =>
@@ -51,7 +51,7 @@ export default function SettingsForm() {
     }
   }
 
-  const input = 'w-24 border border-[#D2D2D7] rounded-xl px-3 py-2 focus:outline-none focus:border-[#0071E3]';
+  const input = 'w-24 border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
 
   return (
     <div className="bg-white rounded-[20px] p-6 shadow-[--shadow-apple] max-w-lg">
@@ -77,7 +77,7 @@ export default function SettingsForm() {
         />
       </label>
 
-      <div className="text-[13px] font-semibold text-[#6E6E73] mb-2">Muddatlar va ustama</div>
+      <div className="text-[13px] font-semibold text-muted mb-2">Muddatlar va ustama</div>
       <div className="space-y-2 mb-4">
         {s.terms.map((t, i) => (
           <div key={i} className="flex items-center gap-2 text-[14px]">
@@ -95,16 +95,16 @@ export default function SettingsForm() {
               value={t.markup}
               onChange={(e) => setTerm(i, 'markup', Number(e.target.value))}
             />
-            <span className="text-[#6E6E73]">({fmt(monthly(SAMPLE, s.downPaymentPercent, t))}/oy)</span>
-            <button onClick={() => removeTerm(i)} className="text-[#E30000] ml-auto">×</button>
+            <span className="text-muted">({fmt(monthly(SAMPLE, s.downPaymentPercent, t))}/oy)</span>
+            <button onClick={() => removeTerm(i)} className="text-danger ml-auto">×</button>
           </div>
         ))}
       </div>
-      <button onClick={addTerm} className="text-[13px] text-[#0071E3] font-semibold mb-5">
+      <button onClick={addTerm} className="text-[13px] text-accent font-semibold mb-5">
         + muddat qo'shish
       </button>
 
-      <p className="text-[12px] text-[#6E6E73] mb-4">
+      <p className="text-[12px] text-muted mb-4">
         Oldindan ko'rish: {fmt(SAMPLE)} narxli mahsulot uchun oylik to'lov.
       </p>
 
@@ -112,11 +112,11 @@ export default function SettingsForm() {
         <button
           onClick={save}
           disabled={busy}
-          className="px-6 py-2.5 bg-[#0071E3] text-white font-semibold rounded-full disabled:opacity-60"
+          className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60"
         >
           {busy ? 'Saqlanmoqda…' : 'Saqlash'}
         </button>
-        {saved && <span className="text-[13px] text-[#1B7A34]">Saqlandi ✓</span>}
+        {saved && <span className="text-[13px] text-trust">Saqlandi ✓</span>}
       </div>
     </div>
   );
