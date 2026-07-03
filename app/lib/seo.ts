@@ -54,7 +54,7 @@ export function productJsonLd(p: ProductDetail, url: string) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: p.name,
-    image: p.images,
+    ...(p.images.length > 0 ? { image: p.images } : {}),
     ...(p.description ? { description: p.description } : {}),
     ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand.name } } : {}),
     offers: {

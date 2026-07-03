@@ -23,7 +23,7 @@ const PageForm: FC<{ initial: ApiPage | null; onSaved: () => void; onCancel: () 
 
   async function save() {
     const SLUG_RE = /^[a-z0-9-]+$/;
-    if (!SLUG_RE.test(slug.trim())) { setError(errText(new Error(slug.trim() ? 'slug_invalid' : 'slug_required'))); return; }
+    if (!SLUG_RE.test(slug.trim().toLowerCase())) { setError(errText(new Error(slug.trim() ? 'slug_invalid' : 'slug_required'))); return; }
     for (const l of LANGS) {
       if (!title[l.key].trim()) { setError(`Sarlavha (${l.label}) majburiy`); return; }
     }

@@ -52,6 +52,13 @@ describe('productJsonLd', () => {
     expect(rich.brand.name).toBe('Apple');
     expect(rich.description).toBe('Tavsif');
   });
+
+  it('omits image when the gallery is empty', () => {
+    const ld = productJsonLd(makeDetail({ images: [] }), '/p') as Record<string, unknown>;
+    expect('image' in ld).toBe(false);
+    const withImg = productJsonLd(makeDetail(), '/p') as { image: string[] };
+    expect(withImg.image).toEqual(['/i.webp']);
+  });
 });
 
 describe('breadcrumbJsonLd', () => {
