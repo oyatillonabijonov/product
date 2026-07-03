@@ -34,7 +34,7 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
             frameBorder="0"
             allowFullScreen={true}
             loading="lazy"
-            title="Taqsit Store joylashuvi / Shop location map"
+            title={config.mapLabel || 'Store location'}
             className="grayscale-[0.2] contrast-[1.1] brightness-[0.95] group-hover:grayscale-0 transition-all duration-700"
           ></iframe>
           <div className="absolute top-6 left-6 z-10">
@@ -68,15 +68,21 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
         </div>
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-semibold text-[#1D1D1F] uppercase tracking-widest mb-2">{t.footerContact}</h3>
-          <a href={`tel:${config.phone}`} className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-            <Phone className="w-4 h-4" /> {config.phoneDisplay}
-          </a>
-          <a href={config.telegram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-            <Send className="w-4 h-4" /> {telegramHandle}
-          </a>
-          <a href={config.instagram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
-            <Instagram className="w-4 h-4" /> {instagramHandle}
-          </a>
+          {config.phone && (
+            <a href={`tel:${config.phone}`} className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+              <Phone className="w-4 h-4" /> {config.phoneDisplay}
+            </a>
+          )}
+          {config.telegram && (
+            <a href={config.telegram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+              <Send className="w-4 h-4" /> {telegramHandle}
+            </a>
+          )}
+          {config.instagram && (
+            <a href={config.instagram} target="_blank" className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center gap-2 transition-colors">
+              <Instagram className="w-4 h-4" /> {instagramHandle}
+            </a>
+          )}
         </div>
         <div className="flex flex-col gap-3">
           <h3 className="text-[12px] font-semibold text-[#1D1D1F] uppercase tracking-widest mb-2">{t.footerAddress}</h3>

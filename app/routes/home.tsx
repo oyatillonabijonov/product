@@ -12,7 +12,7 @@ export async function loader({ params, context }: Route.LoaderArgs) {
   if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.cloudflare.env;
   const [{ products, config }, categories, banners, deals, latest, brands] = await Promise.all([
-    loadStore(env), loadCategories(env), loadBanners(env),
+    loadStore(env, { limit: 12 }), loadCategories(env), loadBanners(env),
     loadRail(env, 'deals'), loadRail(env, 'latest'), loadBrands(env),
   ]);
   return { products, config, categories, banners, deals, latest, brands, locale };

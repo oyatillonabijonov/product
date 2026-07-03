@@ -10,6 +10,8 @@ import ProductRail from './ProductRail';
 import BrandStrip from './BrandStrip';
 import ProductGrid from './ProductGrid';
 import HowItWorks from './HowItWorks';
+import LocaleLink from './LocaleLink';
+import { ChevronRight } from 'lucide-react';
 
 export default function HomePage({
   t, products, config, categories, banners, deals, latest, brands, locale,
@@ -29,7 +31,12 @@ export default function HomePage({
       <ProductRail t={t} title={t.railNew} items={latest} config={config} moreTo="/katalog?sort=yangi" />
       <BrandStrip title={t.homeBrands} brands={brands} />
       <section id="featured" className="scroll-mt-24">
-        <h2 className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em] mb-6">{t.homeFeatured}</h2>
+        <div className="flex items-baseline justify-between mb-6">
+          <h2 className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em]">{t.homeFeatured}</h2>
+          <LocaleLink to="/katalog" className="text-[14px] font-semibold text-[#0071E3] hover:underline inline-flex items-center gap-0.5">
+            {t.railAll} <ChevronRight className="w-4 h-4" />
+          </LocaleLink>
+        </div>
         <ProductGrid t={t} items={products} config={config} />
       </section>
       <HowItWorks t={t} />

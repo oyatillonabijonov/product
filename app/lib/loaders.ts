@@ -49,16 +49,19 @@ export async function loadCategories(env: Env): Promise<ApiCategory[]> {
   }
 }
 
-export async function loadStore(env: Env): Promise<{ products: Product[]; config: InstallmentConfig }> {
+export async function loadStore(env: Env, opts?: { limit?: number }): Promise<{ products: Product[]; config: InstallmentConfig }> {
   const [products, config] = await Promise.all([
     (async () => {
       try {
-        const { results } = await env.DB.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE is_active = 1 ORDER BY sort_order ASC, created_at ASC`).all<ProductRow>();
+        const limit = opts?.limit;
+        const sql = `SELECT ${PRODUCT_COLS} FROM products WHERE is_active = 1 ORDER BY sort_order ASC, created_at ASC${limit ? ' LIMIT ?' : ''}`;
+        const stmt = limit ? env.DB.prepare(sql).bind(limit) : env.DB.prepare(sql);
+        const { results } = await stmt.all<ProductRow>();
         if (results.length === 0) throw new Error('empty');
         return results.map(rowToProduct).map(mapProduct);
       } catch (err) {
         console.error('loadStore products fallback:', err);
-        return fallbackProducts;
+        return opts?.limit ? fallbackProducts.slice(0, opts.limit) : fallbackProducts;
       }
     })(),
     (async () => {
