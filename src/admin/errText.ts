@@ -10,6 +10,9 @@ const MESSAGES: Record<string, string> = {
   title_uzCyrl_required: 'Sarlavha (kirill) majburiy',
   name_required: "Do'kon nomi majburiy",
   phone_required: 'Telefon majburiy',
+  id_taken: 'Bu model allaqachon mavjud',
+  brandId_required: 'Brend majburiy',
+  categoryId_required: 'Kategoriya majburiy',
 };
 
 export function errText(e: unknown): string {

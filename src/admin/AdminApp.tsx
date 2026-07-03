@@ -15,6 +15,7 @@ import BannerList from './BannerList';
 import BrandList from './BrandList';
 import CategoryList from './CategoryList';
 import Login from './Login';
+import ModelList from './ModelList';
 import PageList from './PageList';
 import ProductList from './ProductList';
 import SettingsForm from './SettingsForm';
@@ -106,6 +107,7 @@ export default function AdminApp() {
       <main className="flex-1 min-w-0">
         <div className="max-w-[900px] mx-auto px-4 md:px-8 py-8">
           {tab === 'products' && <ProductList />}
+          {tab === 'models' && <ModelList />}
           {tab === 'settings' && (
             <>
               <SettingsForm />
