@@ -32,10 +32,16 @@ export function generateVariants(options: OptionDraft[], existing: AdminVariantI
   if (valid.length === 0) return [];
   const combos = cartesianProduct(valid);
   const byKey = new Map(existing.map((v) => [optionValuesKey(v.optionValues), v]));
+  const validNames = new Set(valid.map((o) => o.name));
   return combos.map((combo) => {
-    const prev = byKey.get(optionValuesKey(combo));
-    return prev
-      ? { ...prev, optionValues: combo }
+    const exact = byKey.get(optionValuesKey(combo));
+    if (exact) return { ...exact, optionValues: combo };
+    const projected = existing.find((v) => {
+      const shared = v.optionValues.filter((ov) => validNames.has(ov.optionName));
+      return shared.length > 0 && shared.every((ov) => combo.some((c) => c.optionName === ov.optionName && c.value === ov.value));
+    });
+    return projected
+      ? { ...projected, sku: null, optionValues: combo }
       : { sku: null, cashPriceUzs: 0, oldPriceUzs: null, imageUrl: null, inStock: true, optionValues: combo };
   });
 }

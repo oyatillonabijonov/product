@@ -98,4 +98,107 @@ describe('generateVariants', () => {
     expect(result).toHaveLength(1);
     expect(result[0].optionValues).toEqual([{ optionName: 'Rang', value: 'Qora' }]);
   });
+
+  it('migrates prices when a new option dimension is added (1-D -> 2-D)', () => {
+    const existing: AdminVariantInput[] = [
+      { sku: 'SKU-QORA', cashPriceUzs: 15, oldPriceUzs: null, imageUrl: null, inStock: true, optionValues: [{ optionName: 'Rang', value: 'Qora' }] },
+      { sku: 'SKU-OQ', cashPriceUzs: 14, oldPriceUzs: null, imageUrl: null, inStock: true, optionValues: [{ optionName: 'Rang', value: 'Oq' }] },
+    ];
+    const options: OptionDraft[] = [
+      { name: 'Rang', values: ['Qora', 'Oq'] },
+      { name: 'Xotira', values: ['128GB', '256GB'] },
+    ];
+    const result = generateVariants(options, existing);
+    expect(result).toHaveLength(4);
+    const qora = result.filter((v) => v.optionValues.some((ov) => ov.optionName === 'Rang' && ov.value === 'Qora'));
+    const oq = result.filter((v) => v.optionValues.some((ov) => ov.optionName === 'Rang' && ov.value === 'Oq'));
+    expect(qora).toHaveLength(2);
+    expect(oq).toHaveLength(2);
+    for (const v of qora) {
+      expect(v.cashPriceUzs).toBe(15);
+      expect(v.inStock).toBe(true);
+      expect(v.sku).toBeNull();
+    }
+    for (const v of oq) {
+      expect(v.cashPriceUzs).toBe(14);
+      expect(v.inStock).toBe(true);
+      expect(v.sku).toBeNull();
+    }
+  });
+
+  it('migrates prices when an option dimension is removed (2-D -> 1-D)', () => {
+    const existing: AdminVariantInput[] = [
+      {
+        sku: 'SKU-QORA-128',
+        cashPriceUzs: 15,
+        oldPriceUzs: null,
+        imageUrl: null,
+        inStock: true,
+        optionValues: [
+          { optionName: 'Rang', value: 'Qora' },
+          { optionName: 'Xotira', value: '128GB' },
+        ],
+      },
+      {
+        sku: 'SKU-QORA-256',
+        cashPriceUzs: 17,
+        oldPriceUzs: null,
+        imageUrl: null,
+        inStock: true,
+        optionValues: [
+          { optionName: 'Rang', value: 'Qora' },
+          { optionName: 'Xotira', value: '256GB' },
+        ],
+      },
+      {
+        sku: 'SKU-OQ-128',
+        cashPriceUzs: 14,
+        oldPriceUzs: null,
+        imageUrl: null,
+        inStock: true,
+        optionValues: [
+          { optionName: 'Rang', value: 'Oq' },
+          { optionName: 'Xotira', value: '128GB' },
+        ],
+      },
+    ];
+    const options: OptionDraft[] = [{ name: 'Rang', values: ['Qora', 'Oq'] }];
+    const result = generateVariants(options, existing);
+    expect(result).toHaveLength(2);
+    const qora = result.find((v) => v.optionValues.some((ov) => ov.value === 'Qora'));
+    const oq = result.find((v) => v.optionValues.some((ov) => ov.value === 'Oq'));
+    expect(qora?.cashPriceUzs).toBe(15);
+    expect(qora?.sku).toBeNull();
+    expect(oq?.cashPriceUzs).toBe(14);
+    expect(oq?.sku).toBeNull();
+  });
+
+  it('does not project across combos with no shared option names (fresh zero variant)', () => {
+    const existing: AdminVariantInput[] = [
+      { sku: 'SKU-QORA', cashPriceUzs: 15, oldPriceUzs: null, imageUrl: null, inStock: true, optionValues: [{ optionName: 'Rang', value: 'Qora' }] },
+    ];
+    const options: OptionDraft[] = [{ name: 'Xotira', values: ['128GB'] }];
+    const result = generateVariants(options, existing);
+    expect(result).toHaveLength(1);
+    expect(result[0].cashPriceUzs).toBe(0);
+    expect(result[0].sku).toBeNull();
+    expect(result[0].inStock).toBe(true);
+  });
+
+  it('exact match still wins over projection (keeps its own sku)', () => {
+    const existing: AdminVariantInput[] = [
+      { sku: 'SKU-QORA', cashPriceUzs: 15, oldPriceUzs: null, imageUrl: null, inStock: true, optionValues: [{ optionName: 'Rang', value: 'Qora' }] },
+      { sku: 'SKU-OQ', cashPriceUzs: 14, oldPriceUzs: null, imageUrl: null, inStock: false, optionValues: [{ optionName: 'Rang', value: 'Oq' }] },
+    ];
+    const options: OptionDraft[] = [{ name: 'Rang', values: ['Qora', 'Oq'] }];
+    const result = generateVariants(options, existing);
+    expect(result).toHaveLength(2);
+    const qora = result.find((v) => v.optionValues.some((ov) => ov.value === 'Qora'));
+    const oq = result.find((v) => v.optionValues.some((ov) => ov.value === 'Oq'));
+    expect(qora?.sku).toBe('SKU-QORA');
+    expect(qora?.cashPriceUzs).toBe(15);
+    expect(oq?.sku).toBe('SKU-OQ');
+    expect(oq?.cashPriceUzs).toBe(14);
+    expect(oq?.inStock).toBe(false);
+  });
 });
