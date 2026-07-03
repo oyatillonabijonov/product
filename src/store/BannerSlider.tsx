@@ -53,8 +53,10 @@ const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale }> = ({ banners, l
           {banners.map((b, i) => (
             <button
               key={b.id}
+              type="button"
               onClick={() => goTo(i)}
-              aria-label={`${i + 1}`}
+              aria-label={`Slayd ${i + 1}`}
+              aria-current={i === active || undefined}
               className={`w-2 h-2 rounded-full transition-colors ${i === active ? 'bg-white' : 'bg-white/45'}`}
             />
           ))}

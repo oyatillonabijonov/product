@@ -269,9 +269,10 @@ export async function loadRail(env: Env, kind: 'deals' | 'latest', limit = 8): P
     return results.map(rowToProduct).map(mapProduct);
   } catch (err) {
     console.error('loadRail fallback:', err);
+    // 'latest' fallback katalogdagi 'yangi' bilan bir xil: sample tartibi saqlanadi (created_at yo'q)
     const all = kind === 'deals'
       ? fallbackProducts.filter((p) => p.oldPriceUzs != null && p.oldPriceUzs > p.cashPriceUzs)
-      : [...fallbackProducts].reverse();
+      : fallbackProducts;
     return all.slice(0, limit);
   }
 }
