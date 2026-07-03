@@ -81,3 +81,42 @@ export interface ApiVariant {
   sortOrder: number;
   optionValueIds: string[];
 }
+
+export interface LocalizedText {
+  uz: string;
+  ru: string;
+  en: string;
+  uzCyrl: string;
+}
+
+export interface ApiBanner {
+  id: string;
+  imageUrl: string;
+  linkUrl: string;
+  altText: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface ApiPage {
+  id: string;
+  slug: string;
+  title: LocalizedText;
+  content: LocalizedText;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface ApiSiteConfig {
+  name: string;
+  phone: string;
+  phoneDisplay: string;
+  telegram: string;
+  instagram: string;
+  whatsapp: string;
+  mapLl: string;
+  mapLabel: string;
+  seoTitleSuffix: string;
+  seoDescription: string;
+  ogImage: string;
+}

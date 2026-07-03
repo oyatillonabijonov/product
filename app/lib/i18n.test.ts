@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveLocale, localizedPath, localeToLang, langToLocale, htmlLang, DEFAULT_LOCALE } from './i18n';
+import { resolveLocale, localizedPath, localeToLang, langToLocale, htmlLang, DEFAULT_LOCALE, localeToTextKey } from './i18n';
 
 describe('i18n', () => {
   it('resolves valid and default locales', () => {
@@ -24,5 +24,14 @@ describe('i18n', () => {
     expect(htmlLang('uz-cyrl')).toBe('uz-Cyrl');
     expect(htmlLang('en')).toBe('en');
     expect(DEFAULT_LOCALE).toBe('uz');
+  });
+});
+
+describe('localeToTextKey', () => {
+  it('maps every locale to a LocalizedText key', () => {
+    expect(localeToTextKey('uz')).toBe('uz');
+    expect(localeToTextKey('ru')).toBe('ru');
+    expect(localeToTextKey('en')).toBe('en');
+    expect(localeToTextKey('uz-cyrl')).toBe('uzCyrl');
   });
 });

@@ -1,4 +1,5 @@
 import type { LangKey } from '../../src/locales';
+import type { LocalizedText } from '../../shared/types';
 
 export const LOCALES = ['uz', 'ru', 'en', 'uz-cyrl'] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -40,4 +41,13 @@ export function stripLocale(pathname: string): string {
     return '/' + seg.slice(1).join('/');
   }
   return pathname || '/';
+}
+
+export function localeToTextKey(locale: Locale): keyof LocalizedText {
+  switch (locale) {
+    case 'ru': return 'ru';
+    case 'en': return 'en';
+    case 'uz-cyrl': return 'uzCyrl';
+    default: return 'uz';
+  }
 }
