@@ -5,6 +5,7 @@ import type { ApiSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
 import Header from './Header';
 import Footer from './Footer';
+import CookieBanner from './CookieBanner';
 import { CartProvider } from './CartContext';
 
 export interface StoreContext {
@@ -29,6 +30,7 @@ export default function StoreLayout({
         <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} />
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} />
+        <CookieBanner t={t} />
       </div>
     </CartProvider>
   );
