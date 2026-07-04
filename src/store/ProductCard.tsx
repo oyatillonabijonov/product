@@ -20,7 +20,7 @@ const ProductCard: FC<{
     >
       <LocaleLink
         to={`/product/${product.id}`}
-        className="h-[168px] md:h-[196px] w-full flex items-center justify-center p-6 relative bg-gradient-to-b from-row-alt to-segment"
+        className="aspect-square w-full flex items-center justify-center relative overflow-hidden bg-gradient-to-b from-row-alt to-segment"
       >
         <span
           className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full backdrop-blur ${
@@ -39,7 +39,7 @@ const ProductCard: FC<{
           <img
             src={product.image}
             alt={product.name}
-            className="max-w-full max-h-full object-contain transition-transform duration-500 group-hover:scale-[1.06]"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
             loading="lazy"
             referrerPolicy="no-referrer"
           />

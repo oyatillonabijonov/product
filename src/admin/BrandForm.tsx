@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FC } from 'react';
 import type { ApiBrand } from '../../shared/types';
 import { createBrand, updateBrand, uploadImage } from './api';
+import { normalizeImage } from './lib/image-normalize';
 
 const BrandForm: FC<{
   initial: ApiBrand | null;
@@ -20,7 +21,7 @@ const BrandForm: FC<{
     if (!file) return;
     setBusy(true);
     try {
-      const { imageUrl } = await uploadImage(file);
+      const { imageUrl } = await uploadImage(await normalizeImage(file));
       setLogoUrl(imageUrl);
     } catch {
       setError('Rasm yuklanmadi');

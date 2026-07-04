@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { uploadImage } from './api';
 import type { AdminVariantInput } from './api';
 import { generateVariants, type OptionDraft } from './lib/variant-gen';
+import { normalizeImage } from './lib/image-normalize';
 import PriceInput from './PriceInput';
 
 export type EditableVariant = AdminVariantInput;
@@ -68,7 +69,7 @@ const VariantEditor: FC<{
     if (!file) return;
     setBusyRow(i);
     try {
-      const { imageUrl } = await uploadImage(file);
+      const { imageUrl } = await uploadImage(await normalizeImage(file));
       updateVariant(i, { imageUrl });
     } finally {
       setBusyRow(null);
