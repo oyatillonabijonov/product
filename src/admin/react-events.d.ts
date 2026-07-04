@@ -14,4 +14,8 @@ declare namespace React {
 
   type FormEvent<T = Element> = SyntheticEvent<T>;
   type ChangeEvent<T = Element> = SyntheticEvent<T>;
+
+  interface DragEvent<T = Element> extends SyntheticEvent<T> {
+    readonly dataTransfer: DataTransfer;
+  }
 }

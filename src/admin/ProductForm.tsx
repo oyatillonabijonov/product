@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import type { ApiBrand, ApiCategory, ApiDeviceModel, ApiProduct, ApiSpec, Category, Condition } from '../../shared/types';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
-import { createProduct, getProductDetail, listBrands, listCategories, listDeviceModels, updateProduct, uploadImage } from './api';
+import { createProduct, getProductDetail, listBrands, listCategories, listDeviceModels, updateProduct } from './api';
 import VariantEditor from './VariantEditor';
 import type { EditableVariant } from './VariantEditor';
 import ModelCombobox from './ModelCombobox';
 import PriceInput from './PriceInput';
+import ImageUploader from './ImageUploader';
 import { generateVariants } from './lib/variant-gen';
 import { modelToSpecs, mergeSpecs } from './lib/models';
 import { errText } from './errText';
@@ -102,22 +103,6 @@ const ProductForm: FC<{
       const options = nextValues.length ? [...others, { name: 'Xotira', values: nextValues }] : others;
       return { ...f, options, variants: generateVariants(options, f.variants) };
     });
-  }
-
-  async function uploadMain(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setBusy(true);
-    try { const { imageUrl } = await uploadImage(file); set('imageUrl', imageUrl); }
-    catch { setError('Rasm yuklanmadi'); } finally { setBusy(false); }
-  }
-
-  async function uploadGallery(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setBusy(true);
-    try { const { imageUrl } = await uploadImage(file); set('images', [...form.images, imageUrl]); }
-    catch { setError('Rasm yuklanmadi'); } finally { setBusy(false); }
   }
 
   async function save() {
@@ -222,24 +207,21 @@ const ProductForm: FC<{
       </div>
 
       <div className="mt-4">
-        <div className="text-[13px] text-muted mb-2">Asosiy rasm</div>
-        <div className="flex items-center gap-4">
-          {form.imageUrl ? <img src={form.imageUrl} alt="" className="w-16 h-16 object-contain rounded-lg bg-bg" /> : <div className="w-16 h-16 rounded-lg bg-bg" />}
-          <input type="file" accept="image/png,image/jpeg,image/webp" onChange={uploadMain} />
-        </div>
+        <ImageUploader
+          label="Asosiy rasm"
+          images={form.imageUrl ? [form.imageUrl] : []}
+          onChange={(next) => set('imageUrl', next[0] ?? '')}
+        />
       </div>
 
       <div className="mt-4">
-        <div className="text-[13px] text-muted mb-2">Galereya (qo'shimcha rasmlar)</div>
-        <div className="flex items-center gap-2 flex-wrap mb-2">
-          {form.images.map((img, i) => (
-            <div key={i} className="relative">
-              <img src={img} alt="" className="w-14 h-14 object-contain rounded-lg bg-bg" />
-              <button onClick={() => set('images', form.images.filter((_, j) => j !== i))} className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-danger text-white text-[11px]">×</button>
-            </div>
-          ))}
-        </div>
-        <input type="file" accept="image/png,image/jpeg,image/webp" onChange={uploadGallery} />
+        <ImageUploader
+          label="Galereya (qo'shimcha rasmlar)"
+          images={form.images}
+          onChange={(next) => set('images', next)}
+          multiple
+          reorderable
+        />
       </div>
 
       <div className="mt-4">
