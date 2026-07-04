@@ -57,7 +57,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
           {items.map((it) => (
             <div key={`${it.productId}-${it.variantId ?? ''}`} className="bg-white border border-divider rounded-2xl p-4 flex items-center gap-4 shadow-apple">
               <div className="w-16 h-16 rounded-xl bg-bg flex items-center justify-center overflow-hidden shrink-0">
-                {it.image ? <img src={it.image} alt="" className="w-full h-full object-cover" /> : null}
+                {it.image ? <img src={it.image} alt="" className="w-full h-full object-contain p-1.5" /> : null}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-[15px] truncate">{it.name}</div>

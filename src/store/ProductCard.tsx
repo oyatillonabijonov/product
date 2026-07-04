@@ -16,7 +16,7 @@ const ProductCard: FC<{
     <motion.div
       whileHover={{ y: -6 }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-      className="group bg-white border border-divider rounded-[24px] overflow-hidden flex flex-col shadow-apple hover:shadow-apple-hover hover:border-line-2 transition-shadow duration-300"
+      className="group w-full bg-white border border-divider rounded-[24px] overflow-hidden flex flex-col shadow-apple hover:shadow-apple-hover hover:border-line-2 transition-shadow duration-300"
     >
       <LocaleLink
         to={`/product/${product.id}`}
@@ -39,7 +39,7 @@ const ProductCard: FC<{
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.06]"
             loading="lazy"
             referrerPolicy="no-referrer"
           />
@@ -51,7 +51,7 @@ const ProductCard: FC<{
       <div className="p-4 md:p-5 flex flex-col flex-1">
         <LocaleLink
           to={`/product/${product.id}`}
-          className="text-[15px] md:text-[16.5px] font-semibold tracking-[-0.01em] leading-snug hover:text-accent transition-colors"
+          className="text-[15px] md:text-[16.5px] font-semibold tracking-[-0.01em] leading-snug hover:text-accent transition-colors line-clamp-2"
         >
           {product.name}
         </LocaleLink>
