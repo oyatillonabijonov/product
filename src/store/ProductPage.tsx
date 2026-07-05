@@ -69,7 +69,7 @@ const ProductPage: FC<{
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 pt-6 pb-24 md:py-10">
+    <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10">
       <nav aria-label="breadcrumb" className="flex items-center gap-1 text-[13px] text-muted-2 mb-5">
         <LocaleLink to="/" className="hover:text-primary transition-colors">{t.breadcrumbHome}</LocaleLink>
         {categoryName && product.categoryId && (
@@ -223,23 +223,6 @@ const ProductPage: FC<{
         <div className="mt-12">
           <h2 className="text-[20px] font-semibold mb-4">{t.similarProducts}</h2>
           <ProductGrid t={t} items={similar} config={config} />
-        </div>
-      )}
-
-      {/* Mobil — doimiy sotib olish paneli (buy tugmalari scrollda ko'rinmay qolmasin) */}
-      {result && (
-        <div className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-xl border-t border-line-2 flex items-center gap-3 px-4 py-3 [padding-bottom:calc(0.75rem+env(safe-area-inset-bottom))]">
-          <div className="shrink-0">
-            <div className="text-[11px] text-muted leading-none">{t.calcMonthly}</div>
-            <div className="text-[18px] font-semibold text-accent tabular-nums leading-tight mt-0.5">{formatUzs(result.monthly, t.sum)}</div>
-          </div>
-          <button
-            onClick={() => order('telegram')}
-            disabled={outOfStock}
-            className="flex-1 py-3 bg-accent text-white font-semibold rounded-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send className="w-5 h-5" /> {outOfStock ? t.outOfStock : t.formSendTelegram}
-          </button>
         </div>
       )}
     </div>
