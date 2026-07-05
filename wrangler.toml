@@ -9,7 +9,7 @@ directory = "./build/client"
 [[d1_databases]]
 binding = "DB"
 database_name = "taqsit-store-db"
-database_id = "PLACEHOLDER_RUN_wrangler_d1_create"
+database_id = "c97f6e35-c598-4fd1-a4ab-2f29c137c5e6"
 
 [[r2_buckets]]
 binding = "IMAGES"
