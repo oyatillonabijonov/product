@@ -118,6 +118,11 @@ const ProductForm: FC<{
   }
 
   async function save() {
+    if (!form.name.trim()) { setError('Mahsulot nomini kiriting.'); return; }
+    if (!(form.cashPriceUzs > 0 || form.variants.some((v) => v.cashPriceUzs > 0))) {
+      setError('Naqd narx yoki kamida bitta variant narxini kiriting.');
+      return;
+    }
     setBusy(true);
     setError('');
     try {
@@ -155,7 +160,7 @@ const ProductForm: FC<{
     <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple">
       <h3 className="font-semibold mb-4">{initial ? 'Mahsulotni tahrirlash' : 'Yangi mahsulot'}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <label className="text-[13px] text-muted">Nomi / Model qidirish
+        <label className="text-[13px] text-muted">Nomi / Model qidirish <span className="text-danger">*</span>
           <ModelCombobox
             models={models}
             value={form.name}
@@ -182,7 +187,7 @@ const ProductForm: FC<{
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
-        <label className="text-[13px] text-muted">Naqd narx (so'm)
+        <label className="text-[13px] text-muted">Naqd narx (so'm) <span className="text-danger">*</span>
           <PriceInput className={input} value={form.cashPriceUzs} onChange={(v) => set('cashPriceUzs', v)} />
         </label>
         <label className="text-[13px] text-muted">Eski narx (ixtiyoriy)
@@ -263,11 +268,10 @@ const ProductForm: FC<{
         Saytda ko'rsatilsin
       </label>
 
-      {error && <p className="text-[13px] text-danger mt-3">{error}</p>}
-
-      <div className="flex gap-3 mt-5">
+      <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 px-6 py-4 bg-white/95 backdrop-blur border-t border-line rounded-b-[20px] flex flex-wrap items-center gap-3">
         <button onClick={save} disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
         <button onClick={() => { if (!dirty || window.confirm("Saqlanmagan o'zgarishlar bor. Bekor qilinsinmi?")) onCancel(); }} className="px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
+        {error && <span className="text-[13px] text-danger">{error}</span>}
       </div>
     </div>
   );
