@@ -38,12 +38,14 @@ export function meta({ data, matches }: Route.MetaArgs) {
   const img = data.product.images[0];
   return [
     { title },
+    { tagName: 'link', rel: 'canonical', href: url },
     ...(desc ? [{ name: 'description', content: desc }] : []),
     ...ogMeta({
       title,
       description: desc || undefined,
       image: img ? (img.startsWith('http') ? img : data.origin + img) : undefined,
       url,
+      type: 'product',
     }),
     { 'script:ld+json': productJsonLd(data.product, url) },
     { 'script:ld+json': breadcrumbJsonLd([
@@ -57,7 +59,7 @@ export function meta({ data, matches }: Route.MetaArgs) {
 }
 
 export default function ProductRoute() {
-  const { product, config, similar } = useLoaderData<typeof loader>();
+  const { product, config, similar, categoryName } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
-  return <ProductPage key={product.id} t={ctx.t} product={product} config={config} similar={similar} site={ctx.config} />;
+  return <ProductPage key={product.id} t={ctx.t} product={product} config={config} similar={similar} site={ctx.config} categoryName={categoryName} />;
 }

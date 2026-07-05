@@ -46,8 +46,9 @@ export function composeLeadMessage(data: LeadData): string {
   return [
     `🛒 ${data.brand} — yangi ariza`,
     '',
-    `👤 Ism: ${data.name}`,
-    `📞 Telefon: ${data.phone}`,
+    // Ism/telefon so'ralmaydi (lead TG/WA profilidan keladi) — bo'sh qator yubormaymiz
+    ...(data.name ? [`👤 Ism: ${data.name}`] : []),
+    ...(data.phone ? [`📞 Telefon: ${data.phone}`] : []),
     `📱 Qurilma: ${data.product}`,
     `📅 Muddat: ${data.months} oy`,
     `💵 Taxminiy oylik to'lov: ${data.monthly}`,
@@ -66,5 +67,6 @@ export function whatsappUrl(message: string, whatsappBase: string): string {
 
 export function discountPercent(cash: number, old: number | null): number | null {
   if (old === null || old <= cash) return null;
-  return Math.round(((old - cash) / old) * 100);
+  const pct = Math.round(((old - cash) / old) * 100);
+  return pct > 0 ? pct : null; // 0% ga yaxlitlangan farq "-0%" badge bo'lmasin
 }

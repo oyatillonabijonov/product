@@ -5,6 +5,7 @@ import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
 import { localizedPath, localeToTextKey, type Locale } from '../../app/lib/i18n';
+import { safeHref } from '../lib/safe-href';
 import logo from '../assets/logo.svg';
 
 const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLinks: PageLink[] }> = ({ t, locale, config, pageLinks }) => {
@@ -65,13 +66,13 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
               <Phone className="w-4 h-4" /> {config.phoneDisplay}
             </a>
           )}
-          {config.telegram && (
-            <a href={config.telegram} target="_blank" rel="noopener noreferrer" className="text-[13px] text-muted hover:text-primary flex items-center gap-2 transition-colors">
+          {safeHref(config.telegram) && (
+            <a href={safeHref(config.telegram) ?? undefined} target="_blank" rel="noopener noreferrer" className="text-[13px] text-muted hover:text-primary flex items-center gap-2 transition-colors">
               <Send className="w-4 h-4" /> {telegramHandle}
             </a>
           )}
-          {config.instagram && (
-            <a href={config.instagram} target="_blank" rel="noopener noreferrer" className="text-[13px] text-muted hover:text-primary flex items-center gap-2 transition-colors">
+          {safeHref(config.instagram) && (
+            <a href={safeHref(config.instagram) ?? undefined} target="_blank" rel="noopener noreferrer" className="text-[13px] text-muted hover:text-primary flex items-center gap-2 transition-colors">
               <Instagram className="w-4 h-4" /> {instagramHandle}
             </a>
           )}

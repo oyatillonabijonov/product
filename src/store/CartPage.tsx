@@ -28,6 +28,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
       downPayment: formatUzs(result.downPaymentUzs, t.sum),
       totalCash: formatUzs(sum, t.sum),
       brand: site.name,
+      sum: t.sum,
     });
     const url = channel === 'telegram' ? telegramShareUrl(msg, site.telegram) : whatsappUrl(msg, site.whatsapp);
     window.open(url, '_blank', 'noopener,noreferrer');

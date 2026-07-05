@@ -59,7 +59,12 @@ export default {
       if (hit) return hit;
     }
 
-    const response = await requestHandler(request, { cloudflare: { env, ctx } });
+    const handled = await requestHandler(request, { cloudflare: { env, ctx } });
+    // Minimal xavfsizlik sarlavhalari: MIME-sniffing va clickjacking'ga qarshi
+    // (ayniqsa cookie bilan autentifikatsiyalanadigan /admin uchun).
+    const response = new Response(handled.body, handled);
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
 
     // Store a fresh copy at the edge; return the response to the user unchanged.
     if (cache && key && response.status === 200 && !response.headers.has('set-cookie')) {

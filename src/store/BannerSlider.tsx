@@ -12,6 +12,7 @@ const Slide: FC<{ banner: ApiBanner; locale: Locale; eager: boolean }> = ({ bann
       src={banner.imageUrl}
       alt={banner.altText}
       loading={eager ? undefined : 'lazy'}
+      fetchPriority={eager ? 'high' : undefined}
       className="w-full h-full object-cover"
     />
   );

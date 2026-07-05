@@ -1,7 +1,7 @@
 import { Outlet, isRouteErrorResponse, redirect, useLoaderData, useLocation, useRouteError } from 'react-router';
 import type { Route } from './+types/store';
 import { resolveLocale, localeToLang, localizedPath, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
-import { loadSiteConfig, loadPages, type PageLink } from '../lib/loaders';
+import { loadSiteConfig, loadPages, loadCategories, type PageLink } from '../lib/loaders';
 import { translations } from '../../src/locales';
 import StoreLayout from '../../src/store/StoreLayout';
 
@@ -16,18 +16,20 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.cloudflare.env;
-  const [siteConfig, pages] = await Promise.all([loadSiteConfig(env), loadPages(env)]);
+  // Kategoriyalar ham shu yerda — Header dropdown'i SSR HTMLda chiqadi
+  // (crawler ichki linklarni ko'radi) va klientdagi qo'shimcha /api/categories so'rovi yo'qoladi.
+  const [siteConfig, pages, categories] = await Promise.all([loadSiteConfig(env), loadPages(env), loadCategories(env)]);
   const pageLinks: PageLink[] = pages.map((p) => ({ slug: p.slug, title: p.title }));
   // origin — root.tsx'dagi hreflang va route meta'lardagi absolut URL'lar uchun.
-  return { locale, siteConfig, pageLinks, origin: new URL(request.url).origin };
+  return { locale, siteConfig, pageLinks, categories, origin: new URL(request.url).origin };
 }
 
 export default function StoreRoot() {
-  const { locale, siteConfig, pageLinks } = useLoaderData<typeof loader>();
+  const { locale, siteConfig, pageLinks, categories } = useLoaderData<typeof loader>();
   const lang = localeToLang(locale);
   const t = translations[lang];
   return (
-    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} pageLinks={pageLinks}>
+    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} pageLinks={pageLinks} categories={categories}>
       <Outlet context={{ t, lang, locale, config: siteConfig }} />
     </StoreLayout>
   );

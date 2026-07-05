@@ -94,13 +94,15 @@ export interface CartLeadData {
   totalCash: string;
   /** Do'kon nomi — site_config'dan (admin tahrirlaydi), kodga qotirilmaydi. */
   brand: string;
+  /** Valyuta yozuvi (t.sum) — per-item narxlar ham locale'ga mos bo'lishi uchun. */
+  sum?: string;
 }
 
 export function composeCartLeadMessage(d: CartLeadData): string {
   const lines: string[] = [`🛒 ${d.brand} — yangi ariza (savat)`, ''];
   for (const it of d.items) {
     const label = it.variantLabel ? ` (${it.variantLabel})` : '';
-    lines.push(`• ${it.name}${label} ×${it.qty} — ${formatUzs(it.priceUzs * it.qty)}`);
+    lines.push(`• ${it.name}${label} ×${it.qty} — ${formatUzs(it.priceUzs * it.qty, d.sum)}`);
   }
   lines.push(
     '',

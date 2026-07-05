@@ -64,9 +64,9 @@ describe('lockDelaySeconds (login throttle)', () => {
     expect(lockDelaySeconds(LOGIN_LOCK_THRESHOLD + 2)).toBe(240);
   });
 
-  it('1 soatda to\'xtaydi', () => {
-    expect(lockDelaySeconds(LOGIN_LOCK_THRESHOLD + 6)).toBe(3600);
-    expect(lockDelaySeconds(LOGIN_LOCK_THRESHOLD + 50)).toBe(3600);
+  it("10 daqiqada to'xtaydi (lockout-DoS chegarasi)", () => {
+    expect(lockDelaySeconds(LOGIN_LOCK_THRESHOLD + 4)).toBe(600);
+    expect(lockDelaySeconds(LOGIN_LOCK_THRESHOLD + 50)).toBe(600);
   });
 });
 

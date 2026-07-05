@@ -23,4 +23,9 @@ describe('moveItem', () => {
     expect(moveItem(arr, 1, 5)).toEqual(['a', 'b', 'c']);
     expect(moveItem(arr, 5, 0)).toEqual(['a', 'b', 'c']);
   });
+
+  it('NaN indeks (masalan matn drop qilinganda) → xavfsiz no-op', () => {
+    expect(moveItem(['a', 'b', 'c'], NaN, 2)).toEqual(['a', 'b', 'c']);
+    expect(moveItem(['a', 'b', 'c'], 0, NaN)).toEqual(['a', 'b', 'c']);
+  });
 });

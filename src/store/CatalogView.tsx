@@ -90,7 +90,7 @@ const CatalogView: FC<{
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
         <aside className="hidden lg:block">{panel}</aside>
         <div>
-          <ProductGrid t={t} items={result.items} config={config} />
+          <ProductGrid t={t} items={result.items} config={config} eagerCount={4} />
           {result.total === 0 &&
             (filters.brands.length > 0 || filters.priceMin !== null || filters.priceMax !== null || filters.condition !== null) && (
               <div className="mt-4 text-center">

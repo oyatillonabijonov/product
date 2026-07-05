@@ -13,6 +13,11 @@ import type {
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
+    // Sessiya o'rtada tugasa Login ekraniga qaytaramiz (reload → getMe 401 → Login).
+    // /login va /me bundan mustasno — ularning 401'i o'z oqimida boshqariladi.
+    if (res.status === 401 && !/\/api\/admin\/(login|me)$/.test(new URL(res.url).pathname)) {
+      window.location.reload();
+    }
     const err = (await res.json().catch(() => ({}))) as { error?: string };
     throw new Error(err.error ?? `http_${res.status}`);
   }

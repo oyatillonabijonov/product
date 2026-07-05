@@ -25,6 +25,7 @@ export function meta({ data, matches }: Route.MetaArgs) {
   const img = cfg?.ogImage;
   return [
     { title },
+    ...(data ? [{ tagName: 'link', rel: 'canonical', href: data.origin + (data.locale === 'uz' ? '/' : `/${data.locale}`) }] : []),
     { name: 'description', content: desc },
     ...ogMeta({
       title,

@@ -66,6 +66,10 @@ describe('parseCart', () => {
     const raw = JSON.stringify([I({ productId: 'ok' }), { productId: 42, qty: 'x' }, { productId: 'neg', name: 'n', image: '', priceUzs: -5, variantId: null, variantLabel: '', qty: 1 }]);
     expect(parseCart(raw).map((x) => x.productId)).toEqual(['ok']);
   });
+  it('clamps oversized qty to MAX_QTY (99)', () => {
+    const raw = JSON.stringify([I({ productId: 'big', qty: 500 })]);
+    expect(parseCart(raw)[0].qty).toBe(99);
+  });
 });
 
 describe('cartInstallment', () => {
@@ -95,5 +99,15 @@ describe('composeCartLeadMessage', () => {
     expect(msg).toContain("oylik to'lov: 1 000 000 so'm");
     expect(msg).toContain('×2 — 200 so\'m'); // I() default priceUzs=100, qty 2
     expect(msg).toContain("Jami naqd narx: 5 000 000 so'm");
+  });
+
+  it("per-item narxlar berilgan valyuta yozuvidan foydalanadi (ru: сум)", () => {
+    const msg = composeCartLeadMessage({
+      items: [I({ productId: 'a', name: 'X', qty: 2 })],
+      months: 6, monthly: '1', downPayment: '2', totalCash: '3',
+      brand: 'B', sum: 'сум',
+    });
+    expect(msg).toContain('×2 — 200 сум');
+    expect(msg).not.toContain("so'm");
   });
 });

@@ -11,20 +11,23 @@ export function pageTitle(title?: string, suffix?: string): string {
 
 export function catalogMeta(title: string, requestUrl: string): Array<Record<string, string>> {
   const url = new URL(requestUrl);
-  const metas: Array<Record<string, string>> = [{ title }];
+  // Canonical har doim (absolut, toza path) — utm-li nusxalar asl sahifaga birlashadi;
+  // filtr/sahifalash parametrlari qo'shimcha noindex oladi.
+  const metas: Array<Record<string, string>> = [
+    { title },
+    { tagName: 'link', rel: 'canonical', href: url.origin + url.pathname },
+  ];
   if (hasActiveParams(url.searchParams)) {
     metas.push({ name: 'robots', content: 'noindex,follow' });
-    // Canonical absolut bo'lishi shart — nisbiy URL'ni qidiruv tizimlari e'tiborsiz qoldiradi.
-    metas.push({ tagName: 'link', rel: 'canonical', href: url.origin + url.pathname });
   }
   return metas;
 }
 
 /** OG/Twitter meta deskriptorlari — TG/WA'ga ulashilganda preview chiqishi uchun (asosiy lead kanal). */
-export function ogMeta(o: { title: string; description?: string; image?: string; url?: string }): Array<Record<string, string>> {
+export function ogMeta(o: { title: string; description?: string; image?: string; url?: string; type?: string }): Array<Record<string, string>> {
   return [
     { property: 'og:title', content: o.title },
-    { property: 'og:type', content: 'website' },
+    { property: 'og:type', content: o.type ?? 'website' },
     { name: 'twitter:card', content: o.image ? 'summary_large_image' : 'summary' },
     ...(o.url ? [{ property: 'og:url', content: o.url }] : []),
     ...(o.description ? [{ property: 'og:description', content: o.description }] : []),

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FC } from 'react';
 import { UploadSimple, X } from '@phosphor-icons/react';
 import { uploadImage } from './api';
@@ -15,6 +15,10 @@ const ImageUploader: FC<{
   const [uploading, setUploading] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState('');
+  // handleFiles boshlanganda olingan `images` yopilmasidan (stale closure) —
+  // parallel ikkinchi yuklash birinchisining natijasini yo'q qilmasin.
+  const imagesRef = useRef(images);
+  imagesRef.current = images;
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList) return;
@@ -37,7 +41,7 @@ const ImageUploader: FC<{
       }),
     );
     const urls = results.filter((u): u is string => u !== null);
-    if (urls.length) onChange(multiple ? [...images, ...urls] : [urls[0]]);
+    if (urls.length) onChange(multiple ? [...imagesRef.current, ...urls] : [urls[0]]);
   }
 
   function onZoneDrop(e: React.DragEvent) {

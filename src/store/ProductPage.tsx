@@ -15,7 +15,9 @@ import TermSegments from './TermSegments';
 
 const ProductPage: FC<{
   t: Translation; product: ProductDetail; config: InstallmentConfig; similar: Product[]; site: ApiSiteConfig;
-}> = ({ t, product, config, similar, site }) => {
+  /** Ko'rinadigan breadcrumb JSON-LD BreadcrumbList bilan mos bo'lishi uchun. */
+  categoryName?: string | null;
+}> = ({ t, product, config, similar, site, categoryName }) => {
   // Default — sozlamalardagi eng uzun muddat (qattiq 12 emas: admin muddatlarni o'zgartirsa
   // tanlanmagan segment + noto'g'ri yorliq chiqib qolardi).
   const [months, setMonths] = useState(() => config.terms[config.terms.length - 1]?.months ?? 12);
@@ -68,8 +70,16 @@ const ProductPage: FC<{
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10">
-      <nav className="flex items-center gap-1 text-[13px] text-muted-2 mb-5">
-        <LocaleLink to="/" className="hover:text-primary transition-colors">{t.navCatalog}</LocaleLink>
+      <nav aria-label="breadcrumb" className="flex items-center gap-1 text-[13px] text-muted-2 mb-5">
+        <LocaleLink to="/" className="hover:text-primary transition-colors">{t.breadcrumbHome}</LocaleLink>
+        {categoryName && product.categoryId && (
+          <>
+            <ChevronRight className="w-3.5 h-3.5" />
+            <LocaleLink to={`/category/${product.categoryId}`} className="hover:text-primary transition-colors">
+              {categoryName}
+            </LocaleLink>
+          </>
+        )}
         <ChevronRight className="w-3.5 h-3.5" />
         <span className="text-primary truncate max-w-[220px]">{product.name}</span>
       </nav>

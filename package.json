@@ -1,5 +1,5 @@
 {
-  "name": "react-example",
+  "name": "taqsit-store",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,7 +8,7 @@
     "build": "react-router build",
     "start": "wrangler dev",
     "deploy": "bun run build && wrangler deploy",
-    "typecheck": "react-router typegen && tsc --noEmit",
+    "typecheck": "react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
     "lint": "react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
     "test": "vitest run"
   },
@@ -28,7 +28,6 @@
     "@cloudflare/vite-plugin": "^1.42.4",
     "@cloudflare/workers-types": "^4.20260701.1",
     "@types/node": "^22.14.0",
-    "autoprefixer": "^10.4.21",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",

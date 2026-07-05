@@ -24,7 +24,15 @@ export default function HomePage({
   const textKey = localeToTextKey(locale);
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10 flex flex-col gap-10 md:gap-14">
-      {banners.length > 0 ? <BannerSlider banners={banners} locale={locale} t={t} /> : <HeroBanner t={t} phone={site.phone} />}
+      {banners.length > 0 ? (
+        <>
+          {/* Banner rejimida ko'rinadigan h1 yo'q — SEO/a11y sarlavha ierarxiyasi uchun sr-only */}
+          <h1 className="sr-only">{`${site.name} — ${t.utilInstallment}`}</h1>
+          <BannerSlider banners={banners} locale={locale} t={t} />
+        </>
+      ) : (
+        <HeroBanner t={t} phone={site.phone} />
+      )}
       <TrustBar t={t} />
       <section className="flex flex-col gap-6">
         <h2 className="text-[22px] md:text-[28px] font-semibold tracking-[-0.02em]">{t.homeCategories}</h2>

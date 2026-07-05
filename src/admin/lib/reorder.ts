@@ -6,6 +6,7 @@
 export function moveItem<T>(arr: T[], from: number, to: number): T[] {
   const copy = arr.slice();
   if (
+    !Number.isInteger(from) || !Number.isInteger(to) || // NaN (masalan matn drop'i) splice(NaN)=0 bo'lib ketardi
     from === to ||
     from < 0 || from >= arr.length ||
     to < 0 || to >= arr.length

@@ -9,8 +9,13 @@ const ProductCard: FC<{
   t: Translation;
   product: Product;
   config: InstallmentConfig;
-}> = ({ t, product, config }) => {
-  const disc = discountPercent(product.cashPriceUzs, product.oldPriceUzs ?? null);
+  /** Fold ustidagi kartalar uchun — LCP rasmi lazy bo'lmasin. */
+  eager?: boolean;
+}> = ({ t, product, config, eager }) => {
+  // Chegirma faqat ko'rsatilayotgan narx bazaviy narx bilan bir xil bo'lganda —
+  // aks holda badge/eski narx arzonroq variant narxi yonida boshqa narxga taalluqli bo'lardi.
+  const showsBasePrice = product.minPriceUzs === product.cashPriceUzs;
+  const disc = showsBasePrice ? discountPercent(product.cashPriceUzs, product.oldPriceUzs ?? null) : null;
   const isNew = product.condition === 'yangi';
   return (
     <motion.div
@@ -40,7 +45,8 @@ const ProductCard: FC<{
             src={product.image}
             alt={product.name}
             className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.06]"
-            loading="lazy"
+            loading={eager ? 'eager' : 'lazy'}
+            fetchPriority={eager ? 'high' : undefined}
             referrerPolicy="no-referrer"
           />
         ) : (
@@ -62,7 +68,7 @@ const ProductCard: FC<{
             {formatUzs(lowestMonthly({ ...product, cashPriceUzs: product.minPriceUzs }, config), t.sum)}
           </div>
           <div className="text-[12px] text-muted mt-1 mb-4 flex items-center gap-2 flex-wrap">
-            {product.oldPriceUzs && product.oldPriceUzs > product.cashPriceUzs && (
+            {disc !== null && product.oldPriceUzs && (
               <span className="line-through text-disabled-2">{formatUzs(product.oldPriceUzs, t.sum)}</span>
             )}
             <span className="text-muted">{formatUzs(product.minPriceUzs, t.sum)}</span>

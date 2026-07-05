@@ -67,21 +67,20 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   }
 
   if (request.method === 'DELETE') {
-    await env.DB.prepare('DELETE FROM product_images WHERE product_id = ?').bind(id).run();
-    await env.DB.prepare('DELETE FROM product_specs WHERE product_id = ?').bind(id).run();
-    await env.DB.prepare(
-      'DELETE FROM variant_option_values WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id = ?)',
-    )
-      .bind(id)
-      .run();
-    await env.DB.prepare('DELETE FROM product_variants WHERE product_id = ?').bind(id).run();
-    await env.DB.prepare(
-      'DELETE FROM product_option_values WHERE option_id IN (SELECT id FROM product_options WHERE product_id = ?)',
-    )
-      .bind(id)
-      .run();
-    await env.DB.prepare('DELETE FROM product_options WHERE product_id = ?').bind(id).run();
-    await env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
+    // PUT dagi kabi atomik — o'rtada uzilsa yetim variant/rasm qolmaydi.
+    await env.DB.batch([
+      env.DB.prepare('DELETE FROM product_images WHERE product_id = ?').bind(id),
+      env.DB.prepare('DELETE FROM product_specs WHERE product_id = ?').bind(id),
+      env.DB.prepare(
+        'DELETE FROM variant_option_values WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id = ?)',
+      ).bind(id),
+      env.DB.prepare('DELETE FROM product_variants WHERE product_id = ?').bind(id),
+      env.DB.prepare(
+        'DELETE FROM product_option_values WHERE option_id IN (SELECT id FROM product_options WHERE product_id = ?)',
+      ).bind(id),
+      env.DB.prepare('DELETE FROM product_options WHERE product_id = ?').bind(id),
+      env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id),
+    ]);
     return json({ ok: true });
   }
 

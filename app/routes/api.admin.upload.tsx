@@ -17,6 +17,11 @@ export async function action({ request, context }: Route.ActionArgs) {
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
 
+  // formData() butun body'ni xotiraga buferlaydi — undan OLDIN qo'pol chegara
+  // (5MB fayl + multipart overhead uchun zaxira).
+  const contentLength = Number(request.headers.get('content-length') ?? '0');
+  if (contentLength > 6 * 1024 * 1024) return json({ error: 'file_too_large' }, { status: 413 });
+
   const form = await request.formData();
   const file = form.get('file');
   if (!isFile(file)) return json({ error: 'file_required' }, { status: 400 });

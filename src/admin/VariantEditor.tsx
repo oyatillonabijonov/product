@@ -25,11 +25,21 @@ const VariantEditor: FC<{
 
   function removeOption(i: number) {
     if (!window.confirm("O'lchov va unga bog'liq variant narxlari o'chirilsinmi?")) return;
-    onOptionsChange(options.filter((_, j) => j !== i));
+    // Variantlarni ham qayta generatsiya qilamiz — aks holda eski optionValues
+    // bilan qolgan variantlar saqlashda variant_combination_incomplete beradi.
+    const next = options.filter((_, j) => j !== i);
+    onOptionsChange(next);
+    onVariantsChange(generateVariants(next, variants));
   }
 
   function setOptionName(i: number, name: string) {
+    // Nom o'zgarganda variantlardagi optionName ham ergashadi (narxlar saqlanadi).
+    const oldName = options[i].name;
     onOptionsChange(options.map((o, j) => (j === i ? { ...o, name } : o)));
+    onVariantsChange(variants.map((v) => ({
+      ...v,
+      optionValues: v.optionValues.map((ov) => (ov.optionName === oldName ? { ...ov, optionName: name } : ov)),
+    })));
   }
 
   function addOptionValue(i: number) {
@@ -40,7 +50,9 @@ const VariantEditor: FC<{
   }
 
   function removeOptionValue(i: number, value: string) {
-    onOptionsChange(options.map((o, j) => (j === i ? { ...o, values: o.values.filter((v) => v !== value) } : o)));
+    const next = options.map((o, j) => (j === i ? { ...o, values: o.values.filter((v) => v !== value) } : o));
+    onOptionsChange(next);
+    onVariantsChange(generateVariants(next, variants));
   }
 
   function generateCombinations() {

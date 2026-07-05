@@ -4,7 +4,6 @@ import { Search, Heart, ShoppingCart, Menu, Globe } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
-import { fetchCategories } from '../api/store';
 import { localizedPath, langToLocale, stripLocale, localeToTextKey, type Locale } from '../../app/lib/i18n';
 import logo from '../assets/logo.svg';
 import { useCart } from './CartContext';
@@ -17,17 +16,19 @@ export default function Header({
   lang,
   locale,
   pageLinks,
+  categories: cats,
   brandName,
 }: {
   t: Translation;
   lang: LangKey;
   locale: Locale;
   pageLinks: PageLink[];
+  /** Store layout loader'idan (SSR) — klientda qayta so'ralmaydi. */
+  categories: ApiCategory[];
   brandName: string;
 }) {
   const [q, setQ] = useState('');
   const [catOpen, setCatOpen] = useState(false);
-  const [cats, setCats] = useState<ApiCategory[]>([]);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,10 +43,6 @@ export default function Header({
     const bare = stripLocale(location.pathname);
     navigate(localizedPath(nextLocale, bare) + location.search);
   }
-
-  useEffect(() => {
-    fetchCategories().then(setCats);
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -137,7 +134,7 @@ export default function Header({
           </button>
         </form>
 
-        <button title={t.navSoon} className="hidden md:flex text-muted hover:text-primary transition-colors" aria-label="Sevimlilar">
+        <button title={t.navSoon} className="hidden md:flex text-muted hover:text-primary transition-colors" aria-label={t.navFavorites}>
           <Heart className="w-5 h-5" />
         </button>
         <Link

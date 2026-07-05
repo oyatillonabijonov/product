@@ -9,7 +9,8 @@ export type MdBlock =
   | { type: 'ul'; items: MdInline[][] };
 
 const INLINE_RE = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
-const SAFE_HREF_RE = /^(\/|https?:|mailto:|tel:)/i;
+// `\/(?!\/)` — protokol-nisbiy `//evil.com` ichki link sifatida o'tib ketmasin (safe-href.ts bilan bir xil).
+const SAFE_HREF_RE = /^(\/(?!\/)|https?:|mailto:|tel:)/i;
 
 function parseInlines(src: string): MdInline[] {
   const out: MdInline[] = [];

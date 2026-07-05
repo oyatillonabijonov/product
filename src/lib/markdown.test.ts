@@ -45,6 +45,13 @@ describe('renderMarkdown', () => {
     expect(inl.map((s) => s.text).join('')).toContain('bosish');
   });
 
+  it("drops protocol-relative '//' links (would leave the site styled as internal)", () => {
+    const blocks = renderMarkdown('[evil](//evil.com)');
+    if (blocks[0].type === 'ul') throw new Error('expected p');
+    expect(blocks[0].inlines.some((s) => s.href)).toBe(false);
+    expect(blocks[0].inlines.map((s) => s.text).join('')).toContain('evil');
+  });
+
   it('preserves links with allowlisted schemes', () => {
     const httpsBlocks = renderMarkdown('[ok](https://example.com)');
     if (httpsBlocks[0].type === 'ul') throw new Error('expected p');

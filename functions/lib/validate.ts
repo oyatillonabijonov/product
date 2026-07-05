@@ -319,13 +319,20 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
   const name = reqString(o, 'name');
   const phone = reqString(o, 'phone');
   const opt = (key: string): string => (typeof o[key] === 'string' ? (o[key] as string).trim() : '');
+  // Banner linkUrl bilan bir xil qoida (nusxasi src/lib/safe-href.ts) — kontakt
+  // URL'lar storefront'da to'g'ridan-to'g'ri href bo'ladi, javascript: o'tmasin.
+  const link = (key: string): string => {
+    const v = opt(key);
+    if (v !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(v)) throw new ValidationError(`${key}_invalid`);
+    return v;
+  };
   return {
     name,
     phone,
     phoneDisplay: opt('phoneDisplay') || phone,
-    telegram: opt('telegram'),
-    instagram: opt('instagram'),
-    whatsapp: opt('whatsapp'),
+    telegram: link('telegram'),
+    instagram: link('instagram'),
+    whatsapp: link('whatsapp'),
     mapLl: opt('mapLl'),
     mapLabel: opt('mapLabel'),
     seoTitleSuffix: opt('seoTitleSuffix') || name,

@@ -3,7 +3,7 @@ import { useNavigation } from 'react-router';
 import { Sparkles, Phone } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
-import type { ApiSiteConfig } from '../../shared/types';
+import type { ApiCategory, ApiSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
 import Header from './Header';
 import Footer from './Footer';
@@ -19,8 +19,8 @@ export interface StoreContext {
 }
 
 export default function StoreLayout({
-  locale, lang, t, config, pageLinks, children,
-}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; pageLinks: PageLink[]; children: ReactNode }) {
+  locale, lang, t, config, pageLinks, categories, children,
+}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; pageLinks: PageLink[]; categories: ApiCategory[]; children: ReactNode }) {
   // SSR navigatsiyasi (filtr/sort/sahifa) sekin tarmoqda feedback'siz edi — indeterminate progress-bar.
   const navigation = useNavigation();
   const pending = navigation.state !== 'idle';
@@ -47,7 +47,7 @@ export default function StoreLayout({
             </a>
           </div>
         </div>
-        <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} brandName={config.name} />
+        <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} categories={categories} brandName={config.name} />
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} />
         <CookieBanner t={t} />

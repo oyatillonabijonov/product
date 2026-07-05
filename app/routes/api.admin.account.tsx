@@ -44,10 +44,13 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (username && username !== auth.username) {
     if (username.length < 3) return json({ error: 'username_too_short' }, { status: 400 });
     fields.username = username;
+    // Login o'zgarganda ham secret aylantiriladi — eski token'lar (eski login bilan
+    // imzolangan) tirik qolmasin (login shubhali holatda almashtirilishi mumkin).
+    fields.sessionSecret = randomSecretHex();
   }
 
   if (body.newPassword) {
-    if (body.newPassword.length < 6) return json({ error: 'password_too_short' }, { status: 400 });
+    if (body.newPassword.length < 8) return json({ error: 'password_too_short' }, { status: 400 });
     const salt = randomSaltHex();
     fields.passwordSalt = salt;
     fields.passwordHash = await hashPassword(body.newPassword, salt);

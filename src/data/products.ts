@@ -31,8 +31,8 @@ export interface Product {
   gallery?: string[];
   /** Xususiyatlar (label/value). */
   specs?: { label: string; value: string }[];
-  /** Qisqa tavsif. */
-  description?: string;
+  /** Qisqa tavsif (D1'dan kelganda null bo'lishi mumkin). */
+  description?: string | null;
 }
 
 export interface Term {

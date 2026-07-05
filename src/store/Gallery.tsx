@@ -7,7 +7,7 @@ const Gallery: FC<{ images: string[]; name: string }> = ({ images, name }) => {
   return (
     <div className="flex flex-col gap-3">
       <div className="aspect-square bg-white rounded-[22px] flex items-center justify-center overflow-hidden">
-        {main ? <img src={main} alt={name} className="w-full h-full object-contain" /> : <span className="text-muted-2">{name}</span>}
+        {main ? <img src={main} alt={name} className="w-full h-full object-contain" fetchPriority="high" /> : <span className="text-muted-2">{name}</span>}
       </div>
       {images.length > 1 && (
         <div className="flex gap-2 overflow-x-auto">

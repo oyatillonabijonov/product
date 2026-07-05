@@ -34,10 +34,12 @@ const PBKDF2_ITERATIONS = 100_000;
 export const LOGIN_LOCK_THRESHOLD = 5;
 
 /** Lock duration (seconds) after `failedAttempts` consecutive failures: 0 below the
- * threshold, then 60s doubling per extra failure, capped at 1 hour. */
+ * threshold, then 60s doubling per extra failure, capped at 10 minutes.
+ * Cap past qilib tanlangan: throttle holati akkaunt darajasida (IP emas) — yuqori cap
+ * istalgan anonimga haqiqiy adminni soatlab bloklash (lockout-DoS) imkonini berardi. */
 export function lockDelaySeconds(failedAttempts: number): number {
   if (failedAttempts < LOGIN_LOCK_THRESHOLD) return 0;
-  return Math.min(60 * 2 ** (failedAttempts - LOGIN_LOCK_THRESHOLD), 3600);
+  return Math.min(60 * 2 ** (failedAttempts - LOGIN_LOCK_THRESHOLD), 600);
 }
 
 /** PBKDF2-SHA256 hash of a password with a hex salt → 256-bit hex. Salted + slow so a leaked hash resists brute-force. */

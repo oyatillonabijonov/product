@@ -69,7 +69,7 @@ export function applyFilters(products: Product[], f: CatalogFilters): CatalogRes
     xs = xs.filter((p) =>
       p.name.toLowerCase().includes(q) ||
       (p.brandId ?? '').toLowerCase().includes(q) ||
-      fallbackCategoryOf(p).toLowerCase().includes(q),
+      (fallbackCategoryOf(p) ?? '').toLowerCase().includes(q),
     );
   }
   if (f.onlyDeals) xs = xs.filter((p) => p.oldPriceUzs != null && p.oldPriceUzs > p.cashPriceUzs);

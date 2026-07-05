@@ -52,6 +52,10 @@ const ProductForm: FC<{
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [dirty, setDirty] = useState(false);
+  // Tahrirda detail yuklanmaguncha saqlash bloklanadi — bo'sh forma ustidan
+  // PUT (replace-all) mavjud mahsulotni o'chirib yuborardi.
+  const [loadState, setLoadState] = useState<'ready' | 'loading' | 'error'>('ready');
+  const [loadRetry, setLoadRetry] = useState(0);
 
   useEffect(() => { listCategories().then(setCategories).catch(() => setError('Kategoriyalar yuklanmadi')); }, []);
   useEffect(() => { listBrands().then(setBrands).catch(() => setError('Brendlar yuklanmadi')); }, []);
@@ -66,8 +70,11 @@ const ProductForm: FC<{
   }, [dirty]);
 
   useEffect(() => {
-    if (!initial) { setForm(empty); return; }
+    if (!initial) { setForm(empty); setLoadState('ready'); return; }
+    let stale = false; // tez ketma-ket ochilganda eski javob formani to'ldirmasin
+    setLoadState('loading');
     getProductDetail(initial.id).then((d) => {
+      if (stale) return;
       const gallery = d.images.filter((u) => u !== d.imageUrl);
       const optionValueMap = new Map<string, { optionName: string; value: string }>();
       for (const o of d.options) {
@@ -85,8 +92,10 @@ const ProductForm: FC<{
           optionValues: v.optionValueIds.map((id) => optionValueMap.get(id)).filter((x): x is { optionName: string; value: string } => x !== undefined),
         })),
       });
-    });
-  }, [initial]);
+      setLoadState('ready');
+    }).catch(() => { if (!stale) setLoadState('error'); });
+    return () => { stale = true; };
+  }, [initial, loadRetry]);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -123,6 +132,15 @@ const ProductForm: FC<{
       setError('Naqd narx yoki kamida bitta variant narxini kiriting.');
       return;
     }
+    // Option bor-u, birorta variant narxlanmagan bo'lsa — mahsulot sahifasida
+    // ishlamaydigan chiplar chiqadi; jim saqlamaymiz.
+    if (
+      form.options.some((o) => o.name.trim() && o.values.length) &&
+      !form.variants.some((v) => v.cashPriceUzs > 0)
+    ) {
+      setError("Variant narxlarini kiriting yoki o'lchovlarni olib tashlang.");
+      return;
+    }
     setBusy(true);
     setError('');
     try {
@@ -156,6 +174,24 @@ const ProductForm: FC<{
   }
 
   const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
+
+  if (initial && loadState !== 'ready') {
+    return (
+      <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple">
+        <h3 className="font-semibold mb-4">Mahsulotni tahrirlash</h3>
+        {loadState === 'loading' ? (
+          <div className="text-[14px] text-muted">Yuklanmoqda…</div>
+        ) : (
+          <div className="text-[14px] text-danger">
+            Mahsulot ma'lumotlari yuklanmadi — saqlash bloklandi.
+            <button onClick={() => setLoadRetry((r) => r + 1)} className="ml-2 font-semibold underline underline-offset-2">Qayta urinish</button>
+          </div>
+        )}
+        <button onClick={onCancel} className="mt-4 px-6 py-2.5 text-muted font-semibold rounded-full border border-line">Bekor qilish</button>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple">
       <h3 className="font-semibold mb-4">{initial ? 'Mahsulotni tahrirlash' : 'Yangi mahsulot'}</h3>
@@ -179,9 +215,10 @@ const ProductForm: FC<{
           <select
             className={input}
             value={form.categoryId ?? ''}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, categoryId: e.target.value || null, category: deriveLegacyCategory(e.target.value || null) }))
-            }
+            onChange={(e) => {
+              setDirty(true);
+              setForm((f) => ({ ...f, categoryId: e.target.value || null, category: deriveLegacyCategory(e.target.value || null) }));
+            }}
           >
             <option value="">— tanlang —</option>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}

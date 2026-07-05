@@ -12,11 +12,14 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const env = context.cloudflare.env;
   const slug = params.slug as string;
   const filters = parseCatalogFilters(new URL(request.url).searchParams, { category: slug });
-  const [result, config, categories, brands] = await Promise.all([
-    queryProducts(env, filters), loadConfig(env), loadCategories(env), loadBrands(env),
-  ]);
+  // Avval arzon kategoriya tekshiruvi — noma'lum slug (bot probing) qolgan og'ir
+  // so'rovlarni ishga tushirmasin (free-tier D1).
+  const categories = await loadCategories(env);
   const category = categories.find((c) => c.id === slug);
   if (!category) throw new Response('Not Found', { status: 404 }); // noma'lum slug 200 + soft-404 bo'lib indekslanmasin
+  const [result, config, brands] = await Promise.all([
+    queryProducts(env, filters), loadConfig(env), loadBrands(env),
+  ]);
   const title = category.name;
   return { result, config, title, brands, filters, requestUrl: request.url };
 }
