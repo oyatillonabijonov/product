@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { PencilSimple, Trash } from '@phosphor-icons/react';
 import type { ApiBrand } from '../../shared/types';
 import { deleteBrand, listBrands } from './api';
+import IconAction from './IconAction';
 import BrandForm from './BrandForm';
 
 export default function BrandList() {
@@ -52,8 +54,8 @@ export default function BrandList() {
               <div className="font-semibold">{b.name}</div>
               <div className="text-[13px] text-muted">{b.slug}</div>
             </div>
-            <button onClick={() => setEditing(b)} className="text-[13px] text-accent font-semibold px-2">Tahrir</button>
-            <button onClick={() => remove(b)} className="text-[13px] text-danger px-2">O'chir</button>
+            <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(b)} />
+            <IconAction Icon={Trash} label="O'chir" onClick={() => remove(b)} danger />
           </div>
         ))}
       </div>

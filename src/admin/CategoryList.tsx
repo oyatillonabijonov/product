@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { PencilSimple, Trash } from '@phosphor-icons/react';
 import type { ApiCategory } from '../../shared/types';
 import { deleteCategory, listCategories } from './api';
 import { categoryIcon } from '../lib/category-icons';
+import IconAction from './IconAction';
 import CategoryForm from './CategoryForm';
 
 export default function CategoryList() {
@@ -58,8 +60,8 @@ export default function CategoryList() {
               </div>
             )}
             <div className="flex-1 font-semibold">{c.name}</div>
-            <button onClick={() => setEditing(c)} className="text-[13px] text-accent font-semibold px-2">Tahrir</button>
-            <button onClick={() => remove(c)} className="text-[13px] text-danger px-2">O'chir</button>
+            <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(c)} />
+            <IconAction Icon={Trash} label="O'chir" onClick={() => remove(c)} danger />
           </div>
           );
         })}

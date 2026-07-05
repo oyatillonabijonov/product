@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { PencilSimple, Trash } from '@phosphor-icons/react';
 import type { ApiDeviceModel } from '../../shared/types';
 import { deleteDeviceModel, listDeviceModels } from './api';
 import { filterModels } from './lib/models';
+import IconAction from './IconAction';
 import ModelForm from './ModelForm';
 
 export default function ModelList() {
@@ -66,8 +68,8 @@ export default function ModelList() {
               <div className="font-semibold">{m.name}</div>
               <div className="text-[12px] text-muted">{m.brandId} · {m.categoryId} · {m.chip}</div>
             </div>
-            <button onClick={() => setEditing(m)} className="text-[13px] text-accent font-semibold px-2">Tahrir</button>
-            <button onClick={() => remove(m)} className="text-[13px] text-danger px-2">O'chirish</button>
+            <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(m)} />
+            <IconAction Icon={Trash} label="O'chir" onClick={() => remove(m)} danger />
           </div>
         ))}
         {filtered.length === 0 && <p className="text-muted text-[14px]">Modellar topilmadi.</p>}

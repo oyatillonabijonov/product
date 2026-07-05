@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { Eye, EyeSlash, PencilSimple, Trash } from '@phosphor-icons/react';
 import type { ApiProduct } from '../../shared/types';
 import { deleteProduct, listProducts, setProductActive } from './api';
+import IconAction from './IconAction';
 import ProductForm from './ProductForm';
 
 export default function ProductList() {
@@ -83,15 +85,9 @@ export default function ProductList() {
                 {p.condition} · {p.cashPriceUzs.toLocaleString('ru-RU').replace(/,/g, ' ')} so'm
               </div>
             </div>
-            <button onClick={() => setEditing(p)} className="text-[13px] text-accent font-semibold px-2">
-              Tahrir
-            </button>
-            <button onClick={() => toggle(p)} className="text-[13px] text-muted px-2">
-              {p.isActive ? 'Yashir' : "Ko'rsat"}
-            </button>
-            <button onClick={() => remove(p)} className="text-[13px] text-danger px-2">
-              O'chir
-            </button>
+            <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(p)} />
+            <IconAction Icon={p.isActive ? EyeSlash : Eye} label={p.isActive ? 'Yashir' : "Ko'rsat"} onClick={() => toggle(p)} />
+            <IconAction Icon={Trash} label="O'chir" onClick={() => remove(p)} danger />
           </div>
         ))}
       </div>

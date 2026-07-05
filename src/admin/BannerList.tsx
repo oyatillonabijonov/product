@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { PencilSimple, Trash } from '@phosphor-icons/react';
 import type { ApiBanner } from '../../shared/types';
 import { deleteBanner, listBanners } from './api';
+import IconAction from './IconAction';
 import BannerForm from './BannerForm';
 
 export default function BannerList() {
@@ -52,8 +54,8 @@ export default function BannerList() {
               <div className="text-[13px] text-muted truncate">{b.linkUrl || '—'}</div>
               <div className="text-[12px] text-muted-2">Tartib: {b.sortOrder} · {b.isActive ? 'Faol' : 'Nofaol'}</div>
             </div>
-            <button onClick={() => setEditing(b)} className="text-[13px] text-accent font-semibold px-2">Tahrir</button>
-            <button onClick={() => remove(b)} className="text-[13px] text-danger font-semibold px-2">O'chirish</button>
+            <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(b)} />
+            <IconAction Icon={Trash} label="O'chir" onClick={() => remove(b)} danger />
           </div>
         ))}
         {items.length === 0 && <p className="text-muted text-[14px]">Bannerlar yo'q.</p>}
