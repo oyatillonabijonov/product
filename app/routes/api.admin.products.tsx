@@ -8,8 +8,8 @@ import {
   PRODUCT_COLS,
   type ProductRow,
 } from '../../functions/lib/db';
-import { parseProductInput, ValidationError } from '../../functions/lib/validate';
-import { requireAdmin } from './api.admin.guard';
+import { parseProductInput } from '../../functions/lib/validate';
+import { requireAdmin, parseBody } from './api.admin.guard';
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const env = context.cloudflare.env;
@@ -26,13 +26,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
 
-  let input;
-  try {
-    input = parseProductInput(await request.json().catch(() => null));
-  } catch (e) {
-    if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
-    throw e;
-  }
+  const input = parseBody(await request.json().catch(() => null), parseProductInput);
+  if (input instanceof Response) return input;
   if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
   const insert = env.DB.prepare(
     `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, old_price_uzs, description, brand_id, slug, created_at)

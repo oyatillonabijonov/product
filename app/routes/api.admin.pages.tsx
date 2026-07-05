@@ -1,7 +1,7 @@
 import type { Route } from './+types/api.admin.pages';
 import { json, rowToPage, type PageRow } from '../../functions/lib/db';
-import { parsePageInput, ValidationError, type PageInput } from '../../functions/lib/validate';
-import { requireAdmin } from './api.admin.guard';
+import { parsePageInput, type PageInput } from '../../functions/lib/validate';
+import { requireAdmin, parseBody } from './api.admin.guard';
 
 // route moduldan qo'shimcha export qilinmaydi (RR v7 route API konvensiyasi) — lokal funksiya:
 function pageBindValues(p: PageInput): [string, string, string, string, string, string, string, string, string, string, number, number] {
@@ -22,13 +22,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
 
-  let input;
-  try {
-    input = parsePageInput(await request.json().catch(() => null));
-  } catch (e) {
-    if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
-    throw e;
-  }
+  const input = parseBody(await request.json().catch(() => null), parsePageInput);
+  if (input instanceof Response) return input;
   try {
     await env.DB.prepare(
       'INSERT INTO pages (id, slug, title_uz, title_ru, title_en, title_cyrl, content_uz, content_ru, content_en, content_cyrl, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',

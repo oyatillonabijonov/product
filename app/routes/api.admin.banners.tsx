@@ -1,7 +1,7 @@
 import type { Route } from './+types/api.admin.banners';
 import { json, rowToBanner, type BannerRow } from '../../functions/lib/db';
-import { parseBannerInput, ValidationError } from '../../functions/lib/validate';
-import { requireAdmin } from './api.admin.guard';
+import { parseBannerInput } from '../../functions/lib/validate';
+import { requireAdmin, parseBody } from './api.admin.guard';
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const env = context.cloudflare.env;
@@ -16,13 +16,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
 
-  let input;
-  try {
-    input = parseBannerInput(await request.json().catch(() => null));
-  } catch (e) {
-    if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
-    throw e;
-  }
+  const input = parseBody(await request.json().catch(() => null), parseBannerInput);
+  if (input instanceof Response) return input;
   await env.DB.prepare('INSERT INTO banners (id, image_url, link_url, alt_text, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?)')
     .bind(input.id, input.imageUrl, input.linkUrl, input.altText, input.sortOrder, input.isActive ? 1 : 0)
     .run();

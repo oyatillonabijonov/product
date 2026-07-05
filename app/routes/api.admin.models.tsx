@@ -1,7 +1,7 @@
 import type { Route } from './+types/api.admin.models';
 import { json, rowToDeviceModel, type DeviceModelRow } from '../../functions/lib/db';
-import { parseDeviceModelInput, ValidationError } from '../../functions/lib/validate';
-import { requireAdmin } from './api.admin.guard';
+import { parseDeviceModelInput } from '../../functions/lib/validate';
+import { requireAdmin, parseBody } from './api.admin.guard';
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const env = context.cloudflare.env;
@@ -18,13 +18,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
 
-  let input;
-  try {
-    input = parseDeviceModelInput(await request.json().catch(() => null));
-  } catch (e) {
-    if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
-    throw e;
-  }
+  const input = parseBody(await request.json().catch(() => null), parseDeviceModelInput);
+  if (input instanceof Response) return input;
   try {
     await env.DB.prepare(
       `INSERT INTO device_models

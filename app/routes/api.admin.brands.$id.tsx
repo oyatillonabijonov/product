@@ -1,7 +1,7 @@
 import type { Route } from './+types/api.admin.brands.$id';
 import { json, rowToBrand, type BrandRow } from '../../functions/lib/db';
-import { parseBrandInput, ValidationError } from '../../functions/lib/validate';
-import { requireAdmin } from './api.admin.guard';
+import { parseBrandInput } from '../../functions/lib/validate';
+import { requireAdmin, parseBody } from './api.admin.guard';
 
 export async function action({ request, context, params }: Route.ActionArgs) {
   const env = context.cloudflare.env;
@@ -10,13 +10,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const id = String(params.id);
 
   if (request.method === 'PUT') {
-    let input;
-    try {
-      input = parseBrandInput({ ...((await request.json().catch(() => null)) ?? {}) as object, id });
-    } catch (e) {
-      if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
-      throw e;
-    }
+    const input = parseBody({ ...((await request.json().catch(() => null)) ?? {}) as object, id }, parseBrandInput);
+    if (input instanceof Response) return input;
     try {
       await env.DB.prepare('UPDATE brands SET name=?, slug=?, logo_url=?, sort_order=? WHERE id=?')
         .bind(input.name, input.slug, input.logoUrl, input.sortOrder, id)

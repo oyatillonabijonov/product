@@ -1,6 +1,6 @@
 export function formatThousands(n: number): string {
   if (!Number.isFinite(n) || n <= 0) return '';
-  return Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return Math.floor(n).toLocaleString('ru-RU').replace(/\D/g, ' ');
 }
 
 export function parseDigits(s: string): number {

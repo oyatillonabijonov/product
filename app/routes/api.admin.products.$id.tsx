@@ -8,8 +8,8 @@ import {
   PRODUCT_COLS,
   type ProductRow,
 } from '../../functions/lib/db';
-import { parseProductInput, ValidationError } from '../../functions/lib/validate';
-import { requireAdmin } from './api.admin.guard';
+import { parseProductInput } from '../../functions/lib/validate';
+import { requireAdmin, parseBody } from './api.admin.guard';
 
 export async function action({ request, context, params }: Route.ActionArgs) {
   const env = context.cloudflare.env;
@@ -18,14 +18,9 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const id = String(params.id);
 
   if (request.method === 'PUT') {
-    let input;
-    try {
-      const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
-      input = parseProductInput({ ...body, id });
-    } catch (e) {
-      if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
-      throw e;
-    }
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const input = parseBody({ ...body, id }, parseProductInput);
+    if (input instanceof Response) return input;
     if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
     const update = env.DB.prepare(
       `UPDATE products SET name=?, category=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, old_price_uzs=?, description=?, brand_id=?, slug=? WHERE id=?`,

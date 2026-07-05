@@ -11,7 +11,7 @@ export type MdBlock =
 const INLINE_RE = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
 const SAFE_HREF_RE = /^(\/|https?:|mailto:|tel:)/i;
 
-export function parseInlines(src: string): MdInline[] {
+function parseInlines(src: string): MdInline[] {
   const out: MdInline[] = [];
   let last = 0;
   let m: RegExpExecArray | null;

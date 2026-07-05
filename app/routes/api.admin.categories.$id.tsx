@@ -1,7 +1,7 @@
 import type { Route } from './+types/api.admin.categories.$id';
 import { json, rowToCategory, type CategoryRow } from '../../functions/lib/db';
-import { parseCategoryInput, ValidationError } from '../../functions/lib/validate';
-import { requireAdmin } from './api.admin.guard';
+import { parseCategoryInput } from '../../functions/lib/validate';
+import { requireAdmin, parseBody } from './api.admin.guard';
 
 export async function action({ request, context, params }: Route.ActionArgs) {
   const env = context.cloudflare.env;
@@ -10,13 +10,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   const id = String(params.id);
 
   if (request.method === 'PUT') {
-    let input;
-    try {
-      input = parseCategoryInput({ ...((await request.json().catch(() => null)) ?? {}) as object, id });
-    } catch (e) {
-      if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
-      throw e;
-    }
+    const input = parseBody({ ...((await request.json().catch(() => null)) ?? {}) as object, id }, parseCategoryInput);
+    if (input instanceof Response) return input;
     await env.DB.prepare('UPDATE categories SET name=?, icon_url=?, icon=?, sort_order=? WHERE id=?')
       .bind(input.name, input.iconUrl, input.icon, input.sortOrder, id)
       .run();
