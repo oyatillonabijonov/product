@@ -117,7 +117,7 @@ export default function Header({
           </nav>
         )}
 
-        <form onSubmit={submitSearch} className="flex-1 relative">
+        <form onSubmit={submitSearch} className="flex-1 min-w-0 relative">
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -156,7 +156,7 @@ export default function Header({
             value={lang}
             onChange={(e) => switchLang(e.target.value as LangKey)}
             aria-label={t.langLabel}
-            className="text-[13px] bg-transparent cursor-pointer rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="text-[13px] bg-transparent cursor-pointer rounded-md py-2 px-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             <option value="O'zbek tili">O'z</option>
             <option value="Rus tili">Рус</option>

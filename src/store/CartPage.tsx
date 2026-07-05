@@ -61,16 +61,16 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
                 {it.image ? <img src={it.image} alt="" className="w-full h-full object-contain p-1.5" /> : null}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-[15px] truncate">{it.name}</div>
+                <div className="font-semibold text-[15px] line-clamp-2">{it.name}</div>
                 {it.variantLabel && <div className="text-[12px] text-muted">{it.variantLabel}</div>}
                 <div className="text-[13px] text-muted mt-0.5 tabular-nums">{formatUzs(it.priceUzs * it.qty, t.sum)}</div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <button onClick={() => changeQty(it.productId, it.variantId, it.qty - 1)} aria-label={t.qtyDecrease} className="w-8 h-8 rounded-full border border-line flex items-center justify-center hover:border-accent"><Minus className="w-3.5 h-3.5" /></button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button onClick={() => changeQty(it.productId, it.variantId, it.qty - 1)} aria-label={t.qtyDecrease} className="w-9 h-9 rounded-full border border-line flex items-center justify-center hover:border-accent"><Minus className="w-3.5 h-3.5" /></button>
                 <span className="w-7 text-center text-[14px] font-semibold tabular-nums">{it.qty}</span>
-                <button onClick={() => changeQty(it.productId, it.variantId, it.qty + 1)} aria-label={t.qtyIncrease} className="w-8 h-8 rounded-full border border-line flex items-center justify-center hover:border-accent"><Plus className="w-3.5 h-3.5" /></button>
+                <button onClick={() => changeQty(it.productId, it.variantId, it.qty + 1)} aria-label={t.qtyIncrease} className="w-9 h-9 rounded-full border border-line flex items-center justify-center hover:border-accent"><Plus className="w-3.5 h-3.5" /></button>
               </div>
-              <button onClick={() => remove(it.productId, it.variantId)} aria-label={t.cartRemoveItem} className="text-muted-2 hover:text-sale transition-colors"><Trash2 className="w-4.5 h-4.5" /></button>
+              <button onClick={() => remove(it.productId, it.variantId)} aria-label={t.cartRemoveItem} className="shrink-0 p-2 -mr-1 text-muted-2 hover:text-sale transition-colors"><Trash2 className="w-4.5 h-4.5" /></button>
             </div>
           ))}
           <button onClick={clear} className="self-start text-[13px] text-muted hover:text-sale font-semibold mt-1">
