@@ -51,7 +51,7 @@ export default function SiteConfigForm() {
           />
         </label>
       ))}
-      {msg && <p className={`text-[13px] ${msg.includes('✓') ? 'text-trust' : 'text-sale'}`}>{msg}</p>}
+      {msg && <p className={`text-[13px] ${msg.includes('✓') ? 'text-trust' : 'text-danger'}`}>{msg}</p>}
       <button onClick={save} disabled={busy} className="px-5 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-50">Saqlash</button>
     </div>
   );

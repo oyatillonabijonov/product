@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FC } from 'react';
 import type { ApiBrand } from '../../shared/types';
 import { createBrand, updateBrand, uploadImage } from './api';
+import { errText } from './errText';
 import { normalizeImage } from './lib/image-normalize';
 
 const BrandForm: FC<{
@@ -39,7 +40,7 @@ const BrandForm: FC<{
       else await createBrand(payload);
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'xatolik');
+      setError(errText(err));
     } finally {
       setBusy(false);
     }

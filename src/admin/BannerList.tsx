@@ -36,7 +36,7 @@ export default function BannerList() {
   }
 
   if (loading) return <p className="text-muted">Yuklanmoqda…</p>;
-  if (error) return <p className="text-sale">{error}</p>;
+  if (error) return <p className="text-danger">{error}</p>;
   return (
     <div>
       {creating && <BannerForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
@@ -53,7 +53,7 @@ export default function BannerList() {
               <div className="text-[12px] text-muted-2">Tartib: {b.sortOrder} · {b.isActive ? 'Faol' : 'Nofaol'}</div>
             </div>
             <button onClick={() => setEditing(b)} className="text-[13px] text-accent font-semibold px-2">Tahrir</button>
-            <button onClick={() => remove(b)} className="text-[13px] text-sale font-semibold px-2">O'chirish</button>
+            <button onClick={() => remove(b)} className="text-[13px] text-danger font-semibold px-2">O'chirish</button>
           </div>
         ))}
         {items.length === 0 && <p className="text-muted text-[14px]">Bannerlar yo'q.</p>}

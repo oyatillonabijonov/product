@@ -67,7 +67,7 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
       </label>
 
       <label className="block text-[13px] text-muted">
-        Joriy parol <span className="text-sale">*</span>
+        Joriy parol <span className="text-danger">*</span>
         <input
           type="password"
           value={currentPassword}
@@ -78,7 +78,7 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
         />
       </label>
 
-      {msg && <p className={`text-[13px] ${msg.includes('✓') ? 'text-trust' : 'text-sale'}`}>{msg}</p>}
+      {msg && <p className={`text-[13px] ${msg.includes('✓') ? 'text-trust' : 'text-danger'}`}>{msg}</p>}
       <button
         onClick={save}
         disabled={busy}

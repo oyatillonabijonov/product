@@ -51,7 +51,7 @@ const BannerForm: FC<{ initial: ApiBanner | null; onSaved: () => void; onCancel:
           <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} /> Faol
         </label>
       </div>
-      {error && <p className="text-[13px] text-sale">{error}</p>}
+      {error && <p className="text-[13px] text-danger">{error}</p>}
       <div className="flex gap-2">
         <button onClick={save} disabled={busy} className="px-5 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-50">Saqlash</button>
         <button onClick={onCancel} className="px-5 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>

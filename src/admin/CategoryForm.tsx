@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FC } from 'react';
 import type { ApiCategory } from '../../shared/types';
 import { createCategory, updateCategory } from './api';
+import { errText } from './errText';
 import { CATEGORY_ICON_LIST, categoryIcon } from '../lib/category-icons';
 
 const CategoryForm: FC<{
@@ -25,7 +26,7 @@ const CategoryForm: FC<{
       else await createCategory(payload);
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'xatolik');
+      setError(errText(err));
     } finally {
       setBusy(false);
     }

@@ -95,12 +95,13 @@ export default function SettingsForm() {
             <span>oy · ustama</span>
             <input
               type="number"
-              step="0.01"
-              aria-label="Ustama koeffitsiyenti"
+              step="1"
+              aria-label="Ustama foizi (%)"
               className={input}
-              value={t.markup}
-              onChange={(e) => setTerm(i, 'markup', Number(e.target.value))}
+              value={Math.round(t.markup * 100)}
+              onChange={(e) => setTerm(i, 'markup', Number(e.target.value) / 100)}
             />
+            <span className="text-muted">%</span>
             <span className="text-muted">({fmt(monthly(SAMPLE, s.downPaymentPercent, t))}/oy)</span>
             <button onClick={() => removeTerm(i)} aria-label="Muddatni o'chirish" className="text-danger ml-auto">×</button>
           </div>
