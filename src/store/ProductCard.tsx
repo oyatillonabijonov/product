@@ -20,7 +20,7 @@ const ProductCard: FC<{
     >
       <LocaleLink
         to={`/product/${product.id}`}
-        className="aspect-square w-full flex items-center justify-center relative overflow-hidden bg-gradient-to-b from-row-alt to-segment"
+        className="aspect-square w-full flex items-center justify-center relative overflow-hidden bg-white"
       >
         <span
           className={`absolute top-3 left-3 inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full backdrop-blur ${
