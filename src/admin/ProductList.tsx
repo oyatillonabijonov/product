@@ -8,13 +8,20 @@ export default function ProductList() {
   const [editing, setEditing] = useState<ApiProduct | null>(null);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   async function refresh() {
     setLoading(true);
-    setItems(await listProducts());
-    setLoading(false);
-    setEditing(null);
-    setCreating(false);
+    try {
+      setItems(await listProducts());
+      setError('');
+    } catch {
+      setError('Yuklashda xatolik');
+    } finally {
+      setLoading(false);
+      setEditing(null);
+      setCreating(false);
+    }
   }
 
   useEffect(() => {
@@ -22,20 +29,29 @@ export default function ProductList() {
   }, []);
 
   async function toggle(p: ApiProduct) {
-    await setProductActive(p.id, !p.isActive);
-    refresh();
+    try {
+      await setProductActive(p.id, !p.isActive);
+      refresh();
+    } catch {
+      setError('Amal bajarilmadi');
+    }
   }
 
   async function remove(p: ApiProduct) {
     if (!window.confirm(`"${p.name}" o'chirilsinmi?`)) return;
-    await deleteProduct(p.id);
-    refresh();
+    try {
+      await deleteProduct(p.id);
+      refresh();
+    } catch {
+      setError("O'chirishda xatolik");
+    }
   }
 
   if (loading) return <p className="text-muted">Yuklanmoqda…</p>;
 
   return (
     <div>
+      {error && <p className="text-danger text-[14px] mb-3">{error}</p>}
       {creating && <ProductForm key="new" initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
       {editing && <ProductForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />}
 

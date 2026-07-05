@@ -24,6 +24,7 @@ const VariantEditor: FC<{
   }
 
   function removeOption(i: number) {
+    if (!window.confirm("O'lchov va unga bog'liq variant narxlari o'chirilsinmi?")) return;
     onOptionsChange(options.filter((_, j) => j !== i));
   }
 
@@ -51,6 +52,7 @@ const VariantEditor: FC<{
   }
 
   function removeVariant(i: number) {
+    if (!window.confirm("Variant o'chirilsinmi?")) return;
     onVariantsChange(variants.filter((_, j) => j !== i));
   }
 

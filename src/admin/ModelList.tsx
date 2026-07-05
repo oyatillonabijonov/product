@@ -29,8 +29,12 @@ export default function ModelList() {
 
   async function remove(m: ApiDeviceModel) {
     if (!window.confirm(`"${m.name}" modeli o'chirilsinmi?`)) return;
-    await deleteDeviceModel(m.id);
-    refresh();
+    try {
+      await deleteDeviceModel(m.id);
+      refresh();
+    } catch {
+      setError("O'chirishda xatolik");
+    }
   }
 
   if (loading) return <p className="text-muted">Yuklanmoqda…</p>;

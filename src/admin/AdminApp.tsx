@@ -9,6 +9,7 @@ import {
   Tag,
 } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import { getMe, logout } from './api';
 import AccountForm from './AccountForm';
 import BannerList from './BannerList';
@@ -35,9 +36,22 @@ const NAV: NavItem[] = [
 
 const DEFAULT_PW_KEY = 'admin-default-pw';
 
+// Tab <-> URL path: /admin = products, /admin/<id> = boshqa bo'limlar.
+// URL-bog'langan tab → deep-link, F5-bardosh, brauzer back/forward ishlaydi.
+const SECTION_TABS: Tab[] = ['models', 'categories', 'brands', 'banners', 'settings'];
+function pathToTab(pathname: string): Tab {
+  const seg = pathname.split('/')[2] ?? '';
+  return SECTION_TABS.includes(seg as Tab) ? (seg as Tab) : 'products';
+}
+function tabToPath(id: Tab): string {
+  return id === 'products' ? '/admin' : `/admin/${id}`;
+}
+
 export default function AdminApp() {
   const [authed, setAuthed] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<Tab>('products');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const tab = pathToTab(location.pathname);
   const [defaultPw, setDefaultPw] = useState(
     () => typeof window !== 'undefined' && sessionStorage.getItem(DEFAULT_PW_KEY) === '1',
   );
@@ -81,7 +95,7 @@ export default function AdminApp() {
           return (
             <button
               key={id}
-              onClick={() => setTab(id)}
+              onClick={() => navigate(tabToPath(id))}
               className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-[14px] font-semibold text-left transition-colors ${
                 active ? 'bg-accent text-white' : 'text-primary hover:bg-bg'
               }`}
@@ -105,7 +119,7 @@ export default function AdminApp() {
           return (
             <button
               key={id}
-              onClick={() => setTab(id)}
+              onClick={() => navigate(tabToPath(id))}
               className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap ${
                 active ? 'bg-accent text-white' : 'text-primary'
               }`}
@@ -129,7 +143,7 @@ export default function AdminApp() {
             <div className="mb-6 rounded-2xl border border-danger/30 bg-danger/5 px-4 py-3 text-[14px] text-danger flex flex-wrap items-center gap-2">
               <span className="font-semibold">Diqqat:</span>
               Standart «admin» paroli ishlatilmoqda — hoziroq o'zgartiring.
-              <button onClick={() => setTab('settings')} className="font-semibold underline underline-offset-2">
+              <button onClick={() => navigate('/admin/settings')} className="font-semibold underline underline-offset-2">
                 Sozlamalarga o'tish
               </button>
             </div>

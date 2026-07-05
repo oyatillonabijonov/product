@@ -8,25 +8,37 @@ export default function BrandList() {
   const [editing, setEditing] = useState<ApiBrand | null>(null);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   async function refresh() {
     setLoading(true);
-    setItems(await listBrands());
-    setLoading(false);
-    setEditing(null);
-    setCreating(false);
+    try {
+      setItems(await listBrands());
+      setError('');
+    } catch {
+      setError('Yuklashda xatolik');
+    } finally {
+      setLoading(false);
+      setEditing(null);
+      setCreating(false);
+    }
   }
   useEffect(() => { refresh(); }, []);
 
   async function remove(b: ApiBrand) {
     if (!window.confirm(`"${b.name}" brendi o'chirilsinmi? (mahsulotlar brendsiz qoladi)`)) return;
-    await deleteBrand(b.id);
-    refresh();
+    try {
+      await deleteBrand(b.id);
+      refresh();
+    } catch {
+      setError("O'chirishda xatolik");
+    }
   }
 
   if (loading) return <p className="text-muted">Yuklanmoqda…</p>;
   return (
     <div>
+      {error && <p className="text-danger text-[14px] mb-3">{error}</p>}
       {creating && <BrandForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
       {editing && <BrandForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />}
       {!creating && !editing && (

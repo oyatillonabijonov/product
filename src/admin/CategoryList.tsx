@@ -9,25 +9,37 @@ export default function CategoryList() {
   const [editing, setEditing] = useState<ApiCategory | null>(null);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   async function refresh() {
     setLoading(true);
-    setItems(await listCategories());
-    setLoading(false);
-    setEditing(null);
-    setCreating(false);
+    try {
+      setItems(await listCategories());
+      setError('');
+    } catch {
+      setError('Yuklashda xatolik');
+    } finally {
+      setLoading(false);
+      setEditing(null);
+      setCreating(false);
+    }
   }
   useEffect(() => { refresh(); }, []);
 
   async function remove(c: ApiCategory) {
     if (!window.confirm(`"${c.name}" o'chirilsinmi? (mahsulotlar kategoriyasiz qoladi)`)) return;
-    await deleteCategory(c.id);
-    refresh();
+    try {
+      await deleteCategory(c.id);
+      refresh();
+    } catch {
+      setError("O'chirishda xatolik");
+    }
   }
 
   if (loading) return <p className="text-muted">Yuklanmoqda…</p>;
   return (
     <div>
+      {error && <p className="text-danger text-[14px] mb-3">{error}</p>}
       {creating && <CategoryForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
       {editing && <CategoryForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />}
       {!creating && !editing && (

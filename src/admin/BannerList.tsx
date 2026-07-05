@@ -27,8 +27,12 @@ export default function BannerList() {
 
   async function remove(b: ApiBanner) {
     if (!window.confirm('Banner o\'chirilsinmi?')) return;
-    await deleteBanner(b.id);
-    refresh();
+    try {
+      await deleteBanner(b.id);
+      refresh();
+    } catch {
+      setError("O'chirishda xatolik");
+    }
   }
 
   if (loading) return <p className="text-muted">Yuklanmoqda…</p>;

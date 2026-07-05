@@ -18,6 +18,7 @@ export default function SettingsForm() {
   const [s, setS] = useState<ApiSettings | null>(null);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     getSettings().then(setS);
@@ -43,9 +44,12 @@ export default function SettingsForm() {
     if (!s) return;
     setBusy(true);
     setSaved(false);
+    setError('');
     try {
       await updateSettings(s);
       setSaved(true);
+    } catch {
+      setError('Saqlashda xatolik');
     } finally {
       setBusy(false);
     }
@@ -119,6 +123,7 @@ export default function SettingsForm() {
           {busy ? 'Saqlanmoqda…' : 'Saqlash'}
         </button>
         {saved && <span className="text-[13px] text-trust">Saqlandi ✓</span>}
+        {error && <span className="text-[13px] text-danger">{error}</span>}
       </div>
     </div>
   );

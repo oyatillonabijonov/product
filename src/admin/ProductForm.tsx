@@ -51,10 +51,19 @@ const ProductForm: FC<{
   const [models, setModels] = useState<ApiDeviceModel[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [dirty, setDirty] = useState(false);
 
-  useEffect(() => { listCategories().then(setCategories); }, []);
-  useEffect(() => { listBrands().then(setBrands); }, []);
+  useEffect(() => { listCategories().then(setCategories).catch(() => setError('Kategoriyalar yuklanmadi')); }, []);
+  useEffect(() => { listBrands().then(setBrands).catch(() => setError('Brendlar yuklanmadi')); }, []);
   useEffect(() => { listDeviceModels().then(setModels).catch(() => {}); }, []);
+
+  // Saqlanmagan o'zgarish bo'lsa sahifa yopilishi/yangilanishida ogohlantirish
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
 
   useEffect(() => {
     if (!initial) { setForm(empty); return; }
@@ -81,9 +90,11 @@ const ProductForm: FC<{
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+    setDirty(true);
   }
 
   function pickModel(m: ApiDeviceModel) {
+    setDirty(true);
     setForm((f) => ({
       ...f,
       name: m.name,
@@ -95,6 +106,7 @@ const ProductForm: FC<{
   }
 
   function toggleStorage(v: string) {
+    setDirty(true);
     setForm((f) => {
       const current = f.options.find((o) => o.name === 'Xotira')?.values ?? [];
       const nextValues = (current.includes(v) ? current.filter((x) => x !== v) : [...current, v])
@@ -129,6 +141,7 @@ const ProductForm: FC<{
       };
       if (initial) await updateProduct(initial.id, payload);
       else await createProduct(payload);
+      setDirty(false);
       onSaved();
     } catch (err) {
       setError(errText(err));
@@ -254,7 +267,7 @@ const ProductForm: FC<{
 
       <div className="flex gap-3 mt-5">
         <button onClick={save} disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
-        <button onClick={onCancel} className="px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
+        <button onClick={() => { if (!dirty || window.confirm("Saqlanmagan o'zgarishlar bor. Bekor qilinsinmi?")) onCancel(); }} className="px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
       </div>
     </div>
   );
