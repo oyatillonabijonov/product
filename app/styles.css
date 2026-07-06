@@ -4,30 +4,30 @@
 
 @theme {
   --font-sans: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  --shadow-apple: 0 1px 2px rgba(0, 0, 0, 0.03), 0 8px 24px -10px rgba(0, 0, 0, 0.10);
-  --shadow-apple-hover: 0 8px 18px -10px rgba(0, 0, 0, 0.10), 0 28px 50px -18px rgba(0, 0, 0, 0.18);
-  --color-primary: #1D1D1F;
-  --color-accent: #0071E3;
-  --color-bg: #F5F5F7;
+  --shadow-apple: none; /* Apple-style flat — soyasiz, kartalar border/bg bilan ajraladi */
+  --shadow-apple-hover: none;
+  --color-primary: #121417;
+  --color-accent: #0A0A0A; /* Apple Devices Store skin — qora asosiy accent (ko'k emas) */
+  --color-bg: #F4F5F7;
   --color-trust: #1B7A34;
-  --color-sale: #E8462D;
-  --color-body: #3A3A3C;
-  --color-muted: #6E6E73;
-  --color-muted-2: #707075; /* 5:1 — 11-14px matnlar WCAG AA dan o'tsin */
-  --color-muted-3: #9A9AA0;
-  --color-disabled: #C7C7CC;
-  --color-disabled-2: #77777C; /* eski narx (ma'noli matn) AA kontrastda */
-  --color-accent-hover: #0077ED;
-  --color-accent-soft: #EAF3FF;
-  --color-accent-soft-2: #DCEBFF;
-  --color-accent-bright: #00A2FF;
-  --color-row-alt: #FAFAFC;
-  --color-fill-2: #E8E8ED;
-  --color-line: #D2D2D7;
-  --color-line-2: #E5E5EA;
-  --color-line-3: #ECECEF;
-  --color-divider: #F0F0F2;
-  --color-segment: #F0F0F3;
+  --color-sale: #E8404B; /* coral — chegirma/badge */
+  --color-body: #454A52;
+  --color-muted: #5A5F66;
+  --color-muted-2: #5B6069; /* AA — 11-14px matnlar */
+  --color-muted-3: #9298A1;
+  --color-disabled: #C7CCD4;
+  --color-disabled-2: #6C7178; /* eski narx (ma'noli matn) AA kontrastda */
+  --color-accent-hover: #232427;
+  --color-accent-soft: #ECEEF1;
+  --color-accent-soft-2: #E0E3E8;
+  --color-accent-bright: #E8404B; /* coral highlight */
+  --color-row-alt: #F7F8FA;
+  --color-fill-2: #E3E6EC;
+  --color-line: #DCDFE4;
+  --color-line-2: #E6E9EE;
+  --color-line-3: #EDEFF2;
+  --color-divider: #F0F1F4;
+  --color-segment: #EFF1F4;
   --color-trust-soft: #E8F5E9;
   --color-danger: #E30000;
 }
@@ -39,15 +39,15 @@ html {
 body {
   font-family: var(--font-sans);
   background-color: #FFFFFF;
-  color: #1D1D1F;
+  color: #121417;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: rgba(0, 113, 227, 0.15);
-  color: #1D1D1F;
+  background: rgba(232, 64, 75, 0.16);
+  color: #121417;
 }
 
 /* Navigatsiya progress-bar (StoreLayout) — indeterminate siljish */

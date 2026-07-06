@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { useNavigation } from 'react-router';
-import { Sparkles, Phone } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import type { ApiCategory, ApiSiteConfig } from '../../shared/types';
@@ -32,21 +31,6 @@ export default function StoreLayout({
             <div className="nav-progress h-full w-1/3 bg-accent rounded-full" />
           </div>
         )}
-        <div className="bg-bg border-b border-line/60 text-[12.5px]">
-          <div className="max-w-[1200px] mx-auto px-4 h-10 flex items-center justify-between gap-3">
-            <span className="inline-flex items-center gap-1.5 font-medium text-body min-w-0">
-              <Sparkles className="w-3.5 h-3.5 text-accent shrink-0" />
-              <span className="truncate">{t.utilInstallment}</span>
-            </span>
-            <a
-              href={`tel:${config.phone}`}
-              className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-accent transition-colors shrink-0"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              {config.phoneDisplay}
-            </a>
-          </div>
-        </div>
         <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} categories={categories} brandName={config.name} />
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} />

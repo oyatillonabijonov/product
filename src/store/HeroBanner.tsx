@@ -26,7 +26,7 @@ export default function HeroBanner({ t, phone }: { t: Translation; phone: string
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden md:block absolute bottom-0 right-8 lg:right-16 w-auto h-[112%] max-h-[440px] object-contain object-bottom drop-shadow-[0_30px_50px_rgba(0,60,130,0.28)]"
+        className="hidden md:block absolute bottom-0 right-8 lg:right-16 w-auto h-[112%] max-h-[440px] object-contain object-bottom"
       />
 
       <div className="relative grid grid-cols-1 md:grid-cols-2 items-center gap-6 px-6 sm:px-10 md:px-12 py-9 md:py-14 md:min-h-[380px]">
@@ -46,7 +46,7 @@ export default function HeroBanner({ t, phone }: { t: Translation; phone: string
           <div className="flex flex-col sm:flex-row gap-3 mt-7">
             <a
               href="#featured"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-accent text-white text-[15px] font-semibold rounded-full hover:bg-accent-hover transition-colors shadow-[0_10px_24px_-10px_rgba(0,113,227,0.7)]"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-accent text-white text-[15px] font-semibold rounded-full hover:bg-accent-hover transition-colors"
             >
               {t.heroCtaPrimary}
               <ArrowRight className="w-4 h-4" />
@@ -70,7 +70,7 @@ export default function HeroBanner({ t, phone }: { t: Translation; phone: string
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="w-auto max-h-[240px] object-contain drop-shadow-[0_24px_40px_rgba(0,60,130,0.26)]"
+            className="w-auto max-h-[240px] object-contain"
           />
         </div>
       </div>

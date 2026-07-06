@@ -21,7 +21,7 @@ const TermSegments: FC<{
         onClick={() => onChange(x.months)}
         className={`py-2.5 rounded-full text-[14px] font-semibold transition-all duration-200 ${
           x.months === months
-            ? 'bg-white text-primary shadow-[0_1px_3px_rgba(0,0,0,0.14)]'
+            ? 'bg-white text-primary'
             : 'text-muted hover:text-primary'
         }`}
       >

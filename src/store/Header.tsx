@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router';
-import { Search, Heart, ShoppingCart, Menu, Globe } from 'lucide-react';
+import { Search, ShoppingCart, Menu, Globe } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
@@ -59,7 +59,7 @@ export default function Header({
   return (
     <header
       className={`sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b transition-shadow duration-300 ${
-        scrolled ? 'border-line-2 shadow-[0_1px_20px_-8px_rgba(0,0,0,0.15)]' : 'border-transparent'
+        scrolled ? 'border-line-2' : 'border-transparent'
       }`}
     >
       <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center gap-3 md:gap-4">
@@ -134,9 +134,6 @@ export default function Header({
           </button>
         </form>
 
-        <button title={t.navSoon} className="hidden md:flex text-muted hover:text-primary transition-colors" aria-label={t.navFavorites}>
-          <Heart className="w-5 h-5" />
-        </button>
         <Link
           to={localizedPath(locale, '/savat')}
           className="relative text-muted hover:text-primary transition-colors"
@@ -150,16 +147,16 @@ export default function Header({
           )}
         </Link>
 
-        <div className="flex items-center gap-1 text-muted">
-          <Globe className="w-4 h-4 hidden sm:block" />
+        <div className="relative flex items-center text-muted hover:text-primary transition-colors rounded-md focus-within:ring-2 focus-within:ring-accent/50">
+          <Globe className="w-5 h-5" />
           <select
             value={lang}
             onChange={(e) => switchLang(e.target.value as LangKey)}
             aria-label={t.langLabel}
-            className="text-[13px] bg-transparent cursor-pointer rounded-md py-2 px-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="absolute inset-0 w-full opacity-0 cursor-pointer"
           >
-            <option value="O'zbek tili">O'z</option>
-            <option value="Rus tili">Рус</option>
+            <option value="O'zbek tili">O'zbek tili</option>
+            <option value="Rus tili">Русский</option>
           </select>
         </div>
       </div>

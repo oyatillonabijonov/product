@@ -177,7 +177,7 @@ const ProductPage: FC<{
           </button>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <button onClick={() => order('telegram')} disabled={outOfStock} className="flex-1 py-3.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors flex items-center justify-center gap-2 shadow-[0_10px_24px_-10px_rgba(0,113,227,0.7)] disabled:opacity-50 disabled:cursor-not-allowed">
+            <button onClick={() => order('telegram')} disabled={outOfStock} className="flex-1 py-3.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
               <Send className="w-5 h-5" /> {t.formSendTelegram}
             </button>
             <button onClick={() => order('whatsapp')} disabled={outOfStock} className="flex-1 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-[#25D366] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">

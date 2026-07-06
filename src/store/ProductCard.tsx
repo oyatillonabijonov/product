@@ -36,7 +36,7 @@ const ProductCard: FC<{
           {isNew ? t.badgeNew : t.badgeUsed}
         </span>
         {disc !== null && (
-          <span className="absolute top-3 right-3 text-[11px] font-bold px-2 py-1 rounded-full bg-sale text-white shadow-sm">
+          <span className="absolute top-3 right-3 text-[11px] font-bold px-2 py-1 rounded-full bg-sale text-white">
             -{disc}%
           </span>
         )}

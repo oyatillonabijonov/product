@@ -89,7 +89,7 @@ const FaqSection: FC<{ title: string; content: string }> = ({ title, content }) 
   return (
     <section id="faq" className="flex flex-col items-center gap-8 py-2 scroll-mt-28">
       <h2 className="text-[26px] md:text-[34px] font-semibold tracking-[-0.02em] text-center">{title}</h2>
-      <div className="w-full max-w-[760px] flex flex-col gap-3">
+      <div className="w-full flex flex-col gap-3">
         {items.map((item, i) => (
           <FaqRow key={i} item={item} isOpen={open === i} onToggle={() => setOpen(open === i ? null : i)} />
         ))}
