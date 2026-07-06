@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import type { FC } from 'react';
-import { useOutletContext } from 'react-router';
 import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck, ShoppingCart } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
@@ -13,7 +12,6 @@ import Gallery from './Gallery';
 import LocaleLink from './LocaleLink';
 import ProductGrid from './ProductGrid';
 import TermSegments from './TermSegments';
-import type { StoreContext } from './StoreLayout';
 
 const ProductPage: FC<{
   t: Translation; product: ProductDetail; config: InstallmentConfig; similar: Product[]; site: ApiSiteConfig;
@@ -23,8 +21,7 @@ const ProductPage: FC<{
   // Default — sozlamalardagi eng uzun muddat (qattiq 12 emas: admin muddatlarni o'zgartirsa
   // tanlanmagan segment + noto'g'ri yorliq chiqib qolardi).
   const [months, setMonths] = useState(() => config.terms[config.terms.length - 1]?.months ?? 12);
-  const { config: siteCfg } = useOutletContext<StoreContext>();
-  const showInstallment = siteCfg.paymentMode !== 'cash';
+  const showInstallment = site.paymentMode !== 'cash';
   // Boshlang'ich to'lov foizi — min (config.downPaymentPercent) dan max (downPaymentMaxPercent) gacha slider.
   const [downPct, setDownPct] = useState(config.downPaymentPercent);
   const [selection, setSelection] = useState<VariantSelection | null>(
