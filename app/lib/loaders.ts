@@ -35,7 +35,8 @@ function mapProduct(p: ApiProduct): Product {
   };
 }
 function mapConfig(s: ApiSettings): InstallmentConfig {
-  return { downPaymentPercent: s.downPaymentPercent, usdToUzs: s.usdToUzs, terms: s.terms };
+  // ponytail: downPaymentMaxPercent stopgap default — Task 3 buni s.downPaymentMaxPercent'ga ulaydi
+  return { downPaymentPercent: s.downPaymentPercent, downPaymentMaxPercent: 90, usdToUzs: s.usdToUzs, terms: s.terms };
 }
 
 export async function loadCategories(env: Env): Promise<ApiCategory[]> {
