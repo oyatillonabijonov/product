@@ -2,17 +2,22 @@ import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import type { ApiBrand, ApiCategory, ApiDeviceModel, ApiProduct, ApiSpec, Category, Condition } from '../../shared/types';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
-import { createProduct, getProductDetail, listBrands, listCategories, listDeviceModels, updateProduct } from './api';
-import VariantEditor from './VariantEditor';
-import type { EditableVariant } from './VariantEditor';
+import { createProduct, getProductDetail, listBrands, listCategories, listDeviceModels, updateProduct, uploadImage } from './api';
+import type { AdminVariantInput } from './api';
 import ModelCombobox from './ModelCombobox';
 import PriceInput from './PriceInput';
 import ImageUploader from './ImageUploader';
 import { generateVariants } from './lib/variant-gen';
+import { normalizeImage } from './lib/image-normalize';
 import { modelToSpecs, mergeSpecs } from './lib/models';
 import { errText } from './errText';
 
 const STORAGE_VALUES = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB'];
+const COLOR_VALUES = ['Qora', 'Oq', 'Kulrang', "Ko'k", 'Yashil', 'Qizil', 'Tillarang', 'Pushti'];
+/** Variant yorlig'i — o'qlar doim shu tartibda (Xotira · Rang). */
+const AXES = ['Xotira', 'Rang'];
+const variantLabel = (v: AdminVariantInput) =>
+  AXES.map((ax) => v.optionValues.find((ov) => ov.optionName === ax)?.value).filter(Boolean).join(' · ');
 
 interface FormState {
   name: string;
@@ -31,7 +36,7 @@ interface FormState {
   brandId: string | null;
   slug: string;
   options: { name: string; values: string[] }[];
-  variants: EditableVariant[];
+  variants: AdminVariantInput[];
 }
 
 const empty: FormState = {
@@ -56,6 +61,8 @@ const ProductForm: FC<{
   // PUT (replace-all) mavjud mahsulotni o'chirib yuborardi.
   const [loadState, setLoadState] = useState<'ready' | 'loading' | 'error'>('ready');
   const [loadRetry, setLoadRetry] = useState(0);
+  const [colorDraft, setColorDraft] = useState('');
+  const [busyRow, setBusyRow] = useState<number | null>(null);
 
   useEffect(() => { listCategories().then(setCategories).catch(() => setError('Kategoriyalar yuklanmadi')); }, []);
   useEffect(() => { listBrands().then(setBrands).catch(() => setError('Brendlar yuklanmadi')); }, []);
@@ -114,16 +121,59 @@ const ProductForm: FC<{
     }));
   }
 
+  /** Bitta o'q (Xotira/Rang) qiymatlarini yangilab, variantlarni qayta generatsiya qiladi. */
+  function setAxisValues(f: FormState, axis: string, values: string[]): FormState {
+    const others = f.options.filter((o) => o.name !== axis);
+    const options = values.length ? [...others, { name: axis, values }] : others;
+    return { ...f, options, variants: generateVariants(options, f.variants) };
+  }
+
   function toggleStorage(v: string) {
     setDirty(true);
     setForm((f) => {
       const current = f.options.find((o) => o.name === 'Xotira')?.values ?? [];
-      const nextValues = (current.includes(v) ? current.filter((x) => x !== v) : [...current, v])
+      const next = (current.includes(v) ? current.filter((x) => x !== v) : [...current, v])
         .sort((a, b) => STORAGE_VALUES.indexOf(a) - STORAGE_VALUES.indexOf(b));
-      const others = f.options.filter((o) => o.name !== 'Xotira');
-      const options = nextValues.length ? [...others, { name: 'Xotira', values: nextValues }] : others;
-      return { ...f, options, variants: generateVariants(options, f.variants) };
+      return setAxisValues(f, 'Xotira', next);
     });
+  }
+
+  function toggleColor(v: string) {
+    setDirty(true);
+    setForm((f) => {
+      const current = f.options.find((o) => o.name === 'Rang')?.values ?? [];
+      const next = current.includes(v) ? current.filter((x) => x !== v) : [...current, v];
+      return setAxisValues(f, 'Rang', next);
+    });
+  }
+
+  function addCustomColor() {
+    const c = colorDraft.trim();
+    setColorDraft('');
+    if (!c) return;
+    setDirty(true);
+    setForm((f) => {
+      const current = f.options.find((o) => o.name === 'Rang')?.values ?? [];
+      if (current.includes(c)) return f;
+      return setAxisValues(f, 'Rang', [...current, c]);
+    });
+  }
+
+  function updateVariant(i: number, patch: Partial<AdminVariantInput>) {
+    setDirty(true);
+    setForm((f) => ({ ...f, variants: f.variants.map((v, j) => (j === i ? { ...v, ...patch } : v)) }));
+  }
+
+  async function uploadVariantImage(i: number, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusyRow(i);
+    try {
+      const { imageUrl } = await uploadImage(await normalizeImage(file));
+      updateVariant(i, { imageUrl });
+    } finally {
+      setBusyRow(null);
+    }
   }
 
   async function save() {
@@ -234,32 +284,81 @@ const ProductForm: FC<{
           <input
             type="checkbox"
             checked={form.condition === 'ishlatilgan'}
-            onChange={(e) => set('condition', e.target.checked ? 'ishlatilgan' : 'yangi')}
+            onChange={(e) => {
+              // Ishlatilgan — bitta dona, variant yo'q. Yangiga qaytса ham chiplardan qayta yasaladi.
+              setDirty(true);
+              setForm((f) => (e.target.checked
+                ? { ...f, condition: 'ishlatilgan', options: [], variants: [] }
+                : { ...f, condition: 'yangi' }));
+            }}
           />
           Ishlatilgan
         </label>
       </div>
 
-      <div className="mt-4">
-        <div className="text-[13px] text-muted mb-2">Xotira (har biri alohida narxli variant bo'ladi)</div>
-        <div className="flex flex-wrap gap-2">
-          {STORAGE_VALUES.map((v) => {
-            const selected = (form.options.find((o) => o.name === 'Xotira')?.values ?? []).includes(v);
-            return (
-              <button
-                key={v}
-                type="button"
-                onClick={() => toggleStorage(v)}
-                className={`rounded-full px-4 py-1.5 text-[13px] font-semibold border transition-colors ${
-                  selected ? 'bg-accent text-white border-accent' : 'border-line text-primary hover:border-accent'
-                }`}
-              >
-                {v}
-              </button>
-            );
-          })}
+      {form.condition === 'yangi' && (
+        <div className="mt-5 border border-line rounded-2xl p-4">
+          <div className="text-[14px] font-semibold">Variantlar</div>
+          <div className="text-[12px] text-muted mb-3">Xotira va rangni tanlang — har birikma alohida narxli variant bo'ladi. Tanlamasangiz, yuqoridagi bitta narx ishlaydi (aksessuar uchun).</div>
+
+          <div className="text-[13px] text-muted mb-2">Xotira</div>
+          <div className="flex flex-wrap gap-2">
+            {STORAGE_VALUES.map((v) => {
+              const selected = (form.options.find((o) => o.name === 'Xotira')?.values ?? []).includes(v);
+              return (
+                <button key={v} type="button" onClick={() => toggleStorage(v)}
+                  className={`rounded-full px-4 py-1.5 text-[13px] font-semibold border transition-colors ${selected ? 'bg-accent text-white border-accent' : 'border-line text-primary hover:border-accent'}`}>
+                  {v}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="text-[13px] text-muted mb-2 mt-4">Rang</div>
+          <div className="flex flex-wrap gap-2 items-center">
+            {(() => {
+              const cur = form.options.find((o) => o.name === 'Rang')?.values ?? [];
+              const custom = cur.filter((c) => !COLOR_VALUES.includes(c));
+              return [...COLOR_VALUES, ...custom].map((c) => {
+                const selected = cur.includes(c);
+                return (
+                  <button key={c} type="button" onClick={() => toggleColor(c)}
+                    className={`rounded-full px-4 py-1.5 text-[13px] font-semibold border transition-colors ${selected ? 'bg-accent text-white border-accent' : 'border-line text-primary hover:border-accent'}`}>
+                    {c}
+                  </button>
+                );
+              });
+            })()}
+            <input
+              placeholder="+ boshqa rang"
+              className="border border-line rounded-full px-3 py-1.5 text-[13px] w-32 focus:outline-none focus:border-accent"
+              value={colorDraft}
+              onChange={(e) => setColorDraft(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomColor(); } }}
+              onBlur={addCustomColor}
+            />
+          </div>
+
+          {form.variants.length > 0 && (
+            <div className="mt-4">
+              <div className="text-[13px] text-muted mb-2">Har variant narxi va rasmi</div>
+              <div className="space-y-2">
+                {form.variants.map((v, i) => (
+                  <div key={i} className="flex items-center gap-3 border border-line rounded-xl p-2.5 flex-wrap">
+                    <span className="text-[13px] font-semibold min-w-[110px]">{variantLabel(v)}</span>
+                    <PriceInput placeholder="Narx" className="w-40 border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent" value={v.cashPriceUzs} onChange={(n) => updateVariant(i, { cashPriceUzs: n })} />
+                    {v.imageUrl ? <img src={v.imageUrl} alt="" className="w-10 h-10 object-contain rounded-lg bg-bg border border-line" /> : null}
+                    <label className={`text-[13px] font-semibold cursor-pointer ${busyRow === i ? 'text-muted' : 'text-accent'}`}>
+                      {busyRow === i ? 'Yuklanmoqda…' : v.imageUrl ? 'Rasmni almashtirish' : '+ rasm'}
+                      <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" disabled={busyRow === i} onChange={(e) => uploadVariantImage(i, e)} />
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
       <div className="mt-4">
         <ImageUploader
@@ -292,13 +391,6 @@ const ProductForm: FC<{
         </div>
         <button onClick={() => set('specs', [...form.specs, { label: '', value: '' }])} className="text-[13px] text-accent font-semibold mt-2">+ xususiyat qo'shish</button>
       </div>
-
-      <VariantEditor
-        options={form.options}
-        variants={form.variants}
-        onOptionsChange={(next) => set('options', next)}
-        onVariantsChange={(next) => set('variants', next)}
-      />
 
       <label className="mt-4 flex items-center gap-2 text-[14px]">
         <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} />
