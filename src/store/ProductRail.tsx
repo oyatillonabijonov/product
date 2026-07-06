@@ -17,7 +17,8 @@ const ProductRail: FC<{
           {t.railAll} <ChevronRight className="w-4 h-4" />
         </LocaleLink>
       </div>
-      <div className="flex overflow-x-auto snap-x gap-4 no-scrollbar pb-1 -mx-4 px-4">
+      {/* ponytail: py-3 beradi -6px hover ko'tarilishi + soyaga joy — overflow-x-auto vertikalни ham clip qiladi */}
+      <div className="flex overflow-x-auto snap-x gap-4 no-scrollbar py-3 -my-3 -mx-4 px-4">
         {items.map((p) => (
           <div key={p.id} className="w-[220px] md:w-[260px] shrink-0 snap-start flex">
             <ProductCard t={t} product={p} config={config} />

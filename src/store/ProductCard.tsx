@@ -44,7 +44,7 @@ const ProductCard: FC<{
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.06]"
+            className="w-full h-full object-contain"
             loading={eager ? 'eager' : 'lazy'}
             fetchPriority={eager ? 'high' : undefined}
             referrerPolicy="no-referrer"
