@@ -7,6 +7,7 @@ import {
 
 const config: InstallmentConfig = {
   downPaymentPercent: 20,
+  downPaymentMaxPercent: 90,
   usdToUzs: 12600,
   terms: [
     { months: 3, markup: 0.1 },
@@ -50,6 +51,15 @@ describe('calcInstallment', () => {
     expect(r.total).toBe(1_000_000);
     expect(r.downPaymentUzs).toBe(1_000_000);
     expect(r.monthly).toBe(0);
+  });
+
+  it('berilgan downPaymentUzs ustama narxdan ayriladi', () => {
+    const term: Term = { months: 12, markup: 0.42 };
+    // total = 10m×1.42 = 14.2m; down = 5m; monthly = (14.2m−5m)/12
+    const r = calcInstallment(product, term, config, 5_000_000);
+    expect(r.total).toBe(14_200_000);
+    expect(r.downPaymentUzs).toBe(5_000_000);
+    expect(r.monthly).toBeCloseTo(766_666.67, 2);
   });
 });
 

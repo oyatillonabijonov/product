@@ -13,11 +13,12 @@ export function calcInstallment(
   product: Product,
   term: Term,
   config: InstallmentConfig,
+  downPaymentUzs?: number,
 ): InstallmentResult {
   const total = product.cashPriceUzs * (1 + term.markup);
-  const downPaymentUzs = product.cashPriceUzs * (config.downPaymentPercent / 100);
-  const monthly = Math.max(0, (total - downPaymentUzs) / term.months);
-  return { total, downPaymentUzs, monthly };
+  const down = downPaymentUzs ?? product.cashPriceUzs * (config.downPaymentPercent / 100);
+  const monthly = Math.max(0, (total - down) / term.months);
+  return { total, downPaymentUzs: down, monthly };
 }
 
 /** Eng past oylik to'lov (eng uzoq muddat) — katalog kartasi uchun. */

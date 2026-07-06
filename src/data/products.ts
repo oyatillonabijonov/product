@@ -42,8 +42,10 @@ export interface Term {
 }
 
 export interface InstallmentConfig {
-  /** Boshlang'ich to'lov narxdan foizi (20 = 20%). */
+  /** Boshlang'ich to'lov narxdan foizi (20 = 20%) — minimum. */
   downPaymentPercent: number;
+  /** Boshlang'ich to'lovning maksimal foizi (slider ustki chegarasi, masalan 90). */
+  downPaymentMaxPercent: number;
   /** Kurs — admin ma'lumoti/narx kiritish uchun (hisobga kirmaydi). */
   usdToUzs: number;
   terms: Term[];
@@ -76,6 +78,7 @@ export function fallbackCategoryOf(p: Product): string | null {
 
 export const installmentConfig: InstallmentConfig = {
   downPaymentPercent: 20, // NAMUNA — admin o'zgartiradi
+  downPaymentMaxPercent: 90, // NAMUNA — slider maksimumi
   usdToUzs: 12600, // NAMUNA kurs
   terms: [
     { months: 3, markup: 0.1 },
