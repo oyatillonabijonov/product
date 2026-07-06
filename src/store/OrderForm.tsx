@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import type { FC } from 'react';
+import { useOutletContext } from 'react-router';
 import { X, Send } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { OrderInput } from '../../shared/types';
+import type { StoreContext } from './StoreLayout';
 
 /** Ism/telefonsiz tayyor buyurtma — chaqiruvchi (ProductPage/CartPage) to'ldiradi. */
 export type OrderDraft = Omit<OrderInput, 'name' | 'phone' | 'note'> & { title: string };
 
 const OrderForm: FC<{ t: Translation; draft: OrderDraft; onClose: () => void }> = ({ t, draft, onClose }) => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('+998 ');
+  const { customer } = useOutletContext<StoreContext>();
+  const [name, setName] = useState(customer?.name ?? '');
+  const [phone, setPhone] = useState(customer?.phone ?? '+998 ');
   const [company, setCompany] = useState(''); // honeypot
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);

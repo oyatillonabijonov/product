@@ -137,10 +137,26 @@ export interface ApiSiteConfig {
   seoDescription: string;
   ogImage: string;
   paymentMode: PaymentMode;
-  /** Telegram bot tokeni — buyurtmalarni botga yuborish uchun (D1'da, admin tahrirlaydi). */
+  /** Telegram bot tokeni — buyurtmalarni botga yuborish uchun (D1'da, admin tahrirlaydi). SIR. */
   telegramBotToken: string;
   /** Buyurtma tushadigan Telegram chat/guruh id'si. */
   telegramOrderChatId: string;
+  /** Google OAuth client id (ommaviy). */
+  googleClientId: string;
+  /** Google OAuth client secret. SIR. */
+  googleClientSecret: string;
+  /** Telegram Login Widget bot username (ommaviy). */
+  telegramLoginBot: string;
+  /** Mijoz sessiya siri — runtime'da generatsiya qilinadi. SIR. */
+  customerSessionSecret: string;
+}
+
+export interface ApiCustomer {
+  id: number;
+  createdAt: number;
+  name: string;
+  phone: string | null;
+  email: string | null;
 }
 
 export type OrderPaymentKind = 'cash' | 'installment';

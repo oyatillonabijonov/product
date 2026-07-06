@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router';
-import { Search, ShoppingCart, Menu, Globe } from 'lucide-react';
+import { Search, ShoppingCart, Menu, Globe, User } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
@@ -18,6 +18,7 @@ export default function Header({
   pageLinks,
   categories: cats,
   brandName,
+  customerName,
 }: {
   t: Translation;
   lang: LangKey;
@@ -26,6 +27,8 @@ export default function Header({
   /** Store layout loader'idan (SSR) — klientda qayta so'ralmaydi. */
   categories: ApiCategory[];
   brandName: string;
+  /** Kirgan mijoz nomi, yoki null (kirmagan). */
+  customerName: string | null;
 }) {
   const [q, setQ] = useState('');
   const [catOpen, setCatOpen] = useState(false);
@@ -145,6 +148,15 @@ export default function Header({
               {count}
             </span>
           )}
+        </Link>
+
+        <Link
+          to={localizedPath(locale, customerName !== null ? '/kabinet' : '/kirish')}
+          className="text-muted hover:text-primary transition-colors"
+          aria-label={customerName !== null ? (customerName || t.accountTitle) : t.loginTitle}
+          title={customerName !== null ? (customerName || t.accountTitle) : t.loginTitle}
+        >
+          <User className="w-5 h-5" />
         </Link>
 
         <div className="relative flex items-center text-muted hover:text-primary transition-colors rounded-md focus-within:ring-2 focus-within:ring-accent/50">

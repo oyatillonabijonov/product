@@ -17,6 +17,9 @@ const FIELDS: { key: keyof ApiSiteConfig; label: string; placeholder?: string; s
   { key: 'ogImage', label: 'OG rasm yo\'li' },
   { key: 'telegramBotToken', label: 'Telegram bot tokeni (buyurtmalar uchun)', secret: true, placeholder: '123456:ABC-...' },
   { key: 'telegramOrderChatId', label: 'Buyurtma chat/guruh ID', placeholder: '-1001234567890' },
+  { key: 'telegramLoginBot', label: 'Telegram login bot username', placeholder: 'my_login_bot' },
+  { key: 'googleClientId', label: 'Google OAuth client ID' },
+  { key: 'googleClientSecret', label: 'Google OAuth client secret', secret: true },
 ];
 
 export default function SiteConfigForm() {

@@ -237,6 +237,10 @@ export function staticSiteConfigAsApi(): ApiSiteConfig {
     paymentMode: 'both',
     telegramBotToken: '',
     telegramOrderChatId: '',
+    googleClientId: '',
+    googleClientSecret: '',
+    telegramLoginBot: '',
+    customerSessionSecret: '',
   };
 }
 
@@ -254,7 +258,7 @@ export async function loadSiteConfig(env: Env): Promise<ApiSiteConfig> {
 /** Storefront klientiga (loader → HTML) yuboriladigan config — sirlar olib tashlanadi.
  * Bot token / OAuth secret / sessiya siri faqat server-side (api.order, auth, admin) o'qiladi. */
 export function publicSiteConfig(cfg: ApiSiteConfig): ApiSiteConfig {
-  return { ...cfg, telegramBotToken: '' };
+  return { ...cfg, telegramBotToken: '', googleClientSecret: '', customerSessionSecret: '' };
 }
 
 export async function loadBanners(env: Env): Promise<ApiBanner[]> {

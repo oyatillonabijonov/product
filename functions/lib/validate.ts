@@ -350,6 +350,11 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
     paymentMode,
     telegramBotToken: opt('telegramBotToken'),
     telegramOrderChatId: opt('telegramOrderChatId'),
+    googleClientId: opt('googleClientId'),
+    googleClientSecret: opt('googleClientSecret'),
+    telegramLoginBot: opt('telegramLoginBot'),
+    // Server tomonidan boshqariladi (runtime generatsiya) — body'dan kelmaydi, yozuvda saqlanadi.
+    customerSessionSecret: '',
   };
 }
 

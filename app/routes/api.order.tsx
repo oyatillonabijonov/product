@@ -1,6 +1,7 @@
 import type { Route } from './+types/api.order';
 import { json, rowToSiteConfig, type SiteConfigRow } from '../../functions/lib/db';
 import { parseOrderInput, ValidationError } from '../../functions/lib/validate';
+import { customerIdFrom } from '../../functions/lib/customer-auth';
 import { composeOrderMessage } from '../../shared/order';
 
 // Ommaviy buyurtma endpoint'i (auth yo'q). Honeypot + validatsiya spam'ga qarshi.
@@ -24,6 +25,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   // site_config — bot token/chat + brend nomi.
   const cfgRow = await env.DB.prepare('SELECT * FROM site_config WHERE id = 1').first<SiteConfigRow>();
   const cfg = cfgRow ? rowToSiteConfig(cfgRow) : null;
+  // customer_id sessiyadan (serverda) — klient body'siga ishonilmaydi.
+  const customerId = cfg?.customerSessionSecret ? await customerIdFrom(request, cfg.customerSessionSecret) : null;
 
   // Telegramga yuborish (xato bo'lsa ham quyida D1'ga saqlanadi — telegram_sent=0).
   // ponytail: mijoz yuborgan narxlar saqlanadi — bu lead, operator qo'ng'iroqda tasdiqlaydi;
@@ -43,12 +46,12 @@ export async function action({ request, context }: Route.ActionArgs) {
   }
 
   await env.DB.prepare(
-    'INSERT INTO orders (name, phone, note, payment_kind, term_months, down_payment_uzs, monthly_uzs, total_uzs, items_json, source, telegram_sent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO orders (name, phone, note, payment_kind, term_months, down_payment_uzs, monthly_uzs, total_uzs, items_json, source, telegram_sent, customer_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
   )
     .bind(
       input.name, input.phone, input.note, input.paymentKind,
       input.termMonths, input.downPaymentUzs, input.monthlyUzs, input.totalUzs,
-      JSON.stringify(input.items), input.source, telegramSent,
+      JSON.stringify(input.items), input.source, telegramSent, customerId,
     )
     .run();
 

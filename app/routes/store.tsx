@@ -2,6 +2,9 @@ import { Outlet, isRouteErrorResponse, redirect, useLoaderData, useLocation, use
 import type { Route } from './+types/store';
 import { resolveLocale, localeToLang, localizedPath, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
 import { loadSiteConfig, loadPages, loadCategories, publicSiteConfig, type PageLink } from '../lib/loaders';
+import { loadCustomer } from '../../functions/lib/db';
+import { getCookie, verifySession } from '../../functions/lib/auth';
+import type { ApiCustomer } from '../../shared/types';
 import { translations } from '../../src/locales';
 import StoreLayout from '../../src/store/StoreLayout';
 
@@ -20,18 +23,25 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   // (crawler ichki linklarni ko'radi) va klientdagi qo'shimcha /api/categories so'rovi yo'qoladi.
   const [siteConfig, pages, categories] = await Promise.all([loadSiteConfig(env), loadPages(env), loadCategories(env)]);
   const pageLinks: PageLink[] = pages.map((p) => ({ slug: p.slug, title: p.title }));
+  // Kirgan mijoz — sessiya sirini allaqachon yuklangan siteConfig'dan olamiz (qo'shimcha D1 o'qishsiz).
+  const token = getCookie(request, 'customer_session');
+  let customer: ApiCustomer | null = null;
+  if (token && siteConfig.customerSessionSecret) {
+    const cid = await verifySession(token, siteConfig.customerSessionSecret, Math.floor(Date.now() / 1000));
+    if (cid) customer = await loadCustomer(env, Number(cid));
+  }
   // origin — root.tsx'dagi hreflang va route meta'lardagi absolut URL'lar uchun.
-  // publicSiteConfig — sirlar (bot token, keyin OAuth secret) klientga (HTML) chiqmasin.
-  return { locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, origin: new URL(request.url).origin };
+  // publicSiteConfig — sirlar (bot token, OAuth secret, sessiya siri) klientga (HTML) chiqmasin.
+  return { locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, origin: new URL(request.url).origin };
 }
 
 export default function StoreRoot() {
-  const { locale, siteConfig, pageLinks, categories } = useLoaderData<typeof loader>();
+  const { locale, siteConfig, pageLinks, categories, customer } = useLoaderData<typeof loader>();
   const lang = localeToLang(locale);
   const t = translations[lang];
   return (
-    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} pageLinks={pageLinks} categories={categories}>
-      <Outlet context={{ t, lang, locale, config: siteConfig }} />
+    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories}>
+      <Outlet context={{ t, lang, locale, config: siteConfig, customer }} />
     </StoreLayout>
   );
 }

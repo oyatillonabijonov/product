@@ -13,6 +13,7 @@ import type {
   ApiSettings,
   ApiVariant,
   ApiOrder,
+  ApiCustomer,
   OrderItemInput,
   OrderPaymentKind,
   OrderSource,
@@ -467,6 +468,10 @@ export interface SiteConfigRow {
   payment_mode: string;
   telegram_bot_token: string;
   telegram_order_chat_id: string;
+  google_client_id: string;
+  google_client_secret: string;
+  telegram_login_bot: string;
+  customer_session_secret: string;
 }
 
 export interface DeviceModelRow {
@@ -492,7 +497,49 @@ export function rowToSiteConfig(r: SiteConfigRow): ApiSiteConfig {
     seoTitleSuffix: r.seo_title_suffix, seoDescription: r.seo_description, ogImage: r.og_image,
     paymentMode: (r.payment_mode === 'cash' || r.payment_mode === 'installment') ? r.payment_mode : 'both',
     telegramBotToken: r.telegram_bot_token, telegramOrderChatId: r.telegram_order_chat_id,
+    googleClientId: r.google_client_id, googleClientSecret: r.google_client_secret,
+    telegramLoginBot: r.telegram_login_bot, customerSessionSecret: r.customer_session_secret,
   };
+}
+
+export interface CustomerRow {
+  id: number; created_at: number; name: string;
+  phone: string | null; email: string | null;
+  google_sub: string | null; telegram_id: string | null;
+}
+
+export function rowToCustomer(r: CustomerRow): ApiCustomer {
+  return { id: r.id, createdAt: r.created_at, name: r.name, phone: r.phone, email: r.email };
+}
+
+export async function loadCustomer(env: Env, id: number): Promise<ApiCustomer | null> {
+  const row = await env.DB.prepare('SELECT * FROM customers WHERE id = ?').bind(id).first<CustomerRow>();
+  return row ? rowToCustomer(row) : null;
+}
+
+export async function loadCustomerOrders(env: Env, id: number): Promise<ApiOrder[]> {
+  const { results } = await env.DB.prepare(
+    'SELECT * FROM orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT 100',
+  ).bind(id).all<OrderRow>();
+  return results.map(rowToOrder);
+}
+
+/** Google `sub` bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */
+export async function upsertCustomerByGoogle(env: Env, sub: string, email: string, name: string): Promise<number> {
+  const existing = await env.DB.prepare('SELECT id FROM customers WHERE google_sub = ?').bind(sub).first<{ id: number }>();
+  if (existing) return existing.id;
+  const res = await env.DB.prepare('INSERT INTO customers (name, email, google_sub) VALUES (?, ?, ?)')
+    .bind(name, email, sub).run();
+  return Number(res.meta.last_row_id);
+}
+
+/** Telegram user id bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */
+export async function upsertCustomerByTelegram(env: Env, telegramId: string, name: string): Promise<number> {
+  const existing = await env.DB.prepare('SELECT id FROM customers WHERE telegram_id = ?').bind(telegramId).first<{ id: number }>();
+  if (existing) return existing.id;
+  const res = await env.DB.prepare('INSERT INTO customers (name, telegram_id) VALUES (?, ?)')
+    .bind(name, telegramId).run();
+  return Number(res.meta.last_row_id);
 }
 
 export interface OrderRow {
