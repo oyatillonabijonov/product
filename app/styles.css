@@ -9,7 +9,7 @@
   --color-primary: #121417;
   --color-accent: #0A0A0A; /* Apple Devices Store skin — qora asosiy accent (ko'k emas) */
   --color-bg: #F4F5F7;
-  --color-trust: #1B7A34;
+  --color-trust: #2E3238; /* yashil o'rniga neytral to'q (ink) — coral faqat chegirmaga qoladi */
   --color-sale: #E8404B; /* coral — chegirma/badge */
   --color-body: #454A52;
   --color-muted: #5A5F66;
@@ -28,7 +28,7 @@
   --color-line-3: #EDEFF2;
   --color-divider: #F0F1F4;
   --color-segment: #EFF1F4;
-  --color-trust-soft: #E8F5E9;
+  --color-trust-soft: #EDEFF2;
   --color-danger: #E30000;
 }
 
