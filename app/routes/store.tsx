@@ -1,7 +1,7 @@
 import { Outlet, isRouteErrorResponse, redirect, useLoaderData, useLocation, useRouteError } from 'react-router';
 import type { Route } from './+types/store';
 import { resolveLocale, localeToLang, localizedPath, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
-import { loadSiteConfig, loadPages, loadCategories, type PageLink } from '../lib/loaders';
+import { loadSiteConfig, loadPages, loadCategories, publicSiteConfig, type PageLink } from '../lib/loaders';
 import { translations } from '../../src/locales';
 import StoreLayout from '../../src/store/StoreLayout';
 
@@ -21,7 +21,8 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const [siteConfig, pages, categories] = await Promise.all([loadSiteConfig(env), loadPages(env), loadCategories(env)]);
   const pageLinks: PageLink[] = pages.map((p) => ({ slug: p.slug, title: p.title }));
   // origin — root.tsx'dagi hreflang va route meta'lardagi absolut URL'lar uchun.
-  return { locale, siteConfig, pageLinks, categories, origin: new URL(request.url).origin };
+  // publicSiteConfig — sirlar (bot token, keyin OAuth secret) klientga (HTML) chiqmasin.
+  return { locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, origin: new URL(request.url).origin };
 }
 
 export default function StoreRoot() {

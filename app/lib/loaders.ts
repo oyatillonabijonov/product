@@ -251,6 +251,12 @@ export async function loadSiteConfig(env: Env): Promise<ApiSiteConfig> {
   }
 }
 
+/** Storefront klientiga (loader → HTML) yuboriladigan config — sirlar olib tashlanadi.
+ * Bot token / OAuth secret / sessiya siri faqat server-side (api.order, auth, admin) o'qiladi. */
+export function publicSiteConfig(cfg: ApiSiteConfig): ApiSiteConfig {
+  return { ...cfg, telegramBotToken: '' };
+}
+
 export async function loadBanners(env: Env): Promise<ApiBanner[]> {
   try {
     const { results } = await env.DB.prepare('SELECT * FROM banners WHERE is_active = 1 ORDER BY sort_order ASC').all<BannerRow>();
