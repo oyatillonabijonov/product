@@ -3,7 +3,7 @@ import type { ApiSiteConfig } from '../../shared/types';
 import { getSiteConfig, updateSiteConfig } from './api';
 import { errText } from './errText';
 
-const FIELDS: { key: keyof ApiSiteConfig; label: string; placeholder?: string }[] = [
+const FIELDS: { key: keyof ApiSiteConfig; label: string; placeholder?: string; secret?: boolean }[] = [
   { key: 'name', label: 'Do\'kon nomi' },
   { key: 'phone', label: 'Telefon (tel: format)', placeholder: '+998901234567' },
   { key: 'phoneDisplay', label: 'Telefon (ko\'rinish)', placeholder: '+998 (90) 123-45-67' },
@@ -15,6 +15,8 @@ const FIELDS: { key: keyof ApiSiteConfig; label: string; placeholder?: string }[
   { key: 'seoTitleSuffix', label: 'SEO title suffiksi' },
   { key: 'seoDescription', label: 'SEO tavsif' },
   { key: 'ogImage', label: 'OG rasm yo\'li' },
+  { key: 'telegramBotToken', label: 'Telegram bot tokeni (buyurtmalar uchun)', secret: true, placeholder: '123456:ABC-...' },
+  { key: 'telegramOrderChatId', label: 'Buyurtma chat/guruh ID', placeholder: '-1001234567890' },
 ];
 
 export default function SiteConfigForm() {
@@ -44,6 +46,7 @@ export default function SiteConfigForm() {
         <label key={f.key} className="block text-[13px] text-muted">
           {f.label}
           <input
+            type={f.secret ? 'password' : 'text'}
             value={form[f.key]}
             placeholder={f.placeholder}
             onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}

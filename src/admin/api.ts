@@ -4,11 +4,13 @@ import type {
   ApiCategory,
   ApiDeviceModel,
   ApiOption,
+  ApiOrder,
   ApiProduct,
   ApiSettings,
   ApiSiteConfig,
   ApiSpec,
   ApiVariant,
+  OrderStatus,
 } from '../../shared/types';
 
 async function handle<T>(res: Response): Promise<T> {
@@ -240,6 +242,15 @@ export async function updateDeviceModel(id: string, m: Partial<ApiDeviceModel>):
 }
 export async function deleteDeviceModel(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/models/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function listOrders(): Promise<ApiOrder[]> {
+  return handle(await fetch('/api/admin/orders'));
+}
+export async function setOrderStatus(id: number, status: OrderStatus): Promise<{ ok: true }> {
+  return handle(await fetch(`/api/admin/orders/${id}`, {
+    method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status }),
+  }));
 }
 
 export async function getSiteConfig(): Promise<ApiSiteConfig> {

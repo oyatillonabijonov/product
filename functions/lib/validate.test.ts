@@ -7,6 +7,7 @@ import {
   parseSiteConfigInput,
   parseDeviceModelInput,
   parseSettingsInput,
+  parseOrderInput,
   ValidationError,
 } from './validate';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
@@ -294,5 +295,42 @@ describe('parseDeviceModelInput', () => {
   });
   it('rejects missing categoryId', () => {
     expect(() => parseDeviceModelInput({ name: 'X', brandId: 'apple' })).toThrow('categoryId_required');
+  });
+});
+
+describe('parseOrderInput', () => {
+  const item = { productId: 'imac', name: 'iMac', variantLabel: '256GB', qty: 1, priceUzs: 24_000_000 };
+  const cashBase = { name: 'Ali', phone: '+998 90 123 45 67', paymentKind: 'cash', source: 'product', items: [item] };
+
+  it('naqd buyurtmani qabul qiladi, muddatli maydonlarni null qiladi', () => {
+    const o = parseOrderInput(cashBase);
+    expect(o.paymentKind).toBe('cash');
+    expect(o.termMonths).toBeNull();
+    expect(o.monthlyUzs).toBeNull();
+    expect(o.items).toHaveLength(1);
+    expect(o.items[0].priceUzs).toBe(24_000_000);
+  });
+
+  it('muddatli buyurtmada narx maydonlarini saqlaydi', () => {
+    const o = parseOrderInput({ ...cashBase, paymentKind: 'installment', termMonths: 12, downPaymentUzs: 4_800_000, monthlyUzs: 2_440_000, totalUzs: 34_080_000 });
+    expect(o.paymentKind).toBe('installment');
+    expect(o.termMonths).toBe(12);
+    expect(o.monthlyUzs).toBe(2_440_000);
+  });
+
+  it("ism yo'q bo'lsa rad etadi", () => {
+    expect(() => parseOrderInput({ ...cashBase, name: '' })).toThrow(ValidationError);
+  });
+  it("telefon juda qisqa bo'lsa rad etadi", () => {
+    expect(() => parseOrderInput({ ...cashBase, phone: '123' })).toThrow('phone_invalid');
+  });
+  it("noto'g'ri paymentKind rad etadi", () => {
+    expect(() => parseOrderInput({ ...cashBase, paymentKind: 'card' })).toThrow('payment_kind_invalid');
+  });
+  it("bo'sh items rad etadi", () => {
+    expect(() => parseOrderInput({ ...cashBase, items: [] })).toThrow('items_required');
+  });
+  it("manfiy narxli item rad etadi", () => {
+    expect(() => parseOrderInput({ ...cashBase, items: [{ ...item, priceUzs: 0 }] })).toThrow('price_positive');
   });
 });

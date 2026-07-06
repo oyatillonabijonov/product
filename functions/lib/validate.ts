@@ -6,6 +6,9 @@ import type {
   Category,
   Condition,
   LocalizedText,
+  OrderInput,
+  OrderItemInput,
+  OrderPaymentKind,
   PaymentMode,
   Term,
 } from '../../shared/types';
@@ -345,5 +348,51 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
     seoDescription: opt('seoDescription'),
     ogImage: opt('ogImage'),
     paymentMode,
+    telegramBotToken: opt('telegramBotToken'),
+    telegramOrderChatId: opt('telegramOrderChatId'),
+  };
+}
+
+const MAX_ORDER_ITEMS = 50;
+
+export function parseOrderInput(body: unknown): OrderInput {
+  const o = asRecord(body);
+  const name = reqString(o, 'name');
+  const phone = reqString(o, 'phone');
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 7 || digits.length > 15) throw new ValidationError('phone_invalid');
+  const paymentKind: OrderPaymentKind | null =
+    o.paymentKind === 'cash' ? 'cash' : o.paymentKind === 'installment' ? 'installment' : null;
+  if (!paymentKind) throw new ValidationError('payment_kind_invalid');
+  if (!Array.isArray(o.items) || o.items.length === 0) throw new ValidationError('items_required');
+  if (o.items.length > MAX_ORDER_ITEMS) throw new ValidationError('items_limit');
+  const items: OrderItemInput[] = o.items.map((raw) => {
+    const it = asRecord(raw);
+    const priceUzs = reqNumber(it, 'priceUzs');
+    if (priceUzs <= 0) throw new ValidationError('price_positive');
+    const qty = reqNumber(it, 'qty');
+    if (!Number.isInteger(qty) || qty <= 0) throw new ValidationError('qty_positive');
+    return {
+      productId: reqString(it, 'productId'),
+      name: reqString(it, 'name'),
+      variantLabel: typeof it.variantLabel === 'string' ? it.variantLabel : '',
+      qty,
+      priceUzs,
+    };
+  });
+  const num = (k: string): number | null =>
+    typeof o[k] === 'number' && Number.isFinite(o[k]) ? (o[k] as number) : null;
+  const installment = paymentKind === 'installment';
+  return {
+    name,
+    phone: phone.trim(),
+    note: typeof o.note === 'string' ? o.note.trim().slice(0, 500) : '',
+    paymentKind,
+    termMonths: installment ? num('termMonths') : null,
+    downPaymentUzs: installment ? num('downPaymentUzs') : null,
+    monthlyUzs: installment ? num('monthlyUzs') : null,
+    totalUzs: installment ? num('totalUzs') : null,
+    items,
+    source: o.source === 'cart' ? 'cart' : 'product',
   };
 }

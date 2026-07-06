@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react';
 import type { FC } from 'react';
-import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck, ShoppingCart } from 'lucide-react';
+import { ShieldCheck, BadgeCheck, ChevronRight, Truck, ShoppingCart } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
 import type { ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
-import { calcInstallment, composeLeadMessage, discountPercent, formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
+import { calcInstallment, discountPercent, formatUzs } from '../lib/installment';
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, type VariantSelection } from '../lib/variants';
 import { useCart } from './CartContext';
 import Gallery from './Gallery';
 import LocaleLink from './LocaleLink';
+import OrderForm, { type OrderDraft } from './OrderForm';
 import ProductGrid from './ProductGrid';
 import TermSegments from './TermSegments';
 
@@ -45,16 +46,21 @@ const ProductPage: FC<{
     ? [variant.imageUrl, ...product.images.filter((i) => i !== variant.imageUrl)]
     : product.images;
 
-  function order(channel: 'telegram' | 'whatsapp') {
-    if (!result || outOfStock) return;
+  const [draft, setDraft] = useState<OrderDraft | null>(null);
+  function openOrder(paymentKind: 'cash' | 'installment') {
+    if (outOfStock) return;
     const label = selection ? selectionLabel(product.options, selection) : '';
-    const productName = label ? `${product.name} (${label})` : product.name;
-    const msg = composeLeadMessage({
-      name: '', phone: '', product: productName, months,
-      monthly: formatUzs(result.monthly, t.sum), brand: site.name,
+    const installment = paymentKind === 'installment';
+    setDraft({
+      title: label ? `${product.name} (${label})` : product.name,
+      paymentKind,
+      termMonths: installment ? months : null,
+      downPaymentUzs: installment ? Math.round(result.downPaymentUzs) : null,
+      monthlyUzs: installment ? Math.round(result.monthly) : null,
+      totalUzs: installment ? Math.round(result.total) : null,
+      items: [{ productId: product.id, name: product.name, variantLabel: label, qty: 1, priceUzs: displayCash }],
+      source: 'product',
     });
-    const url = channel === 'telegram' ? telegramShareUrl(msg, site.telegram) : whatsappUrl(msg, site.whatsapp);
-    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   const cart = useCart();
@@ -196,13 +202,25 @@ const ProductPage: FC<{
           </button>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <button onClick={() => order('telegram')} disabled={outOfStock} className="flex-1 py-3.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-              <Send className="w-5 h-5" /> {t.formSendTelegram}
-            </button>
-            <button onClick={() => order('whatsapp')} disabled={outOfStock} className="flex-1 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-[#25D366] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-              {t.formSendWhatsapp}
-            </button>
+            {showInstallment && (
+              <button onClick={() => openOrder('installment')} disabled={outOfStock} className="flex-1 py-3.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                {t.orderBuyInstallment}
+              </button>
+            )}
+            {site.paymentMode !== 'installment' && (
+              <button onClick={() => openOrder('cash')} disabled={outOfStock} className="flex-1 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                {t.orderBuyCash}
+              </button>
+            )}
           </div>
+
+          {(site.telegram || site.whatsapp) && (
+            <div className="flex items-center gap-3 mt-3 text-[13px] text-muted">
+              <span>{t.orderAsk}</span>
+              {site.telegram && <a href={site.telegram} target="_blank" rel="noopener noreferrer" className="text-accent font-semibold hover:underline">Telegram</a>}
+              {site.whatsapp && <a href={site.whatsapp} target="_blank" rel="noopener noreferrer" className="text-accent font-semibold hover:underline">WhatsApp</a>}
+            </div>
+          )}
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-5 border-t border-divider text-[13px] text-muted">
             <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-trust" /> {t.trustShort}</span>
@@ -211,6 +229,8 @@ const ProductPage: FC<{
           </div>
         </div>
       </div>
+
+      {draft && <OrderForm t={t} draft={draft} onClose={() => setDraft(null)} />}
 
       {product.specs.length > 0 && (
         <div className="mt-12 max-w-2xl">

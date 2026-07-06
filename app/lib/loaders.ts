@@ -235,6 +235,8 @@ export function staticSiteConfigAsApi(): ApiSiteConfig {
     seoDescription: staticSiteConfig.seo.description,
     ogImage: staticSiteConfig.seo.ogImage,
     paymentMode: 'both',
+    telegramBotToken: '',
+    telegramOrderChatId: '',
   };
 }
 

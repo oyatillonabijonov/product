@@ -4,6 +4,7 @@ import {
   type Icon,
   ImageSquare,
   Package,
+  Receipt,
   SignOut,
   SquaresFour,
   Tag,
@@ -17,16 +18,18 @@ import BrandList from './BrandList';
 import CategoryList from './CategoryList';
 import Login from './Login';
 import ModelList from './ModelList';
+import OrdersPage from './OrdersPage';
 import ProductList from './ProductList';
 import SettingsForm from './SettingsForm';
 import SiteConfigForm from './SiteConfigForm';
 
-type Tab = 'products' | 'models' | 'settings' | 'categories' | 'brands' | 'banners';
+type Tab = 'products' | 'orders' | 'models' | 'settings' | 'categories' | 'brands' | 'banners';
 
 type NavItem = { id: Tab; label: string; Icon: Icon };
 
 const NAV: NavItem[] = [
   { id: 'products', label: 'Mahsulotlar', Icon: Package },
+  { id: 'orders', label: 'Buyurtmalar', Icon: Receipt },
   { id: 'models', label: 'Modellar', Icon: DeviceMobile },
   { id: 'categories', label: 'Kategoriyalar', Icon: SquaresFour },
   { id: 'brands', label: 'Brendlar', Icon: Tag },
@@ -38,7 +41,7 @@ const DEFAULT_PW_KEY = 'admin-default-pw';
 
 // Tab <-> URL path: /admin = products, /admin/<id> = boshqa bo'limlar.
 // URL-bog'langan tab → deep-link, F5-bardosh, brauzer back/forward ishlaydi.
-const SECTION_TABS: Tab[] = ['models', 'categories', 'brands', 'banners', 'settings'];
+const SECTION_TABS: Tab[] = ['orders', 'models', 'categories', 'brands', 'banners', 'settings'];
 function pathToTab(pathname: string): Tab {
   const seg = pathname.split('/')[2] ?? '';
   return SECTION_TABS.includes(seg as Tab) ? (seg as Tab) : 'products';
@@ -149,6 +152,7 @@ export default function AdminApp() {
             </div>
           )}
           {tab === 'products' && <ProductList />}
+          {tab === 'orders' && <OrdersPage />}
           {tab === 'models' && <ModelList />}
           {tab === 'settings' && (
             <>

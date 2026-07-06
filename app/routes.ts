@@ -26,6 +26,7 @@ export default [
   route('api/categories', 'routes/api.categories.tsx'),
   route('api/brands', 'routes/api.brands.tsx'),
   route('api/settings', 'routes/api.settings.tsx'),
+  route('api/order', 'routes/api.order.tsx'),
   route('images/*', 'routes/images.$.tsx'),
   route('sitemap.xml', 'routes/sitemap[.]xml.tsx'),
   route('robots.txt', 'routes/robots[.]txt.tsx'),
@@ -49,5 +50,7 @@ export default [
   route('api/admin/pages', 'routes/api.admin.pages.tsx'),
   route('api/admin/pages/:id', 'routes/api.admin.pages.$id.tsx'),
   route('api/admin/site-config', 'routes/api.admin.site-config.tsx'),
+  route('api/admin/orders', 'routes/api.admin.orders.tsx'),
+  route('api/admin/orders/:id', 'routes/api.admin.orders.$id.tsx'),
   route('*', 'routes/not-found.tsx'),
 ] satisfies RouteConfig;

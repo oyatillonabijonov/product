@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
 import type { FC } from 'react';
-import { Send, Trash2, ShoppingCart, Minus, Plus } from 'lucide-react';
+import { Trash2, ShoppingCart, Minus, Plus } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { InstallmentConfig } from '../data/products';
 import type { ApiSiteConfig } from '../../shared/types';
-import { cartSum, cartInstallment, composeCartLeadMessage } from '../lib/cart';
-import { formatUzs, telegramShareUrl, whatsappUrl } from '../lib/installment';
+import { cartSum, cartInstallment } from '../lib/cart';
+import { formatUzs } from '../lib/installment';
 import { useCart } from './CartContext';
 import LocaleLink from './LocaleLink';
+import OrderForm, { type OrderDraft } from './OrderForm';
 import TermSegments from './TermSegments';
 
 const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteConfig }> = ({ t, config, site }) => {
@@ -21,18 +22,20 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
     return cartInstallment(sum, term, config);
   }, [sum, months, config]);
 
-  function order(channel: 'telegram' | 'whatsapp') {
+  const [draft, setDraft] = useState<OrderDraft | null>(null);
+  function openOrder(paymentKind: 'cash' | 'installment') {
     if (items.length === 0) return;
-    const msg = composeCartLeadMessage({
-      items, months,
-      monthly: formatUzs(result.monthly, t.sum),
-      downPayment: formatUzs(result.downPaymentUzs, t.sum),
-      totalCash: formatUzs(sum, t.sum),
-      brand: site.name,
-      sum: t.sum,
+    const installment = paymentKind === 'installment';
+    setDraft({
+      title: `${t.cartTitle} · ${count} ${t.cartItemsCount}`,
+      paymentKind,
+      termMonths: installment ? months : null,
+      downPaymentUzs: installment ? Math.round(result.downPaymentUzs) : null,
+      monthlyUzs: installment ? Math.round(result.monthly) : null,
+      totalUzs: installment ? Math.round(result.total) : null,
+      items: items.map((it) => ({ productId: it.productId, name: it.name, variantLabel: it.variantLabel, qty: it.qty, priceUzs: it.priceUzs })),
+      source: 'cart',
     });
-    const url = channel === 'telegram' ? telegramShareUrl(msg, site.telegram) : whatsappUrl(msg, site.whatsapp);
-    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   if (items.length === 0) {
@@ -101,15 +104,21 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
             </div>
           )}
           <div className="flex flex-col gap-2.5 mt-5">
-            <button onClick={() => order('telegram')} className="py-3 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors flex items-center justify-center gap-2">
-              <Send className="w-4.5 h-4.5" /> {t.formSendTelegram}
-            </button>
-            <button onClick={() => order('whatsapp')} className="py-3 bg-primary text-white font-semibold rounded-full hover:bg-[#25D366] transition-colors">
-              {t.formSendWhatsapp}
-            </button>
+            {showInstallment && (
+              <button onClick={() => openOrder('installment')} className="py-3 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors">
+                {t.orderBuyInstallment}
+              </button>
+            )}
+            {site.paymentMode !== 'installment' && (
+              <button onClick={() => openOrder('cash')} className="py-3 bg-primary text-white font-semibold rounded-full hover:bg-accent transition-colors">
+                {t.orderBuyCash}
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {draft && <OrderForm t={t} draft={draft} onClose={() => setDraft(null)} />}
     </div>
   );
 };

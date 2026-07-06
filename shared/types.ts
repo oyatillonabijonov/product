@@ -137,4 +137,41 @@ export interface ApiSiteConfig {
   seoDescription: string;
   ogImage: string;
   paymentMode: PaymentMode;
+  /** Telegram bot tokeni — buyurtmalarni botga yuborish uchun (D1'da, admin tahrirlaydi). */
+  telegramBotToken: string;
+  /** Buyurtma tushadigan Telegram chat/guruh id'si. */
+  telegramOrderChatId: string;
+}
+
+export type OrderPaymentKind = 'cash' | 'installment';
+export type OrderSource = 'product' | 'cart';
+
+export interface OrderItemInput {
+  productId: string;
+  name: string;
+  variantLabel: string;
+  qty: number;
+  priceUzs: number;
+}
+
+export interface OrderInput {
+  name: string;
+  phone: string;
+  note: string;
+  paymentKind: OrderPaymentKind;
+  termMonths: number | null;
+  downPaymentUzs: number | null;
+  monthlyUzs: number | null;
+  totalUzs: number | null;
+  items: OrderItemInput[];
+  source: OrderSource;
+}
+
+export type OrderStatus = 'new' | 'contacted' | 'done';
+
+export interface ApiOrder extends OrderInput {
+  id: number;
+  createdAt: number;
+  status: OrderStatus;
+  telegramSent: boolean;
 }

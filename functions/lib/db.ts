@@ -12,6 +12,11 @@ import type {
   ApiSpec,
   ApiSettings,
   ApiVariant,
+  ApiOrder,
+  OrderItemInput,
+  OrderPaymentKind,
+  OrderSource,
+  OrderStatus,
   Category,
   Condition,
   PaymentMode,
@@ -460,6 +465,8 @@ export interface SiteConfigRow {
   map_ll: string; map_label: string;
   seo_title_suffix: string; seo_description: string; og_image: string;
   payment_mode: string;
+  telegram_bot_token: string;
+  telegram_order_chat_id: string;
 }
 
 export interface DeviceModelRow {
@@ -484,5 +491,26 @@ export function rowToSiteConfig(r: SiteConfigRow): ApiSiteConfig {
     mapLl: r.map_ll, mapLabel: r.map_label,
     seoTitleSuffix: r.seo_title_suffix, seoDescription: r.seo_description, ogImage: r.og_image,
     paymentMode: (r.payment_mode === 'cash' || r.payment_mode === 'installment') ? r.payment_mode : 'both',
+    telegramBotToken: r.telegram_bot_token, telegramOrderChatId: r.telegram_order_chat_id,
+  };
+}
+
+export interface OrderRow {
+  id: number; created_at: number; name: string; phone: string; note: string;
+  payment_kind: string; term_months: number | null; down_payment_uzs: number | null;
+  monthly_uzs: number | null; total_uzs: number | null; items_json: string;
+  source: string; status: string; telegram_sent: number;
+}
+
+export function rowToOrder(r: OrderRow): ApiOrder {
+  return {
+    id: r.id, createdAt: r.created_at, name: r.name, phone: r.phone, note: r.note,
+    paymentKind: r.payment_kind as OrderPaymentKind,
+    termMonths: r.term_months, downPaymentUzs: r.down_payment_uzs,
+    monthlyUzs: r.monthly_uzs, totalUzs: r.total_uzs,
+    items: JSON.parse(r.items_json) as OrderItemInput[],
+    source: r.source as OrderSource,
+    status: r.status as OrderStatus,
+    telegramSent: r.telegram_sent === 1,
   };
 }
