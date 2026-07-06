@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { FC } from 'react';
+import { useOutletContext } from 'react-router';
 import { Send, ShieldCheck, BadgeCheck, ChevronRight, Truck, ShoppingCart } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
@@ -12,6 +13,7 @@ import Gallery from './Gallery';
 import LocaleLink from './LocaleLink';
 import ProductGrid from './ProductGrid';
 import TermSegments from './TermSegments';
+import type { StoreContext } from './StoreLayout';
 
 const ProductPage: FC<{
   t: Translation; product: ProductDetail; config: InstallmentConfig; similar: Product[]; site: ApiSiteConfig;
@@ -21,6 +23,10 @@ const ProductPage: FC<{
   // Default — sozlamalardagi eng uzun muddat (qattiq 12 emas: admin muddatlarni o'zgartirsa
   // tanlanmagan segment + noto'g'ri yorliq chiqib qolardi).
   const [months, setMonths] = useState(() => config.terms[config.terms.length - 1]?.months ?? 12);
+  const { config: siteCfg } = useOutletContext<StoreContext>();
+  const showInstallment = siteCfg.paymentMode !== 'cash';
+  // Boshlang'ich to'lov foizi — min (config.downPaymentPercent) dan max (downPaymentMaxPercent) gacha slider.
+  const [downPct, setDownPct] = useState(config.downPaymentPercent);
   const [selection, setSelection] = useState<VariantSelection | null>(
     () => defaultSelection(product.options, product.variants),
   );
@@ -34,8 +40,9 @@ const ProductPage: FC<{
   const disc = discountPercent(displayCash, displayOld);
   const result = useMemo(() => {
     const term = config.terms.find((x) => x.months === months) ?? config.terms[config.terms.length - 1];
-    return calcInstallment({ ...product, cashPriceUzs: displayCash }, term, config);
-  }, [product, config, months, displayCash]);
+    const downPaymentUzs = displayCash * (downPct / 100);
+    return calcInstallment({ ...product, cashPriceUzs: displayCash }, term, config, downPaymentUzs);
+  }, [product, config, months, displayCash, downPct]);
 
   const galleryImages = variant?.imageUrl
     ? [variant.imageUrl, ...product.images.filter((i) => i !== variant.imageUrl)]
@@ -141,10 +148,29 @@ const ProductPage: FC<{
             </div>
           )}
 
-          {config && result && (
+          {showInstallment && config && result && (
             <div className="mt-5 bg-white border border-line-3 rounded-[24px] p-5 shadow-apple">
               <div className="text-[13px] font-semibold text-muted mb-3">{t.calcTerm}</div>
               <TermSegments t={t} terms={config.terms} months={months} onChange={setMonths} />
+
+              <div className="mt-5">
+                <div className="flex items-center justify-between text-[13px] mb-2">
+                  <span className="font-semibold text-muted">{t.calcDownPayment}</span>
+                  <span className="font-semibold text-primary tabular-nums">
+                    {downPct}% · {formatUzs(result.downPaymentUzs, t.sum)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={config.downPaymentPercent}
+                  max={config.downPaymentMaxPercent}
+                  step={1}
+                  value={downPct}
+                  onChange={(e) => setDownPct(Number(e.target.value))}
+                  aria-label={t.calcDownPayment}
+                  className="w-full accent-accent"
+                />
+              </div>
 
               <div className="flex items-end justify-between mt-5">
                 <div>
@@ -157,10 +183,6 @@ const ProductPage: FC<{
               </div>
 
               <div className="mt-4 pt-4 border-t border-divider space-y-2 text-[13px]">
-                <div className="flex justify-between">
-                  <span className="text-muted">{t.calcDownPayment}</span>
-                  <span className="font-medium text-primary">{formatUzs(result.downPaymentUzs, t.sum)}</span>
-                </div>
                 <div className="flex justify-between">
                   <span className="text-muted">{t.calcTotal}</span>
                   <span className="font-medium text-primary">{formatUzs(result.total, t.sum)}</span>
