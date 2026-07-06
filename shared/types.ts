@@ -1,5 +1,6 @@
 export type Category = 'iphone' | 'mac' | 'ipad' | 'pc';
 export type Condition = 'yangi' | 'ishlatilgan';
+export type PaymentMode = 'both' | 'cash' | 'installment';
 
 export interface Term {
   months: number;

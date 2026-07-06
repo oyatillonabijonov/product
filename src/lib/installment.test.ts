@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { InstallmentConfig, Product, Term } from '../data/products';
 import {
-  calcInstallment, composeLeadMessage, discountPercent, formatUzs, lowestMonthly,
+  calcInstallment, composeLeadMessage, discountPercent, formatUzs, lowestMonthly, priceView,
   telegramShareUrl, whatsappUrl,
 } from './installment';
 
@@ -125,5 +125,25 @@ describe('deep link URL\'lari', () => {
   it("whatsapp bazasidagi oxirgi '/' kesiladi", () => {
     const wa = whatsappUrl('salom', 'https://wa.me/998900000000/');
     expect(wa).toBe(`https://wa.me/998900000000?text=${encodeURIComponent('salom')}`);
+  });
+});
+
+describe('priceView', () => {
+  const p = { ...product, minPriceUzs: 8_000_000 };
+  it("both — naqd birlamchi, oylik ko'rinadi", () => {
+    const v = priceView(p, config, 'both');
+    expect(v.cashUzs).toBe(8_000_000);
+    expect(v.showMonthly).toBe(true);
+    expect(v.monthlyPrimary).toBe(false);
+    expect(v.monthlyUzs).toBeGreaterThan(0);
+  });
+  it('cash — oylik yashirin', () => {
+    const v = priceView(p, config, 'cash');
+    expect(v.showMonthly).toBe(false);
+  });
+  it('installment — oylik birlamchi', () => {
+    const v = priceView(p, config, 'installment');
+    expect(v.monthlyPrimary).toBe(true);
+    expect(v.showMonthly).toBe(true);
   });
 });

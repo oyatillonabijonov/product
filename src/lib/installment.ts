@@ -1,4 +1,5 @@
 import type { InstallmentConfig, Product, Term } from '../data/products';
+import type { PaymentMode } from '../../shared/types';
 
 export interface InstallmentResult {
   /** Muddatli to'lovdagi jami narx (ustama bilan), so'm. */
@@ -25,6 +26,20 @@ export function calcInstallment(
 export function lowestMonthly(product: Product, config: InstallmentConfig): number {
   const longest = config.terms.reduce((a, b) => (b.months > a.months ? b : a), config.terms[0]);
   return calcInstallment(product, longest, config).monthly;
+}
+
+export type { PaymentMode };
+
+/** Kartalar/sahifa uchun narx ko'rinishi: naqd + eng past oylik, rejim bo'yicha gating.
+ * Oylik minPriceUzs (eng arzon variant) bo'yicha — kartada ko'rinadigan narx bilan mos. */
+export function priceView(product: Product, config: InstallmentConfig, mode: PaymentMode) {
+  const monthlyUzs = lowestMonthly({ ...product, cashPriceUzs: product.minPriceUzs }, config);
+  return {
+    cashUzs: product.minPriceUzs,
+    monthlyUzs,
+    showMonthly: mode !== 'cash',
+    monthlyPrimary: mode === 'installment',
+  };
 }
 
 /** `suffix` \u2014 locale'ga mos valyuta yozuvi (uz "so'm", ru "\u0441\u0443\u043C"); default admin/uz uchun. */
