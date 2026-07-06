@@ -1,9 +1,11 @@
 import { motion } from 'motion/react';
 import type { FC } from 'react';
+import { useOutletContext } from 'react-router';
 import type { Translation } from '../locales';
 import type { InstallmentConfig, Product } from '../data/products';
-import { discountPercent, formatUzs, lowestMonthly } from '../lib/installment';
+import { discountPercent, formatUzs, priceView } from '../lib/installment';
 import LocaleLink from './LocaleLink';
+import type { StoreContext } from './StoreLayout';
 
 const ProductCard: FC<{
   t: Translation;
@@ -17,6 +19,8 @@ const ProductCard: FC<{
   const showsBasePrice = product.minPriceUzs === product.cashPriceUzs;
   const disc = showsBasePrice ? discountPercent(product.cashPriceUzs, product.oldPriceUzs ?? null) : null;
   const isNew = product.condition === 'yangi';
+  const { config: site } = useOutletContext<StoreContext>();
+  const pv = priceView(product, config, site.paymentMode);
   return (
     <motion.div
       whileHover={{ y: -6 }}
@@ -63,16 +67,37 @@ const ProductCard: FC<{
         </LocaleLink>
 
         <div className="mt-auto pt-4">
-          <div className="text-[11px] uppercase tracking-wide text-muted-2 font-medium">{t.catalogMonthlyLabel}</div>
-          <div className="text-[20px] md:text-[23px] font-semibold tracking-[-0.01em] text-primary leading-tight">
-            {formatUzs(lowestMonthly({ ...product, cashPriceUzs: product.minPriceUzs }, config), t.sum)}
-          </div>
-          <div className="text-[12px] text-muted mt-1 mb-4 flex items-center gap-2 flex-wrap">
-            {disc !== null && product.oldPriceUzs && (
-              <span className="line-through text-disabled-2">{formatUzs(product.oldPriceUzs, t.sum)}</span>
-            )}
-            <span className="text-muted">{formatUzs(product.minPriceUzs, t.sum)}</span>
-          </div>
+          {pv.monthlyPrimary ? (
+            <>
+              <div className="text-[11px] uppercase tracking-wide text-muted-2 font-medium">{t.catalogMonthlyLabel}</div>
+              <div className="text-[20px] md:text-[23px] font-semibold tracking-[-0.01em] text-primary leading-tight">
+                {formatUzs(pv.monthlyUzs, t.sum)}
+              </div>
+              <div className="text-[12px] text-muted mt-1 mb-4 flex items-center gap-2 flex-wrap">
+                {disc !== null && product.oldPriceUzs && (
+                  <span className="line-through text-disabled-2">{formatUzs(product.oldPriceUzs, t.sum)}</span>
+                )}
+                <span className="text-muted">{formatUzs(pv.cashUzs, t.sum)}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-[20px] md:text-[23px] font-semibold tracking-[-0.01em] text-primary leading-tight tabular-nums">
+                  {formatUzs(pv.cashUzs, t.sum)}
+                </span>
+                {disc !== null && product.oldPriceUzs && (
+                  <span className="text-[12px] line-through text-disabled-2 tabular-nums">{formatUzs(product.oldPriceUzs, t.sum)}</span>
+                )}
+              </div>
+              {pv.showMonthly && (
+                <div className="text-[12px] text-muted mt-1 mb-4">
+                  {t.cardMonthlyFrom.replace('{v}', formatUzs(pv.monthlyUzs, t.sum))}
+                </div>
+              )}
+              {!pv.showMonthly && <div className="mb-4" />}
+            </>
+          )}
           <LocaleLink
             to={`/product/${product.id}`}
             className="block text-center w-full py-2.5 bg-primary text-white text-[14px] font-semibold rounded-full group-hover:bg-accent transition-colors"
