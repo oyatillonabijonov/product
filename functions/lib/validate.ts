@@ -6,6 +6,7 @@ import type {
   Category,
   Condition,
   LocalizedText,
+  PaymentMode,
   Term,
 } from '../../shared/types';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
@@ -329,6 +330,8 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
     if (v !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(v)) throw new ValidationError(`${key}_invalid`);
     return v;
   };
+  const pm = opt('paymentMode');
+  const paymentMode: PaymentMode = pm === 'cash' || pm === 'installment' ? pm : 'both';
   return {
     name,
     phone,
@@ -341,5 +344,6 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
     seoTitleSuffix: opt('seoTitleSuffix') || name,
     seoDescription: opt('seoDescription'),
     ogImage: opt('ogImage'),
+    paymentMode,
   };
 }

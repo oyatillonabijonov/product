@@ -21,8 +21,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   const input = parseBody(await request.json().catch(() => null), parseSiteConfigInput);
   if (input instanceof Response) return input;
   await env.DB.prepare(
-    'INSERT OR REPLACE INTO site_config (id, name, phone, phone_display, telegram, instagram, whatsapp, map_ll, map_label, seo_title_suffix, seo_description, og_image) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT OR REPLACE INTO site_config (id, name, phone, phone_display, telegram, instagram, whatsapp, map_ll, map_label, seo_title_suffix, seo_description, og_image, payment_mode) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
   ).bind(input.name, input.phone, input.phoneDisplay, input.telegram, input.instagram, input.whatsapp,
-    input.mapLl, input.mapLabel, input.seoTitleSuffix, input.seoDescription, input.ogImage).run();
+    input.mapLl, input.mapLabel, input.seoTitleSuffix, input.seoDescription, input.ogImage, input.paymentMode).run();
   return json(input);
 }

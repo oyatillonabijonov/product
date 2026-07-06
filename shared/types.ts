@@ -136,4 +136,5 @@ export interface ApiSiteConfig {
   seoTitleSuffix: string;
   seoDescription: string;
   ogImage: string;
+  paymentMode: PaymentMode;
 }

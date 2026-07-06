@@ -6,6 +6,7 @@ export const siteConfig = {
   instagram: 'https://www.instagram.com/taqsit.store/',
   whatsapp: 'https://wa.me/998886043636',
   map: { ll: '69.271481,41.338874', label: 'Malika Bozori, Toshkent' },
+  paymentMode: 'both',
   seo: {
     titleSuffix: 'Taqsit Store',
     ogImage: '/og.png',

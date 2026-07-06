@@ -234,6 +234,7 @@ export function staticSiteConfigAsApi(): ApiSiteConfig {
     seoTitleSuffix: staticSiteConfig.seo.titleSuffix,
     seoDescription: staticSiteConfig.seo.description,
     ogImage: staticSiteConfig.seo.ogImage,
+    paymentMode: 'both',
   };
 }
 

@@ -14,6 +14,7 @@ import type {
   ApiVariant,
   Category,
   Condition,
+  PaymentMode,
   Term,
 } from '../../shared/types';
 import type { Env } from '../env';
@@ -458,6 +459,7 @@ export interface SiteConfigRow {
   telegram: string; instagram: string; whatsapp: string;
   map_ll: string; map_label: string;
   seo_title_suffix: string; seo_description: string; og_image: string;
+  payment_mode: string;
 }
 
 export interface DeviceModelRow {
@@ -481,5 +483,6 @@ export function rowToSiteConfig(r: SiteConfigRow): ApiSiteConfig {
     telegram: r.telegram, instagram: r.instagram, whatsapp: r.whatsapp,
     mapLl: r.map_ll, mapLabel: r.map_label,
     seoTitleSuffix: r.seo_title_suffix, seoDescription: r.seo_description, ogImage: r.og_image,
+    paymentMode: (r.payment_mode === 'cash' || r.payment_mode === 'installment') ? r.payment_mode : 'both',
   };
 }

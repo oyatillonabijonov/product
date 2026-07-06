@@ -51,6 +51,18 @@ export default function SiteConfigForm() {
           />
         </label>
       ))}
+      <label className="block text-[13px] text-muted">
+        To'lov rejimi
+        <select
+          value={form.paymentMode}
+          onChange={(e) => setForm({ ...form, paymentMode: e.target.value as ApiSiteConfig['paymentMode'] })}
+          className="mt-1 w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] text-primary"
+        >
+          <option value="both">Naqd + muddatli</option>
+          <option value="cash">Faqat naqd</option>
+          <option value="installment">Faqat muddatli</option>
+        </select>
+      </label>
       {msg && <p className={`text-[13px] ${msg.includes('✓') ? 'text-trust' : 'text-danger'}`}>{msg}</p>}
       <button onClick={save} disabled={busy} className="px-5 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-50">Saqlash</button>
     </div>

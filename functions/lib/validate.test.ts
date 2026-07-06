@@ -251,6 +251,21 @@ describe('parseSettingsInput — downPaymentMaxPercent', () => {
   });
 });
 
+const siteBase = { name: 'S', phone: '+998900000000' };
+
+describe('parseSiteConfigInput — paymentMode', () => {
+  it("yo'q bo'lsa 'both'ga tushadi", () => {
+    expect(parseSiteConfigInput(siteBase).paymentMode).toBe('both');
+  });
+  it("'cash' va 'installment'ni qabul qiladi", () => {
+    expect(parseSiteConfigInput({ ...siteBase, paymentMode: 'cash' }).paymentMode).toBe('cash');
+    expect(parseSiteConfigInput({ ...siteBase, paymentMode: 'installment' }).paymentMode).toBe('installment');
+  });
+  it("noto'g'ri qiymat 'both'ga tushadi", () => {
+    expect(parseSiteConfigInput({ ...siteBase, paymentMode: 'xyz' }).paymentMode).toBe('both');
+  });
+});
+
 describe('parseDeviceModelInput', () => {
   it('happy path derives legacyCategory and slugified id, defaults', () => {
     const m = parseDeviceModelInput({ name: 'iPhone 16 Pro', brandId: 'apple', categoryId: 'telefonlar' });
