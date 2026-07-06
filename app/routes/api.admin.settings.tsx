@@ -11,9 +11,9 @@ export async function action({ request, context }: Route.ActionArgs) {
   const input = parseBody(await request.json().catch(() => null), parseSettingsInput);
   if (input instanceof Response) return input;
   await env.DB.prepare(
-    'UPDATE settings SET down_payment_percent=?, usd_to_uzs=?, terms=? WHERE id=1',
+    'UPDATE settings SET down_payment_percent=?, down_payment_max_percent=?, usd_to_uzs=?, terms=? WHERE id=1',
   )
-    .bind(input.downPaymentPercent, input.usdToUzs, JSON.stringify(input.terms))
+    .bind(input.downPaymentPercent, input.downPaymentMaxPercent, input.usdToUzs, JSON.stringify(input.terms))
     .run();
   return json(input);
 }

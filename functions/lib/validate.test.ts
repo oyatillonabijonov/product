@@ -6,6 +6,7 @@ import {
   parsePageInput,
   parseSiteConfigInput,
   parseDeviceModelInput,
+  parseSettingsInput,
   ValidationError,
 } from './validate';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
@@ -229,6 +230,24 @@ describe('deriveLegacyCategory', () => {
   });
   it('maps null to pc', () => {
     expect(deriveLegacyCategory(null)).toBe('pc');
+  });
+});
+
+describe('parseSettingsInput — downPaymentMaxPercent', () => {
+  const settingsBase = {
+    downPaymentPercent: 20, downPaymentMaxPercent: 90, usdToUzs: 12600,
+    terms: [{ months: 3, markup: 0.1 }],
+  };
+  it("to'g'ri qiymatni qabul qiladi", () => {
+    expect(parseSettingsInput(settingsBase).downPaymentMaxPercent).toBe(90);
+  });
+  it("max < min bo'lsa rad etadi", () => {
+    expect(() => parseSettingsInput({ ...settingsBase, downPaymentMaxPercent: 10 }))
+      .toThrow(ValidationError);
+  });
+  it("max > 100 bo'lsa rad etadi", () => {
+    expect(() => parseSettingsInput({ ...settingsBase, downPaymentMaxPercent: 120 }))
+      .toThrow(ValidationError);
   });
 });
 

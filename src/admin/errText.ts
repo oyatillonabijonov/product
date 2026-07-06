@@ -29,6 +29,7 @@ const MESSAGES: Record<string, string> = {
   condition_invalid: "Holat qiymati noto'g'ri",
   unauthorized: 'Sessiya tugagan — qaytadan kiring',
   down_payment_range: "Boshlang'ich to'lov 0–100% oralig'ida bo'lishi kerak",
+  down_payment_max_range: "Maksimal boshlang'ich foizi minimumdan katta va 100 dan kichik bo'lsin",
   usd_positive: "Dollar kursi 0 dan katta bo'lishi kerak",
   terms_required: 'Kamida bitta muddat kiriting',
   months_positive: "Oy soni 0 dan katta bo'lishi kerak",

@@ -195,6 +195,9 @@ export function parseSettingsInput(body: unknown): ApiSettings {
   const downPaymentPercent = reqNumber(o, 'downPaymentPercent');
   if (downPaymentPercent < 0 || downPaymentPercent > 100)
     throw new ValidationError('down_payment_range');
+  const downPaymentMaxPercent = reqNumber(o, 'downPaymentMaxPercent');
+  if (downPaymentMaxPercent < downPaymentPercent || downPaymentMaxPercent > 100)
+    throw new ValidationError('down_payment_max_range');
   const usdToUzs = reqNumber(o, 'usdToUzs');
   if (usdToUzs <= 0) throw new ValidationError('usd_positive');
   if (!Array.isArray(o.terms) || o.terms.length === 0) throw new ValidationError('terms_required');
@@ -206,7 +209,7 @@ export function parseSettingsInput(body: unknown): ApiSettings {
     if (markup < 0) throw new ValidationError('markup_negative');
     return { months, markup };
   });
-  return { downPaymentPercent, usdToUzs, terms };
+  return { downPaymentPercent, downPaymentMaxPercent, usdToUzs, terms };
 }
 
 export interface CategoryInput {

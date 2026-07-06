@@ -26,6 +26,7 @@ export interface ApiProduct {
 
 export interface ApiSettings {
   downPaymentPercent: number;
+  downPaymentMaxPercent: number;
   usdToUzs: number;
   terms: Term[];
 }

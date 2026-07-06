@@ -43,6 +43,7 @@ export interface ProductRow {
 export interface SettingsRow {
   id: number;
   down_payment_percent: number;
+  down_payment_max_percent: number;
   usd_to_uzs: number;
   terms: string;
 }
@@ -70,6 +71,7 @@ export function rowToSettings(row: SettingsRow): ApiSettings {
   const terms = JSON.parse(row.terms) as Term[];
   return {
     downPaymentPercent: row.down_payment_percent,
+    downPaymentMaxPercent: row.down_payment_max_percent,
     usdToUzs: row.usd_to_uzs,
     terms,
   };

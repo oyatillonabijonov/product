@@ -71,6 +71,16 @@ export default function SettingsForm() {
         />
       </label>
 
+      <label className="flex items-center justify-between mb-3 text-[14px]">
+        Maksimal boshlang'ich foizi (%)
+        <input
+          type="number"
+          className={input}
+          value={s.downPaymentMaxPercent}
+          onChange={(e) => setS({ ...s, downPaymentMaxPercent: Number(e.target.value) })}
+        />
+      </label>
+
       <label className="flex items-center justify-between mb-5 text-[14px]">
         USD kursi (so'm)
         <input
