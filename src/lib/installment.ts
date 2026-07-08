@@ -22,12 +22,6 @@ export function calcInstallment(
   return { total, downPaymentUzs: down, monthly };
 }
 
-/** Eng past oylik to'lov (eng uzoq muddat) — katalog kartasi uchun. */
-export function lowestMonthly(product: Product, config: InstallmentConfig): number {
-  const longest = config.terms.reduce((a, b) => (b.months > a.months ? b : a), config.terms[0]);
-  return calcInstallment(product, longest, config).monthly;
-}
-
 export type { PaymentMode };
 
 /** Kartalar/sahifa uchun narx ko'rinishi: naqd + eng past oylik, rejim bo'yicha gating.
@@ -51,39 +45,6 @@ export function priceView(product: Product, config: InstallmentConfig, mode: Pay
 export function formatUzs(value: number, suffix = "so'm"): string {
   const rounded = Math.round(value);
   return `${rounded.toLocaleString('ru-RU').replace(/[,\u00A0]/g, ' ')} ${suffix}`;
-}
-
-export interface LeadData {
-  name: string;
-  phone: string;
-  product: string;
-  months: number;
-  monthly: string;
-  /** Do'kon nomi — site_config'dan (admin tahrirlaydi), kodga qotirilmaydi. */
-  brand: string;
-}
-
-export function composeLeadMessage(data: LeadData): string {
-  return [
-    `🛒 ${data.brand} — yangi ariza`,
-    '',
-    // Ism/telefon so'ralmaydi (lead TG/WA profilidan keladi) — bo'sh qator yubormaymiz
-    ...(data.name ? [`👤 Ism: ${data.name}`] : []),
-    ...(data.phone ? [`📞 Telefon: ${data.phone}`] : []),
-    `📱 Qurilma: ${data.product}`,
-    `📅 Muddat: ${data.months} oy`,
-    `💵 Taxminiy oylik to'lov: ${data.monthly}`,
-  ].join('\n');
-}
-
-/** `telegramUrl` — site_config.telegram (masalan https://t.me/Taqsit_store). */
-export function telegramShareUrl(message: string, telegramUrl: string): string {
-  return `https://t.me/share/url?url=${encodeURIComponent(telegramUrl)}&text=${encodeURIComponent(message)}`;
-}
-
-/** `whatsappBase` — site_config.whatsapp (masalan https://wa.me/998886043636). */
-export function whatsappUrl(message: string, whatsappBase: string): string {
-  return `${whatsappBase.replace(/\/+$/, '')}?text=${encodeURIComponent(message)}`;
 }
 
 export function discountPercent(cash: number, old: number | null): number | null {

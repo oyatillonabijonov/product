@@ -1,4 +1,4 @@
-import { calcInstallment, formatUzs, type InstallmentResult } from './installment';
+import { calcInstallment, type InstallmentResult } from './installment';
 import type { InstallmentConfig, Product, Term } from '../data/products';
 
 export interface CartItem {
@@ -86,30 +86,3 @@ export function cartInstallment(sumUzs: number, term: Term, config: InstallmentC
   return calcInstallment(pseudo, term, config);
 }
 
-export interface CartLeadData {
-  items: CartItem[];
-  months: number;
-  monthly: string;
-  downPayment: string;
-  totalCash: string;
-  /** Do'kon nomi — site_config'dan (admin tahrirlaydi), kodga qotirilmaydi. */
-  brand: string;
-  /** Valyuta yozuvi (t.sum) — per-item narxlar ham locale'ga mos bo'lishi uchun. */
-  sum?: string;
-}
-
-export function composeCartLeadMessage(d: CartLeadData): string {
-  const lines: string[] = [`🛒 ${d.brand} — yangi ariza (savat)`, ''];
-  for (const it of d.items) {
-    const label = it.variantLabel ? ` (${it.variantLabel})` : '';
-    lines.push(`• ${it.name}${label} ×${it.qty} — ${formatUzs(it.priceUzs * it.qty, d.sum)}`);
-  }
-  lines.push(
-    '',
-    `📅 Muddat: ${d.months} oy`,
-    `💰 Jami naqd narx: ${d.totalCash}`,
-    `💵 Boshlang'ich to'lov: ${d.downPayment}`,
-    `📆 Taxminiy oylik to'lov: ${d.monthly}`,
-  );
-  return lines.join('\n');
-}

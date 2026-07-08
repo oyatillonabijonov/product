@@ -1,9 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { InstallmentConfig, Product, Term } from '../data/products';
-import {
-  calcInstallment, composeLeadMessage, discountPercent, formatUzs, lowestMonthly, priceView,
-  telegramShareUrl, whatsappUrl,
-} from './installment';
+import { calcInstallment, discountPercent, formatUzs, priceView } from './installment';
 
 const config: InstallmentConfig = {
   downPaymentPercent: 20,
@@ -63,13 +60,6 @@ describe('calcInstallment', () => {
   });
 });
 
-describe('lowestMonthly', () => {
-  it('eng uzoq muddat bo\'yicha oylikni qaytaradi', () => {
-    const expected = calcInstallment(product, { months: 12, markup: 0.42 }, config).monthly;
-    expect(lowestMonthly(product, config)).toBeCloseTo(expected, 2);
-  });
-});
-
 describe('formatUzs', () => {
   it('yaxlitlab, bo\'sh joy bilan formatlaydi', () => {
     expect(formatUzs(1_016_666.67)).toBe("1 016 667 so'm");
@@ -89,42 +79,6 @@ describe('discountPercent', () => {
 
   it("0% ga yaxlitlanadigan mikro-farq null — '-0%' badge chiqmasin", () => {
     expect(discountPercent(10_000_000, 10_040_000)).toBeNull();
-  });
-});
-
-describe('composeLeadMessage', () => {
-  it("bo'sh ism/telefon qatorlari xabarga kirmaydi", () => {
-    const msg = composeLeadMessage({
-      name: '', phone: '', product: 'iPhone 16 (256GB)', months: 12,
-      monthly: "1 016 667 so'm", brand: 'Taqsit Store',
-    });
-    expect(msg).not.toContain('Ism:');
-    expect(msg).not.toContain('Telefon:');
-    expect(msg).toContain('Qurilma: iPhone 16 (256GB)');
-    expect(msg).toContain('Muddat: 12 oy');
-  });
-
-  it("to'ldirilgan ism/telefon chiqadi", () => {
-    const msg = composeLeadMessage({
-      name: 'Ali', phone: '+998901234567', product: 'X', months: 6, monthly: '1', brand: 'B',
-    });
-    expect(msg).toContain('Ism: Ali');
-    expect(msg).toContain('Telefon: +998901234567');
-  });
-});
-
-describe('deep link URL\'lari', () => {
-  it("xabardagi maxsus belgilar (&, %, yangi qator) encode qilinadi", () => {
-    const msg = 'A & B 100%\nkeyingi';
-    const tg = telegramShareUrl(msg, 'https://t.me/shop');
-    expect(tg).toContain(encodeURIComponent(msg));
-    expect(tg).not.toContain('A & B');
-    expect(tg).toContain(`url=${encodeURIComponent('https://t.me/shop')}`);
-  });
-
-  it("whatsapp bazasidagi oxirgi '/' kesiladi", () => {
-    const wa = whatsappUrl('salom', 'https://wa.me/998900000000/');
-    expect(wa).toBe(`https://wa.me/998900000000?text=${encodeURIComponent('salom')}`);
   });
 });
 

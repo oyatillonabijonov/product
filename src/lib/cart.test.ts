@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   addItem, removeItem, setQty, cartCount, cartSum,
-  serializeCart, parseCart, cartInstallment, composeCartLeadMessage,
+  serializeCart, parseCart, cartInstallment,
   type CartItem,
 } from './cart';
 import { calcInstallment } from './installment';
@@ -84,30 +84,3 @@ describe('cartInstallment', () => {
   });
 });
 
-describe('composeCartLeadMessage', () => {
-  it('lists items with variant labels and totals', () => {
-    const msg = composeCartLeadMessage({
-      items: [I({ productId: 'a', name: 'iPhone 17 Pro', variantLabel: 'Xotira: 256GB', qty: 2 }), I({ productId: 'b', name: 'AirPods' })],
-      months: 12, monthly: "1 000 000 so'm", downPayment: "500 000 so'm", totalCash: "5 000 000 so'm",
-      brand: 'Test Store',
-    });
-    expect(msg).toContain('Test Store — yangi ariza');
-    expect(msg).toContain('iPhone 17 Pro (Xotira: 256GB) ×2');
-    expect(msg).toContain('AirPods ×1');
-    expect(msg).toContain('Muddat: 12 oy');
-    expect(msg).toContain("Jami naqd narx: 5 000 000 so'm");
-    expect(msg).toContain("oylik to'lov: 1 000 000 so'm");
-    expect(msg).toContain('×2 — 200 so\'m'); // I() default priceUzs=100, qty 2
-    expect(msg).toContain("Jami naqd narx: 5 000 000 so'm");
-  });
-
-  it("per-item narxlar berilgan valyuta yozuvidan foydalanadi (ru: сум)", () => {
-    const msg = composeCartLeadMessage({
-      items: [I({ productId: 'a', name: 'X', qty: 2 })],
-      months: 6, monthly: '1', downPayment: '2', totalCash: '3',
-      brand: 'B', sum: 'сум',
-    });
-    expect(msg).toContain('×2 — 200 сум');
-    expect(msg).not.toContain("so'm");
-  });
-});
