@@ -1,6 +1,6 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/category';
-import { resolveLocale } from '../lib/i18n';
+import { resolveLocale, categoryLabel } from '../lib/i18n';
 import { pageTitle, catalogMeta, storeConfigFrom } from '../lib/seo';
 import { parseCatalogFilters } from '../lib/catalog';
 import { queryProducts, loadConfig, loadCategories, loadBrands } from '../lib/loaders';
@@ -8,7 +8,8 @@ import type { StoreContext } from '../../src/store/StoreLayout';
 import CatalogView from '../../src/store/CatalogView';
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
-  if (!resolveLocale(params.lang)) throw new Response('Not Found', { status: 404 });
+  const locale = resolveLocale(params.lang);
+  if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.cloudflare.env;
   const slug = params.slug as string;
   const filters = parseCatalogFilters(new URL(request.url).searchParams, { category: slug });
@@ -20,7 +21,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const [result, config, brands] = await Promise.all([
     queryProducts(env, filters), loadConfig(env), loadBrands(env),
   ]);
-  const title = category.name;
+  const title = categoryLabel(category, locale);
   return { result, config, title, brands, filters, requestUrl: request.url };
 }
 

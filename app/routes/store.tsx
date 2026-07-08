@@ -41,7 +41,7 @@ export default function StoreRoot() {
   const t = translations[lang];
   return (
     <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories}>
-      <Outlet context={{ t, lang, locale, config: siteConfig, customer }} />
+      <Outlet context={{ t, lang, locale, config: siteConfig, customer, pageLinks }} />
     </StoreLayout>
   );
 }

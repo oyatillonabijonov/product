@@ -11,6 +11,7 @@ const CategoryForm: FC<{
   onCancel: () => void;
 }> = ({ initial, onSaved, onCancel }) => {
   const [name, setName] = useState(initial?.name ?? '');
+  const [nameRu, setNameRu] = useState(initial?.nameRu ?? '');
   const [icon, setIcon] = useState(initial?.icon ?? 'smartphone');
   const [sortOrder, setSortOrder] = useState(initial?.sortOrder ?? 0);
   const [busy, setBusy] = useState(false);
@@ -21,7 +22,7 @@ const CategoryForm: FC<{
     setError('');
     try {
       // iconUrl left as-is (legacy image override); preset icon key is what the picker sets.
-      const payload = { name, icon, iconUrl: initial?.iconUrl ?? '', sortOrder };
+      const payload = { name, nameRu, icon, iconUrl: initial?.iconUrl ?? '', sortOrder };
       if (initial) await updateCategory(initial.id, payload);
       else await createCategory(payload);
       onSaved();
@@ -38,6 +39,9 @@ const CategoryForm: FC<{
       <h3 className="font-semibold mb-4">{initial ? 'Kategoriyani tahrirlash' : 'Yangi kategoriya'}</h3>
       <label className="block text-[13px] text-muted mb-3">Nomi
         <input className={input} value={name} onChange={(e) => setName(e.target.value)} />
+      </label>
+      <label className="block text-[13px] text-muted mb-3">Nomi (ruscha)
+        <input className={input} value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="Bo'sh qolsa o'zbekchasi ko'rinadi" />
       </label>
       <label className="block text-[13px] text-muted mb-3">Tartib raqami
         <input type="number" className={input} value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} />

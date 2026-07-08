@@ -110,7 +110,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
               </button>
             )}
             {site.paymentMode !== 'installment' && (
-              <button onClick={() => openOrder('cash')} className="py-3 bg-primary text-white font-semibold rounded-full hover:bg-accent transition-colors">
+              <button onClick={() => openOrder('cash')} className="py-3 bg-cta text-white font-semibold rounded-full hover:bg-cta-hover transition-colors">
                 {t.orderBuyCash}
               </button>
             )}
@@ -118,7 +118,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
         </div>
       </div>
 
-      {draft && <OrderForm t={t} draft={draft} onClose={() => setDraft(null)} />}
+      {draft && <OrderForm t={t} draft={draft} onClose={() => setDraft(null)} onDone={clear} />}
     </div>
   );
 };

@@ -44,3 +44,8 @@ export function stripLocale(pathname: string): string {
 export function localeToTextKey(locale: Locale): keyof LocalizedText {
   return locale === 'ru' ? 'ru' : 'uz';
 }
+
+/** Kategoriya nomi lokal bo'yicha — ruscha nom bo'sh bo'lsa o'zbekchasiga tushadi. */
+export function categoryLabel(c: { name: string; nameRu: string }, locale: Locale): string {
+  return locale === 'ru' && c.nameRu ? c.nameRu : c.name;
+}

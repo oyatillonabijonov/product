@@ -1,6 +1,7 @@
 import type { ApiBanner, ApiBrand, ApiCategory, ApiPage, ApiSiteConfig } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { Translation } from '../locales';
+import type { PageLink } from '../../app/lib/loaders';
 import { localeToTextKey, type Locale } from '../../app/lib/i18n';
 import HeroBanner from './HeroBanner';
 import FaqSection from './FaqSection';
@@ -15,11 +16,11 @@ import LocaleLink from './LocaleLink';
 import { ChevronRight } from 'lucide-react';
 
 export default function HomePage({
-  t, products, config, categories, banners, deals, latest, brands, locale, faqPage, site,
+  t, products, config, categories, banners, deals, latest, brands, locale, faqPage, site, termsPage,
 }: {
   t: Translation; products: Product[]; config: InstallmentConfig; categories: ApiCategory[];
   banners: ApiBanner[]; deals: Product[]; latest: Product[]; brands: ApiBrand[]; locale: Locale;
-  faqPage: ApiPage | null; site: ApiSiteConfig;
+  faqPage: ApiPage | null; site: ApiSiteConfig; termsPage: PageLink | null;
 }) {
   const textKey = localeToTextKey(locale);
   return (
@@ -31,21 +32,21 @@ export default function HomePage({
           <BannerSlider banners={banners} locale={locale} t={t} />
         </>
       ) : (
-        <HeroBanner t={t} phone={site.phone} />
+        <HeroBanner t={t} termsCta={termsPage ? { to: `/page/${termsPage.slug}`, label: termsPage.title[textKey] } : null} />
       )}
       <TrustBar t={t} />
       <section className="flex flex-col gap-6">
         <h2 className="text-[22px] md:text-[28px] font-semibold tracking-[-0.02em]">{t.homeCategories}</h2>
-        <CategoryCircles categories={categories} />
+        <CategoryCircles categories={categories} locale={locale} />
       </section>
       <ProductRail t={t} title={t.railDeals} items={deals} config={config} moreTo="/chegirmalar" />
       <ProductRail t={t} title={t.railNew} items={latest} config={config} moreTo="/katalog?sort=yangi" />
       <BrandStrip title={t.homeBrands} brands={brands} />
       <section id="featured" className="scroll-mt-24">
-        <div className="flex items-baseline justify-between mb-6">
-          <h2 className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em]">{t.homeFeatured}</h2>
-          <LocaleLink to="/katalog" className="text-[14px] font-semibold text-accent hover:underline inline-flex items-center gap-0.5">
-            {t.railAll} <ChevronRight className="w-4 h-4" />
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <h2 className="text-[20px] md:text-[32px] font-semibold tracking-[-0.02em] min-w-0">{t.homeFeatured}</h2>
+          <LocaleLink to="/katalog" className="shrink-0 inline-flex items-center gap-1 rounded-full bg-segment px-3.5 py-1.5 text-[13px] font-semibold text-primary hover:bg-accent-soft-2 transition-colors">
+            {t.railAll} <ChevronRight className="w-3.5 h-3.5" />
           </LocaleLink>
         </div>
         <ProductGrid t={t} items={products} config={config} />

@@ -9,6 +9,7 @@
 declare namespace React {
   interface SyntheticEvent<T = Element> {
     readonly target: T;
+    readonly currentTarget: T;
     preventDefault(): void;
   }
 

@@ -1,14 +1,16 @@
 import type { FC } from 'react';
-import { Link } from 'react-router';
-import { Phone, Send, Instagram, MapPin, Clock, ExternalLink } from 'lucide-react';
+import { Link, useLocation } from 'react-router';
+import { Phone, Send, Instagram, MapPin, Clock, ExternalLink, Globe } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
-import { localizedPath, localeToTextKey, type Locale } from '../../app/lib/i18n';
+import { localizedPath, localeToTextKey, stripLocale, type Locale } from '../../app/lib/i18n';
 import { safeHref } from '../lib/safe-href';
 import logo from '../assets/logo.svg';
 
 const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLinks: PageLink[] }> = ({ t, locale, config, pageLinks }) => {
+  const location = useLocation();
+  const barePath = stripLocale(location.pathname);
   const mapWidgetSrc = `https://yandex.com/map-widget/v1/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm`;
   const mapLinkHref = `https://yandex.com/maps/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm`;
   const telegramHandle = `@${config.telegram.replace(/^https?:\/\/t\.me\//, '')}`;
@@ -51,13 +53,10 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
         </div>
       </div>
 
-      <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-8 gap-y-10 mb-12">
+      <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-8 gap-y-10 mb-12">
         {/* Brend bloki */}
         <div className="col-span-2 md:col-span-1 flex flex-col gap-4">
-          <div className="flex items-center gap-2.5">
-            <img src={logo} alt={config.name} className="w-9 h-9 object-contain" />
-            <span className="font-semibold text-[18px] tracking-[-0.02em] text-primary">{config.name}</span>
-          </div>
+          <img src={logo} alt={config.name} className="h-10 w-auto object-contain self-start" />
           <p className="text-[13px] text-muted leading-relaxed max-w-[240px]">{t.footerDesc}</p>
           <div className="flex flex-col gap-1.5 text-[12.5px] text-muted mt-0.5">
             <span className="flex items-start gap-2"><MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0" />{t.footerAddressText1} {t.footerAddressText2}</span>
@@ -74,17 +73,6 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
           <Link to={`${localizedPath(locale, '/')}#faq`} className="text-[13px] text-body hover:text-accent transition-colors">FAQ</Link>
         </div>
 
-        {/* Ma'lumot — kontent sahifalari */}
-        {pageLinks.length > 0 && (
-          <div className="flex flex-col gap-3">
-            <h3 className="text-[13px] text-muted-2 mb-1">{t.footerInfo}</h3>
-            {pageLinks.map((p) => (
-              <Link key={p.slug} to={localizedPath(locale, `/page/${p.slug}`)} className="text-[13px] text-body hover:text-accent transition-colors">
-                {p.title[textKey]}
-              </Link>
-            ))}
-          </div>
-        )}
 
         {/* Aloqa */}
         <div className="flex flex-col gap-3">
@@ -108,6 +96,18 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
       </div>
 
       <div className="w-full h-px bg-line/60 mb-6"></div>
+
+      {/* Til — mobil headerdan olib tashlangani uchun almashtirgich shu yerda */}
+      <div className="w-full flex items-center justify-center gap-3 mb-4 text-[13px]">
+        <Globe className="w-4 h-4 text-muted-2" aria-hidden />
+        <Link to={barePath + location.search} className={locale === 'uz' ? 'font-semibold text-primary' : 'text-muted hover:text-primary transition-colors'}>
+          O'zbekcha
+        </Link>
+        <span className="text-line-2">|</span>
+        <Link to={localizedPath('ru', barePath) + location.search} className={locale === 'ru' ? 'font-semibold text-primary' : 'text-muted hover:text-primary transition-colors'}>
+          Русский
+        </Link>
+      </div>
 
       <div className="w-full text-center text-[12px] text-muted-2">
         {`© ${new Date().getFullYear()} ${config.name}. ${t.footerCopyright}`}

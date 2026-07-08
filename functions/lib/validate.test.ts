@@ -8,6 +8,9 @@ import {
   parseDeviceModelInput,
   parseSettingsInput,
   parseOrderInput,
+  parseEmailAuthInput,
+  parseProfileInput,
+  parsePasswordInput,
   ValidationError,
 } from './validate';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
@@ -332,5 +335,45 @@ describe('parseOrderInput', () => {
   });
   it("manfiy narxli item rad etadi", () => {
     expect(() => parseOrderInput({ ...cashBase, items: [{ ...item, priceUzs: 0 }] })).toThrow('price_positive');
+  });
+});
+
+describe('parseEmailAuthInput', () => {
+  const ok = { mode: 'register', email: 'A@B.com', password: 'secret123', name: '  Ali  ' };
+  it('emailni lower-case qiladi va name trim qiladi', () => {
+    expect(parseEmailAuthInput(ok)).toEqual({ mode: 'register', email: 'a@b.com', password: 'secret123', name: 'Ali' });
+  });
+  it("noto'g'ri mode rad etadi", () => {
+    expect(() => parseEmailAuthInput({ ...ok, mode: 'x' })).toThrow('mode_invalid');
+  });
+  it("noto'g'ri email rad etadi", () => {
+    expect(() => parseEmailAuthInput({ ...ok, email: 'bad' })).toThrow('email_invalid');
+  });
+  it('qisqa parolni rad etadi', () => {
+    expect(() => parseEmailAuthInput({ ...ok, password: 'short' })).toThrow('password_too_short');
+  });
+});
+
+describe('parseProfileInput', () => {
+  it('ism trim, telefon ixtiyoriy', () => {
+    expect(parseProfileInput({ name: '  Ali  ' })).toEqual({ name: 'Ali', phone: '' });
+  });
+  it('bo\'sh ismni rad etadi', () => {
+    expect(() => parseProfileInput({ name: '   ' })).toThrow('name_required');
+  });
+  it('qisqa telefonni rad etadi', () => {
+    expect(() => parseProfileInput({ name: 'Ali', phone: '123' })).toThrow('phone_invalid');
+  });
+  it('to\'g\'ri telefonni qabul qiladi', () => {
+    expect(parseProfileInput({ name: 'Ali', phone: '+998 90 123 45 67' })).toEqual({ name: 'Ali', phone: '+998 90 123 45 67' });
+  });
+});
+
+describe('parsePasswordInput', () => {
+  it('yangi parol qaytadi', () => {
+    expect(parsePasswordInput({ currentPassword: 'old', newPassword: 'newsecret1' })).toEqual({ currentPassword: 'old', newPassword: 'newsecret1' });
+  });
+  it('qisqa yangi parolni rad etadi', () => {
+    expect(() => parsePasswordInput({ newPassword: 'short' })).toThrow('password_too_short');
   });
 });

@@ -33,10 +33,15 @@ export type { PaymentMode };
 /** Kartalar/sahifa uchun narx ko'rinishi: naqd + eng past oylik, rejim bo'yicha gating.
  * Oylik minPriceUzs (eng arzon variant) bo'yicha — kartada ko'rinadigan narx bilan mos. */
 export function priceView(product: Product, config: InstallmentConfig, mode: PaymentMode) {
-  const monthlyUzs = lowestMonthly({ ...product, cashPriceUzs: product.minPriceUzs }, config);
+  const longest = config.terms.reduce((a, b) => (b.months > a.months ? b : a), config.terms[0]);
+  const monthlyUzs = calcInstallment(
+    { ...product, cashPriceUzs: product.minPriceUzs }, longest, config,
+  ).monthly;
   return {
     cashUzs: product.minPriceUzs,
     monthlyUzs,
+    /** Oylik qaysi muddat bo'yicha hisoblangani — kartada "× N oy" ko'rsatish uchun. */
+    months: longest.months,
     showMonthly: mode !== 'cash',
     monthlyPrimary: mode === 'installment',
   };

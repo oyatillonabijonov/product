@@ -10,3 +10,4 @@ coverage/
 .vercel
 .wrangler
 .dev.vars
+.claude/

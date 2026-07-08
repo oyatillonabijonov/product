@@ -4,7 +4,7 @@ import { Search, ShoppingCart, Menu, Globe, User } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
-import { localizedPath, langToLocale, stripLocale, localeToTextKey, type Locale } from '../../app/lib/i18n';
+import { localizedPath, langToLocale, stripLocale, localeToTextKey, categoryLabel, type Locale } from '../../app/lib/i18n';
 import logo from '../assets/logo.svg';
 import { useCart } from './CartContext';
 
@@ -19,6 +19,7 @@ export default function Header({
   categories: cats,
   brandName,
   customerName,
+  onLoginClick,
 }: {
   t: Translation;
   lang: LangKey;
@@ -29,6 +30,8 @@ export default function Header({
   brandName: string;
   /** Kirgan mijoz nomi, yoki null (kirmagan). */
   customerName: string | null;
+  /** Kirmagan holatda akkaunt ikonkasi kirish drawer'ini ochadi. */
+  onLoginClick: () => void;
 }) {
   const [q, setQ] = useState('');
   const [catOpen, setCatOpen] = useState(false);
@@ -54,10 +57,66 @@ export default function Header({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  function submitSearch(e: React.FormEvent) {
+  function submitSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (q.trim()) navigate(localizedPath(locale, `/search?q=${encodeURIComponent(q.trim())}`));
+    const query = q.trim();
+    if (!query) {
+      // Bo'sh submit jim turmasin — inputga fokus qaytadi.
+      e.currentTarget.querySelector<HTMLInputElement>('input')?.focus();
+      return;
+    }
+    navigate(localizedPath(locale, `/search?q=${encodeURIComponent(query)}`));
   }
+
+  // Ikkala joyda (desktop 1-qator / mobil 2-qator) bir xil forma.
+  // text-[16px] — iOS Safari 16px dan kichik inputni fokusda zoom qiladi.
+  const searchForm = (
+    <form onSubmit={submitSearch} className="w-full relative">
+      <input
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        type="search"
+        enterKeyHint="search"
+        placeholder={t.navSearchPlaceholder}
+        aria-label={t.navSearch}
+        className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-[16px] placeholder:text-muted-3 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-white transition-colors [&::-webkit-search-cancel-button]:hidden"
+      />
+      <button
+        type="submit"
+        aria-label={t.navSearch}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center hover:bg-accent-hover transition-colors"
+      >
+        <Search className="w-4 h-4" />
+      </button>
+    </form>
+  );
+
+  const catMenu = catOpen && (
+    <>
+      <div className="fixed inset-0 z-40" onClick={() => setCatOpen(false)} />
+      <div className="absolute left-0 top-full mt-2 w-60 max-h-[70vh] overflow-y-auto bg-white border border-line-2 rounded-2xl shadow-apple-hover p-2 z-50">
+        <div className="border-b border-divider mb-1 pb-1">
+          <Link
+            to={localizedPath(locale, '/katalog')}
+            onClick={() => setCatOpen(false)}
+            className="block px-3 py-2.5 text-[14px] rounded-xl hover:bg-bg transition-colors"
+          >
+            {t.catalogAll}
+          </Link>
+        </div>
+        {cats.map((c) => (
+          <Link
+            key={c.id}
+            to={localizedPath(locale, `/category/${c.id}`)}
+            onClick={() => setCatOpen(false)}
+            className="block px-3 py-2.5 text-[14px] rounded-xl hover:bg-bg transition-colors"
+          >
+            {categoryLabel(c, locale)}
+          </Link>
+        ))}
+      </div>
+    </>
+  );
 
   return (
     <header
@@ -65,45 +124,21 @@ export default function Header({
         scrolled ? 'border-line-2' : 'border-transparent'
       }`}
     >
-      <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center gap-3 md:gap-4">
-        <Link to={localizedPath(locale, '/')} className="shrink-0">
+      <div className="max-w-[1200px] mx-auto px-4 h-14 md:h-16 flex items-center gap-2 md:gap-4">
+        <Link to={localizedPath(locale, '/')} className="shrink-0 mr-auto md:mr-0">
           <img src={logo} alt={brandName} className="h-8 md:h-9" />
         </Link>
 
-        <div className="relative">
+        {/* Katalog — desktop (mobilda qidiruv qatorida) */}
+        <div className="relative hidden md:block">
           <button
             onClick={() => setCatOpen((v) => !v)}
             aria-label={t.navCatalog}
-            className="inline-flex items-center gap-2 rounded-full border border-line px-3 sm:px-4 py-2 text-[14px] font-semibold hover:border-accent hover:text-accent transition-colors"
+            className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-[14px] font-semibold hover:border-accent hover:text-accent transition-colors"
           >
-            <Menu className="w-4 h-4" /> <span className="hidden sm:inline">{t.navCatalog}</span>
+            <Menu className="w-4 h-4" /> {t.navCatalog}
           </button>
-          {catOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setCatOpen(false)} />
-              <div className="absolute left-0 top-full mt-2 w-60 bg-white border border-line-2 rounded-2xl shadow-apple-hover p-2 z-50">
-                <div className="border-b border-divider mb-1 pb-1">
-                  <Link
-                    to={localizedPath(locale, '/katalog')}
-                    onClick={() => setCatOpen(false)}
-                    className="block px-3 py-2.5 text-[14px] rounded-xl hover:bg-bg transition-colors"
-                  >
-                    {t.catalogAll}
-                  </Link>
-                </div>
-                {cats.map((c) => (
-                  <Link
-                    key={c.id}
-                    to={localizedPath(locale, `/category/${c.id}`)}
-                    onClick={() => setCatOpen(false)}
-                    className="block px-3 py-2.5 text-[14px] rounded-xl hover:bg-bg transition-colors"
-                  >
-                    {c.name}
-                  </Link>
-                ))}
-              </div>
-            </>
-          )}
+          {catMenu}
         </div>
 
         {navPages.length > 0 && (
@@ -120,46 +155,44 @@ export default function Header({
           </nav>
         )}
 
-        <form onSubmit={submitSearch} className="flex-1 min-w-0 relative">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder={t.navSearchPlaceholder}
-            aria-label={t.navSearch}
-            className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-[15px] placeholder:text-muted-3 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-white transition-colors"
-          />
-          <button
-            type="submit"
-            aria-label={t.navSearch}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center hover:bg-accent-hover transition-colors"
-          >
-            <Search className="w-4 h-4" />
-          </button>
-        </form>
+        {/* Qidiruv — faqat desktop qatorida; mobilda alohida to'liq enli qator */}
+        <div className="hidden md:block flex-1 min-w-0">{searchForm}</div>
 
         <Link
           to={localizedPath(locale, '/savat')}
-          className="relative text-muted hover:text-primary transition-colors"
+          className="relative p-2.5 -m-1 text-muted hover:text-primary transition-colors"
           aria-label={t.cartTitle}
         >
           <ShoppingCart className="w-5 h-5" />
           {count > 0 && (
-            <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center">
+            <span className="absolute top-0 right-0 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center">
               {count}
             </span>
           )}
         </Link>
 
-        <Link
-          to={localizedPath(locale, customerName !== null ? '/kabinet' : '/kirish')}
-          className="text-muted hover:text-primary transition-colors"
-          aria-label={customerName !== null ? (customerName || t.accountTitle) : t.loginTitle}
-          title={customerName !== null ? (customerName || t.accountTitle) : t.loginTitle}
-        >
-          <User className="w-5 h-5" />
-        </Link>
+        {customerName !== null ? (
+          <Link
+            to={localizedPath(locale, '/kabinet')}
+            className="p-2.5 -m-1 text-muted hover:text-primary transition-colors"
+            aria-label={customerName || t.accountTitle}
+            title={customerName || t.accountTitle}
+          >
+            <User className="w-5 h-5" />
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={onLoginClick}
+            className="p-2.5 -m-1 text-muted hover:text-primary transition-colors"
+            aria-label={t.loginTitle}
+            title={t.loginTitle}
+          >
+            <User className="w-5 h-5" />
+          </button>
+        )}
 
-        <div className="relative flex items-center text-muted hover:text-primary transition-colors rounded-md focus-within:ring-2 focus-within:ring-accent/50">
+        <div className="relative flex items-center p-2.5 -m-1 text-muted hover:text-primary transition-colors rounded-md focus-within:ring-2 focus-within:ring-accent/50">
           <Globe className="w-5 h-5" />
           <select
             value={lang}
@@ -173,21 +206,21 @@ export default function Header({
         </div>
       </div>
 
-      {navPages.length > 0 && (
-        <div className="lg:hidden border-t border-line/50 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <nav className="max-w-[1200px] mx-auto px-4 flex items-center gap-2 py-2 min-w-max">
-            {navPages.map((p) => (
-              <Link
-                key={p.slug}
-                to={localizedPath(locale, `/page/${p.slug}`)}
-                className="whitespace-nowrap rounded-full bg-segment px-3.5 py-1.5 text-[13px] font-medium text-muted hover:text-accent transition-colors"
-              >
-                {p.title[textKey]}
-              </Link>
-            ))}
-          </nav>
+      {/* Mobil: Katalog (ikon) + to'liq enli qidiruv qatori. Nav sahifalar (Shartlar)
+          alohida pill-qator o'rniga hero CTA'da — sticky header balandligi tejaladi. */}
+      <div className="md:hidden max-w-[1200px] mx-auto px-4 pb-2.5 flex items-center gap-2">
+        <div className="relative shrink-0">
+          <button
+            onClick={() => setCatOpen((v) => !v)}
+            aria-label={t.navCatalog}
+            className="flex items-center justify-center w-11 h-11 rounded-full border border-line hover:border-accent hover:text-accent transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          {catMenu}
         </div>
-      )}
+        {searchForm}
+      </div>
     </header>
   );
 }

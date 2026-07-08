@@ -1,6 +1,6 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/product';
-import { resolveLocale, localizedPath, localeToLang } from '../lib/i18n';
+import { resolveLocale, localizedPath, localeToLang, categoryLabel } from '../lib/i18n';
 import { pageTitle, storeConfigFrom, productJsonLd, breadcrumbJsonLd, ogMeta } from '../lib/seo';
 import { loadProductDetail, loadConfig, loadProductsBy, loadCategories } from '../lib/loaders';
 import { fallbackCategoryOf } from '../../src/data/products';
@@ -23,7 +23,8 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
         .filter((p) => p.id !== product.id)
         .slice(0, 4)
     : [];
-  const categoryName = categories.find((c) => c.id === product.categoryId)?.name ?? null;
+  const category = categories.find((c) => c.id === product.categoryId);
+  const categoryName = category ? categoryLabel(category, locale) : null;
   return { product, config, similar, locale, categoryName, origin: new URL(request.url).origin };
 }
 

@@ -9,6 +9,7 @@ import { calcInstallment, discountPercent, formatUzs } from '../lib/installment'
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, type VariantSelection } from '../lib/variants';
 import { useCart } from './CartContext';
 import Gallery from './Gallery';
+import FavoriteButton from './FavoriteButton';
 import LocaleLink from './LocaleLink';
 import OrderForm, { type OrderDraft } from './OrderForm';
 import ProductGrid from './ProductGrid';
@@ -97,9 +98,17 @@ const ProductPage: FC<{
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
         <Gallery key={variant?.id ?? 'base'} images={galleryImages} name={product.name} />
         <div className="md:sticky md:top-24 md:self-start">
-          <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full ${product.condition === 'yangi' ? 'bg-accent-soft text-accent' : 'bg-trust-soft text-trust'}`}>
-            {product.condition === 'yangi' ? t.badgeNew : t.badgeUsed}
-          </span>
+          <div className="flex items-start justify-between gap-3">
+            <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full ${product.condition === 'yangi' ? 'bg-accent-soft text-accent' : 'bg-trust-soft text-trust'}`}>
+              {product.condition === 'yangi' ? t.badgeNew : t.badgeUsed}
+            </span>
+            <FavoriteButton
+              item={{ productId: product.id, name: product.name, image: product.image, priceUzs: product.minPriceUzs }}
+              addLabel={t.favAdd}
+              removeLabel={t.favRemove}
+              className="w-10 h-10 shrink-0"
+            />
+          </div>
           <h1 className="text-[32px] md:text-[46px] font-semibold text-primary tracking-[-0.035em] mt-3 leading-[1.0]">{product.name}</h1>
           {product.conditionNote && <p className="text-[14px] text-muted mt-2.5">{product.conditionNote}</p>}
 
@@ -208,19 +217,11 @@ const ProductPage: FC<{
               </button>
             )}
             {site.paymentMode !== 'installment' && (
-              <button onClick={() => openOrder('cash')} disabled={outOfStock} className="flex-1 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button onClick={() => openOrder('cash')} disabled={outOfStock} className="flex-1 py-3.5 bg-cta text-white font-semibold rounded-full hover:bg-cta-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 {t.orderBuyCash}
               </button>
             )}
           </div>
-
-          {(site.telegram || site.whatsapp) && (
-            <div className="flex items-center gap-3 mt-3 text-[13px] text-muted">
-              <span>{t.orderAsk}</span>
-              {site.telegram && <a href={site.telegram} target="_blank" rel="noopener noreferrer" className="text-accent font-semibold hover:underline">Telegram</a>}
-              {site.whatsapp && <a href={site.whatsapp} target="_blank" rel="noopener noreferrer" className="text-accent font-semibold hover:underline">WhatsApp</a>}
-            </div>
-          )}
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-5 border-t border-divider text-[13px] text-muted">
             <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-trust" /> {t.trustShort}</span>

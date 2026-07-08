@@ -30,6 +30,8 @@
   --color-segment: #EFF1F4;
   --color-trust-soft: #EDEFF2;
   --color-danger: #E30000;
+  --color-cta: #0071E3; /* Apple "Buy" CTA ko'k — faqat naqd xarid tugmasi */
+  --color-cta-hover: #0077ED;
 }
 
 html {

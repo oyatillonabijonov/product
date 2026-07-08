@@ -39,11 +39,13 @@ export function meta({ data, matches }: Route.MetaArgs) {
 export default function HomeRoute() {
   const { products, config, categories, banners, deals, latest, brands, faqPage, locale } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
+  // Hero'dagi ikkilamchi CTA — shartlar sahifasi (mobil headerdagi pill-qator o'rniga).
+  const termsPage = ctx.pageLinks.find((p) => p.slug === 'muddatli-tolov') ?? null;
   return (
     <HomePage
       t={ctx.t} products={products} config={config} categories={categories}
       banners={banners} deals={deals} latest={latest} brands={brands} locale={locale} faqPage={faqPage}
-      site={ctx.config}
+      site={ctx.config} termsPage={termsPage}
     />
   );
 }

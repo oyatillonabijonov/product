@@ -219,6 +219,7 @@ export function parseSettingsInput(body: unknown): ApiSettings {
 export interface CategoryInput {
   id: string;
   name: string;
+  nameRu: string;
   iconUrl: string;
   icon: string;
   sortOrder: number;
@@ -236,10 +237,11 @@ export function parseCategoryInput(body: unknown): CategoryInput {
   const name = reqString(o, 'name');
   const id =
     typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : slugify(name) || crypto.randomUUID();
+  const nameRu = typeof o.nameRu === 'string' ? o.nameRu.trim() : '';
   const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : '';
   const icon = typeof o.icon === 'string' ? o.icon.trim() : '';
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
-  return { id, name, iconUrl, icon, sortOrder };
+  return { id, name, nameRu, iconUrl, icon, sortOrder };
 }
 
 export interface BannerInput {
@@ -319,6 +321,50 @@ export function parseDeviceModelInput(body: unknown): DeviceModelInput {
   const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : (slugify(name) || crypto.randomUUID());
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   return { id, name, brandId, categoryId, legacyCategory, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
+}
+
+export interface EmailAuthInput {
+  mode: 'login' | 'register';
+  email: string;
+  password: string;
+  name: string;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** /auth/email body — kirish yoki ro'yxatdan o'tish. Email lower-case normallashtiriladi. */
+export function parseEmailAuthInput(body: unknown): EmailAuthInput {
+  const o = asRecord(body);
+  const mode = o.mode === 'register' ? 'register' : o.mode === 'login' ? 'login' : null;
+  if (!mode) throw new ValidationError('mode_invalid');
+  const email = (typeof o.email === 'string' ? o.email : '').trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) throw new ValidationError('email_invalid');
+  const password = typeof o.password === 'string' ? o.password : '';
+  if (password.length < 8) throw new ValidationError('password_too_short');
+  const name = (typeof o.name === 'string' ? o.name : '').trim().slice(0, 80);
+  return { mode, email, password, name };
+}
+
+/** Kabinet profil tahriri — ism (majburiy) + telefon (ixtiyoriy, bo'lsa UZ format). */
+export function parseProfileInput(body: unknown): { name: string; phone: string } {
+  const o = asRecord(body);
+  const name = (typeof o.name === 'string' ? o.name : '').trim().slice(0, 80);
+  if (!name) throw new ValidationError('name_required');
+  const phone = (typeof o.phone === 'string' ? o.phone : '').trim();
+  if (phone) {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length < 9 || digits.length > 12) throw new ValidationError('phone_invalid');
+  }
+  return { name, phone };
+}
+
+/** Kabinet parol o'rnatish/o'zgartirish — joriy (ixtiyoriy, faqat paroli bor hisobda) + yangi (min 8). */
+export function parsePasswordInput(body: unknown): { currentPassword: string; newPassword: string } {
+  const o = asRecord(body);
+  const currentPassword = typeof o.currentPassword === 'string' ? o.currentPassword : '';
+  const newPassword = typeof o.newPassword === 'string' ? o.newPassword : '';
+  if (newPassword.length < 8) throw new ValidationError('password_too_short');
+  return { currentPassword, newPassword };
 }
 
 export function parseSiteConfigInput(body: unknown): ApiSiteConfig {

@@ -1,9 +1,14 @@
 import { motion } from 'motion/react';
-import { ArrowRight, Phone } from 'lucide-react';
+import { ArrowRight, FileText } from 'lucide-react';
 import type { Translation } from '../locales';
 import heroDevice from '../assets/images/iph1.webp';
+import LocaleLink from './LocaleLink';
 
-export default function HeroBanner({ t, phone }: { t: Translation; phone: string }) {
+export default function HeroBanner({ t, termsCta }: {
+  t: Translation;
+  /** Ikkilamchi CTA — shartlar sahifasi (admin `pages`dan, lokalizatsiyalangan nom bilan); yo'q bo'lsa tugma chiqmaydi. */
+  termsCta: { to: string; label: string } | null;
+}) {
   return (
     <div className="relative overflow-hidden rounded-[28px] bg-bg border border-line-3 shadow-apple">
       {/* Soft color mesh */}
@@ -51,13 +56,15 @@ export default function HeroBanner({ t, phone }: { t: Translation; phone: string
               {t.heroCtaPrimary}
               <ArrowRight className="w-4 h-4" />
             </a>
-            <a
-              href={`tel:${phone}`}
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-primary text-[15px] font-semibold rounded-full border border-line hover:border-accent transition-colors"
-            >
-              <Phone className="w-4 h-4" />
-              {t.heroCtaSecondary}
-            </a>
+            {termsCta && (
+              <LocaleLink
+                to={termsCta.to}
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-primary text-[15px] font-semibold rounded-full border border-line hover:border-accent transition-colors"
+              >
+                <FileText className="w-4 h-4" />
+                {termsCta.label}
+              </LocaleLink>
+            )}
           </div>
         </div>
 
