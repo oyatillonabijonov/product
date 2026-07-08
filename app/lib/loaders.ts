@@ -241,6 +241,7 @@ export function staticSiteConfigAsApi(): ApiSiteConfig {
     googleClientSecret: '',
     telegramLoginBot: '',
     customerSessionSecret: '',
+    yandexMetricaId: '',
   };
 }
 

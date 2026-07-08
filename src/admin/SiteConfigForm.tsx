@@ -20,6 +20,7 @@ const FIELDS: { key: keyof ApiSiteConfig; label: string; placeholder?: string; s
   { key: 'telegramLoginBot', label: 'Telegram login bot username', placeholder: 'my_login_bot' },
   { key: 'googleClientId', label: 'Google OAuth client ID' },
   { key: 'googleClientSecret', label: 'Google OAuth client secret', secret: true },
+  { key: 'yandexMetricaId', label: 'Yandex Metrica hisoblagich raqami', placeholder: '12345678' },
 ];
 
 export default function SiteConfigForm() {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useOutletContext } from 'react-router';
 import { X, Send } from 'lucide-react';
@@ -7,6 +7,8 @@ import type { OrderInput } from '../../shared/types';
 import type { StoreContext } from './StoreLayout';
 import { formatUzs } from '../lib/installment';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
+import { ymGoal } from '../lib/metrica';
+import { safeHref } from '../lib/safe-href';
 
 /** Ism/telefonsiz tayyor buyurtma — chaqiruvchi (ProductPage/CartPage) to'ldiradi. */
 export type OrderDraft = Omit<OrderInput, 'name' | 'phone' | 'note'> & { title: string };
@@ -18,7 +20,7 @@ const OrderForm: FC<{
   /** Buyurtma muvaffaqiyatli yuborilgach modal yopilganda chaqiriladi (CartPage savatni tozalaydi). */
   onDone?: () => void;
 }> = ({ t, draft, onClose, onDone }) => {
-  const { customer } = useOutletContext<StoreContext>();
+  const { customer, config } = useOutletContext<StoreContext>();
   const [name, setName] = useState(customer?.name ?? '');
   const [phone, setPhone] = useState(formatUzPhone(customer?.phone ?? ''));
   const [company, setCompany] = useState(''); // honeypot
@@ -30,6 +32,12 @@ const OrderForm: FC<{
 
   const installment = draft.paymentKind === 'installment';
   const cashTotal = draft.items.reduce((s, it) => s + it.priceUzs * it.qty, 0);
+  const tgHref = safeHref(config.telegram);
+
+  // Konversiya voronkasi: forma ochilishi ham maqsad (submit'gacha yetmaganlarni o'lchash uchun).
+  useEffect(() => {
+    ymGoal(config.yandexMetricaId, 'order_form_open');
+  }, [config.yandexMetricaId]);
 
   function close() {
     onClose();
@@ -55,6 +63,7 @@ const OrderForm: FC<{
       });
       if (!res.ok) throw new Error();
       setDone(true);
+      ymGoal(config.yandexMetricaId, 'order_submit');
     } catch {
       setErr(t.orderError);
     } finally {
@@ -81,11 +90,25 @@ const OrderForm: FC<{
         </button>
 
         {done ? (
-          <div className="py-8 text-center">
+          <div className="py-6 text-center">
             <p className="text-[16px] font-semibold text-trust">{t.orderSuccess}</p>
-            <button onClick={close} className="mt-5 px-6 py-2.5 bg-primary text-white font-semibold rounded-full">
-              {t.orderClose}
-            </button>
+            {/* Arizadan keyingi "qora tuynuk"ni yopish: nima bo'lishini aniq aytamiz */}
+            <p className="text-[13.5px] text-muted mt-2">{t.orderSuccessNote}</p>
+            <div className="flex flex-col gap-2.5 mt-5">
+              {tgHref && (
+                <a
+                  href={tgHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 border border-line-2 rounded-full font-semibold text-[14px] text-primary hover:bg-bg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Send className="w-4 h-4" /> {t.orderContactTg}
+                </a>
+              )}
+              <button onClick={close} className="w-full py-2.5 bg-primary text-white font-semibold text-[14px] rounded-full">
+                {t.orderClose}
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={submit}>

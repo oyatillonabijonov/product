@@ -473,6 +473,7 @@ export interface SiteConfigRow {
   google_client_secret: string;
   telegram_login_bot: string;
   customer_session_secret: string;
+  yandex_metrica_id: string;
 }
 
 export interface DeviceModelRow {
@@ -500,6 +501,7 @@ export function rowToSiteConfig(r: SiteConfigRow): ApiSiteConfig {
     telegramBotToken: r.telegram_bot_token, telegramOrderChatId: r.telegram_order_chat_id,
     googleClientId: r.google_client_id, googleClientSecret: r.google_client_secret,
     telegramLoginBot: r.telegram_login_bot, customerSessionSecret: r.customer_session_secret,
+    yandexMetricaId: r.yandex_metrica_id ?? '',
   };
 }
 

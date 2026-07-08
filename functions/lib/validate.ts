@@ -381,6 +381,8 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
   };
   const pm = opt('paymentMode');
   const paymentMode: PaymentMode = pm === 'cash' || pm === 'installment' ? pm : 'both';
+  const yandexMetricaId = opt('yandexMetricaId');
+  if (yandexMetricaId !== '' && !/^\d{1,12}$/.test(yandexMetricaId)) throw new ValidationError('yandexMetricaId_invalid');
   return {
     name,
     phone,
@@ -401,6 +403,7 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
     telegramLoginBot: opt('telegramLoginBot'),
     // Server tomonidan boshqariladi (runtime generatsiya) — body'dan kelmaydi, yozuvda saqlanadi.
     customerSessionSecret: '',
+    yandexMetricaId,
   };
 }
 

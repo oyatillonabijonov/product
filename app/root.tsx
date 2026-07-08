@@ -16,6 +16,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const lang = htmlLang(storeData?.locale ?? DEFAULT_LOCALE);
   const location = useLocation();
   const jsonLd = JSON.stringify(organizationJsonLd(storeData?.siteConfig)).replace(/</g, '\\u003c');
+  // Yandex Metrica — faqat hisoblagich sozlanganda (admin "Sayt ma'lumotlari") va
+  // faqat storefront'da (storeData admin/resource routelarda yo'q). Id raqamligini
+  // parseSiteConfigInput kafolatlaydi — baribir Number() bilan qo'shamiz (XSS himoyasi).
+  const metricaId = /^\d+$/.test(storeData?.siteConfig?.yandexMetricaId ?? '') ? Number(storeData?.siteConfig?.yandexMetricaId) : null;
+  const metricaJs = metricaId === null ? '' :
+    `(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');ym(${metricaId},'init',{ssr:true,webvisor:true,clickmap:true,trackLinks:true,accurateTrackBounce:true});`;
   return (
     <html lang={lang}>
       <head>
@@ -40,6 +46,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        {metricaJs && (
+          <>
+            {/* eslint-disable-next-line react/no-danger */}
+            <script dangerouslySetInnerHTML={{ __html: metricaJs }} />
+            <noscript>
+              <img src={`https://mc.yandex.ru/watch/${metricaId}`} style={{ position: 'absolute', left: '-9999px' }} alt="" />
+            </noscript>
+          </>
+        )}
       </body>
     </html>
   );

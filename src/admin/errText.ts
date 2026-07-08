@@ -8,6 +8,7 @@ const MESSAGES: Record<string, string> = {
   title_ru_required: 'Sarlavha (rus) majburiy',
   name_required: 'Nomi majburiy',
   phone_required: 'Telefon majburiy',
+  yandexMetricaId_invalid: 'Metrica raqami faqat raqamlardan iborat bo\'lishi kerak',
   id_taken: 'Bu model allaqachon mavjud',
   brandId_required: 'Brend majburiy',
   categoryId_required: 'Kategoriya majburiy',

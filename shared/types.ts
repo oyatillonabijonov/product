@@ -151,6 +151,8 @@ export interface ApiSiteConfig {
   telegramLoginBot: string;
   /** Mijoz sessiya siri — runtime'da generatsiya qilinadi. SIR. */
   customerSessionSecret: string;
+  /** Yandex Metrica hisoblagich raqami (ommaviy); bo'sh = analitika o'chiq. */
+  yandexMetricaId: string;
 }
 
 export interface ApiCustomer {

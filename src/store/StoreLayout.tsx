@@ -1,11 +1,13 @@
-import { useState, type ReactNode } from 'react';
-import { useNavigation } from 'react-router';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useLocation, useNavigation } from 'react-router';
+import { ymHit } from '../lib/metrica';
 import type { LangKey, Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import type { ApiCategory, ApiCustomer, ApiSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
 import Header from './Header';
 import Footer from './Footer';
+import ContactFab from './ContactFab';
 import CookieBanner from './CookieBanner';
 import LoginModal from './LoginModal';
 import { CartProvider } from './CartContext';
@@ -30,6 +32,13 @@ export default function StoreLayout({
   const navigation = useNavigation();
   const pending = navigation.state !== 'idle';
   const [loginOpen, setLoginOpen] = useState(false);
+  // Metrica SPA hit — birinchi renderni tashlab (uni 'init' o'zi qayd etadi), keyingi navigatsiyalarni yuboramiz.
+  const location = useLocation();
+  const firstHit = useRef(true);
+  useEffect(() => {
+    if (firstHit.current) { firstHit.current = false; return; }
+    ymHit(config.yandexMetricaId, location.pathname + location.search);
+  }, [location.pathname, location.search, config.yandexMetricaId]);
   return (
     <CartProvider>
      <FavoritesProvider>
@@ -42,6 +51,7 @@ export default function StoreLayout({
         <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} onLoginClick={() => setLoginOpen(true)} />
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} />
+        <ContactFab t={t} config={config} />
         <CookieBanner t={t} />
         <LoginModal t={t} config={config} open={loginOpen} onClose={() => setLoginOpen(false)} />
       </div>

@@ -23,10 +23,10 @@ export async function action({ request, context }: Route.ActionArgs) {
   // UPDATE (INSERT OR REPLACE emas) — customer_session_secret server tomonidan boshqariladi,
   // REPLACE uni o'chirib yuborardi (barcha mijoz sessiyalari bekor bo'lardi).
   await env.DB.prepare(
-    'UPDATE site_config SET name=?, phone=?, phone_display=?, telegram=?, instagram=?, whatsapp=?, map_ll=?, map_label=?, seo_title_suffix=?, seo_description=?, og_image=?, payment_mode=?, telegram_bot_token=?, telegram_order_chat_id=?, google_client_id=?, google_client_secret=?, telegram_login_bot=? WHERE id=1',
+    'UPDATE site_config SET name=?, phone=?, phone_display=?, telegram=?, instagram=?, whatsapp=?, map_ll=?, map_label=?, seo_title_suffix=?, seo_description=?, og_image=?, payment_mode=?, telegram_bot_token=?, telegram_order_chat_id=?, google_client_id=?, google_client_secret=?, telegram_login_bot=?, yandex_metrica_id=? WHERE id=1',
   ).bind(input.name, input.phone, input.phoneDisplay, input.telegram, input.instagram, input.whatsapp,
     input.mapLl, input.mapLabel, input.seoTitleSuffix, input.seoDescription, input.ogImage, input.paymentMode,
     input.telegramBotToken, input.telegramOrderChatId,
-    input.googleClientId, input.googleClientSecret, input.telegramLoginBot).run();
+    input.googleClientId, input.googleClientSecret, input.telegramLoginBot, input.yandexMetricaId).run();
   return json(input);
 }
