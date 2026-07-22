@@ -271,6 +271,8 @@ export interface AdminAuth {
   sessionSecret: string;
   failedAttempts: number;
   lockUntil: number;
+  /** Bo'sh bo'lmasa — shu Google email admin sifatida kira oladi (allowlist). */
+  adminGoogleEmail: string;
 }
 
 interface AdminAuthRow {
@@ -280,11 +282,12 @@ interface AdminAuthRow {
   session_secret: string;
   failed_attempts: number;
   lock_until: number;
+  admin_google_email: string;
 }
 
 export async function loadAdminAuth(env: Env): Promise<AdminAuth | null> {
   const row = await env.DB
-    .prepare('SELECT username, password_hash, password_salt, session_secret, failed_attempts, lock_until FROM admin_auth WHERE id = 1')
+    .prepare('SELECT username, password_hash, password_salt, session_secret, failed_attempts, lock_until, admin_google_email FROM admin_auth WHERE id = 1')
     .first<AdminAuthRow>();
   if (!row) return null;
   return {
@@ -294,12 +297,13 @@ export async function loadAdminAuth(env: Env): Promise<AdminAuth | null> {
     sessionSecret: row.session_secret,
     failedAttempts: row.failed_attempts,
     lockUntil: row.lock_until,
+    adminGoogleEmail: row.admin_google_email ?? '',
   };
 }
 
 export async function updateAdminAuth(
   env: Env,
-  fields: { username?: string; passwordHash?: string; passwordSalt?: string; sessionSecret?: string },
+  fields: { username?: string; passwordHash?: string; passwordSalt?: string; sessionSecret?: string; adminGoogleEmail?: string },
 ): Promise<void> {
   const sets: string[] = [];
   const binds: (string | number)[] = [];
@@ -307,6 +311,7 @@ export async function updateAdminAuth(
   if (fields.passwordHash !== undefined) { sets.push('password_hash = ?'); binds.push(fields.passwordHash); }
   if (fields.passwordSalt !== undefined) { sets.push('password_salt = ?'); binds.push(fields.passwordSalt); }
   if (fields.sessionSecret !== undefined) { sets.push('session_secret = ?'); binds.push(fields.sessionSecret); }
+  if (fields.adminGoogleEmail !== undefined) { sets.push('admin_google_email = ?'); binds.push(fields.adminGoogleEmail); }
   if (sets.length === 0) return;
   await env.DB.prepare(`UPDATE admin_auth SET ${sets.join(', ')} WHERE id = 1`).bind(...binds).run();
 }

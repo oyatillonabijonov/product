@@ -19,6 +19,7 @@ const MESSAGES: Record<string, string> = {
   invalid_current_password: "Joriy parol noto'g'ri",
   username_too_short: "Login kamida 3 belgidan iborat bo'lishi kerak",
   password_too_short: "Yangi parol kamida 8 belgidan iborat bo'lishi kerak",
+  email_invalid: "Email manzili noto'g'ri",
   nothing_to_update: "O'zgartirish uchun ma'lumot yo'q",
   not_initialized: "Admin sozlanmagan (migratsiya qo'llanganmi?)",
   too_many_attempts: "Urinishlar ko'payib ketdi — birozdan so'ng qayta urining",

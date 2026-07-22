@@ -45,14 +45,19 @@ export async function getMe(): Promise<{ username: string }> {
   return handle(await fetch('/api/admin/me'));
 }
 
-export async function getAccount(): Promise<{ username: string }> {
+export async function getAccount(): Promise<{ username: string; adminGoogleEmail: string }> {
   return handle(await fetch('/api/admin/account'));
+}
+
+export async function getLoginOptions(): Promise<{ google: boolean }> {
+  return handle(await fetch('/api/admin/login-options'));
 }
 
 export async function updateAccount(body: {
   currentPassword: string;
   username?: string;
   newPassword?: string;
+  adminGoogleEmail?: string;
 }): Promise<{ ok: true }> {
   return handle(
     await fetch('/api/admin/account', {

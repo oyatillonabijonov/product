@@ -17,7 +17,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
   const auth = await loadAdminAuth(env);
-  return json({ username: auth?.username ?? '' });
+  return json({ username: auth?.username ?? '', adminGoogleEmail: auth?.adminGoogleEmail ?? '' });
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
@@ -29,7 +29,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!auth) return json({ error: 'not_initialized' }, { status: 500 });
 
   const body = (await request.json().catch(() => null)) as
-    | { currentPassword?: string; username?: string; newPassword?: string }
+    | { currentPassword?: string; username?: string; newPassword?: string; adminGoogleEmail?: string }
     | null;
   if (!body || !body.currentPassword) {
     return json({ error: 'current_password_required' }, { status: 400 });
@@ -38,7 +38,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     return json({ error: 'invalid_current_password' }, { status: 401 });
   }
 
-  const fields: { username?: string; passwordHash?: string; passwordSalt?: string; sessionSecret?: string } = {};
+  const fields: { username?: string; passwordHash?: string; passwordSalt?: string; sessionSecret?: string; adminGoogleEmail?: string } = {};
 
   const username = body.username?.trim();
   if (username && username !== auth.username) {
@@ -59,7 +59,14 @@ export async function action({ request, context }: Route.ActionArgs) {
     fields.sessionSecret = randomSecretHex();
   }
 
-  if (fields.username === undefined && fields.passwordHash === undefined) {
+  // Google admin email — bo'sh = o'chirish; aks holda oddiy email formati.
+  if (body.adminGoogleEmail !== undefined) {
+    const em = body.adminGoogleEmail.trim().toLowerCase();
+    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return json({ error: 'email_invalid' }, { status: 400 });
+    if (em !== auth.adminGoogleEmail) fields.adminGoogleEmail = em;
+  }
+
+  if (fields.username === undefined && fields.passwordHash === undefined && fields.adminGoogleEmail === undefined) {
     return json({ error: 'nothing_to_update' }, { status: 400 });
   }
 

@@ -6,13 +6,14 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
   const [username, setUsername] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [googleEmail, setGoogleEmail] = useState('');
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
     getAccount()
-      .then((a) => { setUsername(a.username); setLoaded(true); })
+      .then((a) => { setUsername(a.username); setGoogleEmail(a.adminGoogleEmail); setLoaded(true); })
       .catch(() => setMsg("Yuklashda xatolik (migratsiya qo'llanganmi?)"));
   }, []);
 
@@ -25,6 +26,7 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
         currentPassword,
         username: username.trim() || undefined,
         newPassword: newPassword || undefined,
+        adminGoogleEmail: googleEmail.trim(),
       });
       setMsg('Saqlandi ✓ — keyingi kirishда yangi maʼlumotlardan foydalaning');
       setCurrentPassword('');
@@ -64,6 +66,22 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
           onChange={(e) => setNewPassword(e.target.value)}
           className="mt-1 w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] text-primary"
         />
+      </label>
+
+      <label className="block text-[13px] text-muted">
+        Google email (Google bilan kirish uchun)
+        <input
+          type="email"
+          value={googleEmail}
+          autoComplete="off"
+          placeholder="siz@gmail.com"
+          onChange={(e) => setGoogleEmail(e.target.value)}
+          className="mt-1 w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] text-primary"
+        />
+        <span className="block text-[11.5px] text-muted-2 mt-1">
+          Shu Google akkaunt admin panelga «Google bilan kirish» orqali kira oladi. Bo'sh qoldirsangiz — o'chiq.
+          (Mijoz kirishi uchun Google OAuth «Sayt ma'lumotlari»da sozlangan bo'lishi kerak.)
+        </span>
       </label>
 
       <label className="block text-[13px] text-muted">

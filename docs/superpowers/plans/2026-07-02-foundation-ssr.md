@@ -38,7 +38,7 @@
 - `app/routes/admin.tsx` — `/admin/*` klient-render (`AdminApp`), `ssr:false`.
 - `app/routes/api.*.tsx` — public API resource route'lar.
 - `app/routes/api.admin.*.tsx` — admin API resource route'lar + guard.
-- `app/routes/api.admin.guard.ts` — umumiy admin session guard (`functions/lib/auth`).
+- `app/routes/api.admin.guard.ts` — umumiy admin session guard /(`functions/lib/auth`).
 - `app/routes/images.$.tsx` — R2 stream resource route.
 - `app/routes/sitemap[.]xml.tsx`, `app/routes/robots[.]txt.tsx` — SEO resource route'lar.
 
