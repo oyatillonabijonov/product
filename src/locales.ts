@@ -23,6 +23,11 @@ export const translations = {
     consultError: "Yuborishda xatolik. Birozdan keyin qayta urinib ko'ring.",
     proTitle: "Professional yondashuv",
     svcTitle: "Kafolat va xizmat",
+    svcLead: "Sotib olgandan keyin yolg'iz qolmaysiz — kafolat, yetkazib berish va servis bir joydan.",
+    svcWarrantyFact: "12–24 oy",
+    svcDeliveryFact: "1–4 kun",
+    svcServiceFact: "Narx oldindan",
+
     svcWarrantyTitle: "Rasmiy kafolat",
     svcWarrantyDesc: "Barcha texnika rasmiy import qilinadi. Ishlab chiqaruvchi shartlari bo'yicha 12–24 oy, servis do'kon ichida.",
     svcDeliveryTitle: "Yetkazib berish",
@@ -198,6 +203,11 @@ export const translations = {
     consultError: "Ошибка отправки. Попробуйте ещё раз чуть позже.",
     proTitle: "Профессиональный подход",
     svcTitle: "Гарантия и сервис",
+    svcLead: "После покупки вы не остаётесь одни — гарантия, доставка и сервис в одном месте.",
+    svcWarrantyFact: "12–24 мес.",
+    svcDeliveryFact: "1–4 дня",
+    svcServiceFact: "Цена заранее",
+
     svcWarrantyTitle: "Официальная гарантия",
     svcWarrantyDesc: "Вся техника ввозится официально. 12–24 месяца по условиям производителя, сервис — в магазине.",
     svcDeliveryTitle: "Доставка",
