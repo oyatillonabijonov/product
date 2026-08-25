@@ -1,4 +1,4 @@
-import type { ApiBrand, ApiCategory, ApiPost, ApiSiteConfig } from '../../shared/types';
+import type { ApiCategory, ApiPost, ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import HeroColumns from './HeroColumns';
@@ -14,9 +14,9 @@ import ConsultForm from './ConsultForm';
  * katalog/mahsulot sahifalarida qoladi.
  */
 export default function HomePage({
-  t, categories, brands, locale, site, posts,
+  t, categories, locale, site, posts,
 }: {
-  t: Translation; categories: ApiCategory[]; brands: ApiBrand[]; locale: Locale;
+  t: Translation; categories: ApiCategory[]; locale: Locale;
   site: ApiSiteConfig; posts: ApiPost[];
 }) {
   return (
@@ -28,7 +28,7 @@ export default function HomePage({
       <div className="mx-auto flex max-w-[1440px] flex-col gap-16 px-4 py-14 md:gap-24 md:py-20">
         <ServiceCards t={t} />
         <BlogSection title={t.blogTitle} lead={t.blogLead} allLabel={t.blogAll} posts={posts} locale={locale} />
-        <BrandStrip title={t.homeBrands} brands={brands} />
+        <BrandStrip title={t.homeBrands} />
         <ConsultForm t={t} config={site} />
       </div>
     </>

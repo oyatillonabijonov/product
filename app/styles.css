@@ -122,6 +122,10 @@ body {
 .brand-marquee {
   animation: brand-marquee var(--marquee-duration) linear infinite;
 }
+/* Ikkinchi qator qarama-qarshi tomonga suriladi — bir xil kadrlar, teskari yo'nalish. */
+.brand-marquee-reverse {
+  animation-direction: reverse;
+}
 .brand-marquee:hover {
   animation-play-state: paused;
 }
