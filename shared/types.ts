@@ -182,7 +182,7 @@ export interface ApiCustomer {
 }
 
 export type OrderPaymentKind = 'cash' | 'installment';
-export type OrderSource = 'product' | 'cart';
+export type OrderSource = 'product' | 'cart' | 'consult';
 
 export interface OrderItemInput {
   productId: string;

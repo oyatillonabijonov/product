@@ -3,7 +3,7 @@ import type { Route } from './+types/home';
 import { resolveLocale } from '../lib/i18n';
 import { pageTitle, storeConfigFrom, ogMeta } from '../lib/seo';
 import { siteConfig } from '../lib/site.config';
-import { loadCategories, loadBrands, loadPage, loadPosts } from '../lib/loaders';
+import { loadCategories, loadBrands, loadPosts } from '../lib/loaders';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import HomePage from '../../src/store/HomePage';
 
@@ -13,10 +13,10 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const env = context.cloudflare.env;
   // Landing sotmaydi — mahsulot/banner so'rovlari olib tashlandi (D1 free-tier'da
   // har bir sahifa ochilishi uchun 4 ta ortiqcha so'rov edi).
-  const [categories, brands, faqPage, posts] = await Promise.all([
-    loadCategories(env), loadBrands(env), loadPage(env, 'faq'), loadPosts(env, 3),
+  const [categories, brands, posts] = await Promise.all([
+    loadCategories(env), loadBrands(env), loadPosts(env, 3),
   ]);
-  return { categories, brands, faqPage, posts, locale, origin: new URL(request.url).origin };
+  return { categories, brands, posts, locale, origin: new URL(request.url).origin };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
@@ -38,12 +38,12 @@ export function meta({ data, matches }: Route.MetaArgs) {
 }
 
 export default function HomeRoute() {
-  const { categories, brands, faqPage, posts, locale } = useLoaderData<typeof loader>();
+  const { categories, brands, posts, locale } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
   return (
     <HomePage
       t={ctx.t} categories={categories} brands={brands} locale={locale}
-      faqPage={faqPage} site={ctx.config} posts={posts}
+      site={ctx.config} posts={posts}
     />
   );
 }

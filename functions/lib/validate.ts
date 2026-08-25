@@ -445,6 +445,40 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
   };
 }
 
+export interface ConsultInput {
+  name: string;
+  phone: string;
+  /** Mijoz tanlagan mavzular — chip'lar matni (klientdan keladi, uzunligi cheklangan). */
+  topics: string[];
+  note: string;
+}
+
+const MAX_TOPICS = 12;
+
+/**
+ * Bepul konsultatsiya arizasi — mahsulotsiz lead. `parseOrderInput`dan alohida:
+ * u narx/miqdor invariantlarini talab qiladi, bu yerda ular yo'q.
+ */
+export function parseConsultInput(body: unknown): ConsultInput {
+  const o = asRecord(body);
+  const name = reqString(o, 'name');
+  const phone = reqString(o, 'phone');
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 7 || digits.length > 15) throw new ValidationError('phone_invalid');
+  const raw = Array.isArray(o.topics) ? o.topics : [];
+  if (raw.length > MAX_TOPICS) throw new ValidationError('topics_limit');
+  const topics = raw
+    .filter((x): x is string => typeof x === 'string')
+    .map((x) => x.trim().slice(0, 80))
+    .filter((x) => x !== '');
+  return {
+    name: name.slice(0, 120),
+    phone: phone.trim(),
+    topics,
+    note: typeof o.note === 'string' ? o.note.trim().slice(0, 500) : '',
+  };
+}
+
 const MAX_ORDER_ITEMS = 50;
 
 export function parseOrderInput(body: unknown): OrderInput {

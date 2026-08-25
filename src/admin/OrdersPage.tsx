@@ -52,9 +52,17 @@ const OrdersPage: FC = () => {
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-[15px]">{o.name}</span>
                   <a href={`tel:${o.phone}`} className="text-[13px] text-accent">{o.phone}</a>
-                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${o.paymentKind === 'installment' ? 'bg-accent-soft text-accent' : 'bg-row-alt text-muted'}`}>
-                    {o.paymentKind === 'installment' ? 'Muddatli' : 'Naqd'}
-                  </span>
+                  {/* Konsultatsiya arizasida mahsulot ham, narx ham yo'q — to'lov turi
+                      o'rniga uni ajratib turuvchi belgi ko'rsatiladi. */}
+                  {o.source === 'consult' ? (
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-accent-soft text-accent">
+                      Konsultatsiya
+                    </span>
+                  ) : (
+                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${o.paymentKind === 'installment' ? 'bg-accent-soft text-accent' : 'bg-row-alt text-muted'}`}>
+                      {o.paymentKind === 'installment' ? 'Muddatli' : 'Naqd'}
+                    </span>
+                  )}
                   {!o.telegramSent && <span className="text-[11px] text-sale">TG yuborilmadi</span>}
                 </div>
                 <div className="flex items-center gap-2">

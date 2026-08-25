@@ -36,6 +36,7 @@ export default [
   route('auth/logout', 'routes/auth.logout.tsx'),
   route('api/account', 'routes/api.account.tsx'),
   route('api/order', 'routes/api.order.tsx'),
+  route('api/consult', 'routes/api.consult.tsx'),
   route('images/*', 'routes/images.$.tsx'),
   route('sitemap.xml', 'routes/sitemap[.]xml.tsx'),
   route('robots.txt', 'routes/robots[.]txt.tsx'),

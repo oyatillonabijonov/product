@@ -1,13 +1,13 @@
-import type { ApiBrand, ApiCategory, ApiPage, ApiPost, ApiSiteConfig } from '../../shared/types';
+import type { ApiBrand, ApiCategory, ApiPost, ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
-import { localeToTextKey, type Locale } from '../../app/lib/i18n';
+import type { Locale } from '../../app/lib/i18n';
 import HeroColumns from './HeroColumns';
 import HeroNotch from './HeroNotch';
 import ProApproach from './ProApproach';
 import ServiceCards from './ServiceCards';
 import BlogSection from './BlogSection';
 import BrandStrip from './BrandStrip';
-import FaqSection from './FaqSection';
+import ConsultForm from './ConsultForm';
 
 /**
  * Landing hech narsa sotmaydi — u brend haqida gapiradi va mijozni hero'dagi
@@ -15,12 +15,11 @@ import FaqSection from './FaqSection';
  * katalog/mahsulot sahifalarida qoladi.
  */
 export default function HomePage({
-  t, categories, brands, locale, faqPage, site, posts,
+  t, categories, brands, locale, site, posts,
 }: {
   t: Translation; categories: ApiCategory[]; brands: ApiBrand[]; locale: Locale;
-  faqPage: ApiPage | null; site: ApiSiteConfig; posts: ApiPost[];
+  site: ApiSiteConfig; posts: ApiPost[];
 }) {
-  const textKey = localeToTextKey(locale);
   return (
     <>
       <HeroNotch t={t} locale={locale} categories={categories} />
@@ -32,7 +31,7 @@ export default function HomePage({
         <ServiceCards t={t} />
         <BlogSection title={t.blogTitle} lead={t.blogLead} allLabel={t.blogAll} posts={posts} locale={locale} />
         <BrandStrip title={t.homeBrands} brands={brands} />
-        {faqPage && <FaqSection title={faqPage.title[textKey]} content={faqPage.content[textKey]} />}
+        <ConsultForm t={t} config={site} />
       </div>
     </>
   );
