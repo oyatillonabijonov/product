@@ -3,7 +3,6 @@ import type { Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import HeroColumns from './HeroColumns';
 import HeroNotch from './HeroNotch';
-import ProApproach from './ProApproach';
 import ServiceCards from './ServiceCards';
 import BlogSection from './BlogSection';
 import BrandStrip from './BrandStrip';
@@ -27,7 +26,6 @@ export default function HomePage({
       <h1 className="sr-only">{`${site.name} — ${t.proTitle}`}</h1>
       <HeroColumns categories={categories} />
       <div className="mx-auto flex max-w-[1440px] flex-col gap-16 px-4 py-14 md:gap-24 md:py-20">
-        <ProApproach t={t} />
         <ServiceCards t={t} />
         <BlogSection title={t.blogTitle} lead={t.blogLead} allLabel={t.blogAll} posts={posts} locale={locale} />
         <BrandStrip title={t.homeBrands} brands={brands} />
