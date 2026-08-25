@@ -10,7 +10,7 @@
   --color-accent: #0A0A0A; /* Apple Devices Store skin — qora asosiy accent (ko'k emas) */
   --color-bg: #F4F5F7;
   --color-surface: #FFFFFF;   /* kartalar foni — landingda dark variantga almashadi */
-  --color-surface-2: #F0F1F4;
+  --color-surface-2: #F0F1F4; /* footer kabi sahifadan ajralib turishi kerak bo'lgan yuzalar */
   --color-trust: #2E3238; /* yashil o'rniga neytral to'q (ink) — coral faqat chegirmaga qoladi */
   --color-sale: #E8404B; /* coral — chegirma/badge */
   --color-body: #454A52;
@@ -53,7 +53,7 @@
   --color-disabled-2: #8B9199;
   --color-bg: #17191B;
   --color-surface: #27292B;   /* brend rangi */
-  --color-surface-2: #1F2123;
+  --color-surface-2: #101214; /* footer sahifadan to'qroq — hero qora bilan sahifani yakunlaydi */
   --color-accent: #F2F4F6;
   --color-accent-hover: #FFFFFF;
   --color-accent-soft: #2F3235;
