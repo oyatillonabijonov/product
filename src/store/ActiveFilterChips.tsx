@@ -5,7 +5,7 @@ import type { CatalogFilters } from '../../app/lib/catalog';
 import { formatUzs } from '../lib/installment';
 
 const Chip: FC<{ label: string; onRemove: () => void }> = ({ label, onRemove }) => (
-  <button onClick={onRemove} className="inline-flex items-center gap-1.5 bg-accent-soft text-accent text-[13px] font-semibold px-3 py-1.5 rounded-full hover:bg-accent-soft-2">
+  <button onClick={onRemove} className="inline-flex items-center gap-1.5 bg-accent-soft text-accent text-[14px] font-semibold px-3 py-1.5 rounded-full hover:bg-accent-soft-2">
     {label} <span aria-hidden>×</span>
   </button>
 );

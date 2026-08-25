@@ -83,7 +83,7 @@ const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config 
     `peer w-full border-0 border-b bg-transparent pb-3 pt-6 text-[17px] text-primary outline-none transition-colors placeholder:text-transparent ${
       bad ? 'border-danger' : 'border-line focus:border-primary'
     }`;
-  const label = 'pointer-events-none absolute left-0 top-6 text-[17px] text-muted-3 transition-all duration-200 peer-focus:top-0 peer-focus:text-[13px] peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[13px]';
+  const label = 'pointer-events-none absolute left-0 top-6 text-[17px] text-muted-3 transition-all duration-200 peer-focus:top-0 peer-focus:text-[14px] peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[14px]';
 
   if (done) {
     return (

@@ -7,7 +7,7 @@ const SortSelect: FC<{ t: Translation; value: SortKey; onChange: (v: SortKey) =>
     default: t.sortDefault, arzon: t.sortCheap, qimmat: t.sortExpensive, yangi: t.sortNew,
   };
   return (
-    <label className="inline-flex items-center gap-2 text-[13px] text-muted">
+    <label className="inline-flex items-center gap-2 text-[14px] text-muted">
       {t.sortLabel}
       <select
         value={value}

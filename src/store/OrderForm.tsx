@@ -93,7 +93,7 @@ const OrderForm: FC<{
           <div className="py-6 text-center">
             <p className="text-[16px] font-semibold text-trust">{t.orderSuccess}</p>
             {/* Arizadan keyingi "qora tuynuk"ni yopish: nima bo'lishini aniq aytamiz */}
-            <p className="text-[13.5px] text-muted mt-2">{t.orderSuccessNote}</p>
+            <p className="text-[14px] text-muted mt-2">{t.orderSuccessNote}</p>
             <div className="flex flex-col gap-2.5 mt-5">
               {tgHref && (
                 <a
@@ -116,7 +116,7 @@ const OrderForm: FC<{
             <p className="text-[14px] text-muted mt-1 mb-3 line-clamp-2">{draft.title}</p>
 
             {/* Buyurtma xulosasi — mijoz nimani tasdiqlayotganini ko'rsin */}
-            <div className="bg-bg rounded-xl px-4 py-3 mb-4 space-y-1.5 text-[13px]">
+            <div className="bg-bg rounded-xl px-4 py-3 mb-4 space-y-1.5 text-[14px]">
               <div className="flex justify-between gap-3">
                 <span className="text-muted">{t.orderPayment}</span>
                 <span className="font-semibold">{installment ? t.orderPaymentInstallment : t.orderPaymentCash}</span>
@@ -147,7 +147,7 @@ const OrderForm: FC<{
               </div>
             </div>
 
-            <label className="block text-[13px] text-muted mb-1">{t.orderName}</label>
+            <label className="block text-[14px] text-muted mb-1">{t.orderName}</label>
             <input
               value={name}
               onChange={(e) => { setName(e.target.value); if (nameErr) setNameErr(''); }}
@@ -155,8 +155,8 @@ const OrderForm: FC<{
               aria-invalid={Boolean(nameErr) || undefined}
               className={`${inputCls(Boolean(nameErr))} ${nameErr ? 'mb-1' : 'mb-3'}`}
             />
-            {nameErr && <p className="text-[12px] text-danger mb-2">{nameErr}</p>}
-            <label className="block text-[13px] text-muted mb-1">{t.orderPhone}</label>
+            {nameErr && <p className="text-[14px] text-danger mb-2">{nameErr}</p>}
+            <label className="block text-[14px] text-muted mb-1">{t.orderPhone}</label>
             <input
               type="tel"
               inputMode="tel"
@@ -165,7 +165,7 @@ const OrderForm: FC<{
               aria-invalid={Boolean(phoneErr) || undefined}
               className={`${inputCls(Boolean(phoneErr))} tabular-nums ${phoneErr ? 'mb-1' : 'mb-4'}`}
             />
-            {phoneErr && <p className="text-[12px] text-danger mb-3">{phoneErr}</p>}
+            {phoneErr && <p className="text-[14px] text-danger mb-3">{phoneErr}</p>}
             {/* honeypot — foydalanuvchiga ko'rinmaydi, bot to'ldirsa buyurtma tashlanadi */}
             <input
               tabIndex={-1}
@@ -176,7 +176,7 @@ const OrderForm: FC<{
               aria-hidden="true"
             />
 
-            {err && <p className="text-[13px] text-sale mb-3">{err}</p>}
+            {err && <p className="text-[14px] text-sale mb-3">{err}</p>}
 
             <button
               type="submit"

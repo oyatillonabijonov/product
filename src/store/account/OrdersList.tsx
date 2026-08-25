@@ -35,9 +35,9 @@ const OrdersList: FC<{ t: Translation; orders: ApiOrder[] }> = ({ t, orders }) =
             <div className="flex items-center justify-between gap-3 px-4 py-3 bg-bg/50 border-b border-line/60">
               <div className="flex items-baseline gap-2.5">
                 <span className="text-[14px] font-semibold text-primary tabular-nums">#{o.id}</span>
-                <span className="text-[12.5px] text-muted-2">{new Date(o.createdAt * 1000).toLocaleDateString('ru-RU')}</span>
+                <span className="text-[14px] text-muted-2">{new Date(o.createdAt * 1000).toLocaleDateString('ru-RU')}</span>
               </div>
-              <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${statusStyle[o.status] ?? statusStyle.new}`}>
+              <span className={`text-[14px] font-semibold px-2.5 py-1 rounded-full ${statusStyle[o.status] ?? statusStyle.new}`}>
                 {statusLabel(o.status)}
               </span>
             </div>
@@ -57,14 +57,14 @@ const OrdersList: FC<{ t: Translation; orders: ApiOrder[] }> = ({ t, orders }) =
 
               <div className="mt-3 pt-3 border-t border-line/60">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[13px] text-muted">{installment ? t.orderBuyInstallment : t.orderBuyCash}</span>
+                  <span className="text-[14px] text-muted">{installment ? t.orderBuyInstallment : t.orderBuyCash}</span>
                   {installment && o.termMonths != null && (
-                    <span className="text-[13px] text-muted">{o.termMonths} {t.calcMonths}</span>
+                    <span className="text-[14px] text-muted">{o.termMonths} {t.calcMonths}</span>
                   )}
                 </div>
 
                 {installment ? (
-                  <div className="bg-bg rounded-lg p-3 flex flex-col gap-1.5 text-[13px]">
+                  <div className="bg-bg rounded-lg p-3 flex flex-col gap-1.5 text-[14px]">
                     {o.monthlyUzs != null && (
                       <div className="flex justify-between">
                         <span className="text-muted">{t.calcMonthly}</span>
@@ -80,7 +80,7 @@ const OrdersList: FC<{ t: Translation; orders: ApiOrder[] }> = ({ t, orders }) =
                   </div>
                 ) : (
                   <div className="flex justify-between items-baseline">
-                    <span className="text-[13px] text-muted">{t.calcTotal}</span>
+                    <span className="text-[14px] text-muted">{t.calcTotal}</span>
                     <span className="text-[16px] font-semibold text-primary tabular-nums">{formatUzs(o.totalUzs ?? itemsTotal, t.sum)}</span>
                   </div>
                 )}

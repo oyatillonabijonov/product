@@ -13,7 +13,7 @@ const ProductRail: FC<{
     <section className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-[20px] md:text-[28px] font-semibold tracking-[-0.02em] min-w-0">{title}</h2>
-        <LocaleLink to={moreTo} className="shrink-0 inline-flex items-center gap-1 rounded-full bg-segment px-3.5 py-1.5 text-[13px] font-semibold text-primary hover:bg-accent-soft-2 transition-colors">
+        <LocaleLink to={moreTo} className="shrink-0 inline-flex items-center gap-1 rounded-full bg-segment px-3.5 py-1.5 text-[14px] font-semibold text-primary hover:bg-accent-soft-2 transition-colors">
           {t.railAll} <ChevronRight className="w-3.5 h-3.5" />
         </LocaleLink>
       </div>

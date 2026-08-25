@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
+import { ChevronDown } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import { categoryLabel, type Locale } from '../../app/lib/i18n';
@@ -90,13 +91,12 @@ export default function HeroNotch({ t, locale, categories }: {
             >
               {t.homeCategories}
             </span>
-            <span
+            <ChevronDown
               aria-hidden
-              className="text-[9px] text-[#6E6E73] transition-transform duration-[260ms]"
+              strokeWidth={2}
+              className="h-4 w-4 text-[#6E6E73] transition-transform duration-[260ms]"
               style={{ transform: menu ? 'rotate(180deg)' : 'rotate(0deg)' }}
-            >
-              ▼
-            </span>
+            />
             <div
               className="absolute left-[-16px] top-full mt-5 flex min-w-[216px] flex-col rounded-2xl bg-black p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),0_24px_60px_rgba(0,0,0,0.7)]"
               style={{
@@ -130,7 +130,7 @@ export default function HeroNotch({ t, locale, categories }: {
         <div className="flex items-center gap-4">
           <LocaleLink
             to="/savat"
-            className="flex h-8 items-center rounded-full bg-[#0071E3] px-[18px] text-[13px] font-medium text-white transition-colors duration-200 hover:bg-[#0A84FF]"
+            className="flex h-8 items-center rounded-full bg-[#0071E3] px-[18px] text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#0A84FF]"
           >
             {t.cartTitle}{count > 0 ? ` · ${count}` : ''}
           </LocaleLink>

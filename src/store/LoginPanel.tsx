@@ -120,9 +120,9 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
           autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           className={inputCls}
         />
-        {mode === 'register' && <p className="text-[12px] text-muted-2 -mt-1">{t.loginPasswordHint}</p>}
+        {mode === 'register' && <p className="text-[14px] text-muted-2 -mt-1">{t.loginPasswordHint}</p>}
 
-        {(err || error) && <p className="text-sale text-[13px]">{err || t.loginError}</p>}
+        {(err || error) && <p className="text-sale text-[14px]">{err || t.loginError}</p>}
 
         <button
           type="submit"
@@ -135,7 +135,7 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
 
       {hasOAuth && (
         <>
-          <div className="w-full flex items-center gap-3 text-muted-2 text-[12px]">
+          <div className="w-full flex items-center gap-3 text-muted-2 text-[14px]">
             <span className="h-px flex-1 bg-line/70" />{t.loginOr}<span className="h-px flex-1 bg-line/70" />
           </div>
           <div className="w-full flex flex-col items-center gap-3">

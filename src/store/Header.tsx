@@ -165,7 +165,7 @@ export default function Header({
         >
           <ShoppingCart className="w-5 h-5" />
           {count > 0 && (
-            <span className="absolute top-0 right-0 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-bg text-[11px] font-bold flex items-center justify-center">
+            <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-[20px] px-1 rounded-full bg-accent text-bg text-[14px] font-bold leading-none flex items-center justify-center">
               {count}
             </span>
           )}

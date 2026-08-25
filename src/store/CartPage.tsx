@@ -60,24 +60,24 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
         <div className="flex flex-col gap-3">
           {items.map((it) => (
-            <div key={`${it.productId}-${it.variantId ?? ''}`} className="bg-white border border-divider rounded-2xl p-4 flex items-center gap-4 shadow-apple">
+            <div key={`${it.productId}-${it.variantId ?? ''}`} className="bg-white border border-divider rounded-2xl p-4 flex flex-wrap items-center gap-x-4 gap-y-3 shadow-apple">
               <div className="w-16 h-16 rounded-xl bg-bg flex items-center justify-center overflow-hidden shrink-0">
                 {it.image ? <img src={it.image} alt="" className="w-full h-full object-contain p-1.5" /> : null}
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="min-w-[45%] flex-1">
                 <div className="font-semibold text-[15px] line-clamp-2">{it.name}</div>
-                {it.variantLabel && <div className="text-[12px] text-muted">{it.variantLabel}</div>}
-                <div className="text-[13px] text-muted mt-0.5 tabular-nums">{formatUzs(it.priceUzs * it.qty, t.sum)}</div>
+                {it.variantLabel && <div className="text-[14px] text-muted">{it.variantLabel}</div>}
+                <div className="text-[14px] text-muted mt-0.5 tabular-nums">{formatUzs(it.priceUzs * it.qty, t.sum)}</div>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="ml-auto flex shrink-0 items-center gap-1.5">
                 <button onClick={() => changeQty(it.productId, it.variantId, it.qty - 1)} aria-label={t.qtyDecrease} className="w-9 h-9 rounded-full border border-line flex items-center justify-center hover:border-accent"><Minus className="w-3.5 h-3.5" /></button>
                 <span className="w-7 text-center text-[14px] font-semibold tabular-nums">{it.qty}</span>
                 <button onClick={() => changeQty(it.productId, it.variantId, it.qty + 1)} aria-label={t.qtyIncrease} className="w-9 h-9 rounded-full border border-line flex items-center justify-center hover:border-accent"><Plus className="w-3.5 h-3.5" /></button>
+                <button onClick={() => remove(it.productId, it.variantId)} aria-label={t.cartRemoveItem} className="shrink-0 p-2 -mr-1 text-muted-2 hover:text-sale transition-colors"><Trash2 className="w-4.5 h-4.5" /></button>
               </div>
-              <button onClick={() => remove(it.productId, it.variantId)} aria-label={t.cartRemoveItem} className="shrink-0 p-2 -mr-1 text-muted-2 hover:text-sale transition-colors"><Trash2 className="w-4.5 h-4.5" /></button>
             </div>
           ))}
-          <button onClick={clear} className="self-start text-[13px] text-muted hover:text-sale font-semibold mt-1">
+          <button onClick={clear} className="self-start text-[14px] text-muted hover:text-sale font-semibold mt-1">
             {t.cartClear}
           </button>
         </div>
@@ -85,11 +85,11 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
         <div className="bg-white border border-line-3 rounded-[24px] p-5 shadow-apple lg:sticky lg:top-24">
           {showInstallment && (
             <>
-              <div className="text-[13px] font-semibold text-muted mb-3">{t.calcTerm}</div>
+              <div className="text-[14px] font-semibold text-muted mb-3">{t.calcTerm}</div>
               <TermSegments t={t} terms={config.terms} months={months} onChange={setMonths} className="mb-5" />
             </>
           )}
-          <div className="space-y-2 text-[13px]">
+          <div className="space-y-2 text-[14px]">
             <div className="flex justify-between"><span className="text-muted">{t.cartTotalCash}</span><span className="font-medium tabular-nums">{formatUzs(sum, t.sum)}</span></div>
             {showInstallment && (
               <div className="flex justify-between"><span className="text-muted">{t.calcDownPayment}</span><span className="font-medium tabular-nums">{formatUzs(result.downPaymentUzs, t.sum)}</span></div>
@@ -97,9 +97,9 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
           </div>
           {showInstallment && (
             <div className="mt-4 pt-4 border-t border-divider">
-              <div className="text-[13px] text-muted">{t.cartMonthlyTotal}</div>
+              <div className="text-[14px] text-muted">{t.cartMonthlyTotal}</div>
               <div className="text-[28px] font-semibold text-accent tracking-[-0.02em] leading-none mt-1 tabular-nums">
-                {formatUzs(result.monthly, t.sum)} <span className="text-[13px] text-muted-2 font-normal">× {months} {t.calcMonths}</span>
+                {formatUzs(result.monthly, t.sum)} <span className="text-[14px] text-muted-2 font-normal">× {months} {t.calcMonths}</span>
               </div>
             </div>
           )}

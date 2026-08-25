@@ -45,7 +45,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
               </div>
               <div className="min-w-0">
                 <div className="font-semibold text-[15px] text-primary truncate">{customer.name || '—'}</div>
-                {customer.email && <div className="text-[12.5px] text-muted truncate">{customer.email}</div>}
+                {customer.email && <div className="text-[14px] text-muted truncate">{customer.email}</div>}
               </div>
             </div>
             <nav className="p-2">
@@ -62,7 +62,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
                   <Icon className="w-[18px] h-[18px] shrink-0" />
                   <span className="flex-1 text-left">{label}</span>
                   {badge > 0 && (
-                    <span className={`text-[11px] font-semibold rounded-full px-1.5 min-w-[20px] text-center ${tab === key ? 'bg-accent text-white' : 'bg-bg text-muted-2'}`}>
+                    <span className={`text-[14px] font-semibold rounded-full px-1.5 min-w-[20px] text-center ${tab === key ? 'bg-accent text-white' : 'bg-bg text-muted-2'}`}>
                       {badge}
                     </span>
                   )}

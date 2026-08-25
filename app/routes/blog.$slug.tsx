@@ -42,7 +42,7 @@ export default function BlogPostRoute() {
       <LocaleLink to="/blog" className="mb-6 inline-flex items-center gap-1.5 text-[14px] font-semibold text-muted transition-colors hover:text-primary">
         <span aria-hidden>‹</span> Blog
       </LocaleLink>
-      {date && <div className="text-[13px] text-muted-2">{date}</div>}
+      {date && <div className="text-[14px] text-muted-2">{date}</div>}
       <h1 className="mt-2 mb-6 text-[32px] font-semibold tracking-[-0.03em] text-primary md:text-[40px]">
         {localeField(post.title, post.titleRu, locale)}
       </h1>

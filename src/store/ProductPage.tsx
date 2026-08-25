@@ -81,7 +81,7 @@ const ProductPage: FC<{
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 py-6 md:py-10">
-      <nav aria-label="breadcrumb" className="flex items-center gap-1 text-[13px] text-muted-2 mb-5">
+      <nav aria-label="breadcrumb" className="flex items-center gap-1 text-[14px] text-muted-2 mb-5">
         <LocaleLink to="/" className="hover:text-primary transition-colors">{t.breadcrumbHome}</LocaleLink>
         {categoryName && product.categoryId && (
           <>
@@ -99,7 +99,7 @@ const ProductPage: FC<{
         <Gallery key={variant?.id ?? 'base'} images={galleryImages} name={product.name} />
         <div className="md:sticky md:top-24 md:self-start">
           <div className="flex items-start justify-between gap-3">
-            <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full ${product.condition === 'yangi' ? 'bg-accent-soft text-accent' : 'bg-trust-soft text-trust'}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[14px] font-semibold px-2.5 py-1 rounded-full ${product.condition === 'yangi' ? 'bg-accent-soft text-accent' : 'bg-trust-soft text-trust'}`}>
               {product.condition === 'yangi' ? t.badgeNew : t.badgeUsed}
             </span>
             <FavoriteButton
@@ -117,13 +117,13 @@ const ProductPage: FC<{
             {displayOld && disc !== null && (
               <>
                 <span className="text-[16px] md:text-[18px] line-through text-disabled-2 tabular-nums">{formatUzs(displayOld, t.sum)}</span>
-                <span className="text-[12px] font-bold px-2 py-0.5 rounded-full bg-sale text-white">-{disc}%</span>
+                <span className="text-[14px] font-bold px-2 py-0.5 rounded-full bg-sale text-white">-{disc}%</span>
               </>
             )}
           </div>
 
           {variant && (
-            <div className={`mt-1.5 text-[13px] font-semibold ${outOfStock ? 'text-sale' : 'text-trust'}`}>
+            <div className={`mt-1.5 text-[14px] font-semibold ${outOfStock ? 'text-sale' : 'text-trust'}`}>
               {outOfStock ? t.outOfStock : t.inStock}
             </div>
           )}
@@ -132,7 +132,7 @@ const ProductPage: FC<{
             <div className="mt-5 flex flex-col gap-4">
               {product.options.map((o) => (
                 <div key={o.id}>
-                  <div className="text-[13px] font-semibold text-muted mb-2">{o.name}</div>
+                  <div className="text-[14px] font-semibold text-muted mb-2">{o.name}</div>
                   <div className="flex flex-wrap gap-2">
                     {o.values.map((v) => {
                       const active = selection[o.name] === v.value;
@@ -162,11 +162,11 @@ const ProductPage: FC<{
 
           {showInstallment && config && result && (
             <div className="mt-5 bg-white border border-line-3 rounded-[24px] p-5 shadow-apple">
-              <div className="text-[13px] font-semibold text-muted mb-3">{t.calcTerm}</div>
+              <div className="text-[14px] font-semibold text-muted mb-3">{t.calcTerm}</div>
               <TermSegments t={t} terms={config.terms} months={months} onChange={setMonths} />
 
               <div className="mt-5">
-                <div className="flex items-center justify-between text-[13px] mb-2">
+                <div className="flex items-center justify-between text-[14px] mb-2">
                   <span className="font-semibold text-muted">{t.calcDownPayment}</span>
                   <span className="font-semibold text-primary tabular-nums">
                     {downPct}% · {formatUzs(result.downPaymentUzs, t.sum)}
@@ -186,15 +186,15 @@ const ProductPage: FC<{
 
               <div className="flex items-end justify-between mt-5">
                 <div>
-                  <div className="text-[13px] text-muted">{t.calcMonthly}</div>
+                  <div className="text-[14px] text-muted">{t.calcMonthly}</div>
                   <div className="text-[32px] md:text-[34px] font-semibold text-accent tracking-[-0.02em] leading-none mt-1">
                     {formatUzs(result.monthly, t.sum)}
                   </div>
                 </div>
-                <span className="text-[12px] text-muted-2 pb-1">× {months} {t.calcMonths}</span>
+                <span className="text-[14px] text-muted-2 pb-1">× {months} {t.calcMonths}</span>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-divider space-y-2 text-[13px]">
+              <div className="mt-4 pt-4 border-t border-divider space-y-2 text-[14px]">
                 <div className="flex justify-between">
                   <span className="text-muted">{t.calcTotal}</span>
                   <span className="font-medium text-primary">{formatUzs(result.total, t.sum)}</span>
@@ -223,7 +223,7 @@ const ProductPage: FC<{
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-5 border-t border-divider text-[13px] text-muted">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 pt-5 border-t border-divider text-[14px] text-muted">
             <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-trust" /> {t.trustShort}</span>
             <span className="inline-flex items-center gap-1.5"><BadgeCheck className="w-4 h-4 text-accent" /> {t.feature2}</span>
             <span className="inline-flex items-center gap-1.5"><Truck className="w-4 h-4 text-accent" /> {t.feature3}</span>

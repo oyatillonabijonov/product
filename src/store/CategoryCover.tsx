@@ -84,10 +84,10 @@ export default function CategoryCover({ col, title, total, t }: {
         initial={reduced ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.38, delay: 0.24, ease: GLIDE }}
-        className="absolute right-[2%] bottom-[26px] flex items-center gap-2.5 text-[13px] font-normal tracking-[-0.01em] text-[#A1A1A6]"
+        className="absolute right-[2%] bottom-[26px] flex items-center gap-2.5 text-[14px] font-normal tracking-[-0.01em] text-[#A1A1A6]"
       >
         <span>{total} {t.resultsCount}</span>
-        <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full text-[13px] text-[#F5F5F7] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.22)]">↓</span>
+        <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full text-[14px] text-[#F5F5F7] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.22)]">↓</span>
       </motion.div>
     </div>
   );

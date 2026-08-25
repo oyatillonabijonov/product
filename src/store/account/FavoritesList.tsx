@@ -31,9 +31,9 @@ const FavoritesList: FC<{ t: Translation }> = ({ t }) => {
             <X className="w-4 h-4" />
           </button>
           <LocaleLink to={`/product/${f.productId}`} className="aspect-square bg-white flex items-center justify-center rounded-xl overflow-hidden">
-            {f.image ? <img src={f.image} alt={f.name} className="w-full h-full object-contain" /> : <span className="text-muted-2 text-[12px]">{f.name}</span>}
+            {f.image ? <img src={f.image} alt={f.name} className="w-full h-full object-contain" /> : <span className="text-muted-2 text-[14px]">{f.name}</span>}
           </LocaleLink>
-          <LocaleLink to={`/product/${f.productId}`} className="text-[13px] font-medium mt-2.5 line-clamp-2 hover:text-accent transition-colors">
+          <LocaleLink to={`/product/${f.productId}`} className="text-[14px] font-medium mt-2.5 line-clamp-2 hover:text-accent transition-colors">
             {f.name}
           </LocaleLink>
           <div className="text-[15px] font-semibold text-primary mt-1 tabular-nums">{formatUzs(f.priceUzs, t.sum)}</div>

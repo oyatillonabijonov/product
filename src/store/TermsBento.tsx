@@ -131,7 +131,7 @@ const Card: FC<{ cell: Cell; textKey: keyof LocalizedText }> = ({ cell, textKey 
         <Icon className="w-5 h-5" />
       </span>
       <div className="mt-auto pt-6">
-        <p className={`text-[12px] font-semibold uppercase tracking-[0.08em] mb-1.5 ${tone.eyebrow}`}>
+        <p className={`text-[14px] font-semibold uppercase tracking-[0.08em] mb-1.5 ${tone.eyebrow}`}>
           {cell.eyebrow[textKey]}
         </p>
         <h3 className={`font-semibold tracking-[-0.02em] ${tone.title} ${big ? 'text-[28px] md:text-[36px]' : 'text-[19px] md:text-[21px]'}`}>

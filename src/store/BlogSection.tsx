@@ -50,9 +50,7 @@ export const PostCard: FC<{ post: ApiPost; locale: Locale; featured?: boolean; c
         style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0) 34%, rgba(0,0,0,0.55) 66%, rgba(0,0,0,0.88) 100%)' }}
       />
       <div className={`relative mt-auto flex flex-col ${featured ? 'p-7 md:p-9' : 'p-5 md:p-6'}`}>
-        {date && (
-          <span className={`text-white/60 ${featured ? 'text-[13px]' : 'text-[12px]'}`}>{date}</span>
-        )}
+        {date && <span className="text-[14px] text-white/60">{date}</span>}
         <h3
           className={`mt-2 font-semibold leading-[1.2] tracking-[-0.02em] text-white ${
             featured ? 'text-[24px] md:text-[30px]' : 'line-clamp-2 text-[17px] md:text-[19px]'
