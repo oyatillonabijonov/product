@@ -20,7 +20,7 @@ const ServiceCards: FC<{ t: Translation }> = ({ t }) => {
               <Icon className="h-5 w-5" strokeWidth={1.8} />
             </span>
             <h3 className="mt-4 text-[17px] font-semibold tracking-[-0.01em]">{title}</h3>
-            <p className="mt-2 text-[14px] leading-relaxed text-muted">{desc}</p>
+            <p className="mt-2 text-[16px] leading-relaxed text-muted">{desc}</p>
           </div>
         ))}
       </div>
