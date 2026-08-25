@@ -79,12 +79,12 @@ export default function Header({
         enterKeyHint="search"
         placeholder={t.navSearchPlaceholder}
         aria-label={t.navSearch}
-        className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-[16px] placeholder:text-muted-3 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-white transition-colors [&::-webkit-search-cancel-button]:hidden"
+        className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-[16px] placeholder:text-muted-3 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-surface transition-colors [&::-webkit-search-cancel-button]:hidden"
       />
       <button
         type="submit"
         aria-label={t.navSearch}
-        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center hover:bg-accent-hover transition-colors"
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-accent text-bg flex items-center justify-center hover:bg-accent-hover transition-colors"
       >
         <Search className="w-4 h-4" />
       </button>
@@ -94,7 +94,7 @@ export default function Header({
   const catMenu = catOpen && (
     <>
       <div className="fixed inset-0 z-40" onClick={() => setCatOpen(false)} />
-      <div className="absolute left-0 top-full mt-2 w-60 max-h-[70vh] overflow-y-auto bg-white border border-line-2 rounded-2xl shadow-apple-hover p-2 z-50">
+      <div className="absolute left-0 top-full mt-2 w-60 max-h-[70vh] overflow-y-auto bg-surface border border-line-2 rounded-2xl shadow-apple-hover p-2 z-50">
         <div className="border-b border-divider mb-1 pb-1">
           <Link
             to={localizedPath(locale, '/katalog')}
@@ -120,7 +120,7 @@ export default function Header({
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b transition-shadow duration-300 ${
+      className={`sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b transition-shadow duration-300 ${
         scrolled ? 'border-line-2' : 'border-transparent'
       }`}
     >
@@ -165,7 +165,7 @@ export default function Header({
         >
           <ShoppingCart className="w-5 h-5" />
           {count > 0 && (
-            <span className="absolute top-0 right-0 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center">
+            <span className="absolute top-0 right-0 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-bg text-[11px] font-bold flex items-center justify-center">
               {count}
             </span>
           )}
