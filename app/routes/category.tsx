@@ -6,6 +6,8 @@ import { parseCatalogFilters } from '../lib/catalog';
 import { queryProducts, loadConfig, loadCategories, loadBrands } from '../lib/loaders';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import CatalogView from '../../src/store/CatalogView';
+import CategoryCover from '../../src/store/CategoryCover';
+import { columnForCategory } from '../../src/store/hero-columns';
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
@@ -22,7 +24,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     queryProducts(env, filters), loadConfig(env), loadBrands(env),
   ]);
   const title = categoryLabel(category, locale);
-  return { result, config, title, brands, filters, requestUrl: request.url };
+  return { result, config, title, brands, filters, requestUrl: request.url, category };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
@@ -32,7 +34,14 @@ export function meta({ data, matches }: Route.MetaArgs) {
 }
 
 export default function CategoryRoute() {
-  const { result, config, title, brands, filters } = useLoaderData<typeof loader>();
+  const { result, config, title, brands, filters, category } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
-  return <CatalogView t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters} />;
+  // Bosh sahifadagi hero ustuni shu kategoriyaga qarasa — o'sha cover bilan ochiladi.
+  const col = columnForCategory(category);
+  return (
+    <>
+      {col && <CategoryCover col={col} title={title} total={result.total} t={ctx.t} />}
+      <CatalogView t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters} hideTitle={!!col} />
+    </>
+  );
 }

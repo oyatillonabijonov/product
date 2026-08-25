@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigation } from 'react-router';
+import { stripLocale } from '../../app/lib/i18n';
 import { ymHit } from '../lib/metrica';
 import type { LangKey, Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
@@ -34,6 +35,10 @@ export default function StoreLayout({
   const [loginOpen, setLoginOpen] = useState(false);
   // Metrica SPA hit — birinchi renderni tashlab (uni 'init' o'zi qayd etadi), keyingi navigatsiyalarni yuboramiz.
   const location = useLocation();
+  const isHome = stripLocale(location.pathname) === '/';
+  const header = (
+    <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} onLoginClick={() => setLoginOpen(true)} />
+  );
   const firstHit = useRef(true);
   useEffect(() => {
     if (firstHit.current) { firstHit.current = false; return; }
@@ -48,7 +53,10 @@ export default function StoreLayout({
             <div className="nav-progress h-full w-1/3 bg-accent rounded-full" />
           </div>
         )}
-        <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} onLoginClick={() => setLoginOpen(true)} />
+        {/* Bosh sahifada hero to'liq ekranni egallaydi va desktopda o'z "notch"
+            navigatsiyasini olib yuradi. Notch hover bilan ochilgani uchun mobilda
+            ishlamaydi — u yerda odatdagi header qoladi. */}
+        {isHome ? <div className="md:hidden">{header}</div> : header}
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} />
         <ContactFab t={t} config={config} />

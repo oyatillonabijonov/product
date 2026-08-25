@@ -20,7 +20,9 @@ const CatalogView: FC<{
   brands: ApiBrand[];
   filters: CatalogFilters;
   hideBrands?: boolean;
-}> = ({ t, title, result, config, brands, filters, hideBrands }) => {
+  /** Cover blok sarlavhani o'zi ko'rsatganda (kategoriya sahifasi) takrorlanmasin. */
+  hideTitle?: boolean;
+}> = ({ t, title, result, config, brands, filters, hideBrands, hideTitle }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
   const closeBtn = useRef<HTMLButtonElement | null>(null);
@@ -74,7 +76,7 @@ const CatalogView: FC<{
     <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div className="flex items-baseline gap-3">
-          <h1 className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em]">{title}</h1>
+          {!hideTitle && <h1 className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em]">{title}</h1>}
           <span className="text-[14px] text-muted-2">{result.total} {t.resultsCount}</span>
         </div>
         <div className="flex items-center gap-3">
