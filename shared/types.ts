@@ -104,6 +104,24 @@ export interface ApiBanner {
   isActive: boolean;
 }
 
+export interface ApiPost {
+  id: string;
+  slug: string;
+  title: string;
+  /** Ruscha sarlavha; bo'sh bo'lsa UI o'zbekchasiga tushadi. */
+  titleRu: string;
+  excerpt: string;
+  excerptRu: string;
+  /** Markdown — `renderMarkdown` bilan chiqariladi. */
+  content: string;
+  contentRu: string;
+  coverUrl: string;
+  /** ISO sana (YYYY-MM-DD); bo'sh bo'lsa sana ko'rsatilmaydi. */
+  publishedAt: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
 export interface ApiPage {
   id: string;
   slug: string;

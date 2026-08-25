@@ -1,5 +1,5 @@
 import type { Env } from '../../functions/env';
-import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiPage, ApiSiteConfig, LocalizedText } from '../../shared/types';
+import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiPage, ApiPost, ApiSiteConfig, LocalizedText } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
 import {
   installmentConfig as fallbackConfig,
@@ -11,7 +11,7 @@ import {
 import {
   rowToProduct, rowToCategory, rowToBrand, buildProductDetail, PRODUCT_COLS,
   type ProductRow, type CategoryRow, type SettingsRow, rowToSettings, type BrandRow,
-  rowToBanner, rowToPage, rowToSiteConfig, type BannerRow, type PageRow, type SiteConfigRow,
+  rowToBanner, rowToPage, rowToPost, rowToSiteConfig, type BannerRow, type PageRow, type PostRow, type SiteConfigRow,
 } from '../../functions/lib/db';
 import { applyFilters, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 import { siteConfig as staticSiteConfig } from './site.config';
@@ -234,7 +234,7 @@ export function staticSiteConfigAsApi(): ApiSiteConfig {
     seoTitleSuffix: staticSiteConfig.seo.titleSuffix,
     seoDescription: staticSiteConfig.seo.description,
     ogImage: staticSiteConfig.seo.ogImage,
-    paymentMode: 'both',
+    paymentMode: 'cash',
     telegramBotToken: '',
     telegramOrderChatId: '',
     googleClientId: '',
@@ -288,6 +288,29 @@ export async function loadPage(env: Env, slug: string): Promise<ApiPage | null> 
     return row ? rowToPage(row) : null;
   } catch (err) {
     console.error('loadPage fallback:', err);
+    return null;
+  }
+}
+
+/** Landing va /blog uchun postlar — yangi birinchi. D1 yo'q bo'lsa bo'sh ro'yxat. */
+export async function loadPosts(env: Env, limit = 20): Promise<ApiPost[]> {
+  try {
+    const { results } = await env.DB.prepare(
+      'SELECT * FROM posts WHERE is_active = 1 ORDER BY published_at DESC, sort_order ASC, id ASC LIMIT ?',
+    ).bind(limit).all<PostRow>();
+    return results.map(rowToPost);
+  } catch (err) {
+    console.error('loadPosts fallback:', err);
+    return [];
+  }
+}
+
+export async function loadPost(env: Env, slug: string): Promise<ApiPost | null> {
+  try {
+    const row = await env.DB.prepare('SELECT * FROM posts WHERE slug = ? AND is_active = 1').bind(slug).first<PostRow>();
+    return row ? rowToPost(row) : null;
+  } catch (err) {
+    console.error('loadPost fallback:', err);
     return null;
   }
 }

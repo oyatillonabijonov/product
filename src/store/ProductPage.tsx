@@ -80,7 +80,7 @@ const ProductPage: FC<{
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10">
+    <div className="max-w-[1440px] mx-auto px-4 py-6 md:py-10">
       <nav aria-label="breadcrumb" className="flex items-center gap-1 text-[13px] text-muted-2 mb-5">
         <LocaleLink to="/" className="hover:text-primary transition-colors">{t.breadcrumbHome}</LocaleLink>
         {categoryName && product.categoryId && (

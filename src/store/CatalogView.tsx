@@ -73,7 +73,7 @@ const CatalogView: FC<{
   );
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-10">
+    <div className="max-w-[1440px] mx-auto px-4 py-6 md:py-10">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div className="flex items-baseline gap-3">
           {!hideTitle && <h1 className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em]">{title}</h1>}

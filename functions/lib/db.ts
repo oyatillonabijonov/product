@@ -6,6 +6,7 @@ import type {
   ApiOption,
   ApiOptionValue,
   ApiPage,
+  ApiPost,
   ApiProductDetail,
   ApiProduct,
   ApiSiteConfig,
@@ -462,6 +463,26 @@ export function rowToPage(r: PageRow): ApiPage {
     id: r.id, slug: r.slug,
     title: { uz: r.title_uz, ru: r.title_ru, en: r.title_en, uzCyrl: r.title_cyrl },
     content: { uz: r.content_uz, ru: r.content_ru, en: r.content_en, uzCyrl: r.content_cyrl },
+    sortOrder: r.sort_order, isActive: r.is_active === 1,
+  };
+}
+
+export interface PostRow {
+  id: string; slug: string;
+  title: string; title_ru: string;
+  excerpt: string; excerpt_ru: string;
+  content: string; content_ru: string;
+  cover_url: string; published_at: string;
+  sort_order: number; is_active: number;
+}
+
+export function rowToPost(r: PostRow): ApiPost {
+  return {
+    id: r.id, slug: r.slug,
+    title: r.title, titleRu: r.title_ru,
+    excerpt: r.excerpt, excerptRu: r.excerpt_ru,
+    content: r.content, contentRu: r.content_ru,
+    coverUrl: r.cover_url, publishedAt: r.published_at,
     sortOrder: r.sort_order, isActive: r.is_active === 1,
   };
 }

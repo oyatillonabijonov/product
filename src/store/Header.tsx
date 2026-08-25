@@ -124,7 +124,7 @@ export default function Header({
         scrolled ? 'border-line-2' : 'border-transparent'
       }`}
     >
-      <div className="max-w-[1200px] mx-auto px-4 h-14 md:h-16 flex items-center gap-2 md:gap-4">
+      <div className="max-w-[1440px] mx-auto px-4 h-14 md:h-16 flex items-center gap-2 md:gap-4">
         <Link to={localizedPath(locale, '/')} className="shrink-0 mr-auto md:mr-0">
           <img src={logo} alt={brandName} className="h-8 md:h-9" />
         </Link>
@@ -208,7 +208,7 @@ export default function Header({
 
       {/* Mobil: Katalog (ikon) + to'liq enli qidiruv qatori. Nav sahifalar (Shartlar)
           alohida pill-qator o'rniga hero CTA'da — sticky header balandligi tejaladi. */}
-      <div className="md:hidden max-w-[1200px] mx-auto px-4 pb-2.5 flex items-center gap-2">
+      <div className="md:hidden max-w-[1440px] mx-auto px-4 pb-2.5 flex items-center gap-2">
         <div className="relative shrink-0">
           <button
             onClick={() => setCatOpen((v) => !v)}

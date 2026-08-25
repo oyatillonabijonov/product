@@ -46,6 +46,11 @@ export function localeToTextKey(locale: Locale): keyof LocalizedText {
 }
 
 /** Kategoriya nomi lokal bo'yicha — ruscha nom bo'sh bo'lsa o'zbekchasiga tushadi. */
+/** uz/ru juftligidan mos matn — ruscha bo'sh bo'lsa o'zbekchasiga tushadi. */
+export function localeField(uz: string, ru: string, locale: Locale): string {
+  return locale === 'ru' && ru.trim() !== '' ? ru : uz;
+}
+
 export function categoryLabel(c: { name: string; nameRu: string }, locale: Locale): string {
   return locale === 'ru' && c.nameRu ? c.nameRu : c.name;
 }

@@ -303,6 +303,44 @@ export function parsePageInput(body: unknown): PageInput {
   return { id, slug, title, content, sortOrder, isActive };
 }
 
+export interface PostInput {
+  id: string; slug: string;
+  title: string; titleRu: string;
+  excerpt: string; excerptRu: string;
+  content: string; contentRu: string;
+  coverUrl: string; publishedAt: string;
+  sortOrder: number; isActive: boolean;
+}
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function parsePostInput(body: unknown): PostInput {
+  const o = asRecord(body);
+  const title = reqString(o, 'title');
+  // Slug berilmasa sarlavhadan yasaladi — admin uni qo'lda yozishi shart emas.
+  // `slugify` kirillni saqlaydi (modellar uchun shunday kerak), URL slug esa faqat
+  // latin bo'lishi shart — shuning uchun qo'shimcha filtr va bo'sh qolsa zaxira id.
+  const auto = slugify(title).replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+  const rawSlug = typeof o.slug === 'string' && o.slug.trim() !== ''
+    ? o.slug.trim().toLowerCase()
+    : (auto || `post-${crypto.randomUUID().slice(0, 8)}`);
+  if (!PAGE_SLUG_RE.test(rawSlug)) throw new ValidationError('slug_invalid');
+  const opt = (key: string): string => (typeof o[key] === 'string' ? (o[key] as string).trim() : '');
+  const publishedAt = opt('publishedAt');
+  if (publishedAt !== '' && !ISO_DATE_RE.test(publishedAt)) throw new ValidationError('published_at_invalid');
+  const coverUrl = opt('coverUrl');
+  if (coverUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(coverUrl)) throw new ValidationError('cover_invalid');
+  const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID();
+  const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
+  const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
+  return {
+    id, slug: rawSlug, title, titleRu: opt('titleRu'),
+    excerpt: opt('excerpt'), excerptRu: opt('excerptRu'),
+    content: opt('content'), contentRu: opt('contentRu'),
+    coverUrl, publishedAt, sortOrder, isActive,
+  };
+}
+
 export interface DeviceModelInput {
   id: string; name: string; brandId: string; categoryId: string;
   legacyCategory: Category; chip: string; ram: string; camera: string;

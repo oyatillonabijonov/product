@@ -97,7 +97,11 @@ export default function HeroColumns({ categories }: { categories: ApiCategory[] 
   return (
     <div
       ref={heroRef}
-      className="relative h-screen min-h-[740px] overflow-hidden bg-black"
+      // Pastki chekka landing foniga so'nadi — kartalar tugagach qora hero bilan
+      // keyingi bo'lim orasida keskin chegara qolmasin. `--color-bg` landing dark
+      // tokeni (styles.css), shuning uchun rang bir joydan boshqariladi.
+      style={{ background: 'linear-gradient(180deg, #000 0%, #000 58%, var(--color-bg) 100%)' }}
+      className="relative h-screen min-h-[740px] overflow-hidden"
     >
       <motion.div
         style={{ y: gridY }}

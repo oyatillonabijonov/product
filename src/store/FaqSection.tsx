@@ -39,7 +39,7 @@ const AnswerBody: FC<{ blocks: MdBlock[] }> = ({ blocks }) => (
 
 const FaqRow: FC<{ item: FaqItem; isOpen: boolean; onToggle: () => void }> = ({ item, isOpen, onToggle }) => (
   <div
-    className={`rounded-[20px] border bg-white transition-colors ${
+    className={`rounded-[20px] border bg-surface transition-colors ${
       isOpen ? 'border-accent/40 shadow-apple' : 'border-line/60 hover:border-line-2'
     }`}
   >
@@ -56,7 +56,7 @@ const FaqRow: FC<{ item: FaqItem; isOpen: boolean; onToggle: () => void }> = ({ 
         animate={{ rotate: isOpen ? 45 : 0 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
         className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-          isOpen ? 'bg-accent text-white' : 'bg-bg text-muted'
+          isOpen ? 'bg-accent text-bg' : 'bg-segment text-muted'
         }`}
       >
         <Plus className="w-4 h-4" />

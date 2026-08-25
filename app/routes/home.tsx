@@ -3,7 +3,7 @@ import type { Route } from './+types/home';
 import { resolveLocale } from '../lib/i18n';
 import { pageTitle, storeConfigFrom, ogMeta } from '../lib/seo';
 import { siteConfig } from '../lib/site.config';
-import { loadStore, loadCategories, loadBanners, loadBrands, loadRail, loadPage } from '../lib/loaders';
+import { loadCategories, loadBrands, loadPage, loadPosts } from '../lib/loaders';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import HomePage from '../../src/store/HomePage';
 
@@ -11,11 +11,12 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.cloudflare.env;
-  const [{ products, config }, categories, banners, deals, latest, brands, faqPage] = await Promise.all([
-    loadStore(env, { limit: 12 }), loadCategories(env), loadBanners(env),
-    loadRail(env, 'deals'), loadRail(env, 'latest'), loadBrands(env), loadPage(env, 'faq'),
+  // Landing sotmaydi — mahsulot/banner so'rovlari olib tashlandi (D1 free-tier'da
+  // har bir sahifa ochilishi uchun 4 ta ortiqcha so'rov edi).
+  const [categories, brands, faqPage, posts] = await Promise.all([
+    loadCategories(env), loadBrands(env), loadPage(env, 'faq'), loadPosts(env, 3),
   ]);
-  return { products, config, categories, banners, deals, latest, brands, faqPage, locale, origin: new URL(request.url).origin };
+  return { categories, brands, faqPage, posts, locale, origin: new URL(request.url).origin };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
@@ -37,13 +38,12 @@ export function meta({ data, matches }: Route.MetaArgs) {
 }
 
 export default function HomeRoute() {
-  const { products, config, categories, banners, deals, latest, brands, faqPage, locale } = useLoaderData<typeof loader>();
+  const { categories, brands, faqPage, posts, locale } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
   return (
     <HomePage
-      t={ctx.t} products={products} config={config} categories={categories}
-      banners={banners} deals={deals} latest={latest} brands={brands} locale={locale} faqPage={faqPage}
-      site={ctx.config}
+      t={ctx.t} categories={categories} brands={brands} locale={locale}
+      faqPage={faqPage} site={ctx.config} posts={posts}
     />
   );
 }

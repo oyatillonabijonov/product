@@ -5,6 +5,7 @@ import type {
   ApiDeviceModel,
   ApiOption,
   ApiOrder,
+  ApiPost,
   ApiProduct,
   ApiSettings,
   ApiSiteConfig,
@@ -230,6 +231,23 @@ export async function updateBanner(id: string, b: Partial<ApiBanner>): Promise<A
 }
 export async function deleteBanner(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/banners/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function listPosts(): Promise<ApiPost[]> {
+  return handle(await fetch('/api/admin/posts'));
+}
+export async function createPost(p: Partial<ApiPost>): Promise<ApiPost> {
+  return handle(await fetch('/api/admin/posts', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p),
+  }));
+}
+export async function updatePost(id: string, p: Partial<ApiPost>): Promise<ApiPost> {
+  return handle(await fetch(`/api/admin/posts/${encodeURIComponent(id)}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p),
+  }));
+}
+export async function deletePost(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/posts/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
 
 export async function listDeviceModels(): Promise<ApiDeviceModel[]> {

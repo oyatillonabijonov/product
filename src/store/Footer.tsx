@@ -18,7 +18,7 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
   const textKey = localeToTextKey(locale);
   return (
     <footer className="w-full bg-bg pt-16 pb-10 flex flex-col mt-auto border-t border-line/50">
-     <div className="max-w-[1200px] mx-auto w-full px-4">
+     <div className="max-w-[1440px] mx-auto w-full px-4">
       <div className="w-full mb-16">
         <div
           className="w-full h-[350px] bg-white rounded-[32px] overflow-hidden shadow-apple relative group border border-line/50"
