@@ -43,7 +43,7 @@
  * to'qroq neytral. Faqat @theme tokenlari qayta e'lon qilinadi — ichkaridagi
  * komponentlar (FAQ, brendlar, blog) o'zgarishsiz qayta ranglanadi.
  */
-:root:not([data-theme="light"]) .landing-dark,
+:root:not([data-theme="light"]) .theme-dark,
 :root[data-theme="dark"] {
   --color-primary: #F2F4F6;
   --color-body: #C9CDD2;
@@ -88,12 +88,12 @@
   filter: brightness(0);
 }
 
-:root:not([data-theme="light"]) .landing-dark .brand-logo,
+:root:not([data-theme="light"]) .theme-dark .brand-logo,
 :root[data-theme="dark"] .brand-logo {
   filter: brightness(0) invert(1);
 }
 
-:root:not([data-theme="light"]) .landing-dark ::selection,
+:root:not([data-theme="light"]) .theme-dark ::selection,
 :root[data-theme="dark"] ::selection {
   background: rgba(255, 255, 255, 0.22);
   color: #FFFFFF;

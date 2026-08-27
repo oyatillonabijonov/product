@@ -11,7 +11,7 @@ import { Moon, Sun } from 'lucide-react';
  */
 export const effectiveDark = () => {
   const set = document.documentElement.getAttribute('data-theme');
-  return set ? set === 'dark' : Boolean(document.querySelector('.landing-dark'));
+  return set ? set === 'dark' : Boolean(document.querySelector('.theme-dark'));
 };
 
 const ThemeToggle: FC<{ label: string; className?: string; iconCls?: string }> = ({
