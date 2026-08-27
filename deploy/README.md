@@ -67,22 +67,46 @@ tar czf backup.tar.gz /tmp/store-backup.db /var/lib/product-store/images
 
 ## 5. Cloudflare'dan ma'lumot ko'chirish (bir martalik)
 
-Eski D1 va R2'da ma'lumot qolgan bo'lsa, **Cloudflare hisobini o'chirishdan oldin** ko'chirib oling:
+Eski D1 va R2'da ma'lumot qolgan bo'lsa, **Cloudflare hisobini o'chirishdan oldin** ko'chirib oling.
+
+**Baza.** Export uchun Cloudflare'ga kirish kerak (bir marta, brauzer ochiladi):
 
 ```bash
-# Baza — SQL dump
+npx wrangler login
 npx wrangler d1 export taqsit-store-db --remote --output=d1-dump.sql
-sqlite3 /var/lib/product-store/store.db < d1-dump.sql
-
-# Rasmlar — R2 dan yuklab olish (rclone yoki aws-cli S3 API orqali)
-rclone copy r2:taqsit-store-images /var/lib/product-store/images/products
 ```
 
-Dump ichida `d1_migrations` jadvali bo'lishi mumkin — u zarar qilmaydi, ammo `_migrations` jadvali bo'sh bo'lsa `npm run migrate` migratsiyalarni qaytadan qo'llashga urinadi. Shuning uchun import qilingandan keyin qaysi migratsiyalar allaqachon bajarilganini belgilab qo'ying:
+So'ng import — mavjud baza avtomatik zaxiraga olinadi, import vaqtinchalik faylda
+bajariladi va faqat muvaffaqiyatda o'rniga qo'yiladi:
 
 ```bash
-node -e "const D=require('better-sqlite3'),fs=require('fs');const db=new D('/var/lib/product-store/store.db');db.exec('CREATE TABLE IF NOT EXISTS _migrations (name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)');const s=db.prepare('INSERT OR IGNORE INTO _migrations VALUES (?, ?)');for(const f of fs.readdirSync('migrations').filter(f=>f.endsWith('.sql')).sort())s.run(f,new Date().toISOString())"
+DATA_DIR=/var/lib/product-store npm run import:d1 d1-dump.sql
+DATA_DIR=/var/lib/product-store npm run migrate
 ```
+
+Skript D1'dagi `d1_migrations` ro'yxatini o'qib, o'sha migratsiyalarni qo'llangan
+deb belgilaydi — shuning uchun `migrate` faqat D1'da bo'lmaganlarini (masalan
+`0024`, `0025`) qo'llaydi. Oxirida u nechta rasm R2'dan kerakligini aytadi va
+kalitlar ro'yxatini `images-to-copy.txt` ga yozadi.
+
+**Rasmlar.** R2 uchun S3 API kaliti kerak (Cloudflare panel → R2 → Manage API
+tokens; bu `wrangler login` dan alohida narsa):
+
+```bash
+rclone config create r2 s3 provider=Cloudflare \
+  access_key_id=<KEY> secret_access_key=<SECRET> \
+  endpoint=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+
+rclone copy r2:taqsit-store-images /var/lib/product-store/images
+sudo chown -R product:product /var/lib/product-store/images
+```
+
+Kalit tuzilishi saqlanadi (`products/<uuid>.webp`), shuning uchun bazadagi
+`/images/...` havolalari o'zgarishsiz ishlaydi. `images-to-copy.txt` bo'sh
+bo'lsa bu qadam umuman kerak emas — hamma rasm `public/` dagi statik fayllar.
+
+Ko'chirish tugagach `.wrangler/` papkasini va `wrangler` paketini o'chirsangiz
+bo'ladi.
 
 ## Muhit o'zgaruvchilari
 
