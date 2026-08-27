@@ -27,7 +27,8 @@ const FilterPanel: FC<{
   }
 
   const visibleBrands = brands.filter((b) => (facets.brandCounts[b.id] ?? 0) > 0 || filters.brands.includes(b.id));
-  const input = 'w-full border border-line rounded-xl px-3 py-2 text-[14px] focus:outline-none focus:border-accent';
+  // Yonidagi "Ko'rsatish" tugmasi va header qidiruvi bilan bir xil: 44px, to'liq radius.
+  const input = 'w-full h-11 border border-line rounded-full px-4 text-[14px] focus:outline-none focus:border-accent';
   return (
     <div className="flex flex-col gap-6">
       {!hideBrands && visibleBrands.length > 0 && (
