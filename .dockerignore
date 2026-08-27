@@ -1,0 +1,12 @@
+node_modules
+build
+.react-router
+.git
+.wrangler
+data
+deploy
+docs
+*.log
+.env*
+!.env.example
+.claude
