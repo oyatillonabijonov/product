@@ -109,11 +109,11 @@ const ProductPage: FC<{
               className="w-10 h-10 shrink-0"
             />
           </div>
-          <h1 className="text-[32px] md:text-[46px] font-semibold text-primary tracking-[-0.035em] mt-3 leading-[1.0]">{product.name}</h1>
+          <h1 className="text-[32px] md:text-[44px] font-semibold text-primary tracking-[-0.035em] mt-3 leading-[1.0]">{product.name}</h1>
           {product.conditionNote && <p className="text-[14px] text-muted mt-2.5">{product.conditionNote}</p>}
 
           <div className="flex items-baseline gap-2.5 mt-4 flex-wrap">
-            <span className="text-[28px] md:text-[34px] font-semibold text-primary tracking-[-0.025em] tabular-nums">{formatUzs(displayCash, t.sum)}</span>
+            <span className="text-[24px] md:text-[32px] font-semibold text-primary tracking-[-0.025em] tabular-nums">{formatUzs(displayCash, t.sum)}</span>
             {displayOld && disc !== null && (
               <>
                 <span className="text-[16px] md:text-[18px] line-through text-disabled-2 tabular-nums">{formatUzs(displayOld, t.sum)}</span>
@@ -146,7 +146,7 @@ const ProductPage: FC<{
                             active
                               ? 'border-accent bg-accent-soft text-accent'
                               : available
-                                ? 'border-line bg-white text-primary hover:border-accent'
+                                ? 'border-line bg-surface text-primary hover:border-accent'
                                 : 'border-divider bg-row-alt text-disabled cursor-not-allowed line-through'
                           }`}
                         >
@@ -161,7 +161,7 @@ const ProductPage: FC<{
           )}
 
           {showInstallment && config && result && (
-            <div className="mt-5 bg-white border border-line-3 rounded-[24px] p-5 shadow-apple">
+            <div className="mt-5 bg-surface border border-line-3 rounded-[24px] p-5 shadow-apple">
               <div className="text-[14px] font-semibold text-muted mb-3">{t.calcTerm}</div>
               <TermSegments t={t} terms={config.terms} months={months} onChange={setMonths} />
 
@@ -187,7 +187,7 @@ const ProductPage: FC<{
               <div className="flex items-end justify-between mt-5">
                 <div>
                   <div className="text-[14px] text-muted">{t.calcMonthly}</div>
-                  <div className="text-[32px] md:text-[34px] font-semibold text-accent tracking-[-0.02em] leading-none mt-1">
+                  <div className="text-[24px] md:text-[32px] font-semibold text-accent tracking-[-0.02em] leading-none mt-1">
                     {formatUzs(result.monthly, t.sum)}
                   </div>
                 </div>
@@ -204,7 +204,7 @@ const ProductPage: FC<{
           )}
 
           <button onClick={addToCart} disabled={outOfStock}
-            className={`w-full py-3.5 mb-3 mt-4 font-semibold rounded-full border-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full h-[52px] mb-3 mt-4 font-semibold rounded-full border-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
               added ? 'border-trust text-trust bg-trust-soft' : 'border-accent text-accent hover:bg-accent-soft'
             }`}>
             <ShoppingCart className="w-5 h-5" /> {added ? t.cartAdded : t.cartAdd}
@@ -212,12 +212,12 @@ const ProductPage: FC<{
 
           <div className="flex flex-col sm:flex-row gap-3">
             {showInstallment && (
-              <button onClick={() => openOrder('installment')} disabled={outOfStock} className="flex-1 py-3.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button onClick={() => openOrder('installment')} disabled={outOfStock} className="flex-1 h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 {t.orderBuyInstallment}
               </button>
             )}
             {site.paymentMode !== 'installment' && (
-              <button onClick={() => openOrder('cash')} disabled={outOfStock} className="flex-1 py-3.5 bg-cta text-white font-semibold rounded-full hover:bg-cta-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button onClick={() => openOrder('cash')} disabled={outOfStock} className="flex-1 h-[52px] bg-cta text-white font-semibold rounded-full hover:bg-cta-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 {t.orderBuyCash}
               </button>
             )}
@@ -236,12 +236,12 @@ const ProductPage: FC<{
       {product.specs.length > 0 && (
         <div className="mt-12 max-w-2xl">
           <h2 className="text-[20px] font-semibold mb-4">{t.specsTitle}</h2>
-          <dl className="bg-white border border-line-3 rounded-[20px] overflow-hidden shadow-apple">
+          <dl className="bg-surface border border-line-3 rounded-[20px] overflow-hidden shadow-apple">
             {product.specs.map((s, i) => (
               <div
                 key={i}
                 className={`flex items-center gap-4 px-5 py-3.5 text-[14px] ${
-                  i % 2 === 1 ? 'bg-row-alt' : 'bg-white'
+                  i % 2 === 1 ? 'bg-row-alt' : 'bg-surface'
                 }`}
               >
                 <dt className="text-muted w-2/5 shrink-0">{s.label}</dt>

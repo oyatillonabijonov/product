@@ -64,7 +64,7 @@ const OrdersList: FC<{ t: Translation; orders: ApiOrder[] }> = ({ t, orders }) =
                 </div>
 
                 {installment ? (
-                  <div className="bg-bg rounded-lg p-3 flex flex-col gap-1.5 text-[14px]">
+                  <div className="bg-bg rounded-xl p-3 flex flex-col gap-1.5 text-[14px]">
                     {o.monthlyUzs != null && (
                       <div className="flex justify-between">
                         <span className="text-muted">{t.calcMonthly}</span>

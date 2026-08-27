@@ -21,7 +21,7 @@ const FavoritesList: FC<{ t: Translation }> = ({ t }) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
       {items.map((f) => (
-        <div key={f.productId} className="group relative bg-white border border-line-2 rounded-2xl p-3 flex flex-col hover:shadow-apple-hover hover:border-line transition-all duration-300">
+        <div key={f.productId} className="group relative bg-surface border border-line-2 rounded-[20px] p-3 flex flex-col hover:shadow-apple-hover hover:border-line transition-all duration-300">
           <button
             type="button"
             onClick={() => remove(f.productId)}

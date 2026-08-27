@@ -87,7 +87,7 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
             key={m}
             type="button"
             onClick={() => { setMode(m); setErr(''); }}
-            className={`py-2 rounded-full transition-colors ${mode === m ? 'bg-white text-primary shadow-apple' : 'text-muted'}`}
+            className={`py-2 rounded-full transition-colors ${mode === m ? 'bg-surface text-primary shadow-apple' : 'text-muted'}`}
           >
             {m === 'login' ? t.loginTab : t.registerTab}
           </button>
@@ -127,7 +127,7 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
         <button
           type="submit"
           disabled={busy}
-          className="w-full py-3 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50"
+          className="w-full h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50"
         >
           {busy ? t.loginSubmitting : mode === 'login' ? t.loginTab : t.registerTab}
         </button>
@@ -142,7 +142,7 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
             {config.googleClientId && (
               <a
                 href="/auth/google"
-                className="w-full py-3 border border-line-2 rounded-full font-medium text-[15px] text-primary hover:bg-bg transition-colors flex items-center justify-center gap-3"
+                className="w-full h-[52px] border border-line-2 rounded-full font-medium text-[15px] text-primary hover:bg-bg transition-colors flex items-center justify-center gap-3"
               >
                 <GoogleG /> {t.loginGoogle}
               </a>

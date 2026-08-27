@@ -7,6 +7,7 @@ import type { PageLink } from '../../app/lib/loaders';
 import { localizedPath, langToLocale, stripLocale, localeToTextKey, categoryLabel, type Locale } from '../../app/lib/i18n';
 import logo from '../assets/logo.svg';
 import { useCart } from './CartContext';
+import ThemeToggle from './ThemeToggle';
 
 /** Curated navbar links, in order. Other active pages (faq, biz-haqimizda, kontakt, trade-in, yangiliklar) stay in the footer only. */
 const NAV_SLUGS = ['muddatli-tolov'];
@@ -79,12 +80,12 @@ export default function Header({
         enterKeyHint="search"
         placeholder={t.navSearchPlaceholder}
         aria-label={t.navSearch}
-        className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-[16px] placeholder:text-muted-3 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-surface transition-colors [&::-webkit-search-cancel-button]:hidden"
+        className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-[16px] placeholder:text-muted-2 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-surface transition-colors [&::-webkit-search-cancel-button]:hidden"
       />
       <button
         type="submit"
         aria-label={t.navSearch}
-        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-accent text-bg flex items-center justify-center hover:bg-accent-hover transition-colors"
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-accent text-bg flex items-center justify-center hover:bg-accent-hover transition-colors"
       >
         <Search className="w-4 h-4" />
       </button>
@@ -94,7 +95,7 @@ export default function Header({
   const catMenu = catOpen && (
     <>
       <div className="fixed inset-0 z-40" onClick={() => setCatOpen(false)} />
-      <div className="absolute left-0 top-full mt-2 w-60 max-h-[70vh] overflow-y-auto bg-surface border border-line-2 rounded-2xl shadow-apple-hover p-2 z-50">
+      <div className="absolute left-0 top-full mt-2 w-60 max-h-[70vh] overflow-y-auto bg-surface border border-line-2 rounded-[20px] shadow-apple-hover p-2 z-50">
         <div className="border-b border-divider mb-1 pb-1">
           <Link
             to={localizedPath(locale, '/katalog')}
@@ -134,7 +135,7 @@ export default function Header({
           <button
             onClick={() => setCatOpen((v) => !v)}
             aria-label={t.navCatalog}
-            className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-[14px] font-semibold hover:border-accent hover:text-accent transition-colors"
+            className="inline-flex h-9 items-center gap-2 rounded-full border border-line px-4 text-[14px] font-medium hover:border-accent hover:text-accent transition-colors"
           >
             <Menu className="w-4 h-4" /> {t.navCatalog}
           </button>
@@ -192,7 +193,7 @@ export default function Header({
           </button>
         )}
 
-        <div className="relative flex items-center p-2.5 -m-1 text-muted hover:text-primary transition-colors rounded-md focus-within:ring-2 focus-within:ring-accent/50">
+        <div className="relative flex items-center p-2.5 -m-1 text-muted hover:text-primary transition-colors rounded-xl focus-within:ring-2 focus-within:ring-accent/50">
           <Globe className="w-5 h-5" />
           <select
             value={lang}
@@ -204,6 +205,12 @@ export default function Header({
             <option value="Rus tili">Русский</option>
           </select>
         </div>
+
+        <ThemeToggle
+          label={t.themeLabel}
+          className="p-2.5 -m-1 text-muted hover:text-primary transition-colors"
+          iconCls="w-5 h-5"
+        />
       </div>
 
       {/* Mobil: Katalog (ikon) + to'liq enli qidiruv qatori. Nav sahifalar (Shartlar)

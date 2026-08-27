@@ -12,7 +12,7 @@ const SortSelect: FC<{ t: Translation; value: SortKey; onChange: (v: SortKey) =>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as SortKey)}
-        className="border border-line rounded-xl px-3 py-2 text-[14px] text-primary bg-white focus:outline-none focus:border-accent"
+        className="border border-line rounded-xl px-3 py-2 text-[14px] text-primary bg-surface focus:outline-none focus:border-accent"
       >
         {SORTS.map((s) => (
           <option key={s} value={s}>{labels[s]}</option>

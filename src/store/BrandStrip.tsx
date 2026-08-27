@@ -1,4 +1,5 @@
 import type { CSSProperties, FC } from 'react';
+import { SECTION_HEADING } from './ui';
 import amd from '../assets/images/logos/amd.svg';
 import apple from '../assets/images/logos/apple.svg';
 import asus from '../assets/images/logos/asus.svg';
@@ -62,7 +63,7 @@ const Mark: FC<{ logo: Logo; clone: boolean }> = ({ logo, clone }) => (
     alt={clone ? '' : logo.name}
     aria-hidden={clone || undefined}
     loading="lazy"
-    className="h-9 w-[132px] shrink-0 object-contain opacity-60 brightness-0 invert transition-opacity duration-300 hover:opacity-100"
+    className="h-9 w-[132px] shrink-0 object-contain opacity-60 brand-logo transition-opacity duration-300 hover:opacity-100"
   />
 );
 
@@ -89,8 +90,8 @@ const Row: FC<{ logos: Logo[]; reverse?: boolean }> = ({ logos, reverse = false 
 };
 
 const BrandStrip: FC<{ title: string }> = ({ title }) => (
-  <section className="flex flex-col gap-8">
-    <h2 className="text-[22px] md:text-[28px] font-semibold tracking-[-0.02em]">{title}</h2>
+  <section className="flex flex-col gap-8 md:gap-10">
+    <h2 className={SECTION_HEADING}>{title}</h2>
     <div className="flex flex-col gap-14">
       <Row logos={ROW_TOP} />
       <Row logos={ROW_BOTTOM} reverse />

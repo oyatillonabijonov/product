@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, User, Globe } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import { categoryLabel, type Locale } from '../../app/lib/i18n';
+import { Link } from 'react-router';
 import LocaleLink from './LocaleLink';
-import { useCart } from './CartContext';
+import ThemeToggle from './ThemeToggle';
 import wordmark from '../assets/hero/wordmark.webp';
 
 const SPRING = { type: 'spring', stiffness: 160, damping: 24, mass: 1 } as const;
+
+/** Nav'ning yumaloq ikon tugmasi — Kirish pill'i bilan bir balandlikda (36px). */
+const ICON_BTN =
+  'flex h-9 w-9 flex-none items-center justify-center rounded-full border border-white/[0.16] text-[#F5F5F7] transition-colors duration-200 hover:border-white/[0.38]';
 
 /**
  * Hero tepasidagi qora "notch" — yopiq holatda faqat logotip ko'rinadi, hover'da
@@ -26,7 +31,6 @@ export default function HeroNotch({ t, locale, categories }: {
   const [pinned, setPinned] = useState(false);
   const navRef = useRef<HTMLDivElement | null>(null);
   const [navW, setNavW] = useState(0);
-  const { count } = useCart();
   const reduced = useReducedMotion();
 
   // Nav'ning tabiiy kengligi bir marta o'lchanadi — quti taxmin qilingan qiymatni
@@ -66,7 +70,7 @@ export default function HeroNotch({ t, locale, categories }: {
         : { height: 80.53, paddingLeft: 0, paddingRight: 0, gap: 0 }}
       transition={reduced ? { duration: 0 } : SPRING}
       style={{ overflow: open ? 'visible' : 'hidden' }}
-      className="fixed -top-[14px] left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center rounded-b-[25px] bg-black pt-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),0_4px_162px_0_rgba(255,255,255,0.25)]"
+      className="fixed -top-[14px] left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center rounded-b-[24px] bg-black pt-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),0_4px_162px_0_rgba(255,255,255,0.25)]"
     >
       <LocaleLink to="/" className="block flex-none">
         <img src={wordmark} alt="" aria-hidden className="block h-[25px] w-auto" />
@@ -98,7 +102,7 @@ export default function HeroNotch({ t, locale, categories }: {
               style={{ transform: menu ? 'rotate(180deg)' : 'rotate(0deg)' }}
             />
             <div
-              className="absolute left-[-16px] top-full mt-5 flex min-w-[216px] flex-col rounded-2xl bg-black p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),0_24px_60px_rgba(0,0,0,0.7)]"
+              className="absolute left-[-16px] top-full mt-5 flex min-w-[216px] flex-col rounded-[20px] bg-black p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),0_24px_60px_rgba(0,0,0,0.7)]"
               style={{
                 opacity: menu ? 1 : 0,
                 visibility: menu ? 'visible' : 'hidden',
@@ -110,7 +114,7 @@ export default function HeroNotch({ t, locale, categories }: {
                 <LocaleLink
                   key={c.id}
                   to={`/category/${c.id}`}
-                  className="flex h-[38px] items-center rounded-[10px] px-3 text-[14px] font-normal tracking-[-0.01em] text-[#F5F5F7] whitespace-nowrap transition-colors duration-200 hover:bg-white/[0.08]"
+                  className="flex h-[38px] items-center rounded-xl px-3 text-[14px] font-normal tracking-[-0.01em] text-[#F5F5F7] whitespace-nowrap transition-colors duration-200 hover:bg-white/[0.08]"
                 >
                   {categoryLabel(c, locale)}
                 </LocaleLink>
@@ -129,18 +133,23 @@ export default function HeroNotch({ t, locale, categories }: {
 
         <div className="flex items-center gap-4">
           <LocaleLink
-            to="/savat"
-            className="flex h-8 items-center rounded-full bg-[#0071E3] px-[18px] text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#0A84FF]"
+            to="/kirish"
+            className="flex h-9 items-center rounded-full bg-[#0071E3] px-5 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#0A84FF]"
           >
-            {t.cartTitle}{count > 0 ? ` · ${count}` : ''}
+            {t.loginTitle}
           </LocaleLink>
-          <LocaleLink
-            to="/kabinet"
-            aria-label={t.accountTitle}
-            className="flex h-8 w-8 flex-none items-center justify-center rounded-full border border-white/[0.16] transition-colors duration-200 hover:border-white/[0.38]"
+          <LocaleLink to="/kabinet" aria-label={t.accountTitle} title={t.accountTitle} className={ICON_BTN}>
+            <User aria-hidden className="h-[18px] w-[18px]" strokeWidth={1.8} />
+          </LocaleLink>
+          <Link
+            to={locale === 'ru' ? '/' : '/ru'}
+            aria-label={`${t.langLabel}: ${locale === 'ru' ? "O'zbekcha" : 'Русский'}`}
+            title={locale === 'ru' ? "O'zbekcha" : 'Русский'}
+            className={ICON_BTN}
           >
-            <span aria-hidden className="h-[13px] w-[13px] rounded-full shadow-[inset_-5px_-1px_0_0_#F5F5F7]" />
-          </LocaleLink>
+            <Globe aria-hidden className="h-[18px] w-[18px]" strokeWidth={1.8} />
+          </Link>
+          <ThemeToggle label={t.themeLabel} className={ICON_BTN} />
         </div>
       </motion.div>
     </motion.div>

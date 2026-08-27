@@ -56,7 +56,7 @@ export function ErrorBoundary() {
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center px-4">
       <h1 className="text-[40px] font-semibold">{notFound ? '404' : t.errorGeneric.split('.')[0]}</h1>
       <p className="text-muted">{notFound ? t.notFoundTitle : t.errorGeneric}</p>
-      <a href={localizedPath(locale, '/')} className="px-6 py-3 bg-accent text-white font-semibold rounded-full">
+      <a href={localizedPath(locale, '/')} className="px-6 py-3 bg-accent text-bg font-semibold rounded-full">
         {t.backHome}
       </a>
     </div>

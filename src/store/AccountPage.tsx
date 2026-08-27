@@ -38,7 +38,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
       <div className="max-w-[1080px] mx-auto px-4 py-8 md:py-10">
         <div className="grid md:grid-cols-[270px_1fr] gap-5 items-start">
           {/* Sidebar */}
-          <aside className="bg-white border border-line-2 rounded-2xl shadow-apple overflow-hidden md:sticky md:top-24">
+          <aside className="bg-surface border border-line-2 rounded-[20px] shadow-apple overflow-hidden md:sticky md:top-24">
             <div className="flex items-center gap-3 p-5 border-b border-line/60">
               <div className="w-12 h-12 rounded-full bg-accent-soft text-accent flex items-center justify-center font-semibold text-[17px] shrink-0">
                 {initials(customer.name, customer.email ?? '')}
@@ -62,7 +62,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
                   <Icon className="w-[18px] h-[18px] shrink-0" />
                   <span className="flex-1 text-left">{label}</span>
                   {badge > 0 && (
-                    <span className={`text-[14px] font-semibold rounded-full px-1.5 min-w-[20px] text-center ${tab === key ? 'bg-accent text-white' : 'bg-bg text-muted-2'}`}>
+                    <span className={`text-[14px] font-semibold rounded-full px-1.5 min-w-[20px] text-center ${tab === key ? 'bg-accent text-bg' : 'bg-bg text-muted-2'}`}>
                       {badge}
                     </span>
                   )}
@@ -80,7 +80,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
           </aside>
 
           {/* Content */}
-          <section className="bg-white border border-line-2 rounded-2xl shadow-apple p-5 md:p-7 min-h-[360px]">
+          <section className="bg-surface border border-line-2 rounded-[20px] shadow-apple p-5 md:p-7 min-h-[360px]">
             <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-line/60">
               <ActiveIcon className="w-5 h-5 text-accent" />
               <h1 className="text-[19px] font-semibold text-primary tracking-[-0.01em]">{active.label}</h1>

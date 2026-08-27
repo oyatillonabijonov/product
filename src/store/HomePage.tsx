@@ -27,7 +27,7 @@ export default function HomePage({
       <HeroColumns categories={categories} />
       <div className="mx-auto flex max-w-[1440px] flex-col gap-16 px-4 py-14 md:gap-24 md:py-20">
         <ServiceCards t={t} />
-        <BlogSection title={t.blogTitle} lead={t.blogLead} allLabel={t.blogAll} posts={posts} locale={locale} />
+        <BlogSection title={t.blogTitle} allLabel={t.blogAll} posts={posts} locale={locale} />
         <BrandStrip title={t.homeBrands} />
         <ConsultForm t={t} config={site} />
       </div>

@@ -2,6 +2,7 @@ import { useState, type FC } from 'react';
 import { motion } from 'motion/react';
 import { ArrowUpRight, Check } from 'lucide-react';
 import type { Translation } from '../locales';
+import { PILL, SECTION_HEADING } from './ui';
 import type { ApiSiteConfig } from '../../shared/types';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
 import { ymGoal } from '../lib/metrica';
@@ -15,7 +16,7 @@ const Chip: FC<{ label: string; on: boolean; onToggle: () => void }> = ({ label,
     role="checkbox"
     aria-checked={on}
     onClick={onToggle}
-    className={`inline-flex items-center gap-3 rounded-full border py-3 pl-3 pr-5 text-[15px] transition-colors duration-200 ${
+    className={`inline-flex h-11 items-center gap-3 rounded-full border pl-3 pr-6 text-[15px] font-medium transition-colors duration-200 ${
       on ? 'border-primary bg-primary/[0.06] text-primary' : 'border-line text-body hover:border-muted-3'
     }`}
   >
@@ -83,7 +84,7 @@ const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config 
     `peer w-full border-0 border-b bg-transparent pb-3 pt-6 text-[17px] text-primary outline-none transition-colors placeholder:text-transparent ${
       bad ? 'border-danger' : 'border-line focus:border-primary'
     }`;
-  const label = 'pointer-events-none absolute left-0 top-6 text-[17px] text-muted-3 transition-all duration-200 peer-focus:top-0 peer-focus:text-[14px] peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[14px]';
+  const label = 'pointer-events-none absolute left-0 top-6 text-[17px] text-muted-2 transition-all duration-200 peer-focus:top-0 peer-focus:text-[14px] peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[14px]';
 
   if (done) {
     return (
@@ -106,7 +107,7 @@ const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config 
     <section id="konsultatsiya" className="scroll-mt-24 overflow-hidden rounded-[24px] bg-surface">
       <div className="grid gap-10 px-6 py-10 md:px-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:gap-16">
         <div>
-          <h2 className="text-[26px] md:text-[36px] font-semibold leading-[1.12] tracking-[-0.03em] text-balance">
+          <h2 className={SECTION_HEADING}>
             {t.consultTitle}
           </h2>
           <p className="mt-4 max-w-[52ch] text-[15px] md:text-[16px] leading-relaxed text-muted text-pretty">
@@ -164,10 +165,10 @@ const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config 
           <button
             type="submit"
             disabled={busy}
-            className="group mt-8 inline-flex items-center justify-center gap-2 rounded-2xl bg-accent px-8 py-4 text-[16px] font-semibold text-bg transition-colors hover:bg-accent-hover disabled:opacity-60"
+            className={`${PILL} group mt-8 justify-center disabled:opacity-60`}
           >
             {busy ? t.consultSending : t.consultSubmit}
-            {!busy && <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />}
+            {!busy && <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />}
           </button>
         </form>
       </div>

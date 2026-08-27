@@ -43,7 +43,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
       <div className="max-w-[1440px] mx-auto px-4 py-16 flex flex-col items-center gap-4 text-center">
         <ShoppingCart className="w-12 h-12 text-disabled" />
         <h1 className="text-[24px] font-semibold">{t.cartEmpty}</h1>
-        <LocaleLink to="/katalog" className="px-6 py-3 bg-accent text-white font-semibold rounded-full">
+        <LocaleLink to="/katalog" className="inline-flex h-[52px] items-center justify-center rounded-full bg-accent px-7 font-semibold text-bg">
           {t.cartContinue}
         </LocaleLink>
       </div>
@@ -53,14 +53,14 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
   return (
     <div className="max-w-[1440px] mx-auto px-4 py-6 md:py-10">
       <div className="flex items-baseline gap-3 mb-6">
-        <h1 className="text-[24px] md:text-[32px] font-semibold tracking-[-0.02em]">{t.cartTitle}</h1>
+        <h1 className="text-[32px] md:text-[44px] font-semibold tracking-[-0.03em]">{t.cartTitle}</h1>
         <span className="text-[14px] text-muted-2">{count} {t.cartItemsCount}</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
         <div className="flex flex-col gap-3">
           {items.map((it) => (
-            <div key={`${it.productId}-${it.variantId ?? ''}`} className="bg-white border border-divider rounded-2xl p-4 flex flex-wrap items-center gap-x-4 gap-y-3 shadow-apple">
+            <div key={`${it.productId}-${it.variantId ?? ''}`} className="bg-surface border border-divider rounded-[20px] p-4 flex flex-wrap items-center gap-x-4 gap-y-3 shadow-apple">
               <div className="w-16 h-16 rounded-xl bg-bg flex items-center justify-center overflow-hidden shrink-0">
                 {it.image ? <img src={it.image} alt="" className="w-full h-full object-contain p-1.5" /> : null}
               </div>
@@ -82,7 +82,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
           </button>
         </div>
 
-        <div className="bg-white border border-line-3 rounded-[24px] p-5 shadow-apple lg:sticky lg:top-24">
+        <div className="bg-surface border border-line-3 rounded-[24px] p-5 shadow-apple lg:sticky lg:top-24">
           {showInstallment && (
             <>
               <div className="text-[14px] font-semibold text-muted mb-3">{t.calcTerm}</div>
@@ -98,19 +98,19 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
           {showInstallment && (
             <div className="mt-4 pt-4 border-t border-divider">
               <div className="text-[14px] text-muted">{t.cartMonthlyTotal}</div>
-              <div className="text-[28px] font-semibold text-accent tracking-[-0.02em] leading-none mt-1 tabular-nums">
+              <div className="text-[24px] font-semibold text-accent tracking-[-0.02em] leading-none mt-1 tabular-nums">
                 {formatUzs(result.monthly, t.sum)} <span className="text-[14px] text-muted-2 font-normal">× {months} {t.calcMonths}</span>
               </div>
             </div>
           )}
           <div className="flex flex-col gap-2.5 mt-5">
             {showInstallment && (
-              <button onClick={() => openOrder('installment')} className="py-3 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors">
+              <button onClick={() => openOrder('installment')} className="h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover transition-colors">
                 {t.orderBuyInstallment}
               </button>
             )}
             {site.paymentMode !== 'installment' && (
-              <button onClick={() => openOrder('cash')} className="py-3 bg-cta text-white font-semibold rounded-full hover:bg-cta-hover transition-colors">
+              <button onClick={() => openOrder('cash')} className="h-[52px] bg-cta text-white font-semibold rounded-full hover:bg-cta-hover transition-colors">
                 {t.orderBuyCash}
               </button>
             )}

@@ -32,7 +32,7 @@ const Pagination: FC<{ page: number; total: number; onPage: (n: number) => void 
           <span
             key={p}
             aria-current="page"
-            className="min-w-9 h-9 px-2 rounded-full text-[14px] font-semibold bg-accent text-white inline-flex items-center justify-center"
+            className="min-w-9 h-9 px-2 rounded-full text-[14px] font-semibold bg-accent text-bg inline-flex items-center justify-center"
           >
             {p}
           </span>
@@ -44,7 +44,7 @@ const Pagination: FC<{ page: number; total: number; onPage: (n: number) => void 
               e.preventDefault();
               onPage(p);
             }}
-            className="min-w-9 h-9 px-2 rounded-full text-[14px] font-semibold transition-colors bg-white border border-line hover:border-accent inline-flex items-center justify-center"
+            className="min-w-9 h-9 px-2 rounded-full text-[14px] font-semibold transition-colors bg-surface border border-line hover:border-accent inline-flex items-center justify-center"
           >
             {p}
           </Link>

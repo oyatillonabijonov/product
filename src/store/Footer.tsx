@@ -1,124 +1,139 @@
-import type { FC } from 'react';
+import { useEffect, useState, type FC, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router';
-import { Phone, Send, Instagram, MapPin, Clock, ExternalLink, Globe } from 'lucide-react';
+import { Phone, Send, Instagram, ArrowUpRight } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
 import { localizedPath, localeToTextKey, stripLocale, type Locale } from '../../app/lib/i18n';
 import { safeHref } from '../lib/safe-href';
 import logo from '../assets/logo.svg';
+import { effectiveDark } from './ThemeToggle';
 
+/** Ustun sarlavhasi + ro'yxat — uchala ustun bir xil ritmda tursin. */
+const Col: FC<{ title: string; children: ReactNode }> = ({ title, children }) => (
+  <div className="flex flex-col gap-4">
+    <h3 className="text-[14px] font-medium text-muted-2">{title}</h3>
+    <div className="flex flex-col gap-3 text-[15px]">{children}</div>
+  </div>
+);
+
+const linkCls = 'text-body transition-colors duration-200 hover:text-primary';
+const rowCls = `flex items-center gap-2.5 ${linkCls}`;
+
+/**
+ * Footer — to'rt ustun: brend, menyu, aloqa, manzil; ostida nozik chiziq va
+ * qator (copyright · til).
+ *
+ * Yandex xarita widget'i ataylab yo'q: uchinchi tomon chrome'i (Traffic, zoom,
+ * "Open in Yandex Maps") sayt uslubiga bo'ysunmaydi va har sahifada iframe
+ * yuklardi. Manzil matn bo'lib turadi, xarita esa bitta havola.
+ */
 const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLinks: PageLink[] }> = ({ t, locale, config, pageLinks }) => {
   const location = useLocation();
   const barePath = stripLocale(location.pathname);
-  // Landing dark rejimda — Yandex widget'ining o'z dark temasi (CSS filtr emas).
-  const isDark = barePath === '/';
-  const mapWidgetSrc = `https://yandex.com/map-widget/v1/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm${isDark ? '&theme=dark' : ''}`;
+  // Yandex'ning o'z dark temasi (CSS filtr xaritani iflos qiladi) — tema
+  // almashtirilganda vidjet ham ergashadi.
+  const [darkMap, setDarkMap] = useState(barePath === '/');
+  useEffect(() => {
+    const sync = () => setDarkMap(effectiveDark());
+    sync();
+    window.addEventListener('themechange', sync);
+    return () => window.removeEventListener('themechange', sync);
+  }, [barePath]);
+  const mapWidgetSrc = `https://yandex.com/map-widget/v1/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm${darkMap ? '&theme=dark' : ''}`;
+  const textKey = localeToTextKey(locale);
   const mapLinkHref = `https://yandex.com/maps/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm`;
   const telegramHandle = `@${config.telegram.replace(/^https?:\/\/t\.me\//, '')}`;
   const instagramHandle = `@${config.instagram.replace(/^https?:\/\/www\.instagram\.com\//, '').replace(/\/$/, '')}`;
-  const textKey = localeToTextKey(locale);
+  const menu: { to: string; label: string }[] = [
+    { to: '/katalog', label: t.catalogAll },
+    { to: '/chegirmalar', label: t.dealsTitle },
+    { to: '/savat', label: t.cartTitle },
+  ];
+  const info = pageLinks.map((p) => ({ to: `/page/${p.slug}`, label: p.title[textKey] }));
   return (
-    <footer className="w-full bg-surface-2 pt-16 pb-10 flex flex-col mt-auto border-t border-line">
-     <div className="max-w-[1440px] mx-auto w-full px-4">
-      {/* Ikki ustun: chapda xarita, o'ngda footer ma'lumotlari. Tor ekranda xarita
-          tepaga chiqib, ma'lumotlar ostiga tushadi. */}
-      <div className="grid items-stretch gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:gap-14 mb-12">
-        <div
-          className="relative order-1 min-h-[320px] lg:min-h-0 bg-surface rounded-[24px] overflow-hidden shadow-apple group border border-line/50"
-        >
+    <footer className="mt-auto w-full border-t border-line bg-surface-2">
+      <div className="mx-auto w-full max-w-[1440px] px-4 py-16 md:py-20">
+        {/* Xarita — to'liq enli past tasma. Yandex vidjeti o'z boshqaruvlarini
+            ko'rsatadi, shuning uchun balandligi ataylab past: u footer'ni
+            egallamaydi, manzil esa pastdagi ustunda matn bo'lib turadi. */}
+        <div className="mb-14 h-[200px] overflow-hidden rounded-[20px] border border-line md:h-[240px]">
           <iframe
             src={mapWidgetSrc}
-            width="100%"
-            height="100%"
-            frameBorder="0"
-            allowFullScreen={true}
+            title={config.mapLabel || t.mapTitle}
             loading="lazy"
-            title={config.mapLabel || 'Store location'}
-            className={isDark ? 'transition-all duration-700' : 'grayscale-[0.2] contrast-[1.1] brightness-[0.95] group-hover:grayscale-0 transition-all duration-700'}
-          ></iframe>
-          <div className="absolute top-6 left-6 z-10">
-            <div className="bg-surface/80 backdrop-blur-md px-4 py-3 rounded-2xl border border-line/50 shadow-apple">
-              <div className="flex items-center gap-2 mb-1">
-                <MapPin className="w-4 h-4 text-accent" />
-                <span className="text-[14px] font-semibold">{t.mapTitle}</span>
-              </div>
-              <p className="text-[14px] text-muted">{t.mapDesc}</p>
-              <a
-                href={mapLinkHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[14px] text-accent mt-2 flex items-center gap-1 hover:underline"
-              >
-                {t.mapLink} <ExternalLink className="w-3 h-3" />
+            allowFullScreen
+            className="h-full w-full border-0"
+          />
+        </div>
+
+        <div className="grid gap-12 md:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))] md:gap-10">
+          <div className="flex flex-col gap-5">
+            <img src={logo} alt={config.name} className="h-9 w-auto self-start object-contain" />
+            <p className="max-w-[280px] text-[15px] leading-[1.55] text-muted text-pretty">{t.footerDesc}</p>
+          </div>
+
+          <Col title={t.footerMenu}>
+            {menu.map((m) => (
+              <Link key={m.to} to={localizedPath(locale, m.to)} className={linkCls}>
+                {m.label}
+              </Link>
+            ))}
+          </Col>
+
+          <Col title={t.footerInfo}>
+            {info.map((m) => (
+              <Link key={m.to} to={localizedPath(locale, m.to)} className={linkCls}>
+                {m.label}
+              </Link>
+            ))}
+          </Col>
+
+          <Col title={t.footerContact}>
+            {config.phone && (
+              <a href={`tel:${config.phone}`} className={rowCls}>
+                <Phone aria-hidden className="h-4 w-4 shrink-0 text-muted-3" /> {config.phoneDisplay}
               </a>
-            </div>
+            )}
+            {safeHref(config.telegram) && (
+              <a href={safeHref(config.telegram) ?? undefined} target="_blank" rel="noopener noreferrer" className={rowCls}>
+                <Send aria-hidden className="h-4 w-4 shrink-0 text-muted-3" /> {telegramHandle}
+              </a>
+            )}
+            {safeHref(config.instagram) && (
+              <a href={safeHref(config.instagram) ?? undefined} target="_blank" rel="noopener noreferrer" className={rowCls}>
+                <Instagram aria-hidden className="h-4 w-4 shrink-0 text-muted-3" /> {instagramHandle}
+              </a>
+            )}
+          </Col>
+
+          <Col title={t.mapTitle}>
+            <p className="text-muted">
+              {t.footerAddressText1}
+              <br />
+              {t.footerAddressText2}
+            </p>
+            <p className="text-muted">{t.footerTime}</p>
+            <a href={mapLinkHref} target="_blank" rel="noopener noreferrer" className={`${rowCls} gap-1`}>
+              {t.mapLink}
+              <ArrowUpRight aria-hidden className="h-4 w-4 shrink-0" />
+            </a>
+          </Col>
+        </div>
+
+        <div className="mt-16 flex flex-col-reverse items-center gap-4 border-t border-line pt-6 text-[14px] md:flex-row md:justify-between">
+          <p className="text-muted-2">{`© ${new Date().getFullYear()} ${config.name}. ${t.footerCopyright}`}</p>
+          <div className="flex items-center gap-3">
+            <Link to={barePath + location.search} className={locale === 'uz' ? 'font-medium text-primary' : 'text-muted-2 transition-colors hover:text-primary'}>
+              O'zbekcha
+            </Link>
+            <span aria-hidden className="text-line">·</span>
+            <Link to={localizedPath('ru', barePath) + location.search} className={locale === 'ru' ? 'font-medium text-primary' : 'text-muted-2 transition-colors hover:text-primary'}>
+              Русский
+            </Link>
           </div>
         </div>
-
-        <div className="order-2 flex flex-col gap-10">
-        {/* Brend bloki */}
-        <div className="flex flex-col gap-4">
-          <img src={logo} alt={config.name} className="h-10 w-auto object-contain self-start" />
-          <p className="text-[14px] text-muted leading-relaxed max-w-[240px]">{t.footerDesc}</p>
-          <div className="flex flex-col gap-1.5 text-[14px] text-muted mt-0.5">
-            <span className="flex items-start gap-2"><MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0" />{t.footerAddressText1} {t.footerAddressText2}</span>
-            <span className="flex items-center gap-2"><Clock className="w-3.5 h-3.5 shrink-0" />{t.footerTime}</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-8">
-        {/* Menyu */}
-        <div className="flex flex-col gap-3">
-          <h3 className="text-[14px] text-muted-2 mb-1">{t.footerMenu}</h3>
-          <Link to={localizedPath(locale, '/katalog')} className="text-[14px] text-body hover:text-accent transition-colors">{t.catalogAll}</Link>
-          <Link to={localizedPath(locale, '/chegirmalar')} className="text-[14px] text-body hover:text-accent transition-colors">{t.dealsTitle}</Link>
-          <Link to={localizedPath(locale, '/savat')} className="text-[14px] text-body hover:text-accent transition-colors">{t.cartTitle}</Link>
-          <Link to={`${localizedPath(locale, '/')}#faq`} className="text-[14px] text-body hover:text-accent transition-colors">FAQ</Link>
-        </div>
-
-
-        {/* Aloqa */}
-        <div className="flex flex-col gap-3">
-          <h3 className="text-[14px] text-muted-2 mb-1">{t.footerContact}</h3>
-          {config.phone && (
-            <a href={`tel:${config.phone}`} className="text-[14px] text-body hover:text-accent flex items-center gap-2 transition-colors">
-              <Phone className="w-4 h-4 shrink-0" /> {config.phoneDisplay}
-            </a>
-          )}
-          {safeHref(config.telegram) && (
-            <a href={safeHref(config.telegram) ?? undefined} target="_blank" rel="noopener noreferrer" className="text-[14px] text-body hover:text-accent flex items-center gap-2 transition-colors">
-              <Send className="w-4 h-4 shrink-0" /> {telegramHandle}
-            </a>
-          )}
-          {safeHref(config.instagram) && (
-            <a href={safeHref(config.instagram) ?? undefined} target="_blank" rel="noopener noreferrer" className="text-[14px] text-body hover:text-accent flex items-center gap-2 transition-colors">
-              <Instagram className="w-4 h-4 shrink-0" /> {instagramHandle}
-            </a>
-          )}
-        </div>
-        </div>
-        </div>
       </div>
-
-      <div className="w-full h-px bg-line/60 mb-6"></div>
-
-      {/* Til — mobil headerdan olib tashlangani uchun almashtirgich shu yerda */}
-      <div className="w-full flex items-center justify-center gap-3 mb-4 text-[14px]">
-        <Globe className="w-4 h-4 text-muted-2" aria-hidden />
-        <Link to={barePath + location.search} className={locale === 'uz' ? 'font-semibold text-primary' : 'text-muted hover:text-primary transition-colors'}>
-          O'zbekcha
-        </Link>
-        <span className="text-line-2">|</span>
-        <Link to={localizedPath('ru', barePath) + location.search} className={locale === 'ru' ? 'font-semibold text-primary' : 'text-muted hover:text-primary transition-colors'}>
-          Русский
-        </Link>
-      </div>
-
-      <div className="w-full text-center text-[14px] text-muted-2">
-        {`© ${new Date().getFullYear()} ${config.name}. ${t.footerCopyright}`}
-      </div>
-     </div>
     </footer>
   );
 };

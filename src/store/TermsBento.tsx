@@ -99,11 +99,11 @@ const CELLS: Cell[] = [
 
 const TONE: Record<Tone, { card: string; eyebrow: string; title: string; desc: string; icon: string }> = {
   accent: {
-    card: 'bg-gradient-to-br from-accent to-accent-hover text-white border-transparent shadow-apple',
-    eyebrow: 'text-white/70',
-    title: 'text-white',
-    desc: 'text-white/85',
-    icon: 'bg-white/15 text-white',
+    card: 'bg-gradient-to-br from-accent to-accent-hover text-bg border-transparent shadow-apple',
+    eyebrow: 'text-bg/70',
+    title: 'text-bg',
+    desc: 'text-bg/85',
+    icon: 'bg-bg/15 text-bg',
   },
   trust: {
     card: 'bg-trust-soft border-transparent',
@@ -113,7 +113,7 @@ const TONE: Record<Tone, { card: string; eyebrow: string; title: string; desc: s
     icon: 'bg-trust/12 text-trust',
   },
   plain: {
-    card: 'bg-white border-line/60 hover:border-line-2 transition-colors',
+    card: 'bg-surface border-line/60 hover:border-line-2 transition-colors',
     eyebrow: 'text-muted-2',
     title: 'text-primary',
     desc: 'text-muted',
@@ -127,14 +127,14 @@ const Card: FC<{ cell: Cell; textKey: keyof LocalizedText }> = ({ cell, textKey 
   const big = cell.span.includes('row-span-2');
   return (
     <div className={`rounded-[24px] border p-6 md:p-7 flex flex-col ${cell.span} ${tone.card}`}>
-      <span className={`inline-flex w-11 h-11 rounded-2xl items-center justify-center ${tone.icon}`}>
+      <span className={`inline-flex w-11 h-11 rounded-[20px] items-center justify-center ${tone.icon}`}>
         <Icon className="w-5 h-5" />
       </span>
       <div className="mt-auto pt-6">
         <p className={`text-[14px] font-semibold uppercase tracking-[0.08em] mb-1.5 ${tone.eyebrow}`}>
           {cell.eyebrow[textKey]}
         </p>
-        <h3 className={`font-semibold tracking-[-0.02em] ${tone.title} ${big ? 'text-[28px] md:text-[36px]' : 'text-[19px] md:text-[21px]'}`}>
+        <h3 className={`font-semibold tracking-[-0.02em] ${tone.title} ${big ? 'text-[24px] md:text-[32px]' : 'text-[17px] md:text-[20px]'}`}>
           {cell.title[textKey]}
         </h3>
         <p className={`mt-2 leading-relaxed ${tone.desc} ${big ? 'text-[15px] md:text-[16px]' : 'text-[14px]'}`}>
@@ -150,7 +150,7 @@ const TermsBento: FC<{ locale: Locale; heading: string; lead?: ReactNode }> = ({
   return (
     <section className="max-w-[1100px] mx-auto px-4 py-10 md:py-16">
       <div className="max-w-[640px] mb-8 md:mb-12">
-        <h1 className="text-[34px] md:text-[46px] font-semibold text-primary tracking-[-0.03em]">{heading}</h1>
+        <h1 className="text-[32px] md:text-[44px] font-semibold text-primary tracking-[-0.03em]">{heading}</h1>
         {lead && <p className="mt-4 text-[16px] md:text-[18px] text-muted leading-relaxed">{lead}</p>}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 md:auto-rows-[minmax(150px,auto)]">

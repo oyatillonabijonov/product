@@ -82,7 +82,7 @@ const OrderForm: FC<{
       onClick={close}
     >
       <div
-        className="w-full max-w-md bg-white rounded-[24px] shadow-apple-hover p-6 relative"
+        className="w-full max-w-md bg-surface rounded-[24px] shadow-apple-hover p-6 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button onClick={close} aria-label={t.orderClose} className="absolute top-4 right-4 text-muted-2 hover:text-primary">
@@ -100,12 +100,12 @@ const OrderForm: FC<{
                   href={tgHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 border border-line-2 rounded-full font-semibold text-[14px] text-primary hover:bg-bg transition-colors flex items-center justify-center gap-2"
+                  className="w-full h-11 border border-line-2 rounded-full font-semibold text-[14px] text-primary hover:bg-bg transition-colors flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" /> {t.orderContactTg}
                 </a>
               )}
-              <button onClick={close} className="w-full py-2.5 bg-primary text-white font-semibold text-[14px] rounded-full">
+              <button onClick={close} className="w-full h-11 bg-primary text-bg font-semibold text-[14px] rounded-full">
                 {t.orderClose}
               </button>
             </div>
@@ -181,7 +181,7 @@ const OrderForm: FC<{
             <button
               type="submit"
               disabled={busy}
-              className="w-full py-3.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Send className="w-4.5 h-4.5" /> {busy ? t.orderSending : t.orderSubmit}
             </button>

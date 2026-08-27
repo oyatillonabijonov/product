@@ -43,7 +43,8 @@
  * to'qroq neytral. Faqat @theme tokenlari qayta e'lon qilinadi — ichkaridagi
  * komponentlar (FAQ, brendlar, blog) o'zgarishsiz qayta ranglanadi.
  */
-.landing-dark {
+:root:not([data-theme="light"]) .landing-dark,
+:root[data-theme="dark"] {
   --color-primary: #F2F4F6;
   --color-body: #C9CDD2;
   --color-muted: #A2A8AF;
@@ -51,9 +52,9 @@
   --color-muted-3: #7B818A;
   --color-disabled: #4A4E53;
   --color-disabled-2: #8B9199;
-  --color-bg: #17191B;
+  --color-bg: #101214;        /* sahifa va footer bitta tonda */
   --color-surface: #27292B;   /* brend rangi */
-  --color-surface-2: #101214; /* footer sahifadan to'qroq — hero qora bilan sahifani yakunlaydi */
+  --color-surface-2: #101214;
   --color-accent: #F2F4F6;
   --color-accent-hover: #FFFFFF;
   --color-accent-soft: #2F3235;
@@ -76,7 +77,24 @@
   color: var(--color-primary);
 }
 
-.landing-dark ::selection {
+:root[data-theme="dark"] body {
+  background-color: var(--color-bg);
+  color: var(--color-primary);
+}
+
+/* Brend logotiplari — to'plamda to'q, och va rangli belgilar aralash, shuning
+   uchun bitta tonga majburlanadi: yorug'da qora, qorong'ida oq. */
+.brand-logo {
+  filter: brightness(0);
+}
+
+:root:not([data-theme="light"]) .landing-dark .brand-logo,
+:root[data-theme="dark"] .brand-logo {
+  filter: brightness(0) invert(1);
+}
+
+:root:not([data-theme="light"]) .landing-dark ::selection,
+:root[data-theme="dark"] ::selection {
   background: rgba(255, 255, 255, 0.22);
   color: #FFFFFF;
 }

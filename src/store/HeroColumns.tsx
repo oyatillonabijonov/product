@@ -29,7 +29,7 @@ function HeroCard({ col, href, index, hovered, onHover, proY }: {
       onMouseEnter={() => onHover(index)}
       onMouseLeave={() => onHover(null)}
       style={{ viewTransitionName: morphing ? 'hero-cover' : undefined }}
-      className="relative block min-w-0 h-full overflow-hidden rounded-[25px] bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      className="relative block min-w-0 h-full overflow-hidden rounded-[24px] bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       <div
         className="absolute inset-0 [backface-visibility:hidden]"

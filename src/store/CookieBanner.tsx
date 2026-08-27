@@ -29,12 +29,12 @@ const CookieBanner: FC<{ t: Translation }> = ({ t }) => {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-4">
-      <div className="max-w-[720px] mx-auto bg-white border border-line-2 rounded-2xl shadow-apple-hover px-4 py-3 flex items-center gap-3">
+      <div className="max-w-[720px] mx-auto bg-surface border border-line-2 rounded-[20px] shadow-apple-hover px-4 py-3 flex items-center gap-3">
         <Cookie className="w-5 h-5 shrink-0 text-accent" />
         <p className="flex-1 text-[14px] text-body leading-snug">{t.cookieText}</p>
         <button
           onClick={accept}
-          className="shrink-0 px-4 py-2 rounded-full bg-accent text-white text-[14px] font-semibold hover:bg-accent-hover transition-colors"
+          className="shrink-0 h-11 px-6 rounded-full bg-accent text-bg text-[14px] font-semibold hover:bg-accent-hover transition-colors"
         >
           {t.cookieAccept}
         </button>

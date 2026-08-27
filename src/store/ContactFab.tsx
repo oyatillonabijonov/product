@@ -24,20 +24,20 @@ const ContactFab: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config }
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => ymGoal(config.yandexMetricaId, 'contact_telegram')}
-              className="flex items-center gap-2 bg-white border border-line-2 shadow-apple-hover rounded-full pl-4 pr-1.5 py-1.5 text-[14px] font-semibold text-primary"
+              className="flex items-center gap-2 bg-surface border border-line-2 shadow-apple-hover rounded-full pl-4 pr-1.5 py-1.5 text-[14px] font-semibold text-primary"
             >
               {t.orderContactTg}
-              <span className="w-9 h-9 rounded-full bg-accent text-white flex items-center justify-center"><Send className="w-4 h-4" /></span>
+              <span className="w-9 h-9 rounded-full bg-accent text-bg flex items-center justify-center"><Send className="w-4 h-4" /></span>
             </a>
           )}
           {config.phone && (
             <a
               href={`tel:${config.phone}`}
               onClick={() => ymGoal(config.yandexMetricaId, 'contact_call')}
-              className="flex items-center gap-2 bg-white border border-line-2 shadow-apple-hover rounded-full pl-4 pr-1.5 py-1.5 text-[14px] font-semibold text-primary"
+              className="flex items-center gap-2 bg-surface border border-line-2 shadow-apple-hover rounded-full pl-4 pr-1.5 py-1.5 text-[14px] font-semibold text-primary"
             >
               {config.phoneDisplay || config.phone}
-              <span className="w-9 h-9 rounded-full bg-trust text-white flex items-center justify-center"><Phone className="w-4 h-4" /></span>
+              <span className="w-9 h-9 rounded-full bg-trust text-bg flex items-center justify-center"><Phone className="w-4 h-4" /></span>
             </a>
           )}
         </>
@@ -47,7 +47,7 @@ const ContactFab: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config }
         onClick={() => setOpen((v) => !v)}
         aria-label={t.footerContact}
         aria-expanded={open}
-        className="w-13 h-13 min-w-[52px] min-h-[52px] rounded-full bg-accent text-white shadow-apple-hover flex items-center justify-center active:scale-95 transition-transform"
+        className="w-13 h-13 min-w-[52px] min-h-[52px] rounded-full bg-accent text-bg shadow-apple-hover flex items-center justify-center active:scale-95 transition-transform"
       >
         {open ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
       </button>

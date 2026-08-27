@@ -17,7 +17,7 @@ const FavoriteButton: FC<{ item: FavoriteItem; className?: string; addLabel: str
       aria-label={active ? removeLabel : addLabel}
       aria-pressed={active}
       title={active ? removeLabel : addLabel}
-      className={`inline-flex items-center justify-center rounded-full bg-white/90 border border-line shadow-apple hover:bg-white transition-colors ${className}`}
+      className={`inline-flex items-center justify-center rounded-full bg-surface/90 border border-line-2 backdrop-blur-sm shadow-apple transition-colors hover:bg-surface before:absolute before:-inset-1 before:content-[''] ${className}`}
     >
       <Heart className={`w-[18px] h-[18px] transition-colors ${active ? 'fill-sale text-sale' : 'text-muted'}`} />
     </button>

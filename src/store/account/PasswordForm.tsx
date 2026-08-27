@@ -63,7 +63,7 @@ const PasswordForm: FC<{ t: Translation; hasEmail: boolean; hasPassword: boolean
       {err && <p className="text-sale text-[14px]">{err}</p>}
 
       <div className="flex items-center gap-3 mt-1">
-        <button type="submit" disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50">
+        <button type="submit" disabled={busy} className="inline-flex h-11 items-center justify-center px-6 bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50">
           {busy ? t.loginSubmitting : hasPassword ? t.pwChange : t.pwSet}
         </button>
         {saved && <span className="text-trust text-[14px] font-medium">{t.pwSaved}</span>}

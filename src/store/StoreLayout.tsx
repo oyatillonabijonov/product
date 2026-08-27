@@ -49,7 +49,7 @@ export default function StoreLayout({
      <FavoritesProvider>
       {/* Landing dark rejimi — tokenlar `.landing-dark` ichida qayta e'lon qilinadi
           (app/styles.css), shu sabab ichkaridagi bloklar o'zgarishsiz qayta ranglanadi. */}
-      <div className={`min-h-screen flex flex-col ${isHome ? 'landing-dark' : 'bg-white'}`}>
+      <div className={`min-h-screen flex flex-col bg-bg ${isHome ? 'landing-dark' : ''}`}>
         {pending && (
           <div aria-hidden className="fixed top-0 inset-x-0 z-50 h-[3px] overflow-hidden bg-accent-soft">
             <div className="nav-progress h-full w-1/3 bg-accent rounded-full" />

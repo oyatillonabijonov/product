@@ -54,7 +54,7 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer }> = ({ t, custome
       {err && <p className="text-sale text-[14px] mt-3">{err}</p>}
 
       <div className="flex items-center gap-3 mt-6">
-        <button type="submit" disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50">
+        <button type="submit" disabled={busy} className="inline-flex h-11 items-center justify-center px-6 bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50">
           {busy ? t.loginSubmitting : t.profileSave}
         </button>
         {saved && <span className="text-trust text-[14px] font-medium">{t.profileSaved}</span>}

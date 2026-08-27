@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import type { ApiPost } from '../../shared/types';
 import { localeField, type Locale } from '../../app/lib/i18n';
 import LocaleLink from './LocaleLink';
+import { PILL, SECTION_HEADING } from './ui';
 
 // `uz-UZ` ICU'da oy nomi "M08" ko'rinishida chiqadi — o'zbekcha oylar qo'lda.
 const UZ_MONTHS = [
@@ -53,7 +54,7 @@ export const PostCard: FC<{ post: ApiPost; locale: Locale; featured?: boolean; c
         {date && <span className="text-[14px] text-white/60">{date}</span>}
         <h3
           className={`mt-2 font-semibold leading-[1.2] tracking-[-0.02em] text-white ${
-            featured ? 'text-[24px] md:text-[30px]' : 'line-clamp-2 text-[17px] md:text-[19px]'
+            featured ? 'text-[24px] md:text-[30px]' : 'line-clamp-2 text-[17px] md:text-[20px]'
           }`}
         >
           {localeField(post.title, post.titleRu, locale)}
@@ -66,22 +67,19 @@ export const PostCard: FC<{ post: ApiPost; locale: Locale; featured?: boolean; c
   );
 };
 
-const BlogSection: FC<{ title: string; lead: string; allLabel: string; posts: ApiPost[]; locale: Locale }> = ({
-  title, lead, allLabel, posts, locale,
+const BlogSection: FC<{ title: string; allLabel: string; posts: ApiPost[]; locale: Locale }> = ({
+  title, allLabel, posts, locale,
 }) => {
   if (posts.length === 0) return null;
   const [featured, ...rest] = posts;
 
   return (
-    <section className="flex flex-col gap-8">
+    <section className="flex flex-col gap-8 md:gap-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="text-[22px] md:text-[28px] font-semibold tracking-[-0.02em]">{title}</h2>
-          <p className="mt-2 text-[15px] text-muted">{lead}</p>
-        </div>
+        <h2 className={SECTION_HEADING}>{title}</h2>
         <LocaleLink
           to="/blog"
-          className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-line px-4 py-2 text-[14px] font-semibold text-primary transition-colors hover:border-primary"
+          className={`${PILL} group shrink-0`}
         >
           {allLabel}
           <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />

@@ -26,12 +26,12 @@ const ProductCard: FC<{
     <motion.div
       whileHover={{ y: -6 }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-      className="group w-full bg-white border border-divider rounded-[24px] overflow-hidden flex flex-col shadow-apple hover:shadow-apple-hover hover:border-line-2 transition-shadow duration-300"
+      className="group w-full bg-surface border border-divider rounded-[20px] p-2 flex flex-col shadow-apple hover:shadow-apple-hover hover:border-line-2 transition-shadow duration-300"
     >
       <div className="relative">
         <LocaleLink
           to={`/product/${product.id}`}
-          className="aspect-square w-full flex items-center justify-center overflow-hidden bg-white p-2.5"
+          className="aspect-square w-full flex items-center justify-center overflow-hidden rounded-xl border border-line-3 bg-white p-2.5"
         >
           {product.image ? (
             <img
@@ -66,9 +66,10 @@ const ProductCard: FC<{
         />
       </div>
 
-      {/* Info blok: hairline ajratgich rasmdan ajratadi; ierarxiya — nom (medium/body),
-          narx (hero, primary), oylik to'lov (accent-soft chip). CTA tugmasi yo'q — butun karta bosiladi. */}
-      <div className="px-4 pb-4 pt-3.5 md:px-5 md:pb-5 flex flex-col flex-1 border-t border-divider">
+      {/* Info blok: rasm ramkasi karta ichida alohida turgani uchun ajratgich chiziq
+          kerak emas. Ierarxiya — nom (medium/body), narx (hero, primary), oylik to'lov.
+          CTA tugmasi yo'q — butun karta bosiladi. */}
+      <div className="px-3 pb-3 pt-4 md:px-3.5 md:pb-3.5 flex flex-col flex-1">
         <LocaleLink
           to={`/product/${product.id}`}
           className="text-[14px] md:text-[15px] font-medium text-body tracking-[-0.01em] leading-snug hover:text-accent transition-colors line-clamp-2"
@@ -80,7 +81,7 @@ const ProductCard: FC<{
         <div className="mt-auto pt-3">
           {pv.monthlyPrimary ? (
             <>
-              <div className="text-[17px] md:text-[22px] font-semibold tracking-[-0.02em] text-primary leading-tight tabular-nums">
+              <div className="text-[17px] md:text-[20px] font-semibold tracking-[-0.02em] text-primary leading-tight tabular-nums">
                 {formatUzs(pv.monthlyUzs, t.sum)}
                 <span className="text-[14px] font-normal text-muted-2"> × {pv.months} {t.calcMonths}</span>
               </div>
@@ -94,7 +95,7 @@ const ProductCard: FC<{
           ) : (
             <>
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-[17px] md:text-[22px] font-semibold tracking-[-0.02em] text-primary leading-tight tabular-nums whitespace-nowrap">
+                <span className="text-[17px] md:text-[20px] font-semibold tracking-[-0.02em] text-primary leading-tight tabular-nums whitespace-nowrap">
                   {formatUzs(pv.cashUzs, t.sum)}
                 </span>
                 {disc !== null && product.oldPriceUzs && (
