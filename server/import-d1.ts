@@ -26,7 +26,10 @@ mkdirSync(dirname(target), { recursive: true });
 // Import vaqtinchalik faylga qilinadi va faqat muvaffaqiyatda o'rniga qo'yiladi —
 // yarim ko'chirilgan baza ishlab turgan saytga tushib qolmasin.
 const staging = `${target}.importing`;
-rmSync(staging, { force: true });
+// WAL yon fayllari ham tozalanadi: eskisi yangi baza yoniga qolib ketsa, SQLite
+// uni ochilishda "tiklanmagan tranzaksiya" deb qo'llaydi va sahifalarni
+// aralashtirib yuboradi (baza buziladi).
+for (const suffix of ['', '-wal', '-shm']) rmSync(`${staging}${suffix}`, { force: true });
 
 const db = new Database(staging);
 const sql = readFileSync(dumpPath, 'utf8');
@@ -90,10 +93,16 @@ const counts = ['products', 'categories', 'orders', 'customers', 'posts', 'brand
 db.close();
 
 if (existsSync(target)) {
+  // WAL'dagi yozuvlar asosiy faylga tushirilmasa, nusxa chala bo'ladi.
+  const old = new Database(target);
+  old.pragma('wal_checkpoint(TRUNCATE)');
+  old.close();
   const backup = `${target}.backup-${new Date().toISOString().replace(/[:.]/g, '-')}`;
   copyFileSync(target, backup);
   console.log(`Eski baza saqlandi → ${backup}`);
 }
+// Avval eski WAL/SHM olib tashlanadi, keyin yangi fayl o'rniga qo'yiladi.
+for (const suffix of ['', '-wal', '-shm']) rmSync(`${target}${suffix}`, { force: true });
 renameSync(staging, target);
 
 console.log(`Import tugadi → ${target}`);
