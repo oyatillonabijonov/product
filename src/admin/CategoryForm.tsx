@@ -4,6 +4,7 @@ import type { ApiCategory } from '../../shared/types';
 import { createCategory, updateCategory } from './api';
 import { errText } from './errText';
 import { CATEGORY_ICON_LIST, categoryIcon } from '../lib/category-icons';
+import ImageUploader from './ImageUploader';
 
 const CategoryForm: FC<{
   initial: ApiCategory | null;
@@ -14,6 +15,9 @@ const CategoryForm: FC<{
   const [nameRu, setNameRu] = useState(initial?.nameRu ?? '');
   const [icon, setIcon] = useState(initial?.icon ?? 'smartphone');
   const [sortOrder, setSortOrder] = useState(initial?.sortOrder ?? 0);
+  const [coverUrl, setCoverUrl] = useState(initial?.coverUrl ?? '');
+  const [coverLede, setCoverLede] = useState(initial?.coverLede ?? '');
+  const [coverLedeRu, setCoverLedeRu] = useState(initial?.coverLedeRu ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -22,7 +26,7 @@ const CategoryForm: FC<{
     setError('');
     try {
       // iconUrl left as-is (legacy image override); preset icon key is what the picker sets.
-      const payload = { name, nameRu, icon, iconUrl: initial?.iconUrl ?? '', sortOrder };
+      const payload = { name, nameRu, icon, iconUrl: initial?.iconUrl ?? '', coverUrl, coverLede, coverLedeRu, sortOrder };
       if (initial) await updateCategory(initial.id, payload);
       else await createCategory(payload);
       onSaved();
@@ -69,6 +73,18 @@ const CategoryForm: FC<{
           })}
         </div>
       </div>
+      {/* Cover — kategoriya sahifasi tepasidagi keng rasm. Bo'sh qolsa sahifa
+          oddiy sarlavha bilan ochiladi (majburiy emas). */}
+      <div className="mb-4">
+        <ImageUploader label="Cover rasmi (kategoriya sahifasi tepasida)" images={coverUrl ? [coverUrl] : []} onChange={(next) => setCoverUrl(next[0] ?? '')} />
+        <p className="text-[13px] text-muted mt-1">Keng (landshaft) rasm tavsiya etiladi — u to'liq enli tasma bo'lib ko'rinadi.</p>
+      </div>
+      <label className="block text-[13px] text-muted mb-3">Cover izohi
+        <input className={input} value={coverLede} onChange={(e) => setCoverLede(e.target.value)} placeholder="Bir qatorli izoh — bo'sh qolsa faqat nom chiqadi" />
+      </label>
+      <label className="block text-[13px] text-muted mb-3">Cover izohi (ruscha)
+        <input className={input} value={coverLedeRu} onChange={(e) => setCoverLedeRu(e.target.value)} placeholder="Bo'sh qolsa o'zbekchasi ko'rinadi" />
+      </label>
       {error && <p className="text-[13px] text-danger mb-3">{error}</p>}
       <div className="flex gap-3">
         <button onClick={save} disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>

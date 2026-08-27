@@ -91,6 +91,9 @@ export interface CategoryRow {
   name_ru: string;
   icon_url: string;
   icon: string;
+  cover_url: string;
+  cover_lede: string;
+  cover_lede_ru: string;
   sort_order: number;
 }
 
@@ -110,7 +113,17 @@ export interface ImageRow {
 }
 
 export function rowToCategory(row: CategoryRow): ApiCategory {
-  return { id: row.id, name: row.name, nameRu: row.name_ru ?? '', iconUrl: row.icon_url, icon: row.icon ?? '', sortOrder: row.sort_order };
+  return {
+    id: row.id,
+    name: row.name,
+    nameRu: row.name_ru ?? '',
+    iconUrl: row.icon_url,
+    icon: row.icon ?? '',
+    coverUrl: row.cover_url ?? '',
+    coverLede: row.cover_lede ?? '',
+    coverLedeRu: row.cover_lede_ru ?? '',
+    sortOrder: row.sort_order,
+  };
 }
 
 export function rowToSpec(row: SpecRow): ApiSpec {

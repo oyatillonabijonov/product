@@ -1,6 +1,6 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/category';
-import { resolveLocale, categoryLabel } from '../lib/i18n';
+import { localeField, resolveLocale, categoryLabel } from '../lib/i18n';
 import { pageTitle, catalogMeta, storeConfigFrom } from '../lib/seo';
 import { parseCatalogFilters } from '../lib/catalog';
 import { queryProducts, loadConfig, loadCategories, loadBrands } from '../lib/loaders';
@@ -36,12 +36,18 @@ export function meta({ data, matches }: Route.MetaArgs) {
 export default function CategoryRoute() {
   const { result, config, title, brands, filters, category } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
-  // Bosh sahifadagi hero ustuni shu kategoriyaga qarasa — o'sha cover bilan ochiladi.
+  // Cover — avval kategoriyaning o'z rasmi (admin yuklaydi). Bo'lmasa landing
+  // ustuni, lekin faqat o'zinikida: HERO_COLUMNS landing uchun yasalgan, boshqa
+  // kategoriyada uning rasmi ham, matni ham yolg'on gapiradi.
   const col = columnForCategory(category);
+  const own = category.coverUrl
+    ? { img: category.coverUrl, lede: localeField(category.coverLede, category.coverLedeRu, ctx.locale) }
+    : null;
+  const cover = own ?? (col && col.primary === category.id ? { img: col.img, tag: col.tag, lede: col.lede } : null);
   return (
     <>
-      {col && <CategoryCover col={col} title={title} total={result.total} t={ctx.t} />}
-      <CatalogView t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters} hideTitle={!!col} />
+      {cover && <CategoryCover {...cover} title={title} total={result.total} t={ctx.t} />}
+      <CatalogView t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters} hideTitle={!!cover} />
     </>
   );
 }

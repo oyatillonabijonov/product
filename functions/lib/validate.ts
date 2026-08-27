@@ -222,6 +222,9 @@ export interface CategoryInput {
   nameRu: string;
   iconUrl: string;
   icon: string;
+  coverUrl: string;
+  coverLede: string;
+  coverLedeRu: string;
   sortOrder: number;
 }
 
@@ -240,8 +243,11 @@ export function parseCategoryInput(body: unknown): CategoryInput {
   const nameRu = typeof o.nameRu === 'string' ? o.nameRu.trim() : '';
   const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : '';
   const icon = typeof o.icon === 'string' ? o.icon.trim() : '';
+  const coverUrl = typeof o.coverUrl === 'string' ? o.coverUrl.trim() : '';
+  const coverLede = typeof o.coverLede === 'string' ? o.coverLede.trim() : '';
+  const coverLedeRu = typeof o.coverLedeRu === 'string' ? o.coverLedeRu.trim() : '';
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
-  return { id, name, nameRu, iconUrl, icon, sortOrder };
+  return { id, name, nameRu, iconUrl, icon, coverUrl, coverLede, coverLedeRu, sortOrder };
 }
 
 export interface BannerInput {

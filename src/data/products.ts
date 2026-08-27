@@ -59,12 +59,12 @@ export const brands: ApiBrand[] = [
 ];
 
 /** Storefront kategoriyalari — API ishlamaganда namuna sifatida (migratsiya 0003 bilan mos). */
-export const categories: { id: string; name: string; nameRu: string; iconUrl: string; icon: string; sortOrder: number }[] = [
-  { id: 'telefonlar', name: 'Telefonlar', nameRu: 'Телефоны', iconUrl: '', icon: 'smartphone', sortOrder: 10 },
-  { id: 'noutbuklar', name: 'Noutbuklar', nameRu: 'Ноутбуки', iconUrl: '', icon: 'laptop', sortOrder: 20 },
-  { id: 'planshetlar', name: 'Planshetlar', nameRu: 'Планшеты', iconUrl: '', icon: 'tablet', sortOrder: 30 },
-  { id: 'kompyuterlar', name: 'Kompyuterlar', nameRu: 'Компьютеры', iconUrl: '', icon: 'monitor', sortOrder: 40 },
-  { id: 'aksessuarlar', name: 'Aksessuarlar', nameRu: 'Аксессуары', iconUrl: '', icon: 'headphones', sortOrder: 50 },
+export const categories: { id: string; name: string; nameRu: string; iconUrl: string; icon: string; coverUrl: string; coverLede: string; coverLedeRu: string; sortOrder: number }[] = [
+  { id: 'telefonlar', name: 'Telefonlar', nameRu: 'Телефоны', iconUrl: '', icon: 'smartphone', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 10 },
+  { id: 'noutbuklar', name: 'Noutbuklar', nameRu: 'Ноутбуки', iconUrl: '', icon: 'laptop', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 20 },
+  { id: 'planshetlar', name: 'Planshetlar', nameRu: 'Планшеты', iconUrl: '', icon: 'tablet', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 30 },
+  { id: 'kompyuterlar', name: 'Kompyuterlar', nameRu: 'Компьютеры', iconUrl: '', icon: 'monitor', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 40 },
+  { id: 'aksessuarlar', name: 'Aksessuarlar', nameRu: 'Аксессуары', iconUrl: '', icon: 'headphones', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 50 },
 ];
 
 /** Sample mahsulotni storefront kategoriyasiga bog'lash (migratsiya 0003 mantig'i). */

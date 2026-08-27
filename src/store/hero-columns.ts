@@ -10,6 +10,12 @@ export interface HeroColumn {
   label: string;
   /** Cover'dagi nom ustidagi kichik satr. */
   tag: string;
+  /**
+   * `tag`/`lede` matni AYNAN shu kategoriya haqida. Boshqa mos kelgan
+   * kategoriyalarda cover faqat rasm + nom bo'lib qoladi — aks holda
+   * "Noutbuklar" sahifasida yig'ma kompyuter matni chiqadi.
+   */
+  primary: string;
   lede: string;
   img: string;
   /**
@@ -29,6 +35,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
     tag: 'Mac · iPhone · iPad',
     lede: "Rasmiy Apple texnikasi — konfiguratsiya tanlash, ma'lumot ko'chirish va servis ko'magi bilan.",
     img: appleImg,
+    primary: 'telefonlar',
     match: ['apple', 'telefonlar', 'smartfonlar'],
   },
   {
@@ -37,6 +44,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
     tag: 'Workstation · Gaming',
     lede: "Yig'ma kompyuterlar va komponentlar — ish vazifasiga qarab hisoblab beriladi.",
     img: pcImg,
+    primary: 'kompyuterlar',
     match: ['kompyuterlar', 'noutbuklar', 'pc'],
   },
   {
@@ -45,6 +53,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
     tag: 'Studiya · Sahna',
     lede: "Interfeys, mikrofon, monitor va akustika — studiya to'liq jihozlanadi.",
     img: audioImg,
+    primary: 'audio',
     match: ['audio', 'aksessuarlar', 'naushniklar'],
   },
   {
@@ -53,6 +62,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
     tag: 'Kamera · Optika',
     lede: "Kamera, optika, yorug'lik va post-produksiya uchun to'liq to'plam.",
     img: videoImg,
+    primary: 'video',
     match: ['video', 'kameralar', 'planshetlar'],
   },
 ];

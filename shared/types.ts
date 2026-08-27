@@ -39,6 +39,11 @@ export interface ApiCategory {
   iconUrl: string;
   /** Preset icon key (see src/lib/category-icons); falls back to a generic icon when empty/unknown. */
   icon: string;
+  /** Kategoriya sahifasidagi cover rasmi (R2 yo'li); bo'sh bo'lsa cover ko'rsatilmaydi. */
+  coverUrl: string;
+  /** Cover'dagi bir qatorli izoh (uz / ru); bo'sh bo'lsa faqat nom chiqadi. */
+  coverLede: string;
+  coverLedeRu: string;
   sortOrder: number;
 }
 
