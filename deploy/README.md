@@ -108,6 +108,31 @@ bo'lsa bu qadam umuman kerak emas — hamma rasm `public/` dagi statik fayllar.
 Ko'chirish tugagach `.wrangler/` papkasini va `wrangler` paketini o'chirsangiz
 bo'ladi.
 
+## 6. Avto-deploy (Coolify + GitHub)
+
+`main` ga har push'da sayt o'zi yangilanadi. Sozlash bir martalik:
+
+1. Coolify → ilova → **Webhooks** → GitHub qatoridagi URL va **Secret**
+2. GitHub repo → Settings → Webhooks → Add webhook: o'sha URL,
+   `Content type: application/json`, o'sha Secret, event: **push**
+
+Yoki CLI bilan:
+
+```bash
+gh api repos/<owner>/<repo>/hooks \
+  -f name=web -F active=true -f "events[]=push" \
+  -f "config[url]=http://<coolify>/webhooks/source/github/events/manual" \
+  -f "config[content_type]=json" \
+  -f "config[secret]=<Coolify'dagi secret>"
+```
+
+Tekshirish: `gh api repos/<owner>/<repo>/hooks/<id>/deliveries` — oxirgi
+yetkazish `200` bo'lishi kerak. GitHub'ning "test delivery" tugmasi deploy
+boshlamaydi (u allaqachon deploy qilingan commitni yuboradi), haqiqiy push
+kerak.
+
+Webhook xohlagan payt GitHub'dan o'chiriladi — git manbasi o'zgarmaydi.
+
 ## Muhit o'zgaruvchilari
 
 | Nomi | Sukut | Izoh |
