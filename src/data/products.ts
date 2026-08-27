@@ -60,20 +60,16 @@ export const brands: ApiBrand[] = [
 
 /** Storefront kategoriyalari — API ishlamaganда namuna sifatida (migratsiya 0003 bilan mos). */
 export const categories: { id: string; name: string; nameRu: string; iconUrl: string; icon: string; coverUrl: string; coverLede: string; coverLedeRu: string; sortOrder: number }[] = [
-  { id: 'telefonlar', name: 'Telefonlar', nameRu: 'Телефоны', iconUrl: '', icon: 'smartphone', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 10 },
-  { id: 'noutbuklar', name: 'Noutbuklar', nameRu: 'Ноутбуки', iconUrl: '', icon: 'laptop', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 20 },
-  { id: 'planshetlar', name: 'Planshetlar', nameRu: 'Планшеты', iconUrl: '', icon: 'tablet', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 30 },
-  { id: 'kompyuterlar', name: 'Kompyuterlar', nameRu: 'Компьютеры', iconUrl: '', icon: 'monitor', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 40 },
-  { id: 'aksessuarlar', name: 'Aksessuarlar', nameRu: 'Аксессуары', iconUrl: '', icon: 'headphones', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 50 },
+  { id: 'apple', name: 'Apple', nameRu: 'Apple', iconUrl: '', icon: 'smartphone', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 10 },
+  { id: 'pc', name: 'PC', nameRu: 'PC', iconUrl: '', icon: 'monitor', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 20 },
+  { id: 'audio', name: 'Audio', nameRu: 'Audio', iconUrl: '', icon: 'headphones', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 30 },
+  { id: 'video', name: 'Video', nameRu: 'Video', iconUrl: '', icon: 'camera', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 40 },
 ];
 
-/** Sample mahsulotni storefront kategoriyasiga bog'lash (migratsiya 0003 mantig'i). */
+/** Sample mahsulotni yo'nalishga bog'lash (migratsiya 0025 mantig'i). */
 export function fallbackCategoryOf(p: Product): string | null {
-  if (p.category === 'iphone') return 'telefonlar';
-  if (p.category === 'ipad') return 'planshetlar';
-  if (p.category === 'mac') return p.id.includes('macbook') ? 'noutbuklar' : 'kompyuterlar';
-  if (p.category === 'pc') return 'kompyuterlar';
-  return null;
+  if (p.category === 'pc') return 'pc';
+  return 'apple'; // iphone / ipad / mac — hammasi Apple yo'nalishi
 }
 
 export const installmentConfig: InstallmentConfig = {

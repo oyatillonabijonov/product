@@ -10,18 +10,14 @@ export interface HeroColumn {
   label: string;
   /** Cover'dagi nom ustidagi kichik satr. */
   tag: string;
-  /**
-   * `tag`/`lede` matni AYNAN shu kategoriya haqida. Boshqa mos kelgan
-   * kategoriyalarda cover faqat rasm + nom bo'lib qoladi — aks holda
-   * "Noutbuklar" sahifasida yig'ma kompyuter matni chiqadi.
-   */
+/** Cover shu kategoriyada ko'rsatiladi (yo'nalish id'si). */
   primary: string;
   lede: string;
   img: string;
   /**
-   * Qaysi kategoriyaga ulanadi — id yoki nom (kichik harfda), birinchi mos kelgani
-   * yutadi. Kategoriyalar admin'dan boshqarilgani uchun bitta ustun bir nechta
-   * ehtimoliy nomni sinaydi; hech biri topilmasa link `/katalog`ga tushadi.
+   * Qaysi kategoriyaga ulanadi — id yoki nom (kichik harfda). Migratsiya 0025'dan
+   * keyin kategoriya = yo'nalish, shuning uchun bitta id yetadi; nom o'zgarsa ham
+   * id o'zgarmaydi. Topilmasa link `/katalog`ga tushadi.
    */
   match: string[];
 }
@@ -35,17 +31,17 @@ export const HERO_COLUMNS: HeroColumn[] = [
     tag: 'Mac · iPhone · iPad',
     lede: "Rasmiy Apple texnikasi — konfiguratsiya tanlash, ma'lumot ko'chirish va servis ko'magi bilan.",
     img: appleImg,
-    primary: 'telefonlar',
-    match: ['apple', 'telefonlar', 'smartfonlar'],
+    primary: 'apple',
+    match: ['apple'],
   },
   {
     key: 'pc',
     label: 'Personal\nComputers',
     tag: 'Workstation · Gaming',
-    lede: "Yig'ma kompyuterlar va komponentlar — ish vazifasiga qarab hisoblab beriladi.",
+    lede: "Windows segmentidagi noutbuk va yig'ma kompyuterlar — ish vazifasiga qarab hisoblab beriladi.",
     img: pcImg,
-    primary: 'kompyuterlar',
-    match: ['kompyuterlar', 'noutbuklar', 'pc'],
+    primary: 'pc',
+    match: ['pc'],
   },
   {
     key: 'audio',
@@ -54,7 +50,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
     lede: "Interfeys, mikrofon, monitor va akustika — studiya to'liq jihozlanadi.",
     img: audioImg,
     primary: 'audio',
-    match: ['audio', 'aksessuarlar', 'naushniklar'],
+    match: ['audio'],
   },
   {
     key: 'video',
@@ -63,7 +59,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
     lede: "Kamera, optika, yorug'lik va post-produksiya uchun to'liq to'plam.",
     img: videoImg,
     primary: 'video',
-    match: ['video', 'kameralar', 'planshetlar'],
+    match: ['video'],
   },
 ];
 
