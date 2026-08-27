@@ -11,7 +11,7 @@ import { postDate } from '../../src/store/BlogSection';
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const post = await loadPost(context.cloudflare.env, String(params.slug));
+  const post = await loadPost(context.env, String(params.slug));
   if (!post) throw new Response('Not Found', { status: 404 });
   return { post, locale, origin: new URL(request.url).origin };
 }

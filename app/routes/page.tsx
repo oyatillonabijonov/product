@@ -19,7 +19,7 @@ const TERMS_LEAD: Record<string, string> = {
 export async function loader({ params, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const page = await loadPage(context.cloudflare.env, String(params.slug));
+  const page = await loadPage(context.env, String(params.slug));
   if (!page) throw new Response('Not Found', { status: 404 });
   return { page, locale };
 }

@@ -10,7 +10,7 @@ import { composeConsultMessage } from '../../shared/order';
  * joyda ko'radi. Mahsulot va narx bo'lmagani uchun items bo'sh, summalar NULL.
  */
 export async function action({ request, context }: Route.ActionArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, { status: 405 });
 
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;

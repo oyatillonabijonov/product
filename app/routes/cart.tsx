@@ -10,7 +10,7 @@ import CartPage from '../../src/store/CartPage';
 export async function loader({ params, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const config = await loadConfig(context.cloudflare.env);
+  const config = await loadConfig(context.env);
   const metaTitle = translations[localeToLang(locale)].cartTitle;
   return { config, metaTitle };
 }

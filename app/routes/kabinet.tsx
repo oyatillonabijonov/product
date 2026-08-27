@@ -11,7 +11,7 @@ import AccountPage from '../../src/store/AccountPage';
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const env = context.cloudflare.env;
+  const env = context.env;
   const id = await currentCustomerId(request, env);
   if (!id) throw redirect(localizedPath(locale, '/kirish'));
   const customer = await loadCustomer(env, id);

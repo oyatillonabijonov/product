@@ -8,7 +8,7 @@ import { PostCard } from '../../src/store/BlogSection';
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const posts = await loadPosts(context.cloudflare.env, 60);
+  const posts = await loadPosts(context.env, 60);
   return { posts, locale, origin: new URL(request.url).origin };
 }
 

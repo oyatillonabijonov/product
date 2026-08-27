@@ -12,7 +12,7 @@ import ProductPage from '../../src/store/ProductPage';
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const env = context.cloudflare.env;
+  const env = context.env;
   const [product, config, categories] = await Promise.all([
     loadProductDetail(env, params.id as string), loadConfig(env), loadCategories(env),
   ]);

@@ -4,7 +4,7 @@ export async function loader({ params, context }: Route.LoaderArgs) {
   const key = params['*'] as string;
   // Upload faqat products/ ostiga yozadi — boshqa prefikslar tashqariga ochilmaydi.
   if (!key.startsWith('products/')) return new Response('Not found', { status: 404 });
-  const obj = await context.cloudflare.env.IMAGES.get(key);
+  const obj = await context.env.IMAGES.get(key);
   if (!obj) return new Response('Not found', { status: 404 });
   const headers = new Headers();
   obj.writeHttpMetadata(headers);

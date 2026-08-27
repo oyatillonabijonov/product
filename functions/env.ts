@@ -1,4 +1,1 @@
-export interface Env {
-  DB: D1Database;
-  IMAGES: R2Bucket;
-}
+export type { Env, SqlDatabase, SqlStatement, ImageStore } from '../shared/runtime';

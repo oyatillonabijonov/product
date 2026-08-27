@@ -6,7 +6,7 @@ import { customerCookie } from '../../functions/lib/customer-auth';
 
 // Telegram Login Widget callback — imzo bot-token bilan tekshiriladi (Telegram spetsifikatsiyasi).
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const cfg = await loadSiteConfig(env);
   if (!cfg.telegramBotToken) return redirect('/kirish?e=telegram');
 

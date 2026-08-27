@@ -7,7 +7,7 @@ import { hashPassword, verifyPassword, randomSaltHex } from '../../functions/lib
 // Kabinet o'z-o'zini boshqarish — customer_session bilan himoyalangan.
 // intent=profile → ism/telefon yangilash; intent=password → parol o'rnatish/o'zgartirish.
 export async function action({ request, context }: Route.ActionArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const id = await currentCustomerId(request, env);
   if (!id) return Response.json({ error: 'unauthorized' }, { status: 401 });
 

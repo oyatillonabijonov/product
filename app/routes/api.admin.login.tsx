@@ -5,7 +5,7 @@ import { createSession, lockDelaySeconds, sessionCookie, verifyPassword } from '
 const TTL = 60 * 60 * 24 * 7; // 7 kun
 
 export async function action({ request, context }: Route.ActionArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const body = (await request.json().catch(() => null)) as
     | { username?: string; password?: string }
     | null;

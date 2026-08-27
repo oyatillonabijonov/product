@@ -11,7 +11,7 @@ import CatalogView from '../../src/store/CatalogView';
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const env = context.cloudflare.env;
+  const env = context.env;
   const filters = parseCatalogFilters(new URL(request.url).searchParams, { onlyDeals: true });
   const [result, config, brands] = await Promise.all([queryProducts(env, filters), loadConfig(env), loadBrands(env)]);
   const lang = localeToLang(locale as Locale);

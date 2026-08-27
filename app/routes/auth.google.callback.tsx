@@ -13,7 +13,7 @@ function decodeJwtPayload(jwt: string): { sub?: string; email?: string; name?: s
 }
 
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');

@@ -10,7 +10,7 @@ import HomePage from '../../src/store/HomePage';
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const env = context.cloudflare.env;
+  const env = context.env;
   // Landing sotmaydi — mahsulot/banner so'rovlari olib tashlandi (D1 free-tier'da
   // har bir sahifa ochilishi uchun 4 ta ortiqcha so'rov edi).
   const [categories, posts] = await Promise.all([loadCategories(env), loadPosts(env, 3)]);

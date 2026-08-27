@@ -4,7 +4,7 @@ import { parseSiteConfigInput } from '../../functions/lib/validate';
 import { requireAdmin, parseBody } from './api.admin.guard';
 
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
   const row = await env.DB.prepare('SELECT * FROM site_config WHERE id = 1').first<SiteConfigRow>();
@@ -13,7 +13,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
   if (request.method !== 'PUT') return json({ error: 'method_not_allowed' }, { status: 405 });

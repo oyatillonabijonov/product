@@ -5,7 +5,7 @@ import { randomSecretHex } from '../../functions/lib/auth';
 
 // Google OAuth 2.0 (authorization code flow) — boshlanishi.
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const cfg = await loadSiteConfig(env);
   if (!cfg.googleClientId) return redirect('/kirish?e=google');
   const origin = new URL(request.url).origin;

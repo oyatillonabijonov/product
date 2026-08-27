@@ -7,7 +7,7 @@ function xmlEscape(s: string): string {
 }
 
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const origin = new URL(request.url).origin;
   const [{ products }, categories, brands, pages, posts] = await Promise.all([
     loadStore(env), loadCategories(env), loadBrands(env), loadPages(env), loadPosts(env, 500),

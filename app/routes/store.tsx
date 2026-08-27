@@ -18,7 +18,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   }
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const env = context.cloudflare.env;
+  const env = context.env;
   // Kategoriyalar ham shu yerda — Header dropdown'i SSR HTMLda chiqadi
   // (crawler ichki linklarni ko'radi) va klientdagi qo'shimcha /api/categories so'rovi yo'qoladi.
   const [siteConfig, pages, categories] = await Promise.all([loadSiteConfig(env), loadPages(env), loadCategories(env)]);

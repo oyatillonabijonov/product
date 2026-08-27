@@ -10,7 +10,7 @@ function pageBindValues(p: PageInput): [string, string, string, string, string, 
 }
 
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
   const { results } = await env.DB.prepare('SELECT * FROM pages ORDER BY sort_order ASC, slug ASC').all<PageRow>();
@@ -18,7 +18,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
 

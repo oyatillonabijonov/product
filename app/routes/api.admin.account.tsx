@@ -13,7 +13,7 @@ import { requireAdmin } from './api.admin.guard';
 const TTL = 60 * 60 * 24 * 7; // 7 kun — api.admin.login bilan bir xil
 
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
   const auth = await loadAdminAuth(env);
@@ -21,7 +21,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
 

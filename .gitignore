@@ -8,6 +8,11 @@ coverage/
 .env*
 !.env.example
 .vercel
+# Ma'lumotlar papkasi — baza fayli va yuklangan rasmlar (zaxira nusxasi alohida olinadi)
+/data
+.env
+
+# Cloudflare davridan qolgan lokal holat — production ma'lumoti ko'chirilgach o'chiriladi
 .wrangler
 .dev.vars
 .claude/

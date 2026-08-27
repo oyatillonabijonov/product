@@ -1,0 +1,28 @@
+# systemd unit — /etc/systemd/system/product-store.service
+#
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now product-store
+#   sudo journalctl -u product-store -f
+[Unit]
+Description=ProDuct store (React Router SSR)
+After=network.target
+
+[Service]
+Type=simple
+User=product
+WorkingDirectory=/srv/product-store
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=DATA_DIR=/var/lib/product-store
+ExecStart=/usr/bin/node server/index.ts
+Restart=always
+RestartSec=3
+
+# Yozish faqat ma'lumotlar papkasiga kerak
+ProtectSystem=strict
+ReadWritePaths=/var/lib/product-store
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

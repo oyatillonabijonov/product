@@ -3,7 +3,7 @@ import { json } from '../../functions/lib/db';
 import { requireAdmin } from './api.admin.guard';
 
 export async function action({ request, params, context }: Route.ActionArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
   if (request.method !== 'PATCH') return json({ error: 'method_not_allowed' }, { status: 405 });

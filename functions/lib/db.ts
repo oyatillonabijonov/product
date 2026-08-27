@@ -1,3 +1,4 @@
+import type { SqlDatabase, SqlStatement } from '../../shared/runtime';
 import type {
   ApiBanner,
   ApiBrand,
@@ -177,7 +178,7 @@ function inClause(count: number): string {
 }
 
 export async function buildProductDetail(
-  env: { DB: D1Database },
+  env: { DB: SqlDatabase },
   id: string,
 ): Promise<ApiProductDetail | null> {
   const row = await env.DB.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE id = ? AND is_active = 1`)
@@ -262,7 +263,7 @@ export async function buildProductDetail(
   };
 }
 
-export async function ensureUniqueSlug(env: { DB: D1Database }, slug: string, excludeId: string): Promise<string> {
+export async function ensureUniqueSlug(env: { DB: SqlDatabase }, slug: string, excludeId: string): Promise<string> {
   let candidate = slug;
   for (let i = 2; ; i++) {
     const row = await env.DB.prepare('SELECT id FROM products WHERE slug = ? AND id <> ?').bind(candidate, excludeId).first<{ id: string }>();
@@ -345,8 +346,8 @@ export function imagesAndSpecsStatements(
   productId: string,
   images: string[],
   specs: { label: string; value: string }[],
-): D1PreparedStatement[] {
-  const stmts: D1PreparedStatement[] = [
+): SqlStatement[] {
+  const stmts: SqlStatement[] = [
     env.DB.prepare('DELETE FROM product_images WHERE product_id = ?').bind(productId),
     env.DB.prepare('DELETE FROM product_specs WHERE product_id = ?').bind(productId),
   ];
@@ -384,10 +385,10 @@ export function optionsAndVariantsStatements(
   productId: string,
   options: OptionInput[],
   variants: VariantInput[],
-): D1PreparedStatement[] {
+): SqlStatement[] {
   // Delete in FK-safe order: variant_option_values (via variants) -> product_variants
   // -> product_option_values (via options) -> product_options.
-  const stmts: D1PreparedStatement[] = [
+  const stmts: SqlStatement[] = [
     env.DB.prepare(
       'DELETE FROM variant_option_values WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id = ?)',
     ).bind(productId),

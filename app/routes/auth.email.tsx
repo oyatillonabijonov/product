@@ -7,7 +7,7 @@ import { customerCookie } from '../../functions/lib/customer-auth';
 // Email/parol bilan kirish yoki ro'yxatdan o'tish. Modal fetch() bilan chaqiradi:
 // muvaffaqiyat → JSON {ok} + customer_session cookie, klient reload qiladi.
 export async function action({ request, context }: Route.ActionArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   let body: unknown;
   try {
     body = await request.json();

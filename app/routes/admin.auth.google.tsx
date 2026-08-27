@@ -6,7 +6,7 @@ import { randomSecretHex } from '../../functions/lib/auth';
 
 // Admin Google kirishi — faqat admin_google_email o'rnatilgan bo'lsa ishlaydi.
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const [cfg, auth] = await Promise.all([loadSiteConfig(env), loadAdminAuth(env)]);
   if (!cfg.googleClientId || !auth?.adminGoogleEmail) return redirect('/admin?e=google_off');
   const origin = new URL(request.url).origin;

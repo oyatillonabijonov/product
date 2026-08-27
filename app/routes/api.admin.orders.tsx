@@ -3,7 +3,7 @@ import { json, rowToOrder, type OrderRow } from '../../functions/lib/db';
 import { requireAdmin } from './api.admin.guard';
 
 export async function loader({ request, context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
   const { results } = await env.DB.prepare(

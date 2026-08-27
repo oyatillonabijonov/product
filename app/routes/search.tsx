@@ -9,7 +9,7 @@ import CatalogView from '../../src/store/CatalogView';
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   if (!resolveLocale(params.lang)) throw new Response('Not Found', { status: 404 });
-  const env = context.cloudflare.env;
+  const env = context.env;
   const sp = new URL(request.url).searchParams;
   const filters = parseCatalogFilters(sp);
   const q = filters.q ?? '';
