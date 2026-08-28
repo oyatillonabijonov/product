@@ -37,7 +37,7 @@ export default function StoreLayout({
   const location = useLocation();
   const isHome = stripLocale(location.pathname) === '/';
   const header = (
-    <Header t={t} lang={lang} locale={locale} pageLinks={pageLinks} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} onLoginClick={() => setLoginOpen(true)} />
+    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} onLoginClick={() => setLoginOpen(true)} />
   );
   const firstHit = useRef(true);
   useEffect(() => {

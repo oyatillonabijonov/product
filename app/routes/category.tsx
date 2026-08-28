@@ -7,6 +7,7 @@ import { queryProducts, loadConfig, loadCategories, loadBrands } from '../lib/lo
 import type { StoreContext } from '../../src/store/StoreLayout';
 import CatalogView from '../../src/store/CatalogView';
 import CategoryCover from '../../src/store/CategoryCover';
+import PcConfigurator from '../../src/store/PcConfigurator';
 import { columnForCategory } from '../../src/store/hero-columns';
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
@@ -48,6 +49,11 @@ export default function CategoryRoute() {
     <>
       {cover && <CategoryCover {...cover} title={title} total={result.total} t={ctx.t} />}
       <CatalogView t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters} hideTitle={!!cover} />
+      {category.id === 'pc' && (
+        <div className="max-w-[1440px] mx-auto px-4 pb-14 md:pb-20">
+          <PcConfigurator t={ctx.t} />
+        </div>
+      )}
     </>
   );
 }

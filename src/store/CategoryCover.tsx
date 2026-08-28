@@ -5,10 +5,7 @@ import LocaleLink from './LocaleLink';
 
 const GLIDE = [0.16, 1, 0.3, 1] as const;
 
-/**
- * Kategoriya sahifasining tepasidagi cover — bosh sahifadagi hero ustuni shu
- * blokka o'sib keladi (`view-transition-name: hero-cover` ikkalasida bir xil).
- */
+/** Kategoriya sahifasining tepasidagi cover. */
 export default function CategoryCover({ img, tag, lede, title, total, t }: {
   img: string; tag?: string; lede?: string; title: string; total: number; t: Translation;
 }) {
@@ -20,7 +17,6 @@ export default function CategoryCover({ img, tag, lede, title, total, t }: {
   return (
     <div
       ref={ref}
-      style={{ viewTransitionName: 'hero-cover' }}
       className="relative mx-[14px] mt-[14px] h-[min(76vh,700px)] overflow-hidden rounded-[24px] bg-black"
     >
       <motion.img

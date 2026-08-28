@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Link, useOutletContext, useViewTransitionState } from 'react-router';
+import { Link, useOutletContext } from 'react-router';
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'motion/react';
 import { localizedPath } from '../../app/lib/i18n';
 import type { ApiCategory } from '../../shared/types';
@@ -18,17 +18,12 @@ function HeroCard({ col, href, index, hovered, onHover, proY }: {
   proY: MotionValue<string>;
 }) {
   const on = hovered === index;
-  // Kartadan cover'ga o'sish brauzerning View Transition'i bilan bo'ladi: nom
-  // faqat shu kartaga o'tish paytida qo'yiladi, aks holda sahifada 4 ta bir xil
-  // nom bo'lib qolardi (bitta hujjatda nom yagona bo'lishi shart).
-  const morphing = useViewTransitionState(href);
   return (
     <Link
       to={href}
       viewTransition
       onMouseEnter={() => onHover(index)}
       onMouseLeave={() => onHover(null)}
-      style={{ viewTransitionName: morphing ? 'hero-cover' : undefined }}
       className="relative block min-w-0 h-full overflow-hidden rounded-[24px] bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       <div

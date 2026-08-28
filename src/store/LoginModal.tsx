@@ -28,7 +28,7 @@ const LoginModal: FC<{ t: Translation; config: ApiSiteConfig; open: boolean; onC
         aria-modal="true"
         aria-label={t.loginTitle}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-surface rounded-[24px] shadow-apple-hover p-7 relative"
+        className="w-full max-w-md bg-surface border border-line rounded-[24px] shadow-apple-hover p-7 relative"
       >
         <button
           onClick={onClose}

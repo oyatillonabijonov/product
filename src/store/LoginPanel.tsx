@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
 import logo from '../assets/logo.svg';
+import logoDark from '../assets/hero/wordmark.webp';
 
 const GoogleG: FC = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
@@ -27,7 +28,6 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
-  const hasOAuth = Boolean(config.googleClientId || config.telegramLoginBot);
 
   useEffect(() => {
     const host = tgRef.current;
@@ -74,11 +74,14 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
     }
   }
 
-  const inputCls = 'w-full border border-line-2 rounded-xl px-3 py-2.5 text-[15px] text-primary focus:outline-none focus:border-accent';
+  // Maydon kartadan bir pog'ona to'q (`bg-bg`) + ko'rinadigan chegara: shaffof
+  // input `border-line-2` bilan qorong'i temada karta fonidan deyarli ajralmaydi.
+  const inputCls = 'w-full bg-bg border border-line rounded-xl px-3.5 py-3 text-[15px] text-primary placeholder:text-muted-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-colors';
 
   return (
     <div className="flex flex-col items-center gap-5">
-      <img src={logo} alt={config.name} className="h-9 w-auto object-contain" />
+      <img src={logo} alt={config.name} className="logo-light h-9 w-auto object-contain" />
+      <img src={logoDark} alt="" aria-hidden className="logo-dark h-9 w-auto object-contain" />
 
       {/* Kirish / Ro'yxatdan o'tish toggle */}
       <div className="w-full grid grid-cols-2 p-1 bg-bg rounded-full text-[14px] font-medium">
@@ -133,24 +136,21 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
         </button>
       </form>
 
-      {hasOAuth && (
-        <>
-          <div className="w-full flex items-center gap-3 text-muted-2 text-[14px]">
-            <span className="h-px flex-1 bg-line/70" />{t.loginOr}<span className="h-px flex-1 bg-line/70" />
-          </div>
-          <div className="w-full flex flex-col items-center gap-3">
-            {config.googleClientId && (
-              <a
-                href="/auth/google"
-                className="w-full h-[52px] border border-line-2 rounded-full font-medium text-[15px] text-primary hover:bg-bg transition-colors flex items-center justify-center gap-3"
-              >
-                <GoogleG /> {t.loginGoogle}
-              </a>
-            )}
-            <div ref={tgRef} className="min-h-[1px] flex items-center justify-center empty:hidden" />
-          </div>
-        </>
-      )}
+      <div className="w-full flex items-center gap-3 text-muted-2 text-[14px]">
+        <span className="h-px flex-1 bg-line" />{t.loginOr}<span className="h-px flex-1 bg-line" />
+      </div>
+      <div className="w-full flex flex-col items-center gap-3">
+        {/* ponytail: tugma har doim ko'rinadi — hozircha UI. Kalitlar bo'lmasa
+            `/auth/google` `/kirish?e=google`ga qaytaradi, ya'ni jim sinmaydi.
+            Yoqish: admin → Sayt ma'lumotlari → Google Client ID + Secret. */}
+        <a
+          href="/auth/google"
+          className="w-full h-[52px] border border-line rounded-full font-medium text-[15px] text-primary hover:border-accent hover:bg-bg transition-colors flex items-center justify-center gap-3"
+        >
+          <GoogleG /> {mode === 'login' ? t.loginGoogle : t.registerGoogle}
+        </a>
+        <div ref={tgRef} className="min-h-[1px] flex items-center justify-center empty:hidden" />
+      </div>
     </div>
   );
 };
