@@ -11,10 +11,12 @@ bun run start          # NODE_ENV=production node server/index.ts (build'dan ish
 bun run migrate        # migrations/*.sql → SQLite (wrangler d1 migrations apply o'rnida)
 bun run lint           # react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json
 bun run test           # vitest run (199 pure-logic tests: installment (calc + variable down-payment + priceView), auth (PBKDF2 + sessions + login throttle), i18n, validate (product/settings/site-config/order), phone (UZ input mask), catalog, variants, cart, markdown, safe-href, seo + src/admin/lib helpers: variant-gen, format, models, image-normalize (contentBounds), reorder (moveItem))
+bun run import:d1 dump.sql   # Cloudflare D1 dump'ini SQLite'ga ko'chiradi (bir martalik migratsiya)
 
-bun run migrate                                              # apply migrations (run once before dev; re-run after adding a migration)
-bunx vitest run src/lib/cart.test.ts                         # run a single test file
+bunx vitest run src/lib/cart.test.ts    # bitta test faylini ishga tushirish
 ```
+
+Migratsiyani dev'dan **oldin** bir marta bajaring; yangi migratsiya qo'shsangiz yana.
 
 `bun run dev` serves the **whole app** — SSR pages, `/api/*`, admin — from `server/index.ts` (Express with Vite in middleware mode, so HMR works). Loaders fall back to sample data (`src/data/products.ts`) when the database is empty/unavailable, so pages render regardless. Data lives under `DATA_DIR` (default `data/`): `store.db` + `images/`.
 
@@ -115,6 +117,10 @@ Clean premium palette (olcha *structure*, not its red brand), fully tokenized as
 - Env vars are only plumbing: `PORT`, `DATA_DIR`, optionally `DATABASE_PATH`/`IMAGES_DIR` (see `.env.example`). Backup = copying `DATA_DIR`.
 - Product images `.webp`, uploaded via admin to `DATA_DIR/images`, served at `/images/...`; below-the-fold images use `loading="lazy"`. Seed/placeholder photos live in `public/products/*.webp` (served at `/products/...`); migration `0012` backfills empty `image_url`s.
 - **Caching** is now the proxy's job: `server/index.ts` sets `Cache-Control: s-maxage=60, stale-while-revalidate=240` on cacheable storefront GETs and nothing on `/admin`, `/api/*`, `/auth/*`, `/search`, `/savat`, `/kirish`, `/kabinet`; `deploy/nginx.conf` has the matching `proxy_cache` block. `/images/*` and `/assets/*` are `immutable`. (The old Workers edge cache stripped `utm_*` from cache keys; nginx keys on the full URI, so add `proxy_cache_key` if UTM traffic ever dilutes the cache.)
+
+**Deploy: Docker image → Coolify.** The repo's `Dockerfile` is a two-stage build (`npm install` + `react-router build`, then a runtime image with only `build/`, `server/`, `shared/`, `migrations/`); its `CMD` runs `server/migrate.ts` **before** the server, so a deploy applies pending migrations by itself. The live instance is a Coolify application on the project's own server, built from `main`; a GitHub push webhook redeploys it (~2 min). **`/app/data` must stay a persistent volume** — the SQLite file and uploaded images live there and a redeploy would otherwise wipe them. `deploy/` holds the alternative bare-metal path (systemd unit + nginx) and the one-off Cloudflare migration steps.
+
+**When replacing the SQLite file by hand, delete its `-wal`/`-shm` sidecars first** and run `PRAGMA wal_checkpoint(TRUNCATE)` before copying one out. A stale WAL next to a fresh database is replayed on open and silently corrupts it (rows appear in the wrong tables); a copy taken without checkpointing is missing whatever sat in the WAL. `server/import-d1.ts` does both — read it before writing another data-move script.
 
 **The store sells four directions, and the categories *are* those directions** (migration `0025`): **Apple** (all Apple devices) · **PC** (Windows-segment desktops *and* laptops) · **Audio** (professional audio — not accessory-tier goods) · **Video** (professional video). Each direction is top-tier equipment; do not reintroduce device-type or accessory categories. A category id matching a `HERO_COLUMNS` key is what gives every direction page its own cover art, so keep ids and column keys aligned.
 
