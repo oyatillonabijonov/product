@@ -2,8 +2,8 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useRef } from 'react';
 import type { Translation } from '../locales';
 import LocaleLink from './LocaleLink';
+import { EASE_GLIDE as GLIDE } from '../lib/motion';
 
-const GLIDE = [0.16, 1, 0.3, 1] as const;
 
 /** Kategoriya sahifasining tepasidagi cover. */
 export default function CategoryCover({ img, tag, lede, title, total, t }: {
@@ -17,7 +17,7 @@ export default function CategoryCover({ img, tag, lede, title, total, t }: {
   return (
     <div
       ref={ref}
-      className="relative mx-[14px] mt-[14px] h-[min(76vh,700px)] overflow-hidden rounded-[24px] bg-black"
+      className="rounded-xl relative mx-[14px] mt-[14px] h-[min(76vh,700px)] overflow-hidden bg-black"
     >
       <motion.img
         src={img}
@@ -43,7 +43,7 @@ export default function CategoryCover({ img, tag, lede, title, total, t }: {
             initial={reduced ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.38, ease: GLIDE }}
-            className="mb-4 text-[15px] font-normal tracking-[-0.01em] text-[#C7C7CC]"
+            className="mb-4 text-para font-normal text-[#C7C7CC]"
           >
             {tag}
           </motion.div>
@@ -61,7 +61,7 @@ export default function CategoryCover({ img, tag, lede, title, total, t }: {
             initial={reduced ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.38, delay: 0.03, ease: GLIDE }}
-            className="mt-5 max-w-[560px] text-[17px] font-light leading-[1.42] tracking-[-0.016em] text-[#D6D6DB] text-pretty"
+            className="mt-5 max-w-[560px] text-copy font-light text-[#D6D6DB] text-pretty"
           >
             {lede}
           </motion.p>
@@ -76,9 +76,9 @@ export default function CategoryCover({ img, tag, lede, title, total, t }: {
       >
         <LocaleLink
           to="/"
-          className="flex h-9 items-center gap-2 rounded-full bg-black/[0.42] pl-[13px] pr-[18px] text-[14px] font-normal tracking-[-0.01em] text-[#F5F5F7] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.16)] backdrop-blur-[14px] transition-colors duration-200 hover:bg-black/[0.62]"
+          className="press flex h-9 items-center gap-2 rounded-full bg-black/[0.42] pl-[13px] pr-[18px] text-label font-normal text-[#F5F5F7] backdrop-blur-[14px] hover:bg-black/[0.62]"
         >
-          <span aria-hidden className="text-[16px] text-[#A1A1A6]">‹</span>
+          <span aria-hidden className="text-control text-[#A1A1A6]">‹</span>
           <span>{t.homeCategories}</span>
         </LocaleLink>
       </motion.div>
@@ -88,10 +88,10 @@ export default function CategoryCover({ img, tag, lede, title, total, t }: {
         initial={reduced ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.38, delay: 0.24, ease: GLIDE }}
-        className="absolute right-6 bottom-7 hidden items-center gap-2.5 text-[14px] font-normal tracking-[-0.01em] text-[#A1A1A6] md:right-8 md:flex"
+        className="absolute right-6 bottom-7 hidden items-center gap-2.5 text-label font-normal text-[#A1A1A6] md:right-8 md:flex"
       >
         <span>{total} {t.resultsCount}</span>
-        <span className="flex h-9 w-9 items-center justify-center rounded-full text-[14px] text-[#F5F5F7] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.22)]">↓</span>
+        <span className="flex h-9 w-9 items-center justify-center rounded-full text-label text-[#F5F5F7]">↓</span>
       </motion.div>
     </div>
   );

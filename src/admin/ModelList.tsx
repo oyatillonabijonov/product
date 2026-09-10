@@ -58,7 +58,7 @@ export default function ModelList() {
   if (creating) return <ModelForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />;
   if (editing) return <ModelForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />;
 
-  const select = 'border border-line rounded-xl px-3 py-2 text-[14px] bg-white focus:outline-none focus:border-accent';
+  const select = 'rounded-sm border border-line px-3 py-2 text-[14px] bg-white focus:outline-none focus:border-accent';
 
   return (
     <div>
@@ -77,14 +77,14 @@ export default function ModelList() {
           <option value="">Barcha kategoriya</option>
           {catOptions.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
-        <button onClick={() => setCreating(true)} className="px-4 py-2 bg-primary text-white font-semibold rounded-full text-[14px]">
+        <button onClick={() => setCreating(true)} className="press px-4 py-2 bg-primary text-white font-semibold rounded-full text-[14px]">
           + Yangi model
         </button>
       </div>
 
       <div className="text-[13px] text-muted-2 mb-2">{filtered.length} ta model</div>
 
-      <div className="overflow-x-auto bg-white rounded-2xl shadow-apple">
+      <div className=" rounded-md overflow-x-auto bg-white">
         <table className="w-full text-[14px]">
           <thead>
             <tr className="text-left text-[12px] uppercase tracking-wide text-muted-2 border-b border-line">
@@ -123,7 +123,7 @@ export default function ModelList() {
             <button
               key={n}
               onClick={() => setPage(n)}
-              className={`min-w-9 px-3 py-1.5 rounded-lg text-[14px] font-semibold transition-colors ${
+              className={`rounded-xs press min-w-9 px-3 py-1.5 text-[14px] font-semibold ${
                 n === safePage ? 'bg-accent text-white' : 'text-primary hover:bg-bg'
               }`}
             >

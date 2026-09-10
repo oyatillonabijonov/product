@@ -32,6 +32,7 @@ function mapProduct(p: ApiProduct): Product {
     conditionNote: p.conditionNote ?? undefined, image: p.imageUrl,
     cashPriceUzs: p.cashPriceUzs, oldPriceUzs: p.oldPriceUzs ?? null,
     minPriceUzs: p.minPriceUzs, brandId: p.brandId, categoryId: p.categoryId,
+    ratingAvg: p.ratingAvg, reviewCount: p.reviewCount,
   };
 }
 function mapConfig(s: ApiSettings): InstallmentConfig {

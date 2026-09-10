@@ -44,12 +44,12 @@ export default function BannerList() {
       {creating && <BannerForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
       {editing && <BannerForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />}
       {!creating && !editing && (
-        <button onClick={() => setCreating(true)} className="mb-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-full">+ Yangi banner</button>
+        <button onClick={() => setCreating(true)} className="press mb-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-full">+ Yangi banner</button>
       )}
       <div className="space-y-2">
         {items.map((b) => (
-          <div key={b.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-apple">
-            <img src={b.imageUrl} alt={b.altText} className="w-24 h-14 rounded-xl object-cover bg-bg" />
+          <div key={b.id} className=" rounded-md bg-white p-3 flex items-center gap-3">
+            <img src={b.imageUrl} alt={b.altText} className="rounded-sm w-24 h-14 object-cover bg-bg" />
             <div className="flex-1 min-w-0">
               <div className="text-[13px] text-muted truncate">{b.linkUrl || '—'}</div>
               <div className="text-[12px] text-muted-2">Tartib: {b.sortOrder} · {b.isActive ? 'Faol' : 'Nofaol'}</div>

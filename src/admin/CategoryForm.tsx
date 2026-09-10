@@ -37,9 +37,9 @@ const CategoryForm: FC<{
     }
   }
 
-  const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
+  const input = 'rounded-sm w-full border border-line px-3 py-2 focus:outline-none focus:border-accent';
   return (
-    <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple max-w-lg">
+    <div className=" rounded-lg bg-white p-6 mb-6 max-w-lg">
       <h3 className="font-semibold mb-4">{initial ? 'Kategoriyani tahrirlash' : 'Yangi kategoriya'}</h3>
       <label className="block text-[13px] text-muted mb-3">Nomi
         <input className={input} value={name} onChange={(e) => setName(e.target.value)} />
@@ -63,7 +63,7 @@ const CategoryForm: FC<{
                 title={label}
                 aria-label={label}
                 onClick={() => setIcon(key)}
-                className={`aspect-square rounded-xl flex items-center justify-center border transition-colors ${
+                className={`rounded-sm press aspect-square flex items-center justify-center border ${
                   active ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted hover:border-line-2 hover:text-primary'
                 }`}
               >
@@ -87,8 +87,8 @@ const CategoryForm: FC<{
       </label>
       {error && <p className="text-[13px] text-danger mb-3">{error}</p>}
       <div className="flex gap-3">
-        <button onClick={save} disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
-        <button onClick={onCancel} className="px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
+        <button onClick={save} disabled={busy} className="press px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
+        <button onClick={onCancel} className="press px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
       </div>
     </div>
   );

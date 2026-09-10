@@ -14,8 +14,8 @@ import ThemeToggle from './ThemeToggle';
  * yuqorida; mobil qatorda joy yo'q, u yerda ikonka o'zi qoladi).
  */
 const ICON_COL =
-  'flex flex-col items-center justify-center gap-1 shrink-0 min-w-[44px] min-h-[44px] md:min-h-0 text-muted hover:text-primary transition-colors';
-const ICON_LABEL = 'hidden md:block text-[14px] leading-none whitespace-nowrap';
+  'press flex flex-col items-center justify-center gap-1 shrink-0 min-w-[44px] min-h-[44px] md:min-h-0 text-muted hover:text-primary';
+const ICON_LABEL = 'hidden md:block text-label leading-none whitespace-nowrap';
 
 export default function Header({
   t,
@@ -68,7 +68,7 @@ export default function Header({
   }
 
   // Ikkala joyda (desktop 1-qator / mobil 2-qator) bir xil forma.
-  // text-[16px] — iOS Safari 16px dan kichik inputni fokusda zoom qiladi.
+  // text-control — iOS Safari 16px dan kichik inputni fokusda zoom qiladi.
   const searchForm = (
     <form onSubmit={submitSearch} className="w-full relative">
       <input
@@ -78,12 +78,12 @@ export default function Header({
         enterKeyHint="search"
         placeholder={t.navSearchPlaceholder}
         aria-label={t.navSearch}
-        className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-[16px] placeholder:text-muted-2 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-surface transition-colors [&::-webkit-search-cancel-button]:hidden"
+        className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-control placeholder:text-muted-2 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-surface transition-colors [&::-webkit-search-cancel-button]:hidden"
       />
       <button
         type="submit"
         aria-label={t.navSearch}
-        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-accent text-bg flex items-center justify-center hover:bg-accent-hover transition-colors"
+        className="press absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-accent text-bg flex items-center justify-center hover:bg-accent-hover"
       >
         <Search className="w-4 h-4" />
       </button>
@@ -93,12 +93,12 @@ export default function Header({
   const catMenu = catOpen && (
     <>
       <div className="fixed inset-0 z-40" onClick={() => setCatOpen(false)} />
-      <div className="absolute left-0 top-full mt-2 w-60 max-h-[70vh] overflow-y-auto bg-surface border border-line-2 rounded-[20px] shadow-apple-hover p-2 z-50">
+      <div className=" rounded-lg absolute left-0 top-full mt-2 w-60 max-h-[70vh] overflow-y-auto bg-surface border border-line-2 p-2 z-50">
         <div className="border-b border-divider mb-1 pb-1">
           <Link
             to={localizedPath(locale, '/katalog')}
             onClick={() => setCatOpen(false)}
-            className="block px-3 py-2.5 text-[14px] rounded-xl hover:bg-bg transition-colors"
+            className="rounded-sm block px-3 py-2.5 text-label hover:bg-bg transition-colors"
           >
             {t.catalogAll}
           </Link>
@@ -108,7 +108,7 @@ export default function Header({
             key={c.id}
             to={localizedPath(locale, `/category/${c.id}`)}
             onClick={() => setCatOpen(false)}
-            className="block px-3 py-2.5 text-[14px] rounded-xl hover:bg-bg transition-colors"
+            className="rounded-sm block px-3 py-2.5 text-label hover:bg-bg transition-colors"
           >
             {categoryLabel(c, locale)}
           </Link>
@@ -119,7 +119,7 @@ export default function Header({
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b transition-shadow duration-300 ${
+      className={`sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b transition-colors duration-300 ${
         scrolled ? 'border-line-2' : 'border-transparent'
       }`}
     >
@@ -135,7 +135,7 @@ export default function Header({
           <button
             onClick={() => setCatOpen((v) => !v)}
             aria-label={t.navCatalog}
-            className="inline-flex h-9 items-center gap-2 rounded-full border border-line px-4 text-[14px] font-medium hover:border-accent hover:text-accent transition-colors"
+            className="press inline-flex h-9 items-center gap-2 rounded-full border border-line px-4 text-label font-medium hover:border-accent hover:text-accent"
           >
             <Menu className="w-4 h-4" /> {t.navCatalog}
           </button>
@@ -149,7 +149,7 @@ export default function Header({
           <span className="relative">
             <ShoppingCart className="w-5 h-5" />
             {count > 0 && (
-              <span className="absolute -top-2 -right-2.5 min-w-[20px] h-[20px] px-1 rounded-full bg-accent text-bg text-[14px] font-bold leading-none flex items-center justify-center">
+              <span className="absolute -top-2 -right-2.5 min-w-[20px] h-[20px] px-1 rounded-full bg-accent text-bg text-label font-bold leading-none flex items-center justify-center">
                 {count}
               </span>
             )}
@@ -180,7 +180,7 @@ export default function Header({
           </button>
         )}
 
-        <div className={`relative rounded-xl focus-within:ring-2 focus-within:ring-accent/50 ${ICON_COL}`}>
+        <div className={`rounded-sm relative focus-within:ring-2 focus-within:ring-accent/50 ${ICON_COL}`}>
           <Globe className="w-5 h-5" />
           {/* Ikonka tagida joriy tilning o'z nomi turadi (tarjima emas). */}
           <span className={ICON_LABEL}>{locale === 'ru' ? 'Русский' : "O'zbek"}</span>
@@ -210,7 +210,7 @@ export default function Header({
           <button
             onClick={() => setCatOpen((v) => !v)}
             aria-label={t.navCatalog}
-            className="flex items-center justify-center w-11 h-11 rounded-full border border-line hover:border-accent hover:text-accent transition-colors"
+            className="press flex items-center justify-center w-11 h-11 rounded-full border border-line hover:border-accent hover:text-accent"
           >
             <Menu className="w-5 h-5" />
           </button>

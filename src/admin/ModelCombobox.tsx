@@ -50,14 +50,14 @@ const ModelCombobox: FC<{
       />
       {showDropdown && (
         <div
-          className="absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-white border border-line rounded-xl shadow-apple"
+          className=" rounded-sm absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-white border border-line"
           onMouseDown={(e) => e.preventDefault()}
         >
           {suggestions.map((m, i) => (
             <button
               key={m.id}
               type="button"
-              className={`w-full text-left px-3 py-2 hover:bg-bg ${i === highlight ? 'bg-bg' : ''}`}
+              className={`press w-full text-left px-3 py-2 hover:bg-bg ${i === highlight ? 'bg-bg' : ''}`}
               onClick={() => pick(m)}
             >
               <span className="text-[14px] font-semibold text-primary">{m.name}</span>

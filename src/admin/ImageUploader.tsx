@@ -70,21 +70,21 @@ const ImageUploader: FC<{
               onDragStart={(e: React.DragEvent) => e.dataTransfer.setData('text/plain', String(i))}
               onDragOver={(e: React.DragEvent) => { if (reorderable) e.preventDefault(); }}
               onDrop={(e: React.DragEvent) => { if (reorderable) onTileDrop(e, i); }}
-              className={`relative w-16 h-16 rounded-xl overflow-hidden bg-bg group ${reorderable ? 'cursor-move' : ''}`}
+              className={`rounded-sm relative w-16 h-16 overflow-hidden bg-bg group ${reorderable ? 'cursor-move' : ''}`}
             >
               <img src={img} alt="" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => onChange(images.filter((_, j) => j !== i))}
                 aria-label="Rasmni o'chirish"
-                className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-danger text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className="press absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-danger text-white flex items-center justify-center opacity-0 group-hover:opacity-100"
               >
                 <X size={12} weight="bold" />
               </button>
             </div>
           ))}
           {Array.from({ length: uploading }).map((_, i) => (
-            <div key={`u${i}`} className="w-16 h-16 rounded-xl bg-bg animate-pulse" />
+            <div key={`u${i}`} className="rounded-sm w-16 h-16 bg-bg animate-pulse" />
           ))}
         </div>
       )}
@@ -93,7 +93,7 @@ const ImageUploader: FC<{
         onDragOver={(e: React.DragEvent) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onZoneDrop}
-        className={`flex flex-col items-center justify-center gap-1 py-5 px-4 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${dragOver ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted'}`}
+        className={`rounded-sm flex flex-col items-center justify-center gap-1 py-5 px-4 border-2 border-dashed cursor-pointer transition-colors ${dragOver ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted'}`}
       >
         <UploadSimple size={20} />
         <span className="text-[13px]">Rasm tashlang yoki tanlang</span>

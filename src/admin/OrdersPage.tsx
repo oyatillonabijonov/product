@@ -47,7 +47,7 @@ const OrdersPage: FC = () => {
       ) : (
         <div className="space-y-3">
           {orders.map((o) => (
-            <div key={o.id} className="bg-white border border-line-2 rounded-2xl p-4 shadow-apple">
+            <div key={o.id} className=" rounded-md bg-white border border-line-2 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-[15px]">{o.name}</span>
@@ -70,7 +70,7 @@ const OrdersPage: FC = () => {
                   <select
                     value={o.status}
                     onChange={(e) => changeStatus(o.id, e.target.value as OrderStatus)}
-                    className="text-[13px] border border-line-2 rounded-lg px-2 py-1"
+                    className="rounded-xs text-[13px] border border-line-2 px-2 py-1"
                   >
                     <option value="new">Yangi</option>
                     <option value="contacted">Bog'lanildi</option>

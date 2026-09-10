@@ -42,7 +42,7 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
   if (!loaded && !msg) return <p className="text-muted">Yuklanmoqda…</p>;
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-apple space-y-3 max-w-xl">
+    <div className=" rounded-md bg-white p-5 space-y-3 max-w-xl">
       <h3 className="font-semibold text-[17px]">Kirish maʼlumotlari</h3>
       <p className="text-[13px] text-muted">Login va parolni oʻzgartirish. Tasdiqlash uchun joriy parolni kiriting.</p>
 
@@ -52,7 +52,7 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
           value={username}
           autoComplete="username"
           onChange={(e) => setUsername(e.target.value)}
-          className="mt-1 w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] text-primary"
+          className="rounded-sm mt-1 w-full border border-line-2 px-3 py-2 text-[14px] text-primary"
         />
       </label>
 
@@ -64,7 +64,7 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
           autoComplete="new-password"
           placeholder="••••••"
           onChange={(e) => setNewPassword(e.target.value)}
-          className="mt-1 w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] text-primary"
+          className="rounded-sm mt-1 w-full border border-line-2 px-3 py-2 text-[14px] text-primary"
         />
       </label>
 
@@ -76,7 +76,7 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
           autoComplete="off"
           placeholder="siz@gmail.com"
           onChange={(e) => setGoogleEmail(e.target.value)}
-          className="mt-1 w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] text-primary"
+          className="rounded-sm mt-1 w-full border border-line-2 px-3 py-2 text-[14px] text-primary"
         />
         <span className="block text-[11.5px] text-muted-2 mt-1">
           Shu Google akkaunt admin panelga «Google bilan kirish» orqali kira oladi. Bo'sh qoldirsangiz — o'chiq.
@@ -92,7 +92,7 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
           autoComplete="current-password"
           placeholder="Tasdiqlash uchun joriy parol"
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="mt-1 w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] text-primary"
+          className="rounded-sm mt-1 w-full border border-line-2 px-3 py-2 text-[14px] text-primary"
         />
       </label>
 
@@ -100,7 +100,7 @@ export default function AccountForm({ onPasswordChanged }: { onPasswordChanged?:
       <button
         onClick={save}
         disabled={busy}
-        className="px-5 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-50"
+        className="press px-5 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-50"
       >
         Saqlash
       </button>

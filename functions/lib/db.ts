@@ -46,6 +46,8 @@ export interface ProductRow {
   description: string | null;
   brand_id: string | null;
   slug: string | null;
+  rating_avg: number | null;
+  review_count: number;
   min_variant_price?: number | null;
 }
 
@@ -73,6 +75,8 @@ export function rowToProduct(row: ProductRow): ApiProduct {
     brandId: row.brand_id ?? null,
     slug: row.slug ?? null,
     minPriceUzs: row.min_variant_price ?? row.cash_price_uzs,
+    ratingAvg: row.rating_avg,
+    reviewCount: row.review_count ?? 0,
   };
 }
 

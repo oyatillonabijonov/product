@@ -58,6 +58,14 @@ export function hasActiveParams(sp: URLSearchParams): boolean {
   return FILTER_PARAMS.some((k) => sp.get(k) !== null && sp.get(k) !== '');
 }
 
+/** Faol filtrlar soni — mobil "Filtr · N" tugmasi va "Tozalash" ko'rinishi uchun.
+ * Narx diapazoni bitta hisoblanadi; brend sahifasida (`ignoreBrands`) brend URL'da emas, marshrutda. */
+export function activeFilterCount(f: CatalogFilters, opts?: { ignoreBrands?: boolean }): number {
+  return (opts?.ignoreBrands ? 0 : f.brands.length)
+    + (f.priceMin !== null || f.priceMax !== null ? 1 : 0)
+    + (f.condition !== null ? 1 : 0);
+}
+
 const effective = (p: Product): number => p.minPriceUzs;
 
 export function applyFilters(products: Product[], f: CatalogFilters): CatalogResult {

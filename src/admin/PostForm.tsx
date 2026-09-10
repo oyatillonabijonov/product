@@ -4,7 +4,7 @@ import type { ApiPost } from '../../shared/types';
 import { createPost, updatePost, uploadImage } from './api';
 import { errText } from './errText';
 
-const input = 'w-full border border-line-2 rounded-xl px-3 py-2 text-[14px]';
+const input = 'rounded-sm w-full border border-line-2 px-3 py-2 text-[14px]';
 const area = `${input} min-h-[160px] font-mono text-[13px]`;
 
 const PostForm: FC<{ initial: ApiPost | null; onSaved: () => void; onCancel: () => void }> = ({ initial, onSaved, onCancel }) => {
@@ -46,13 +46,13 @@ const PostForm: FC<{ initial: ApiPost | null; onSaved: () => void; onCancel: () 
   }
 
   return (
-    <div className="bg-white rounded-2xl p-5 mb-4 shadow-apple space-y-3">
+    <div className=" rounded-md bg-white p-5 mb-4 space-y-3">
       <h3 className="font-semibold">{initial ? 'Maqolani tahrirlash' : 'Yangi maqola'}</h3>
 
       <div className="flex items-center gap-3">
         {form.coverUrl
-          ? <img src={form.coverUrl} alt="" className="h-20 w-32 rounded-xl object-cover bg-bg" />
-          : <div className="h-20 w-32 rounded-xl bg-bg" />}
+          ? <img src={form.coverUrl} alt="" className="rounded-sm h-20 w-32 object-cover bg-bg" />
+          : <div className="rounded-sm h-20 w-32 bg-bg" />}
         <input type="file" accept="image/png,image/jpeg,image/webp" onChange={upload} />
       </div>
 
@@ -86,7 +86,7 @@ const PostForm: FC<{ initial: ApiPost | null; onSaved: () => void; onCancel: () 
           <input type="date" value={form.publishedAt} onChange={(e) => set('publishedAt', e.target.value)} className={input} />
         </label>
         <label className="text-[13px] text-muted">Tartib
-          <input type="number" value={form.sortOrder} onChange={(e) => set('sortOrder', Number(e.target.value))} className="ml-2 w-20 border border-line-2 rounded-xl px-2 py-1.5" />
+          <input type="number" value={form.sortOrder} onChange={(e) => set('sortOrder', Number(e.target.value))} className="rounded-sm ml-2 w-20 border border-line-2 px-2 py-1.5" />
         </label>
         <label className="text-[13px] text-muted flex items-center gap-2 pb-2">
           <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} /> Faol
@@ -95,8 +95,8 @@ const PostForm: FC<{ initial: ApiPost | null; onSaved: () => void; onCancel: () 
 
       {error && <p className="text-[13px] text-danger">{error}</p>}
       <div className="flex gap-2">
-        <button onClick={save} disabled={busy} className="px-5 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-50">Saqlash</button>
-        <button onClick={onCancel} className="px-5 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
+        <button onClick={save} disabled={busy} className="press px-5 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-50">Saqlash</button>
+        <button onClick={onCancel} className="press px-5 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
       </div>
     </div>
   );

@@ -1,16 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import type { FC } from 'react';
 import { useSearchParams } from 'react-router';
 import { SlidersHorizontal, X } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiBrand } from '../../shared/types';
 import type { InstallmentConfig } from '../data/products';
-import type { CatalogFilters, CatalogResult, SortKey } from '../../app/lib/catalog';
+import { activeFilterCount, type CatalogFilters, type CatalogResult, type SortKey } from '../../app/lib/catalog';
 import ProductGrid from './ProductGrid';
 import FilterPanel from './FilterPanel';
 import SortSelect from './SortSelect';
 import ActiveFilterChips from './ActiveFilterChips';
 import Pagination from './Pagination';
+import Sheet from './Sheet';
+import { PILL } from './ui';
 
 const CatalogView: FC<{
   t: Translation;
@@ -25,14 +27,6 @@ const CatalogView: FC<{
 }> = ({ t, title, result, config, brands, filters, hideBrands, hideTitle }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
-  const closeBtn = useRef<HTMLButtonElement | null>(null);
-  useEffect(() => {
-    if (!sheetOpen) return;
-    closeBtn.current?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSheetOpen(false); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [sheetOpen]);
 
   function update(next: Partial<CatalogFilters>, resetPage = true) {
     const p = new URLSearchParams(sp);
@@ -46,7 +40,8 @@ const CatalogView: FC<{
     if (next.sort !== undefined) { next.sort === 'default' ? p.delete('sort') : p.set('sort', next.sort); }
     if (next.page !== undefined) { next.page <= 1 ? p.delete('page') : p.set('page', String(next.page)); }
     else if (resetPage) p.delete('page');
-    setSp(p, { preventScrollReset: false });
+    // Filtr o'zgarganda foydalanuvchi panel yonida qoladi; faqat sahifalashda tepaga chiqadi.
+    setSp(p, { preventScrollReset: next.page === undefined });
   }
   function clearAll() {
     const p = new URLSearchParams(sp);
@@ -59,6 +54,7 @@ const CatalogView: FC<{
     else if (kind === 'condition') update({ condition: null });
   }
 
+  const active = activeFilterCount(filters, { ignoreBrands: hideBrands });
   const panel = (
     <FilterPanel
       key={`price-${filters.priceMin ?? ''}-${filters.priceMax ?? ''}`}
@@ -66,8 +62,8 @@ const CatalogView: FC<{
       brands={brands}
       facets={result.facets}
       filters={filters}
-      onChange={(n) => { update(n); setSheetOpen(false); }}
-      onClear={() => { clearAll(); setSheetOpen(false); }}
+      onChange={(n) => update(n)}
+      onClear={clearAll}
       hideBrands={hideBrands}
     />
   );
@@ -76,12 +72,12 @@ const CatalogView: FC<{
     <div className="max-w-[1440px] mx-auto px-4 py-6 md:py-10">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div className="flex items-baseline gap-3">
-          {!hideTitle && <h1 className="text-[32px] md:text-[44px] font-semibold tracking-[-0.03em]">{title}</h1>}
-          <span className="text-[14px] text-muted-2">{result.total} {t.resultsCount}</span>
+          {!hideTitle && <h1 className="text-heading md:text-title font-semibold">{title}</h1>}
+          <span className="text-label text-muted-2">{result.total} {t.resultsCount}</span>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setSheetOpen(true)} className="lg:hidden inline-flex h-11 items-center gap-2 border border-line rounded-full px-4 text-[14px] font-semibold">
-            <SlidersHorizontal className="w-4 h-4" /> {t.filterTitle}
+          <button onClick={() => setSheetOpen(true)} className="press lg:hidden inline-flex h-11 items-center gap-2 border border-line rounded-full px-4 text-copy font-normal">
+            <SlidersHorizontal className="w-4 h-4" /> {t.filterTitle}{active > 0 ? ` · ${active}` : ''}
           </button>
           <SortSelect t={t} value={filters.sort} onChange={(v: SortKey) => update({ sort: v })} />
         </div>
@@ -96,7 +92,7 @@ const CatalogView: FC<{
           {result.total === 0 &&
             (filters.brands.length > 0 || filters.priceMin !== null || filters.priceMax !== null || filters.condition !== null) && (
               <div className="mt-4 text-center">
-                <button onClick={clearAll} className="h-11 px-6 rounded-full border border-line text-[14px] font-medium hover:border-accent hover:text-accent transition-colors">
+                <button onClick={clearAll} className="press h-11 px-6 rounded-full border border-line text-copy font-normal hover:border-accent hover:text-accent">
                   {t.filterClear}
                 </button>
               </div>
@@ -105,18 +101,27 @@ const CatalogView: FC<{
         </div>
       </div>
 
-      {sheetOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setSheetOpen(false)} />
-          <div role="dialog" aria-modal="true" aria-label={t.filterTitle} className="absolute bottom-0 inset-x-0 bg-surface rounded-t-[24px] p-6 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold">{t.filterTitle}</h2>
-              <button ref={closeBtn} onClick={() => setSheetOpen(false)} aria-label={t.close}><X className="w-5 h-5" /></button>
-            </div>
-            {panel}
+      <Sheet
+        open={sheetOpen}
+        label={t.filterTitle}
+        onClose={() => setSheetOpen(false)}
+        header={
+          <div className="flex items-center justify-between px-6 pt-4 pb-4">
+            <h2 className="text-copy font-semibold">{t.filterTitle}</h2>
+            <button onClick={() => setSheetOpen(false)} aria-label={t.close} className="press flex h-9 w-9 items-center justify-center rounded-full bg-segment"><X className="w-5 h-5" /></button>
           </div>
-        </div>
-      )}
+        }
+        footer={
+          /* Belgilash sheet'ni yopmaydi — natija soni loader orqali jonli yangilanadi; shu tugma yopadi. */
+          <div className="border-t border-divider px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <button onClick={() => setSheetOpen(false)} className={`${PILL} w-full justify-center`}>
+              {t.filterShowCount.replace('{n}', String(result.total))}
+            </button>
+          </div>
+        }
+      >
+        {panel}
+      </Sheet>
     </div>
   );
 };

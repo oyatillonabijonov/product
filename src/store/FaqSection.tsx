@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Plus } from 'lucide-react';
 import { renderMarkdown, type MdBlock, type MdInline } from '../lib/markdown';
 import { Inlines } from './Markdown';
+import { SPRING_SNAPPY } from '../lib/motion';
 
 interface FaqItem {
   question: MdInline[];
@@ -23,7 +24,7 @@ function toFaqItems(source: string): FaqItem[] {
 }
 
 const AnswerBody: FC<{ blocks: MdBlock[] }> = ({ blocks }) => (
-  <div className="flex flex-col gap-3 text-[15px] text-muted leading-relaxed">
+  <div className="flex flex-col gap-3 text-para text-muted leading-relaxed">
     {blocks.map((b, i) => {
       if (b.type === 'ul') {
         return (
@@ -39,22 +40,22 @@ const AnswerBody: FC<{ blocks: MdBlock[] }> = ({ blocks }) => (
 
 const FaqRow: FC<{ item: FaqItem; isOpen: boolean; onToggle: () => void }> = ({ item, isOpen, onToggle }) => (
   <div
-    className={`rounded-[20px] border bg-surface transition-colors ${
-      isOpen ? 'border-accent/40 shadow-apple' : 'border-line/60 hover:border-line-2'
+    className={`rounded-lg  border bg-surface transition-colors ${
+      isOpen ? 'border-accent/40' : 'border-line/60 hover:border-line-2'
     }`}
   >
     <button
       type="button"
       onClick={onToggle}
       aria-expanded={isOpen}
-      className="w-full flex items-center justify-between gap-4 px-5 md:px-6 py-[18px] text-left"
+      className="press w-full flex items-center justify-between gap-4 px-5 md:px-6 py-[18px] text-left"
     >
-      <span className="text-[15px] md:text-[17px] font-semibold text-primary">
+      <span className="text-para md:text-copy font-semibold text-primary">
         <Inlines inlines={item.question} />
       </span>
       <motion.span
         animate={{ rotate: isOpen ? 45 : 0 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
+        transition={SPRING_SNAPPY}
         className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
           isOpen ? 'bg-accent text-bg' : 'bg-segment text-muted'
         }`}
@@ -69,7 +70,7 @@ const FaqRow: FC<{ item: FaqItem; isOpen: boolean; onToggle: () => void }> = ({ 
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.25, ease: 'easeInOut' }}
+          transition={SPRING_SNAPPY}
           className="overflow-hidden"
         >
           <div className="px-5 md:px-6 pb-5 pt-0.5">
@@ -88,7 +89,7 @@ const FaqSection: FC<{ title: string; content: string }> = ({ title, content }) 
 
   return (
     <section id="faq" className="flex flex-col items-center gap-8 py-2 scroll-mt-28">
-      <h2 className="text-[32px] md:text-[44px] font-semibold tracking-[-0.03em] text-center">{title}</h2>
+      <h2 className="text-heading md:text-title font-semibold text-center">{title}</h2>
       <div className="w-full flex flex-col gap-3">
         {items.map((item, i) => (
           <FaqRow key={i} item={item} isOpen={open === i} onToggle={() => setOpen(open === i ? null : i)} />

@@ -38,7 +38,7 @@ const ThemeToggle: FC<{ label: string; className?: string; iconCls?: string; cap
     <button type="button" onClick={toggle} aria-label={label} title={label} className={className}>
       <Icon aria-hidden className={iconCls} strokeWidth={1.8} />
       {/* Header'da ikonka tagida nomi turadi; hero notch'da caption berilmaydi. */}
-      {caption && <span className="hidden md:block text-[14px] leading-none whitespace-nowrap">{caption}</span>}
+      {caption && <span className="hidden md:block text-label leading-none whitespace-nowrap">{caption}</span>}
     </button>
   );
 };

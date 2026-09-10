@@ -98,6 +98,18 @@ export function parseProductInput(body: unknown): ProductInput {
   if (specs.length > MAX_SPECS) throw new ValidationError('specs_limit');
 
   const brandId = typeof o.brandId === 'string' && o.brandId.trim() !== '' ? o.brandId.trim() : null;
+
+  // Reyting — do'kon egasi tashqi manbadan ko'chiradigan qiymat, shuning uchun
+  // diapazon shu yerda qisiladi: 6 yulduzcha yoki manfiy sharh soni kartani buzardi.
+  const ratingAvg =
+    typeof o.ratingAvg === 'number' && Number.isFinite(o.ratingAvg) && o.ratingAvg > 0
+      ? Math.min(5, o.ratingAvg)
+      : null;
+  const reviewCount =
+    typeof o.reviewCount === 'number' && Number.isFinite(o.reviewCount) && o.reviewCount > 0
+      ? Math.floor(o.reviewCount)
+      : 0;
+
   const slug =
     typeof o.slug === 'string' && o.slug.trim() !== '' ? slugify(o.slug) : (slugify(name) || null);
   const options = Array.isArray(o.options)
@@ -170,6 +182,8 @@ export function parseProductInput(body: unknown): ProductInput {
     specs,
     brandId,
     slug,
+    ratingAvg,
+    reviewCount,
     options,
     variants,
   };

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseCatalogFilters, applyFilters, hasActiveParams, PAGE_SIZE } from './catalog';
+import { parseCatalogFilters, applyFilters, hasActiveParams, activeFilterCount, PAGE_SIZE } from './catalog';
 import type { Product } from '../../src/data/products';
 
 const sp = (s: string) => new URLSearchParams(s);
@@ -86,5 +86,14 @@ describe('applyFilters', () => {
     expect(r2.facets.brandCounts.apple).toBe(PAGE_SIZE + 2);
     expect(r2.facets.priceMin).toBe(1);
     expect(r2.facets.priceMax).toBe(PAGE_SIZE + 2);
+  });
+});
+
+describe('activeFilterCount', () => {
+  it('counts brands, the price range (as one) and condition; ignoreBrands drops brands', () => {
+    const f = parseCatalogFilters(sp('brand=apple,samsung&narx=9000000-&holat=yangi'));
+    expect(activeFilterCount(f)).toBe(4);
+    expect(activeFilterCount(f, { ignoreBrands: true })).toBe(2);
+    expect(activeFilterCount(parseCatalogFilters(sp('sort=arzon&page=2&q=x')))).toBe(0);
   });
 });

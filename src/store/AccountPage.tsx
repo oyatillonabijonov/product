@@ -38,14 +38,14 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
       <div className="max-w-[1080px] mx-auto px-4 py-8 md:py-10">
         <div className="grid md:grid-cols-[270px_1fr] gap-5 items-start">
           {/* Sidebar */}
-          <aside className="bg-surface border border-line-2 rounded-[20px] shadow-apple overflow-hidden md:sticky md:top-24">
+          <aside className=" rounded-lg bg-surface border border-line-2 overflow-hidden md:sticky md:top-24">
             <div className="flex items-center gap-3 p-5 border-b border-line/60">
-              <div className="w-12 h-12 rounded-full bg-accent-soft text-accent flex items-center justify-center font-semibold text-[17px] shrink-0">
+              <div className="w-12 h-12 rounded-full bg-accent-soft text-accent flex items-center justify-center font-semibold text-copy shrink-0">
                 {initials(customer.name, customer.email ?? '')}
               </div>
               <div className="min-w-0">
-                <div className="font-semibold text-[15px] text-primary truncate">{customer.name || '—'}</div>
-                {customer.email && <div className="text-[14px] text-muted truncate">{customer.email}</div>}
+                <div className="font-semibold text-para text-primary truncate">{customer.name || '—'}</div>
+                {customer.email && <div className="text-label text-muted truncate">{customer.email}</div>}
               </div>
             </div>
             <nav className="p-2">
@@ -55,14 +55,14 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
                   type="button"
                   onClick={() => setTab(key)}
                   aria-current={tab === key || undefined}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14px] font-medium transition-colors ${
+                  className={`rounded-sm press w-full flex items-center gap-3 px-3.5 py-2.5 text-label font-medium ${
                     tab === key ? 'bg-accent-soft text-accent' : 'text-body hover:bg-bg'
                   }`}
                 >
                   <Icon className="w-[18px] h-[18px] shrink-0" />
                   <span className="flex-1 text-left">{label}</span>
                   {badge > 0 && (
-                    <span className={`text-[14px] font-semibold rounded-full px-1.5 min-w-[20px] text-center ${tab === key ? 'bg-accent text-bg' : 'bg-bg text-muted-2'}`}>
+                    <span className={`text-label font-semibold rounded-full px-1.5 min-w-[20px] text-center ${tab === key ? 'bg-accent text-bg' : 'bg-bg text-muted-2'}`}>
                       {badge}
                     </span>
                   )}
@@ -72,7 +72,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
             <div className="p-2 border-t border-line/60">
               <a
                 href="/auth/logout"
-                className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14px] font-medium text-muted hover:bg-bg hover:text-sale transition-colors"
+                className="rounded-sm w-full flex items-center gap-3 px-3.5 py-2.5 text-label font-medium text-muted hover:bg-bg hover:text-sale transition-colors"
               >
                 <LogOut className="w-[18px] h-[18px] shrink-0" /> {t.accountLogout}
               </a>
@@ -80,10 +80,10 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
           </aside>
 
           {/* Content */}
-          <section className="bg-surface border border-line-2 rounded-[20px] shadow-apple p-5 md:p-7 min-h-[360px]">
+          <section className=" rounded-lg bg-surface border border-line-2 p-5 md:p-7 min-h-[360px]">
             <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-line/60">
               <ActiveIcon className="w-5 h-5 text-accent" />
-              <h1 className="text-[19px] font-semibold text-primary tracking-[-0.01em]">{active.label}</h1>
+              <h1 className="text-lede font-semibold text-primary">{active.label}</h1>
             </div>
             {tab === 'profile' && <ProfileForm t={t} customer={customer} />}
             {tab === 'orders' && <OrdersList t={t} orders={orders} />}

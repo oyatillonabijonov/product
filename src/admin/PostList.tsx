@@ -44,14 +44,14 @@ export default function PostList() {
       {creating && <PostForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
       {editing && <PostForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />}
       {!creating && !editing && (
-        <button onClick={() => setCreating(true)} className="mb-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-full">+ Yangi maqola</button>
+        <button onClick={() => setCreating(true)} className="press mb-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-full">+ Yangi maqola</button>
       )}
       <div className="space-y-2">
         {items.map((p) => (
-          <div key={p.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-apple">
+          <div key={p.id} className=" rounded-md bg-white p-3 flex items-center gap-3">
             {p.coverUrl
-              ? <img src={p.coverUrl} alt="" className="w-24 h-14 rounded-xl object-cover bg-bg" />
-              : <div className="w-24 h-14 rounded-xl bg-bg" />}
+              ? <img src={p.coverUrl} alt="" className="rounded-sm w-24 h-14 object-cover bg-bg" />
+              : <div className="rounded-sm w-24 h-14 bg-bg" />}
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-[14px] truncate">{p.title}</div>
               <div className="text-[12px] text-muted-2">

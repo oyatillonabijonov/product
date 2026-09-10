@@ -40,7 +40,7 @@ const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale; t: Translation }>
 
   if (banners.length === 0) return null;
   return (
-    <div className="relative rounded-[24px] overflow-hidden shadow-apple">
+    <div className=" rounded-xl relative overflow-hidden">
       <div
         ref={track}
         onScroll={onScroll}
@@ -60,7 +60,7 @@ const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale; t: Translation }>
               onClick={() => goTo(i)}
               aria-label={`${t.slideLabel} ${i + 1}`}
               aria-current={i === active || undefined}
-              className="w-6 h-6 -m-1.5 flex items-center justify-center"
+              className="press w-6 h-6 -m-1.5 flex items-center justify-center"
             >
               <span className={`w-2 h-2 rounded-full transition-colors ${i === active ? 'bg-white' : 'bg-white/45'}`} />
             </button>

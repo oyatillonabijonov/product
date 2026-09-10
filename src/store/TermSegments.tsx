@@ -19,7 +19,7 @@ const TermSegments: FC<{
       <button
         key={x.months}
         onClick={() => onChange(x.months)}
-        className={`py-2.5 rounded-full text-[14px] font-semibold transition-all duration-200 ${
+        className={`press py-2.5 rounded-full text-label font-semibold ${
           x.months === months
             ? 'bg-surface text-primary'
             : 'text-muted hover:text-primary'

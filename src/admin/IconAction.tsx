@@ -14,7 +14,7 @@ const IconAction: FC<{ Icon: Icon; label: string; onClick: () => void; danger?: 
     onClick={onClick}
     aria-label={label}
     title={label}
-    className={`p-2 rounded-lg transition-colors hover:bg-bg ${danger ? 'text-danger' : 'text-muted hover:text-primary'}`}
+    className={`rounded-xs press p-2 hover:bg-bg ${danger ? 'text-danger' : 'text-muted hover:text-primary'}`}
   >
     <Icon size={18} />
   </button>

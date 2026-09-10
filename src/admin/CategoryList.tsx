@@ -45,13 +45,13 @@ export default function CategoryList() {
       {creating && <CategoryForm initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />}
       {editing && <CategoryForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />}
       {!creating && !editing && (
-        <button onClick={() => setCreating(true)} className="mb-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-full">+ Yangi kategoriya</button>
+        <button onClick={() => setCreating(true)} className="press mb-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-full">+ Yangi kategoriya</button>
       )}
       <div className="space-y-2">
         {items.map((c) => {
           const Icon = categoryIcon(c.icon);
           return (
-          <div key={c.id} className="bg-white rounded-2xl p-3 flex items-center gap-3 shadow-apple">
+          <div key={c.id} className=" rounded-md bg-white p-3 flex items-center gap-3">
             {c.iconUrl ? (
               <img src={c.iconUrl} alt="" className="w-10 h-10 rounded-full object-cover bg-bg" />
             ) : (

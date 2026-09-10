@@ -13,14 +13,14 @@ const SortSelect: FC<{ t: Translation; value: SortKey; onChange: (v: SortKey) =>
     default: t.sortDefault, arzon: t.sortCheap, qimmat: t.sortExpensive, yangi: t.sortNew,
   };
   return (
-    <label className="inline-flex items-center gap-2 text-[14px] text-muted-2">
+    <label className="inline-flex items-center gap-2 text-label text-muted-2">
       <span className="hidden sm:inline">{t.sortLabel}</span>
       <span className="relative inline-flex">
         <select
           value={value}
           onChange={(e) => onChange(e.target.value as SortKey)}
           aria-label={t.sortLabel}
-          className="h-11 appearance-none rounded-full border border-line bg-transparent pl-4 pr-10 text-[14px] font-medium text-primary transition-colors hover:border-accent focus:outline-none focus:border-accent"
+          className="h-11 appearance-none rounded-full border border-line bg-transparent pl-4 pr-10 text-copy font-normal text-primary transition-colors hover:border-accent focus:outline-none focus:border-accent"
         >
           {SORTS.map((s) => (
             <option key={s} value={s}>{labels[s]}</option>

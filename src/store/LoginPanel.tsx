@@ -76,7 +76,7 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
 
   // Maydon kartadan bir pog'ona to'q (`bg-bg`) + ko'rinadigan chegara: shaffof
   // input `border-line-2` bilan qorong'i temada karta fonidan deyarli ajralmaydi.
-  const inputCls = 'w-full bg-bg border border-line rounded-xl px-3.5 py-3 text-[15px] text-primary placeholder:text-muted-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-colors';
+  const inputCls = 'rounded-sm w-full bg-bg border border-line px-3.5 py-3 text-para text-primary placeholder:text-muted-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-colors';
 
   return (
     <div className="flex flex-col items-center gap-5">
@@ -84,13 +84,13 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
       <img src={logoDark} alt="" aria-hidden className="logo-dark h-9 w-auto object-contain" />
 
       {/* Kirish / Ro'yxatdan o'tish toggle */}
-      <div className="w-full grid grid-cols-2 p-1 bg-bg rounded-full text-[14px] font-medium">
+      <div className="w-full grid grid-cols-2 p-1 bg-bg rounded-full text-label font-medium">
         {(['login', 'register'] as const).map((m) => (
           <button
             key={m}
             type="button"
             onClick={() => { setMode(m); setErr(''); }}
-            className={`py-2 rounded-full transition-colors ${mode === m ? 'bg-surface text-primary shadow-apple' : 'text-muted'}`}
+            className={` press py-2 rounded-full ${mode === m ? 'bg-surface text-primary' : 'text-muted'}`}
           >
             {m === 'login' ? t.loginTab : t.registerTab}
           </button>
@@ -123,20 +123,20 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
           autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           className={inputCls}
         />
-        {mode === 'register' && <p className="text-[14px] text-muted-2 -mt-1">{t.loginPasswordHint}</p>}
+        {mode === 'register' && <p className="text-label text-muted-2 -mt-1">{t.loginPasswordHint}</p>}
 
-        {(err || error) && <p className="text-sale text-[14px]">{err || t.loginError}</p>}
+        {(err || error) && <p className="text-sale text-label">{err || t.loginError}</p>}
 
         <button
           type="submit"
           disabled={busy}
-          className="w-full h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50"
+          className="press w-full h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover disabled:opacity-50"
         >
           {busy ? t.loginSubmitting : mode === 'login' ? t.loginTab : t.registerTab}
         </button>
       </form>
 
-      <div className="w-full flex items-center gap-3 text-muted-2 text-[14px]">
+      <div className="w-full flex items-center gap-3 text-muted-2 text-label">
         <span className="h-px flex-1 bg-line" />{t.loginOr}<span className="h-px flex-1 bg-line" />
       </div>
       <div className="w-full flex flex-col items-center gap-3">
@@ -145,7 +145,7 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
             Yoqish: admin → Sayt ma'lumotlari → Google Client ID + Secret. */}
         <a
           href="/auth/google"
-          className="w-full h-[52px] border border-line rounded-full font-medium text-[15px] text-primary hover:border-accent hover:bg-bg transition-colors flex items-center justify-center gap-3"
+          className="press w-full h-[52px] border border-line rounded-full font-medium text-para text-primary hover:border-accent hover:bg-bg flex items-center justify-center gap-3"
         >
           <GoogleG /> {mode === 'login' ? t.loginGoogle : t.registerGoogle}
         </a>

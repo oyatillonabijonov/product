@@ -33,6 +33,10 @@ export interface Product {
   specs?: { label: string; value: string }[];
   /** Qisqa tavsif (D1'dan kelganda null bo'lishi mumkin). */
   description?: string | null;
+  /** Yulduzcha o'rtachasi 0–5; baholanmagan bo'lsa `null`. */
+  ratingAvg?: number | null;
+  /** Sharhlar soni; 0 = hali sharh yo'q. */
+  reviewCount?: number;
 }
 
 export interface Term {

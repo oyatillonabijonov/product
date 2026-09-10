@@ -1,8 +1,24 @@
 import { useState } from 'react';
 import type { FC } from 'react';
+import { Check, X } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiBrand } from '../../shared/types';
-import type { CatalogFilters, CatalogFacets } from '../../app/lib/catalog';
+import { activeFilterCount, type CatalogFilters, type CatalogFacets } from '../../app/lib/catalog';
+import { formatThousands, parseDigits } from '../admin/lib/format';
+
+/** Bo'lim sarlavhasi — o'ngida ixtiyoriy izoh ("1 tanlangan"). */
+const Heading: FC<{ title: string; note?: string }> = ({ title, note }) => (
+  <div className="mb-2.5 flex items-baseline justify-between gap-3">
+    <h3 className="text-label font-semibold text-primary">{title}</h3>
+    {note && <span className="text-label text-muted-2">{note}</span>}
+  </div>
+);
+
+// Native input `sr-only` (klaviatura/skrinrider qoladi), ko'rinadigan qism `group-has-checked` bilan bo'yaladi —
+// dark rejimda brauzerning oq checkbox'i og'ir ko'rinardi.
+const ROW = 'group relative flex h-9 cursor-pointer items-center gap-2.5 -mx-2 px-2 text-label text-primary transition-colors hover:bg-row-alt has-checked:bg-row-alt';
+const BOX = 'flex h-[18px] w-[18px] shrink-0 items-center justify-center border border-line-2 bg-surface transition-colors group-has-checked:border-accent group-has-checked:bg-accent group-has-focus-visible:ring-2 group-has-focus-visible:ring-accent/40';
+const SECTION = 'border-t border-divider py-5 first:border-t-0 first:pt-0';
 
 const FilterPanel: FC<{
   t: Translation;
@@ -13,63 +29,103 @@ const FilterPanel: FC<{
   onClear: () => void;
   hideBrands?: boolean;
 }> = ({ t, brands, facets, filters, onChange, onClear, hideBrands }) => {
-  const [lo, setLo] = useState(filters.priceMin !== null ? String(filters.priceMin) : '');
-  const [hi, setHi] = useState(filters.priceMax !== null ? String(filters.priceMax) : '');
+  const appliedLo = filters.priceMin !== null ? String(filters.priceMin) : '';
+  const appliedHi = filters.priceMax !== null ? String(filters.priceMax) : '';
+  const [lo, setLo] = useState(appliedLo);
+  const [hi, setHi] = useState(appliedHi);
+  // "Ko'rsatish" faqat kiritilgan qiymat qo'llanganidan farq qilganda chiqadi.
+  const dirty = lo.trim() !== appliedLo || hi.trim() !== appliedHi;
 
   function toggleBrand(id: string) {
     const next = filters.brands.includes(id) ? filters.brands.filter((x) => x !== id) : [...filters.brands, id];
     onChange({ brands: next });
   }
   function applyPrice() {
-    const pm = lo.trim() !== '' && /^\d+$/.test(lo.trim()) ? Number(lo.trim()) : null;
-    const px = hi.trim() !== '' && /^\d+$/.test(hi.trim()) ? Number(hi.trim()) : null;
+    if (!dirty) return;
+    const pm = parseDigits(lo) || null; // "11 900 000" ham o'tadi; 0/bo'sh → chegara yo'q
+    const px = parseDigits(hi) || null;
     onChange({ priceMin: pm, priceMax: px });
   }
 
   const visibleBrands = brands.filter((b) => (facets.brandCounts[b.id] ?? 0) > 0 || filters.brands.includes(b.id));
-  // Yonidagi "Ko'rsatish" tugmasi va header qidiruvi bilan bir xil: 44px, to'liq radius.
-  const input = 'w-full h-11 border border-line rounded-full px-4 text-[14px] focus:outline-none focus:border-accent';
+  const active = activeFilterCount(filters, { ignoreBrands: hideBrands });
+  // Header qidiruvi bilan bir xil: 44px, to'liq radius. Placeholder — joriy natijadagi narx diapazoni.
+  const input = 'h-11 w-full min-w-0 rounded-full border border-line bg-transparent px-4 text-label text-primary tabular-nums transition-colors focus:border-accent focus:outline-none';
+  const onEnter = (e: { key: string }) => { if (e.key === 'Enter') applyPrice(); };
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col">
       {!hideBrands && visibleBrands.length > 0 && (
-        <section>
-          <h3 className="text-[14px] font-medium text-muted-2 uppercase tracking-[0.04em]">{t.filterBrand}</h3>
-          <div className="flex flex-col gap-2">
+        <section className={SECTION}>
+          <Heading title={t.filterBrand} note={filters.brands.length > 0 ? `${filters.brands.length} ${t.filterSelected}` : undefined} />
+          <div className="flex flex-col">
             {visibleBrands.map((b) => (
-              <label key={b.id} className="flex items-center gap-2.5 text-[14px] cursor-pointer">
-                <input type="checkbox" className="h-4 w-4 accent-accent" checked={filters.brands.includes(b.id)} onChange={() => toggleBrand(b.id)} />
-                <span className="flex-1">{b.name}</span>
-                <span className="text-[14px] text-muted-2">{facets.brandCounts[b.id] ?? 0}</span>
+              <label key={b.id} className={ROW}>
+                <input type="checkbox" className="sr-only" aria-label={b.name} checked={filters.brands.includes(b.id)} onChange={() => toggleBrand(b.id)} />
+                <span aria-hidden className={BOX}>
+                  <Check className="h-3 w-3 text-bg opacity-0 transition-opacity group-has-checked:opacity-100" strokeWidth={3} />
+                </span>
+                <span className="flex-1 truncate">{b.name}</span>
+                <span className="text-label text-muted-2 tabular-nums">{facets.brandCounts[b.id] ?? 0}</span>
               </label>
             ))}
           </div>
         </section>
       )}
-      <section>
-        <h3 className="text-[14px] font-medium text-muted-2 uppercase tracking-[0.04em]">{t.filterPrice}</h3>
+
+      <section className={SECTION}>
+        <Heading title={t.filterPrice} />
         <div className="flex items-center gap-2">
-          <input inputMode="numeric" placeholder={t.filterPriceFrom} className={input} value={lo} onChange={(e) => setLo(e.target.value)} />
+          <input
+            inputMode="numeric"
+            placeholder={formatThousands(facets.priceMin) || t.filterPriceFrom}
+            aria-label={t.filterPriceFrom}
+            className={input}
+            value={lo}
+            onChange={(e) => setLo(e.target.value)}
+            onKeyDown={onEnter}
+          />
           <span className="text-muted-2">–</span>
-          <input inputMode="numeric" placeholder={t.filterPriceTo} className={input} value={hi} onChange={(e) => setHi(e.target.value)} />
+          <input
+            inputMode="numeric"
+            placeholder={formatThousands(facets.priceMax) || t.filterPriceTo}
+            aria-label={t.filterPriceTo}
+            className={input}
+            value={hi}
+            onChange={(e) => setHi(e.target.value)}
+            onKeyDown={onEnter}
+          />
         </div>
-        <button onClick={applyPrice} className="mt-2 w-full h-11 border border-line text-[14px] font-medium rounded-full hover:border-accent hover:text-accent transition-colors">
-          {t.filterApply}
+        {dirty && (
+          <button onClick={applyPrice} className="press mt-2 h-11 w-full rounded-full bg-accent text-copy font-normal text-bg hover:bg-accent-hover">
+            {t.filterApply}
+          </button>
+        )}
+      </section>
+
+      <section className={SECTION}>
+        <Heading title={t.filterCondition} />
+        {/* TermSegments bilan bir xil segment-kontrol; radio inputlar sr-only. */}
+        <div className="grid grid-cols-3 gap-1 rounded-full bg-segment p-1">
+          {([null, 'yangi', 'ishlatilgan'] as const).map((c) => {
+            const label = c === null ? t.filterAll : c === 'yangi' ? t.badgeNew : t.badgeUsed;
+            return (
+              <label key={c ?? 'all'} className="group relative cursor-pointer">
+                <input type="radio" name="holat" className="sr-only" aria-label={label} checked={filters.condition === c} onChange={() => onChange({ condition: c })} />
+                <span className="flex h-9 items-center justify-center rounded-full text-label font-medium text-muted transition-colors group-hover:text-primary group-has-checked:bg-surface group-has-checked:text-primary group-has-focus-visible:ring-2 group-has-focus-visible:ring-accent/40">
+                  {label}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      </section>
+
+      {active > 0 && (
+        <button onClick={onClear} className="press flex h-9 items-center justify-between border-t border-divider pt-5 text-label font-medium text-muted hover:text-primary">
+          {t.filterClear} <X className="h-4 w-4" />
         </button>
-      </section>
-      <section>
-        <h3 className="text-[14px] font-medium text-muted-2 uppercase tracking-[0.04em]">{t.filterCondition}</h3>
-        <div className="flex flex-col gap-2 text-[14px]">
-          {([null, 'yangi', 'ishlatilgan'] as const).map((c) => (
-            <label key={c ?? 'all'} className="flex items-center gap-2.5 cursor-pointer">
-              <input type="radio" name="holat" className="h-4 w-4 accent-accent" checked={filters.condition === c} onChange={() => onChange({ condition: c })} />
-              {c === null ? t.filterAll : c === 'yangi' ? t.badgeNew : t.badgeUsed}
-            </label>
-          ))}
-        </div>
-      </section>
-      <button onClick={onClear} className="text-[14px] text-muted hover:text-sale font-semibold text-left">
-        {t.filterClear}
-      </button>
+      )}
     </div>
   );
 };

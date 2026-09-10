@@ -55,9 +55,9 @@ const ModelForm: FC<{
     }
   }
 
-  const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
+  const input = 'rounded-sm w-full border border-line px-3 py-2 focus:outline-none focus:border-accent';
   return (
-    <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple max-w-2xl">
+    <div className=" rounded-lg bg-white p-6 mb-6 max-w-2xl">
       <h3 className="font-semibold mb-4">{initial ? 'Modelni tahrirlash' : 'Yangi model'}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <label className="block text-[13px] text-muted">Nomi
@@ -95,8 +95,8 @@ const ModelForm: FC<{
       </div>
       {error && <p className="text-[13px] text-danger mt-3">{error}</p>}
       <div className="flex gap-3 mt-4">
-        <button onClick={save} disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
-        <button onClick={onCancel} className="px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
+        <button onClick={save} disabled={busy} className="press px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
+        <button onClick={onCancel} className="press px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
       </div>
     </div>
   );

@@ -35,6 +35,8 @@ interface FormState {
   isActive: boolean;
   brandId: string | null;
   slug: string;
+  ratingAvg: number;
+  reviewCount: number;
   options: { name: string; values: string[] }[];
   variants: AdminVariantInput[];
 }
@@ -42,7 +44,7 @@ interface FormState {
 const empty: FormState = {
   name: '', category: 'iphone', categoryId: null, condition: 'yangi', conditionNote: '',
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
-  brandId: null, slug: '', options: [], variants: [],
+  brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, options: [], variants: [],
 };
 
 const ProductForm: FC<{
@@ -90,6 +92,7 @@ const ProductForm: FC<{
       setForm({
         name: d.name, category: d.category, categoryId: d.categoryId, condition: d.condition,
         conditionNote: d.conditionNote ?? '', cashPriceUzs: d.cashPriceUzs, oldPriceUzs: d.oldPriceUzs ?? 0,
+        ratingAvg: d.ratingAvg ?? 0, reviewCount: d.reviewCount ?? 0,
         description: d.description ?? '', imageUrl: d.imageUrl, images: gallery, specs: d.specs,
         sortOrder: d.sortOrder, isActive: d.isActive,
         brandId: d.brandId, slug: d.slug ?? '',
@@ -209,6 +212,7 @@ const ProductForm: FC<{
         specs: form.specs.filter((s) => s.label.trim() !== '' && s.value.trim() !== ''),
         sortOrder: form.sortOrder, isActive: form.isActive,
         brandId: form.brandId, slug: form.slug || null,
+        ratingAvg: form.ratingAvg > 0 ? form.ratingAvg : null, reviewCount: form.reviewCount,
         options: form.options.filter((o) => o.name.trim() && o.values.length),
         variants: form.variants.filter((v) => v.cashPriceUzs > 0),
       };
@@ -223,27 +227,27 @@ const ProductForm: FC<{
     }
   }
 
-  const input = 'w-full border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
+  const input = 'rounded-sm w-full border border-line px-3 py-2 focus:outline-none focus:border-accent';
 
   if (initial && loadState !== 'ready') {
     return (
-      <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple">
+      <div className=" rounded-lg bg-white p-6 mb-6">
         <h3 className="font-semibold mb-4">Mahsulotni tahrirlash</h3>
         {loadState === 'loading' ? (
           <div className="text-[14px] text-muted">Yuklanmoqda…</div>
         ) : (
           <div className="text-[14px] text-danger">
             Mahsulot ma'lumotlari yuklanmadi — saqlash bloklandi.
-            <button onClick={() => setLoadRetry((r) => r + 1)} className="ml-2 font-semibold underline underline-offset-2">Qayta urinish</button>
+            <button onClick={() => setLoadRetry((r) => r + 1)} className="press ml-2 font-semibold underline underline-offset-2">Qayta urinish</button>
           </div>
         )}
-        <button onClick={onCancel} className="mt-4 px-6 py-2.5 text-muted font-semibold rounded-full border border-line">Bekor qilish</button>
+        <button onClick={onCancel} className="press mt-4 px-6 py-2.5 text-muted font-semibold rounded-full border border-line">Bekor qilish</button>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-[20px] p-6 mb-6 shadow-apple">
+    <div className=" rounded-lg bg-white p-6 mb-6">
       <h3 className="font-semibold mb-4">{initial ? 'Mahsulotni tahrirlash' : 'Yangi mahsulot'}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <label className="text-[13px] text-muted">Nomi / Model qidirish <span className="text-danger">*</span>
@@ -280,6 +284,22 @@ const ProductForm: FC<{
         <label className="text-[13px] text-muted">Eski narx (ixtiyoriy)
           <PriceInput className={input} value={form.oldPriceUzs} onChange={(v) => set('oldPriceUzs', v)} />
         </label>
+        {/* Reyting sayt ichida hisoblanmaydi — egasi tashqi manbadan ko'chiradi.
+            Ikkalasi bo'sh bo'lsa kartada yulduzchalar bo'sh holatda ko'rinadi. */}
+        <label className="text-[13px] text-muted">Reyting (0–5)
+          <input
+            type="number" min={0} max={5} step={0.1} className={input}
+            value={form.ratingAvg || ''}
+            onChange={(e) => set('ratingAvg', Math.min(5, Math.max(0, Number(e.target.value) || 0)))}
+          />
+        </label>
+        <label className="text-[13px] text-muted">Sharhlar soni
+          <input
+            type="number" min={0} step={1} className={input}
+            value={form.reviewCount || ''}
+            onChange={(e) => set('reviewCount', Math.max(0, Math.floor(Number(e.target.value) || 0)))}
+          />
+        </label>
         <label className="flex items-center gap-2 text-[14px] text-primary">
           <input
             type="checkbox"
@@ -297,7 +317,7 @@ const ProductForm: FC<{
       </div>
 
       {form.condition === 'yangi' && (
-        <div className="mt-5 border border-line rounded-2xl p-4">
+        <div className="rounded-md mt-5 border border-line p-4">
           <div className="text-[14px] font-semibold">Variantlar</div>
           <div className="text-[12px] text-muted mb-3">Xotira va rangni tanlang — har birikma alohida narxli variant bo'ladi. Tanlamasangiz, yuqoridagi bitta narx ishlaydi (aksessuar uchun).</div>
 
@@ -307,7 +327,7 @@ const ProductForm: FC<{
               const selected = (form.options.find((o) => o.name === 'Xotira')?.values ?? []).includes(v);
               return (
                 <button key={v} type="button" onClick={() => toggleStorage(v)}
-                  className={`rounded-full px-4 py-1.5 text-[13px] font-semibold border transition-colors ${selected ? 'bg-accent text-white border-accent' : 'border-line text-primary hover:border-accent'}`}>
+                  className={`press rounded-full px-4 py-1.5 text-[13px] font-semibold border ${selected ? 'bg-accent text-white border-accent' : 'border-line text-primary hover:border-accent'}`}>
                   {v}
                 </button>
               );
@@ -323,7 +343,7 @@ const ProductForm: FC<{
                 const selected = cur.includes(c);
                 return (
                   <button key={c} type="button" onClick={() => toggleColor(c)}
-                    className={`rounded-full px-4 py-1.5 text-[13px] font-semibold border transition-colors ${selected ? 'bg-accent text-white border-accent' : 'border-line text-primary hover:border-accent'}`}>
+                    className={`press rounded-full px-4 py-1.5 text-[13px] font-semibold border ${selected ? 'bg-accent text-white border-accent' : 'border-line text-primary hover:border-accent'}`}>
                     {c}
                   </button>
                 );
@@ -344,10 +364,10 @@ const ProductForm: FC<{
               <div className="text-[13px] text-muted mb-2">Har variant narxi va rasmi</div>
               <div className="space-y-2">
                 {form.variants.map((v, i) => (
-                  <div key={i} className="flex items-center gap-3 border border-line rounded-xl p-2.5 flex-wrap">
+                  <div key={i} className="rounded-sm flex items-center gap-3 border border-line p-2.5 flex-wrap">
                     <span className="text-[13px] font-semibold min-w-[110px]">{variantLabel(v)}</span>
-                    <PriceInput placeholder="Narx" className="w-40 border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent" value={v.cashPriceUzs} onChange={(n) => updateVariant(i, { cashPriceUzs: n })} />
-                    {v.imageUrl ? <img src={v.imageUrl} alt="" className="w-10 h-10 object-contain rounded-lg bg-bg border border-line" /> : null}
+                    <PriceInput placeholder="Narx" className="rounded-sm w-40 border border-line px-3 py-2 focus:outline-none focus:border-accent" value={v.cashPriceUzs} onChange={(n) => updateVariant(i, { cashPriceUzs: n })} />
+                    {v.imageUrl ? <img src={v.imageUrl} alt="" className="rounded-xs w-10 h-10 object-contain bg-bg border border-line" /> : null}
                     <label className={`text-[13px] font-semibold cursor-pointer ${busyRow === i ? 'text-muted' : 'text-accent'}`}>
                       {busyRow === i ? 'Yuklanmoqda…' : v.imageUrl ? 'Rasmni almashtirish' : '+ rasm'}
                       <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" disabled={busyRow === i} onChange={(e) => uploadVariantImage(i, e)} />
@@ -385,11 +405,11 @@ const ProductForm: FC<{
             <div key={i} className="flex gap-2">
               <input placeholder="Nomi (Xotira)" className={input} value={s.label} onChange={(e) => set('specs', form.specs.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
               <input placeholder="Qiymati (256GB)" className={input} value={s.value} onChange={(e) => set('specs', form.specs.map((x, j) => j === i ? { ...x, value: e.target.value } : x))} />
-              <button onClick={() => set('specs', form.specs.filter((_, j) => j !== i))} className="text-danger px-2">×</button>
+              <button onClick={() => set('specs', form.specs.filter((_, j) => j !== i))} className="press text-danger px-2">×</button>
             </div>
           ))}
         </div>
-        <button onClick={() => set('specs', [...form.specs, { label: '', value: '' }])} className="text-[13px] text-accent font-semibold mt-2">+ xususiyat qo'shish</button>
+        <button onClick={() => set('specs', [...form.specs, { label: '', value: '' }])} className="press text-[13px] text-accent font-semibold mt-2">+ xususiyat qo'shish</button>
       </div>
 
       <label className="mt-4 flex items-center gap-2 text-[14px]">
@@ -397,9 +417,9 @@ const ProductForm: FC<{
         Saytda ko'rsatilsin
       </label>
 
-      <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 px-6 py-4 bg-white/95 backdrop-blur border-t border-line rounded-b-[20px] flex flex-wrap items-center gap-3">
-        <button onClick={save} disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
-        <button onClick={() => { if (!dirty || window.confirm("Saqlanmagan o'zgarishlar bor. Bekor qilinsinmi?")) onCancel(); }} className="px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
+      <div className="rounded-b-lg sticky bottom-0 -mx-6 -mb-6 mt-6 px-6 py-4 bg-white/95 backdrop-blur border-t border-line flex flex-wrap items-center gap-3">
+        <button onClick={save} disabled={busy} className="press px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60">{busy ? 'Saqlanmoqda…' : 'Saqlash'}</button>
+        <button onClick={() => { if (!dirty || window.confirm("Saqlanmagan o'zgarishlar bor. Bekor qilinsinmi?")) onCancel(); }} className="press px-6 py-2.5 text-muted font-semibold rounded-full">Bekor qilish</button>
         {error && <span className="text-[13px] text-danger">{error}</span>}
       </div>
     </div>

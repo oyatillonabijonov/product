@@ -102,7 +102,7 @@ export default function AdminApp() {
             <button
               key={id}
               onClick={() => navigate(tabToPath(id))}
-              className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-[14px] font-semibold text-left transition-colors ${
+              className={`rounded-sm press flex items-center gap-3 w-full px-4 py-2.5 text-[14px] font-semibold text-left ${
                 active ? 'bg-accent text-white' : 'text-primary hover:bg-bg'
               }`}
             >
@@ -113,7 +113,7 @@ export default function AdminApp() {
         })}
         <button
           onClick={handleLogout}
-          className="mt-auto flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-[14px] font-semibold text-left text-muted hover:text-primary"
+          className="rounded-sm press mt-auto flex items-center gap-3 w-full px-4 py-2.5 text-[14px] font-semibold text-left text-muted hover:text-primary"
         >
           <SignOut size={18} />
           Chiqish
@@ -126,7 +126,7 @@ export default function AdminApp() {
             <button
               key={id}
               onClick={() => navigate(tabToPath(id))}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap ${
+              className={`press flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap ${
                 active ? 'bg-accent text-white' : 'text-primary'
               }`}
             >
@@ -137,7 +137,7 @@ export default function AdminApp() {
         })}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap text-muted hover:text-primary"
+          className="press flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap text-muted hover:text-primary"
         >
           <SignOut size={18} />
           Chiqish
@@ -146,10 +146,10 @@ export default function AdminApp() {
       <main className="flex-1 min-w-0">
         <div className="max-w-[900px] mx-auto px-4 md:px-8 py-8">
           {defaultPw && (
-            <div className="mb-6 rounded-2xl border border-danger/30 bg-danger/5 px-4 py-3 text-[14px] text-danger flex flex-wrap items-center gap-2">
+            <div className="rounded-md mb-6 border border-danger/30 bg-danger/5 px-4 py-3 text-[14px] text-danger flex flex-wrap items-center gap-2">
               <span className="font-semibold">Diqqat:</span>
               Standart «admin» paroli ishlatilmoqda — hoziroq o'zgartiring.
-              <button onClick={() => navigate('/admin/settings')} className="font-semibold underline underline-offset-2">
+              <button onClick={() => navigate('/admin/settings')} className="press font-semibold underline underline-offset-2">
                 Sozlamalarga o'tish
               </button>
             </div>

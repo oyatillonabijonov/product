@@ -55,10 +55,10 @@ export default function SettingsForm() {
     }
   }
 
-  const input = 'w-24 border border-line rounded-xl px-3 py-2 focus:outline-none focus:border-accent';
+  const input = 'rounded-sm w-24 border border-line px-3 py-2 focus:outline-none focus:border-accent';
 
   return (
-    <div className="bg-white rounded-[20px] p-6 shadow-apple max-w-lg">
+    <div className=" rounded-lg bg-white p-6 max-w-lg">
       <h3 className="font-semibold mb-4">Kalkulyator sozlamalari</h3>
 
       <label className="flex items-center justify-between mb-3 text-[14px]">
@@ -113,11 +113,11 @@ export default function SettingsForm() {
             />
             <span className="text-muted">%</span>
             <span className="text-muted">({fmt(monthly(SAMPLE, s.downPaymentPercent, t))}/oy)</span>
-            <button onClick={() => removeTerm(i)} aria-label="Muddatni o'chirish" className="text-danger ml-auto">×</button>
+            <button onClick={() => removeTerm(i)} aria-label="Muddatni o'chirish" className="press text-danger ml-auto">×</button>
           </div>
         ))}
       </div>
-      <button onClick={addTerm} className="text-[13px] text-accent font-semibold mb-5">
+      <button onClick={addTerm} className="press text-[13px] text-accent font-semibold mb-5">
         + muddat qo'shish
       </button>
 
@@ -129,7 +129,7 @@ export default function SettingsForm() {
         <button
           onClick={save}
           disabled={busy}
-          className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60"
+          className="press px-6 py-2.5 bg-accent text-white font-semibold rounded-full disabled:opacity-60"
         >
           {busy ? 'Saqlanmoqda…' : 'Saqlash'}
         </button>

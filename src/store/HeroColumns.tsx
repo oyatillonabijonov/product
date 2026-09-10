@@ -6,8 +6,8 @@ import type { ApiCategory } from '../../shared/types';
 import type { StoreContext } from './StoreLayout';
 import { HERO_COLUMNS, columnHref, type HeroColumn } from './hero-columns';
 import proMark from '../assets/hero/pro.svg';
+import { EASE_GLIDE as GLIDE } from '../lib/motion';
 
-const GLIDE = [0.16, 1, 0.3, 1] as const;
 
 function HeroCard({ col, href, index, hovered, onHover, proY }: {
   col: HeroColumn;
@@ -24,7 +24,7 @@ function HeroCard({ col, href, index, hovered, onHover, proY }: {
       viewTransition
       onMouseEnter={() => onHover(index)}
       onMouseLeave={() => onHover(null)}
-      className="relative block min-w-0 h-full overflow-hidden rounded-[24px] bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      className="rounded-xl relative block min-w-0 h-full overflow-hidden bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       <div
         className="absolute inset-0 [backface-visibility:hidden]"
@@ -44,7 +44,7 @@ function HeroCard({ col, href, index, hovered, onHover, proY }: {
 
       <div
         aria-hidden
-        className="absolute left-1/2 top-1/2 z-[3] -ml-[34px] -mt-[34px] flex h-[68px] w-[68px] items-center justify-center rounded-full border border-white/30 bg-white/10 text-[24px] font-normal text-white backdrop-blur-[14px] pointer-events-none"
+        className="absolute left-1/2 top-1/2 z-[3] -ml-[34px] -mt-[34px] flex h-[68px] w-[68px] items-center justify-center rounded-full border border-white/30 bg-white/10 text-subhead font-normal text-white backdrop-blur-[14px] pointer-events-none"
         style={{
           opacity: on ? 1 : 0,
           transform: `scale(${on ? 1 : 0.7})`,

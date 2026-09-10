@@ -81,7 +81,7 @@ const PcConfigurator: FC<{ t: Translation }> = ({ t }) => {
     <section className="flex flex-col gap-8 md:gap-10">
       <div className="max-w-[680px]">
         <h2 className={SECTION_HEADING}>{t.cfgTitle}</h2>
-        <p className="mt-4 text-[15px] leading-[1.55] text-muted text-pretty md:text-[17px]">{t.cfgLede}</p>
+        <p className="mt-4 text-para text-muted text-pretty md:text-copy">{t.cfgLede}</p>
       </div>
 
       {/* Bo'g'in tanlagichlari — gorizontal scroll (mobil), tanlangani belgili */}
@@ -95,7 +95,7 @@ const PcConfigurator: FC<{ t: Translation }> = ({ t }) => {
               type="button"
               onClick={() => setActive(s.key)}
               aria-pressed={on}
-              className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full border px-5 text-[15px] font-medium transition-colors ${
+              className={`press inline-flex h-11 shrink-0 items-center gap-2 rounded-full border px-5 text-copy font-normal ${
                 on ? 'border-accent bg-accent-soft text-primary' : 'border-line-2 text-muted hover:border-line'
               }`}
             >
@@ -109,8 +109,8 @@ const PcConfigurator: FC<{ t: Translation }> = ({ t }) => {
 
       <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
         {/* Tanlov ro'yxati */}
-        <div className="rounded-[24px] border border-line-2 bg-surface p-4 md:p-6">
-          <h3 className="px-1 text-[20px] font-semibold tracking-[-0.02em]">{slot.label(t)}</h3>
+        <div className="rounded-xl  border border-line-2 bg-surface p-4 md:p-6">
+          <h3 className="px-1 text-lede font-semibold">{slot.label(t)}</h3>
           <ul className="mt-4 flex flex-col gap-2">
             {slot.parts.map((part) => {
               const on = picked[slot.key]?.id === part.id;
@@ -120,16 +120,16 @@ const PcConfigurator: FC<{ t: Translation }> = ({ t }) => {
                     type="button"
                     onClick={() => choose(part)}
                     aria-pressed={on}
-                    className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-colors ${
+                    className={`rounded-sm press flex w-full items-center gap-4 border p-4 text-left ${
                       on ? 'border-accent bg-accent-soft' : 'border-line-2 hover:border-line'
                     }`}
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[15px] font-medium">{part.name}</span>
-                      <span className="mt-1 block text-[14px] text-muted-2">{part.brand}</span>
+                      <span className="block text-para font-medium">{part.name}</span>
+                      <span className="mt-1 block text-label text-muted-2">{part.brand}</span>
                       <span className="sr-only">{on ? t.cfgSelected : t.cfgSelect}</span>
                     </span>
-                    <span className="shrink-0 text-[15px] font-semibold tabular-nums">
+                    <span className="shrink-0 text-para font-semibold tabular-nums">
                       {formatUzs(part.priceUzs, t.sum)}
                     </span>
                     {/* Radio uslubidagi belgi — mobil kenglikda ham "bosiladi" degan ishora qoladi. */}
@@ -149,13 +149,13 @@ const PcConfigurator: FC<{ t: Translation }> = ({ t }) => {
         </div>
 
         {/* Yig'ma */}
-        <div className="flex h-fit flex-col rounded-[24px] border border-line-2 bg-surface p-6 lg:sticky lg:top-24">
-          <h3 className="text-[20px] font-semibold tracking-[-0.02em]">{t.cfgSummary}</h3>
+        <div className="rounded-xl flex h-fit flex-col border border-line-2 bg-surface p-6 lg:sticky lg:top-24">
+          <h3 className="text-lede font-semibold">{t.cfgSummary}</h3>
           <dl className="mt-5 flex flex-col divide-y divide-divider">
             {SLOTS.map((s) => (
               <div key={s.key} className="flex flex-col gap-1 py-3 first:pt-0">
-                <dt className="text-[14px] text-muted-2">{s.label(t)}</dt>
-                <dd className="flex items-baseline justify-between gap-3 text-[15px]">
+                <dt className="text-label text-muted-2">{s.label(t)}</dt>
+                <dd className="flex items-baseline justify-between gap-3 text-para">
                   <span className={picked[s.key] ? 'font-medium' : 'text-disabled-2'}>
                     {picked[s.key]?.name ?? t.cfgNotChosen}
                   </span>
@@ -170,8 +170,8 @@ const PcConfigurator: FC<{ t: Translation }> = ({ t }) => {
           </dl>
 
           <div className="mt-4 flex items-baseline justify-between gap-3 border-t border-line pt-4">
-            <span className="text-[15px] text-muted">{t.cfgTotal}</span>
-            <span className="text-[24px] font-semibold tabular-nums tracking-[-0.02em]">
+            <span className="text-para text-muted">{t.cfgTotal}</span>
+            <span className="text-subhead font-semibold tabular-nums">
               {formatUzs(total, t.sum)}
             </span>
           </div>
@@ -184,7 +184,7 @@ const PcConfigurator: FC<{ t: Translation }> = ({ t }) => {
           >
             {t.cfgCta}
           </button>
-          {!complete && <p className="mt-3 text-center text-[14px] text-muted-2">{t.cfgHint}</p>}
+          {!complete && <p className="mt-3 text-center text-label text-muted-2">{t.cfgHint}</p>}
         </div>
       </div>
     </section>

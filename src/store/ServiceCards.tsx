@@ -36,18 +36,18 @@ const ServiceCards: FC<{ t: Translation }> = ({ t }) => {
         {items.map(({ icon: Icon, fact, title, desc }, i) => (
           <article
             key={title}
-            className="flex flex-col rounded-[20px] border border-line-2 bg-surface p-7 transition-colors duration-500 hover:border-line md:p-8"
+            className="rounded-lg flex flex-col border border-line-2 bg-surface p-7 transition-colors duration-500 hover:border-line md:p-8"
           >
             <div className="flex items-center justify-between text-muted-2">
-              <span className="font-mono text-[14px] tabular-nums">{`0${i + 1}`}</span>
+              <span className="font-mono text-label tabular-nums">{`0${i + 1}`}</span>
               <Icon aria-hidden className="h-7 w-7" strokeWidth={1.4} />
             </div>
 
-            <p className="mt-9 text-[32px] font-semibold leading-none tracking-[-0.03em] tabular-nums">
+            <p className="mt-9 text-heading font-semibold leading-none tabular-nums">
               {fact}
             </p>
-            <h3 className="mt-3 text-[17px] font-medium tracking-[-0.01em]">{title}</h3>
-            <p className="mt-2 text-[15px] leading-[1.55] text-muted text-pretty">{desc}</p>
+            <h3 className="mt-3 text-copy font-medium">{title}</h3>
+            <p className="mt-2 text-para text-muted text-pretty">{desc}</p>
           </article>
         ))}
       </div>

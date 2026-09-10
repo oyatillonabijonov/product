@@ -20,7 +20,7 @@ function oauthError(code: string | null): string {
   return '';
 }
 
-const inputCls = 'w-full border border-line-2 rounded-xl px-3.5 py-2.5 text-[15px] text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition';
+const inputCls = 'rounded-sm w-full border border-line-2 px-3.5 py-2.5 text-[15px] text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition';
 
 export default function Login({ onSuccess }: { onSuccess: (defaultPassword: boolean) => void }) {
   const location = useLocation();
@@ -65,7 +65,7 @@ export default function Login({ onSuccess }: { onSuccess: (defaultPassword: bool
           <p className="text-[13px] font-medium text-muted-2 tracking-wide">ADMIN PANEL</p>
         </div>
 
-        <form onSubmit={submit} className="bg-white rounded-[24px] p-7 shadow-apple flex flex-col gap-3.5 border border-line-2">
+        <form onSubmit={submit} className=" rounded-xl bg-white p-7 flex flex-col gap-3.5 border border-line-2">
           <div>
             <label className="block text-[12.5px] font-medium text-muted mb-1.5">Login</label>
             <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" className={inputCls} />
@@ -80,7 +80,7 @@ export default function Login({ onSuccess }: { onSuccess: (defaultPassword: bool
           <button
             type="submit"
             disabled={busy}
-            className="w-full py-3 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-60"
+            className="press w-full py-3 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover disabled:opacity-60"
           >
             {busy ? 'Kirilmoqda…' : 'Kirish'}
           </button>

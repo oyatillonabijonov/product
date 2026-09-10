@@ -30,16 +30,16 @@ export const Inlines: FC<{ inlines: MdInline[] }> = ({ inlines }) => (
 const Markdown: FC<{ source: string }> = ({ source }) => (
   <div className="flex flex-col gap-4">
     {renderMarkdown(source).map((b, i) => {
-      if (b.type === 'h2') return <h2 key={i} className="text-[24px] font-semibold text-primary tracking-[-0.02em] mt-4"><Inlines inlines={b.inlines} /></h2>;
-      if (b.type === 'h3') return <h3 key={i} className="text-[18px] font-semibold text-primary mt-2"><Inlines inlines={b.inlines} /></h3>;
+      if (b.type === 'h2') return <h2 key={i} className="text-subhead font-semibold text-primary mt-4"><Inlines inlines={b.inlines} /></h2>;
+      if (b.type === 'h3') return <h3 key={i} className="text-copy font-semibold text-primary mt-2"><Inlines inlines={b.inlines} /></h3>;
       if (b.type === 'ul') {
         return (
-          <ul key={i} className="list-disc pl-6 flex flex-col gap-1.5 text-[15px] text-body">
+          <ul key={i} className="list-disc pl-6 flex flex-col gap-1.5 text-para text-body">
             {b.items.map((item, j) => <li key={j}><Inlines inlines={item} /></li>)}
           </ul>
         );
       }
-      return <p key={i} className="text-[15px] text-body leading-relaxed"><Inlines inlines={b.inlines} /></p>;
+      return <p key={i} className="text-para text-body leading-relaxed"><Inlines inlines={b.inlines} /></p>;
     })}
   </div>
 );

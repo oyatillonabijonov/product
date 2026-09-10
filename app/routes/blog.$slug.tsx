@@ -39,15 +39,15 @@ export default function BlogPostRoute() {
   const date = postDate(post.publishedAt, locale);
   return (
     <article className="mx-auto max-w-[760px] px-4 py-10 md:py-14">
-      <LocaleLink to="/blog" className="mb-6 inline-flex items-center gap-1.5 text-[14px] font-semibold text-muted transition-colors hover:text-primary">
+      <LocaleLink to="/blog" className="mb-6 inline-flex items-center gap-1.5 text-label font-semibold text-muted transition-colors hover:text-primary">
         <span aria-hidden>‹</span> Blog
       </LocaleLink>
-      {date && <div className="text-[14px] text-muted-2">{date}</div>}
-      <h1 className="mt-2 mb-6 text-[32px] font-semibold tracking-[-0.03em] text-primary md:text-[40px]">
+      {date && <div className="text-label text-muted-2">{date}</div>}
+      <h1 className="mt-2 mb-6 text-heading font-semibold text-primary md:text-title">
         {localeField(post.title, post.titleRu, locale)}
       </h1>
       {post.coverUrl && (
-        <img src={post.coverUrl} alt="" className="mb-8 w-full rounded-[20px] object-cover" />
+        <img src={post.coverUrl} alt="" className="rounded-lg mb-8 w-full object-cover" />
       )}
       <Markdown source={localeField(post.content, post.contentRu, locale)} />
     </article>

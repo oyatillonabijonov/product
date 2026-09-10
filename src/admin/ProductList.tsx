@@ -68,7 +68,7 @@ export default function ProductList() {
   if (creating) return <ProductForm key="new" initial={null} onSaved={refresh} onCancel={() => setCreating(false)} />;
   if (editing) return <ProductForm key={editing.id} initial={editing} onSaved={refresh} onCancel={() => setEditing(null)} />;
 
-  const select = 'border border-line rounded-xl px-3 py-2 text-[14px] bg-white focus:outline-none focus:border-accent';
+  const select = 'rounded-sm border border-line px-3 py-2 text-[14px] bg-white focus:outline-none focus:border-accent';
 
   return (
     <div>
@@ -99,14 +99,14 @@ export default function ProductList() {
           <option value="active">Faol</option>
           <option value="hidden">Yashirin</option>
         </select>
-        <button onClick={() => setCreating(true)} className="px-4 py-2 bg-primary text-white font-semibold rounded-full text-[14px]">
+        <button onClick={() => setCreating(true)} className="press px-4 py-2 bg-primary text-white font-semibold rounded-full text-[14px]">
           + Yangi
         </button>
       </div>
 
       <div className="text-[13px] text-muted-2 mb-2">{filtered.length} ta mahsulot</div>
 
-      <div className="overflow-x-auto bg-white rounded-2xl shadow-apple">
+      <div className=" rounded-md overflow-x-auto bg-white">
         <table className="w-full text-[14px]">
           <thead>
             <tr className="text-left text-[12px] uppercase tracking-wide text-muted-2 border-b border-line">
@@ -124,8 +124,8 @@ export default function ProductList() {
               <tr key={p.id} className={`border-b border-line/60 last:border-0 hover:bg-bg ${p.isActive ? '' : 'opacity-60'}`}>
                 <td className="p-3">
                   {p.imageUrl
-                    ? <img src={p.imageUrl} alt="" className="w-11 h-11 rounded-lg object-contain bg-bg" />
-                    : <div className="w-11 h-11 rounded-lg bg-bg" />}
+                    ? <img src={p.imageUrl} alt="" className="rounded-xs w-11 h-11 object-contain bg-bg" />
+                    : <div className="rounded-xs w-11 h-11 bg-bg" />}
                 </td>
                 <td className="p-3"><div className="font-semibold text-primary max-w-[240px] truncate">{p.name}</div></td>
                 <td className="p-3 text-muted whitespace-nowrap">{catName(p.categoryId)}</td>
@@ -159,7 +159,7 @@ export default function ProductList() {
             <button
               key={n}
               onClick={() => setPage(n)}
-              className={`min-w-9 px-3 py-1.5 rounded-lg text-[14px] font-semibold transition-colors ${
+              className={`rounded-xs press min-w-9 px-3 py-1.5 text-[14px] font-semibold ${
                 n === safePage ? 'bg-accent text-white' : 'text-primary hover:bg-bg'
               }`}
             >

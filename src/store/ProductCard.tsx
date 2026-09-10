@@ -1,10 +1,15 @@
 import { motion } from 'motion/react';
+import { useState } from 'react';
 import type { FC } from 'react';
+import { ShoppingCart } from 'lucide-react';
 import { useOutletContext } from 'react-router';
 import type { Translation } from '../locales';
 import type { InstallmentConfig, Product } from '../data/products';
 import { discountPercent, formatUzs, priceView } from '../lib/installment';
 import LocaleLink from './LocaleLink';
+import { useCart } from './CartContext';
+import { SPRING_UI } from '../lib/motion';
+import Stars from './Stars';
 import FavoriteButton from './FavoriteButton';
 import type { StoreContext } from './StoreLayout';
 
@@ -22,16 +27,30 @@ const ProductCard: FC<{
   const isNew = product.condition === 'yangi';
   const { config: site } = useOutletContext<StoreContext>();
   const pv = priceView(product, config, site.paymentMode);
+  const cart = useCart();
+  const [added, setAdded] = useState(false);
+
+  // ponytail: karta variantlarni bilmaydi — eng arzon variant narxi bilan variantsiz
+  // qator qo'shiladi. Variant tanlash kerak bo'lsa mahsulot sahifasiga o'tiladi.
+  function addToCart(): void {
+    cart.add({
+      productId: product.id, name: product.name, image: product.image,
+      priceUzs: product.minPriceUzs, variantId: null, variantLabel: '', qty: 1,
+    });
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1500);
+  }
+
   return (
     <motion.div
       whileHover={{ y: -6 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-      className="group w-full bg-surface border border-divider rounded-[20px] p-2 flex flex-col shadow-apple hover:shadow-apple-hover hover:border-line-2 transition-shadow duration-300"
+      transition={SPRING_UI}
+      className="group flex w-full flex-col rounded-md border border-divider bg-surface p-2 transition-colors duration-300 hover:border-line-2"
     >
       <div className="relative">
         <LocaleLink
           to={`/product/${product.id}`}
-          className="aspect-square w-full flex items-center justify-center overflow-hidden rounded-xl border border-line-3 bg-white p-2.5"
+          className="rounded-sm aspect-square w-full flex items-center justify-center overflow-hidden border border-line-3 bg-white p-2.5"
         >
           {product.image ? (
             <img
@@ -43,19 +62,19 @@ const ProductCard: FC<{
               referrerPolicy="no-referrer"
             />
           ) : (
-            <div className="text-muted-2 text-[14px]">{product.name}</div>
+            <div className="text-muted-2 text-label">{product.name}</div>
           )}
         </LocaleLink>
         {/* Badge faqat istisno holatda: hamma mahsulot "Yangi" bo'lgani uchun u axborot bermaydi. */}
         <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5 pointer-events-none">
           {!isNew && (
-            <span className="inline-flex items-center gap-1.5 text-[14px] font-semibold px-2.5 py-1 rounded-full backdrop-blur bg-trust-soft/90 text-trust">
+            <span className="inline-flex items-center gap-1.5 text-label font-semibold px-2.5 py-1 rounded-full backdrop-blur bg-trust-soft/90 text-trust">
               <span className="h-1.5 w-1.5 rounded-full bg-trust" />
               {t.badgeUsed}
             </span>
           )}
           {disc !== null && (
-            <span className="text-[14px] font-bold px-2 py-1 rounded-full bg-sale text-white">-{disc}%</span>
+            <span className="text-label font-bold px-2 py-1 rounded-full bg-sale text-white">-{disc}%</span>
           )}
         </div>
         <FavoriteButton
@@ -68,24 +87,26 @@ const ProductCard: FC<{
 
       {/* Info blok: rasm ramkasi karta ichida alohida turgani uchun ajratgich chiziq
           kerak emas. Ierarxiya — nom (medium/body), narx (hero, primary), oylik to'lov.
-          CTA tugmasi yo'q — butun karta bosiladi. */}
+          Pastda savatga qo'shish tugmasi. */}
       <div className="px-3 pb-3 pt-4 md:px-3.5 md:pb-3.5 flex flex-col flex-1">
         <LocaleLink
           to={`/product/${product.id}`}
-          className="text-[14px] md:text-[15px] font-medium text-body tracking-[-0.01em] leading-snug hover:text-accent transition-colors line-clamp-2"
+          className="text-label md:text-para font-medium text-body leading-snug hover:text-accent transition-colors line-clamp-2"
         >
           {product.name}
         </LocaleLink>
+
+        <Stars t={t} rating={product.ratingAvg} count={product.reviewCount ?? 0} />
 
         {/* Hamma qator chapdan bir tekis (chip/inset yo'q); oylik doim muddati bilan: "X so'm × 12 oy". */}
         <div className="mt-auto pt-3">
           {pv.monthlyPrimary ? (
             <>
-              <div className="text-[17px] md:text-[20px] font-semibold tracking-[-0.02em] text-primary leading-tight tabular-nums">
+              <div className="text-copy md:text-lede font-semibold text-primary leading-tight tabular-nums">
                 {formatUzs(pv.monthlyUzs, t.sum)}
-                <span className="text-[14px] font-normal text-muted-2"> × {pv.months} {t.calcMonths}</span>
+                <span className="text-label font-normal text-muted-2"> × {pv.months} {t.calcMonths}</span>
               </div>
-              <div className="text-[14px] text-muted mt-1.5 flex items-center gap-2 flex-wrap tabular-nums">
+              <div className="text-label text-muted mt-1.5 flex items-center gap-2 flex-wrap tabular-nums">
                 {disc !== null && product.oldPriceUzs && (
                   <span className="line-through text-disabled-2">{formatUzs(product.oldPriceUzs, t.sum)}</span>
                 )}
@@ -95,15 +116,15 @@ const ProductCard: FC<{
           ) : (
             <>
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-[17px] md:text-[20px] font-semibold tracking-[-0.02em] text-primary leading-tight tabular-nums whitespace-nowrap">
+                <span className="text-copy md:text-lede font-semibold text-primary leading-tight tabular-nums whitespace-nowrap">
                   {formatUzs(pv.cashUzs, t.sum)}
                 </span>
                 {disc !== null && product.oldPriceUzs && (
-                  <span className="text-[14px] line-through text-disabled-2 tabular-nums">{formatUzs(product.oldPriceUzs, t.sum)}</span>
+                  <span className="text-label line-through text-disabled-2 tabular-nums">{formatUzs(product.oldPriceUzs, t.sum)}</span>
                 )}
               </div>
               {pv.showMonthly && (
-                <div className="text-[14px] mt-1.5 tabular-nums">
+                <div className="text-label mt-1.5 tabular-nums">
                   <span className="font-medium text-body">{formatUzs(pv.monthlyUzs, t.sum)}</span>
                   <span className="text-muted-2"> × {pv.months} {t.calcMonths}</span>
                 </div>
@@ -111,6 +132,15 @@ const ProductCard: FC<{
             </>
           )}
         </div>
+
+        <button
+          type="button"
+          onClick={addToCart}
+          className="press mt-3 inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-accent px-3 text-copy font-normal text-bg hover:opacity-85 md:text-copy"
+        >
+          {/* Ikonka tor mobil kartada matnni sig'maydigan qiladi — u yerda faqat yozuv qoladi. */}
+          <ShoppingCart className="hidden h-4 w-4 md:block" /> {added ? t.cartAdded : t.cartAdd}
+        </button>
       </div>
     </motion.div>
   );

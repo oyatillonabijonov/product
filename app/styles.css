@@ -4,8 +4,60 @@
 
 @theme {
   --font-sans: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  --shadow-apple: none; /* Apple-style flat — soyasiz, kartalar border/bg bilan ajraladi */
-  --shadow-apple-hover: none;
+
+  /* ── Tipografika: har o'lcham o'z tracking va leading'i bilan ────────────
+     Qiymatlar apple.com'dan o'lchab olingan — SF'ning o'z optik jadvali:
+     80px → -0.015em · 28px → +0.007em · 24px → +0.009em · 17px → -0.022em ·
+     14px → -0.016em. Ya'ni tracking chiziqli emas: SF Pro **Display** o'lchamlari
+     (20px va yuqori) juda kattada manfiydan 24px atrofida ozgina musbatga o'tadi,
+     SF Pro **Text** o'lchamlari (20px'dan past) esa yana manfiy bo'ladi.
+     Shu sababli o'lcham alohida ishlatilmaydi — bitta klass uchalasini olib
+     keladi va noto'g'ri juftlik yozib bo'lmaydi.
+     Shkala qat'iy: boshqa o'lcham yo'q (`text-[18px]` kabi qiymat ishlatilmaydi). */
+  --text-display: 56px;            /* cover sarlavhasi */
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.012em;
+  --text-title: 44px;              /* sahifa / bo'lim sarlavhasi */
+  --text-title--line-height: 1.08;
+  --text-title--letter-spacing: -0.009em;
+  --text-heading: 32px;            /* mobil sarlavha, katta raqam */
+  --text-heading--line-height: 1.125;
+  --text-heading--letter-spacing: 0.004em;
+  --text-subhead: 24px;
+  --text-subhead--line-height: 1.167;
+  --text-subhead--letter-spacing: 0.009em;
+  --text-lede: 20px;
+  --text-lede--line-height: 1.2;
+  --text-lede--letter-spacing: 0.011em;
+  --text-copy: 17px;
+  --text-copy--line-height: 1.47;
+  --text-copy--letter-spacing: -0.022em;
+  --text-control: 16px;            /* inputlar va asosiy CTA — pastida iOS fokusda zoom qiladi */
+  --text-control--line-height: 1.4;
+  --text-control--letter-spacing: -0.021em;
+  --text-para: 15px;               /* asosiy matn */
+  --text-para--line-height: 1.47;
+  --text-para--letter-spacing: -0.016em;
+  --text-label: 14px;              /* eng kichik o'lcham — qisqa yorliqlar */
+  --text-label--line-height: 1.43;
+  --text-label--letter-spacing: -0.016em;
+
+  /* ── Harakat: bitta egri chiziq va uch pog'ona davomiylik ────────────────
+     `ease-apple` — iOS'ning standart chiqish egrisi. Qaytish yo'li shu egrining
+     teskarisi bo'lishi kerak (§7 simmetriya), shuning uchun juftlik saqlanadi. */
+  /* ── Burchak radiusi — apple.com'dan o'lchangan ─────────────────────────
+     Apple do'konidagi haqiqiy qiymatlar: 8px ixcham tugma · 12px kichik karta
+     va forma selektori · 18px mahsulot kartasi (`rf-ccard-content`) · 20px katta
+     karta · tugma esa `980px`, ya'ni to'liq pill.
+     Beshta pog'ona, oltinchisi yo'q. */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 18px;   /* Apple kartasining aynan radiusi */
+  --radius-lg: 20px;
+  --radius-xl: 28px;   /* modal, cover, to'liq enli panel */
+
+  --ease-apple: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-apple-in: cubic-bezier(1, 0, 0.68, 0.28);
   --color-primary: #121417;
   --color-accent: #0A0A0A; /* Apple Devices Store skin — qora asosiy accent (ko'k emas) */
   --color-bg: #F4F5F7;
@@ -132,6 +184,99 @@ body {
 ::selection {
   background: rgba(232, 64, 75, 0.16);
   color: #121417;
+}
+
+/* ── Bosish javobi (§1 "Response") ──────────────────────────────────────────
+   Apple qoidasi: javob barmoq tushganda beriladi, qo'yib yuborilganda emas.
+   `:active` aynan pointer-down'da yonadi, `:hover` esa sensorli ekranda yo'q —
+   shuning uchun har bir bosiladigan element shu klassni oladi.
+
+   Bitta joyda turishining sababi: harakat kamaytirilganda transform emas,
+   shaffoflik o'zgarishi qoladi (§14 — javob yo'qolmaydi, faqat vestibulyar
+   qismi olib tashlanadi). 60ms — sezilmaydigan, lekin darhol. */
+.press {
+  /* Bitta klass — bosiladigan elementning butun o'tish shartnomasi. Bosish darhol
+     (60ms, sezilmaydi), rang esa biroz yumshoqroq. Alohida `transition-colors`
+     qo'shilmaydi: u shu qoidani bekor qilib, bosish javobini o'ldiradi. */
+  transition:
+    transform 60ms var(--ease-apple),
+    opacity 60ms var(--ease-apple),
+    background-color 160ms var(--ease-apple),
+    border-color 160ms var(--ease-apple),
+    color 160ms var(--ease-apple);
+  touch-action: manipulation; /* eski 300ms tap kechikishi yo'q */
+}
+.press:active {
+  transform: scale(0.97);
+}
+/* Katta yuzalar (karta, qator) kichikroq siqiladi — 0.97 ularda "buklangan"dek ko'rinadi. */
+.press-surface:active {
+  transform: scale(0.995);
+}
+
+/* ── Material (§12) ─────────────────────────────────────────────────────────
+   Suzuvchi qatlam: kontent ostidan o'tadi, fon esa blur orqali ko'rinadi.
+   Katta yuza qalinroq o'qilishi kerak — blur radiusi shundan kelib chiqadi. */
+.material {
+  background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+.material-thin {
+  background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+}
+
+/* ── Kirish imkoniyati sozlamalari (§14) ────────────────────────────────────
+   Uchta mustaqil signal — uchtasi ham hisobga olinadi. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  /* Transform bo'yicha harakat vestibulyar — o'chadi; rang va shaffoflik
+     o'zgarishi tushunishga yordam bergani uchun qoladi (qisqartirilgan holda). */
+  .press:active { transform: none; opacity: 0.7; }
+  .press-surface:active { transform: none; opacity: 0.85; }
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 120ms !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  /* Shaffoflik o'rniga qattiq yuza — blur ham keraksiz. */
+  .material,
+  .material-thin {
+    background: var(--color-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-line: #9AA0A8;
+    --color-line-2: #A6ACB4;
+    --color-line-3: #B2B8C0;
+    --color-divider: #A6ACB4;
+    --color-muted: #3C4147;
+    --color-muted-2: #3C4147;
+  }
+  :root:not([data-theme="light"]) .theme-dark,
+  :root[data-theme="dark"] {
+    --color-line: #6E747C;
+    --color-line-2: #797F87;
+    --color-line-3: #858B93;
+    --color-divider: #797F87;
+    --color-muted: #D5D9DE;
+    --color-muted-2: #D5D9DE;
+  }
+  .material,
+  .material-thin {
+    background: var(--color-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* Navigatsiya progress-bar (StoreLayout) — indeterminate siljish */

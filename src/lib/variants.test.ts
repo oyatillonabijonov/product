@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, variantSelection } from './variants';
+import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, valuePrice, variantSelection } from './variants';
 import type { ApiOption, ApiVariant } from '../../shared/types';
 
 const options: ApiOption[] = [
@@ -59,5 +59,30 @@ describe('isValueAvailable', () => {
 describe('selectionLabel', () => {
   it('labels in options order', () => {
     expect(selectionLabel(options, { Rang: 'Qora', Xotira: '256GB' })).toBe('Xotira: 256GB, Rang: Qora');
+  });
+});
+
+describe('valuePrice', () => {
+  const sel = { Xotira: '256GB', Rang: 'Qora' };
+
+  it('aniq kombinatsiya bor bo\'lsa o\'sha variant narxini beradi', () => {
+    expect(valuePrice(options, variants, sel, 'Rang', 'Oq')).toBe(150);   // v3
+    expect(valuePrice(options, variants, sel, 'Xotira', '512GB')).toBe(200); // v2
+  });
+
+  it('kombinatsiya yo\'q bo\'lsa shu qiymatli eng arzon sotuvdagi variantga tushadi', () => {
+    // 512GB + Oq kombinatsiyasi yo'q; 512GB'da faqat v2 (sotuvda yo'q) → 200
+    expect(valuePrice(options, variants, { Xotira: '512GB', Rang: 'Oq' }, 'Rang', 'Oq')).toBe(150);
+    expect(valuePrice(options, variants, { Xotira: '256GB', Rang: 'Oq' }, 'Xotira', '512GB')).toBe(200);
+  });
+
+  it('sotuvdagi variant bo\'lsa u qimmatroq bo\'lsa ham sotuvda yo\'qidan ustun turadi', () => {
+    const withCheapOutOfStock = [...variants, V('v4', 50, false, ['ov1', 'ov4'])];
+    // 256GB+Oq: v3 (150, bor) va v4 (50, yo'q) — aniq mos v3 topiladi
+    expect(valuePrice(options, withCheapOutOfStock, sel, 'Rang', 'Oq')).toBe(150);
+  });
+
+  it('mos variant umuman bo\'lmasa null', () => {
+    expect(valuePrice(options, [], sel, 'Rang', 'Oq')).toBeNull();
   });
 });

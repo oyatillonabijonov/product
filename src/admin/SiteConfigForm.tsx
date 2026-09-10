@@ -66,7 +66,7 @@ const GROUPS: Group[] = [
   },
 ];
 
-const inputCls = 'mt-1 w-full border border-line-2 rounded-xl px-3 py-2 text-[14px] text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition';
+const inputCls = 'rounded-sm mt-1 w-full border border-line-2 px-3 py-2 text-[14px] text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition';
 
 export default function SiteConfigForm() {
   const [form, setForm] = useState<ApiSiteConfig | null>(null);
@@ -96,7 +96,7 @@ export default function SiteConfigForm() {
       </div>
 
       {GROUPS.map((g) => (
-        <section key={g.title} className="bg-white rounded-2xl border border-line-2 shadow-apple p-5">
+        <section key={g.title} className=" rounded-md bg-white border border-line-2 p-5">
           <div className="mb-3.5">
             <h3 className="font-semibold text-[15.5px] text-primary flex items-center gap-2">
               {g.title}
@@ -137,8 +137,8 @@ export default function SiteConfigForm() {
         </section>
       ))}
 
-      <div className="sticky bottom-4 flex items-center gap-3 bg-white/90 backdrop-blur border border-line-2 shadow-apple rounded-full px-4 py-3">
-        <button onClick={save} disabled={busy} className="px-6 py-2.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover transition-colors disabled:opacity-50">
+      <div className=" sticky bottom-4 flex items-center gap-3 bg-white/90 backdrop-blur border border-line-2 rounded-full px-4 py-3">
+        <button onClick={save} disabled={busy} className="press px-6 py-2.5 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover disabled:opacity-50">
           {busy ? 'Saqlanmoqda…' : 'Saqlash'}
         </button>
         {msg && <p className={`text-[13px] font-medium ${msg.includes('✓') ? 'text-trust' : 'text-danger'}`}>{msg}</p>}

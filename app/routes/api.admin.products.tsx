@@ -30,8 +30,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (input instanceof Response) return input;
   if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
   const insert = env.DB.prepare(
-    `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, old_price_uzs, description, brand_id, slug, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch())`,
+    `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, old_price_uzs, description, brand_id, slug, rating_avg, review_count, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch())`,
   ).bind(
     input.id,
     input.name,
@@ -47,6 +47,8 @@ export async function action({ request, context }: Route.ActionArgs) {
     input.description,
     input.brandId,
     input.slug,
+    input.ratingAvg,
+    input.reviewCount,
   );
   // Bitta atomik tranzaksiya: yozuv o'rtada uzilsa yarim yozilgan mahsulot qolmaydi.
   await env.DB.batch([

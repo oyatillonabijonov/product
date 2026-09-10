@@ -12,8 +12,8 @@ import { effectiveDark } from './ThemeToggle';
 /** Ustun sarlavhasi + ro'yxat — uchala ustun bir xil ritmda tursin. */
 const Col: FC<{ title: string; children: ReactNode }> = ({ title, children }) => (
   <div className="flex flex-col gap-4">
-    <h3 className="text-[14px] font-medium text-muted-2">{title}</h3>
-    <div className="flex flex-col gap-3 text-[15px]">{children}</div>
+    <h3 className="text-label font-medium text-muted-2">{title}</h3>
+    <div className="flex flex-col gap-3 text-para">{children}</div>
   </div>
 );
 
@@ -57,7 +57,7 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
         {/* Xarita — to'liq enli past tasma. Yandex vidjeti o'z boshqaruvlarini
             ko'rsatadi, shuning uchun balandligi ataylab past: u footer'ni
             egallamaydi, manzil esa pastdagi ustunda matn bo'lib turadi. */}
-        <div className="mb-14 h-[200px] overflow-hidden rounded-[20px] border border-line md:h-[240px]">
+        <div className="rounded-lg mb-14 h-[200px] overflow-hidden border border-line md:h-[240px]">
           <iframe
             src={mapWidgetSrc}
             title={config.mapLabel || t.mapTitle}
@@ -70,7 +70,7 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
         <div className="grid gap-12 md:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))] md:gap-10">
           <div className="flex flex-col gap-5">
             <img src={logo} alt={config.name} className="h-9 w-auto self-start object-contain" />
-            <p className="max-w-[280px] text-[15px] leading-[1.55] text-muted text-pretty">{t.footerDesc}</p>
+            <p className="max-w-[280px] text-para text-muted text-pretty">{t.footerDesc}</p>
           </div>
 
           <Col title={t.footerMenu}>
@@ -121,7 +121,7 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
           </Col>
         </div>
 
-        <div className="mt-16 flex flex-col-reverse items-center gap-4 border-t border-line pt-6 text-[14px] md:flex-row md:justify-between">
+        <div className="mt-16 flex flex-col-reverse items-center gap-4 border-t border-line pt-6 text-label md:flex-row md:justify-between">
           <p className="text-muted-2">{`© ${new Date().getFullYear()} ${config.name}. ${t.footerCopyright}`}</p>
           <div className="flex items-center gap-3">
             <Link to={barePath + location.search} className={locale === 'uz' ? 'font-medium text-primary' : 'text-muted-2 transition-colors hover:text-primary'}>

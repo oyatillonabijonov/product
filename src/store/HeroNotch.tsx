@@ -8,12 +8,12 @@ import { Link } from 'react-router';
 import LocaleLink from './LocaleLink';
 import ThemeToggle from './ThemeToggle';
 import wordmark from '../assets/hero/wordmark.webp';
+import { SPRING_UI as SPRING } from '../lib/motion';
 
-const SPRING = { type: 'spring', stiffness: 160, damping: 24, mass: 1 } as const;
 
 /** Nav'ning yumaloq ikon tugmasi — Kirish pill'i bilan bir balandlikda (36px). */
 const ICON_BTN =
-  'flex h-9 w-9 flex-none items-center justify-center rounded-full border border-white/[0.16] text-[#F5F5F7] transition-colors duration-200 hover:border-white/[0.38]';
+  'press flex h-9 w-9 flex-none items-center justify-center rounded-full border border-white/[0.16] text-[#F5F5F7] hover:border-white/[0.38]';
 
 /**
  * Hero tepasidagi qora "notch" — yopiq holatda faqat logotip ko'rinadi, hover'da
@@ -70,7 +70,7 @@ export default function HeroNotch({ t, locale, categories }: {
         : { height: 80.53, paddingLeft: 0, paddingRight: 0, gap: 0 }}
       transition={reduced ? { duration: 0 } : SPRING}
       style={{ overflow: open ? 'visible' : 'hidden' }}
-      className="fixed -top-[14px] left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center rounded-b-[24px] bg-black pt-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),0_4px_162px_0_rgba(255,255,255,0.25)]"
+      className="rounded-b-xl fixed -top-[14px] left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center bg-black pt-5"
     >
       <LocaleLink to="/" className="block flex-none">
         <img src={wordmark} alt="" aria-hidden className="block h-[25px] w-auto" />
@@ -90,7 +90,7 @@ export default function HeroNotch({ t, locale, categories }: {
             className="relative flex items-center gap-[5px]"
           >
             <span
-              className="text-[14px] font-normal tracking-[-0.01em] transition-colors duration-200"
+              className="text-label font-normal transition-colors duration-200"
               style={{ color: menu ? '#F5F5F7' : '#A1A1A6' }}
             >
               {t.homeCategories}
@@ -102,7 +102,7 @@ export default function HeroNotch({ t, locale, categories }: {
               style={{ transform: menu ? 'rotate(180deg)' : 'rotate(0deg)' }}
             />
             <div
-              className="absolute left-[-16px] top-full mt-5 flex min-w-[216px] flex-col rounded-[20px] bg-black p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),0_24px_60px_rgba(0,0,0,0.7)]"
+              className="rounded-lg absolute left-[-16px] top-full mt-5 flex min-w-[216px] flex-col bg-black p-2"
               style={{
                 opacity: menu ? 1 : 0,
                 visibility: menu ? 'visible' : 'hidden',
@@ -114,7 +114,7 @@ export default function HeroNotch({ t, locale, categories }: {
                 <LocaleLink
                   key={c.id}
                   to={`/category/${c.id}`}
-                  className="flex h-[38px] items-center rounded-xl px-3 text-[14px] font-normal tracking-[-0.01em] text-[#F5F5F7] whitespace-nowrap transition-colors duration-200 hover:bg-white/[0.08]"
+                  className="rounded-sm flex h-[38px] items-center px-3 text-label font-normal text-[#F5F5F7] whitespace-nowrap transition-colors duration-200 hover:bg-white/[0.08]"
                 >
                   {categoryLabel(c, locale)}
                 </LocaleLink>
@@ -123,7 +123,7 @@ export default function HeroNotch({ t, locale, categories }: {
           </div>
           <LocaleLink
             to="/katalog"
-            className="text-[14px] font-normal tracking-[-0.01em] text-[#A1A1A6] transition-colors duration-200 hover:text-[#F5F5F7]"
+            className="text-label font-normal text-[#A1A1A6] transition-colors duration-200 hover:text-[#F5F5F7]"
           >
             {t.navCatalog}
           </LocaleLink>
@@ -134,7 +134,7 @@ export default function HeroNotch({ t, locale, categories }: {
         <div className="flex items-center gap-4">
           <LocaleLink
             to="/kirish"
-            className="flex h-9 items-center rounded-full bg-[#0071E3] px-5 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-[#0A84FF]"
+            className="press flex h-9 items-center rounded-full bg-[#0071E3] px-5 text-label font-medium text-white hover:bg-[#0A84FF]"
           >
             {t.loginTitle}
           </LocaleLink>

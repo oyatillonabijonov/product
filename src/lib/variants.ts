@@ -52,3 +52,26 @@ export function selectionLabel(options: ApiOption[], selection: VariantSelection
     .map((o) => `${o.name}: ${selection[o.name]}`)
     .join(', ');
 }
+
+/**
+ * Shu qiymat tanlansa narx qanday bo'ladi — Apple'ning konfigurator kartasi
+ * har bir variant yonida narxni ko'rsatadi, foydalanuvchi bosishdan oldin
+ * bilishi kerak.
+ *
+ * Joriy tanlov ustiga faqat bitta o'q almashtiriladi; qolgan o'qlar bo'yicha
+ * mos keladigan **eng arzon sotuvdagi** variant olinadi (sotuvda hech biri
+ * bo'lmasa — umuman eng arzoni). Mos variant bo'lmasa `null`.
+ */
+export function valuePrice(
+  options: ApiOption[], variants: ApiVariant[], selection: VariantSelection,
+  optionName: string, value: string,
+): number | null {
+  const next = { ...selection, [optionName]: value };
+  const exact = resolveVariant(options, variants, next);
+  if (exact) return exact.cashPriceUzs;
+  const pool = variants.filter((v) => variantSelection(v, options)[optionName] === value);
+  if (pool.length === 0) return null;
+  const inStock = pool.filter((v) => v.inStock);
+  const from = inStock.length > 0 ? inStock : pool;
+  return from.reduce((a, b) => (b.cashPriceUzs < a.cashPriceUzs ? b : a)).cashPriceUzs;
+}

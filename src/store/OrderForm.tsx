@@ -9,6 +9,7 @@ import { formatUzs } from '../lib/installment';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
 import { ymGoal } from '../lib/metrica';
 import { safeHref } from '../lib/safe-href';
+import Modal from './Modal';
 
 /** Ism/telefonsiz tayyor buyurtma — chaqiruvchi (ProductPage/CartPage) to'ldiradi. */
 export type OrderDraft = Omit<OrderInput, 'name' | 'phone' | 'note'> & { title: string };
@@ -29,6 +30,7 @@ const OrderForm: FC<{
   const [err, setErr] = useState('');
   const [nameErr, setNameErr] = useState('');
   const [phoneErr, setPhoneErr] = useState('');
+  const [open, setOpen] = useState(true);
 
   const installment = draft.paymentKind === 'installment';
   const cashTotal = draft.items.reduce((s, it) => s + it.priceUzs * it.qty, 0);
@@ -39,7 +41,14 @@ const OrderForm: FC<{
     ymGoal(config.yandexMetricaId, 'order_form_open');
   }, [config.yandexMetricaId]);
 
+  // Yopish ikki bosqichda: `close()` faqat chiqish animatsiyasini boshlaydi,
+  // ota komponent esa `onExited` kelganda ma'lumotni tashlaydi — aks holda modal
+  // darhol uzilib, chiqish kadrlari ko'rinmay qolardi.
   function close() {
+    setOpen(false);
+  }
+
+  function exited() {
     onClose();
     if (done) onDone?.();
   }
@@ -72,51 +81,45 @@ const OrderForm: FC<{
   }
 
   const inputCls = (bad: boolean) =>
-    `w-full border rounded-xl px-3 py-2.5 text-[15px] text-primary focus:outline-none ${
+    `rounded-sm w-full border px-3 py-2.5 text-para text-primary focus:outline-none ${
       bad ? 'border-danger focus:border-danger' : 'border-line-2 focus:border-accent'
     }`;
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm"
-      onClick={close}
-    >
-      <div
-        className="w-full max-w-md bg-surface rounded-[24px] shadow-apple-hover p-6 relative"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button onClick={close} aria-label={t.orderClose} className="absolute top-4 right-4 text-muted-2 hover:text-primary">
+    <Modal open={open} label={t.orderFormTitle} onClose={close} onExited={exited}>
+      <div className="p-6">
+        <button onClick={close} aria-label={t.orderClose} className="press absolute top-4 right-4 text-muted-2 hover:text-primary">
           <X className="w-5 h-5" />
         </button>
 
         {done ? (
           <div className="py-6 text-center">
-            <p className="text-[16px] font-semibold text-trust">{t.orderSuccess}</p>
+            <p className="text-control font-semibold text-trust">{t.orderSuccess}</p>
             {/* Arizadan keyingi "qora tuynuk"ni yopish: nima bo'lishini aniq aytamiz */}
-            <p className="text-[14px] text-muted mt-2">{t.orderSuccessNote}</p>
+            <p className="text-label text-muted mt-2">{t.orderSuccessNote}</p>
             <div className="flex flex-col gap-2.5 mt-5">
               {tgHref && (
                 <a
                   href={tgHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full h-11 border border-line-2 rounded-full font-semibold text-[14px] text-primary hover:bg-bg transition-colors flex items-center justify-center gap-2"
+                  className="press w-full h-11 border border-line-2 rounded-full font-normal text-copy text-primary hover:bg-bg flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" /> {t.orderContactTg}
                 </a>
               )}
-              <button onClick={close} className="w-full h-11 bg-primary text-bg font-semibold text-[14px] rounded-full">
+              <button onClick={close} className="press w-full h-11 bg-primary text-bg font-normal text-copy rounded-full">
                 {t.orderClose}
               </button>
             </div>
           </div>
         ) : (
           <form onSubmit={submit}>
-            <h2 className="text-[19px] font-semibold pr-8">{t.orderFormTitle}</h2>
-            <p className="text-[14px] text-muted mt-1 mb-3 line-clamp-2">{draft.title}</p>
+            <h2 className="text-lede font-semibold pr-8">{t.orderFormTitle}</h2>
+            <p className="text-label text-muted mt-1 mb-3 line-clamp-2">{draft.title}</p>
 
             {/* Buyurtma xulosasi — mijoz nimani tasdiqlayotganini ko'rsin */}
-            <div className="bg-bg rounded-xl px-4 py-3 mb-4 space-y-1.5 text-[14px]">
+            <div className="rounded-sm bg-bg px-4 py-3 mb-4 space-y-1.5 text-label">
               <div className="flex justify-between gap-3">
                 <span className="text-muted">{t.orderPayment}</span>
                 <span className="font-semibold">{installment ? t.orderPaymentInstallment : t.orderPaymentCash}</span>
@@ -147,7 +150,7 @@ const OrderForm: FC<{
               </div>
             </div>
 
-            <label className="block text-[14px] text-muted mb-1">{t.orderName}</label>
+            <label className="block text-label text-muted mb-1">{t.orderName}</label>
             <input
               value={name}
               onChange={(e) => { setName(e.target.value); if (nameErr) setNameErr(''); }}
@@ -155,8 +158,8 @@ const OrderForm: FC<{
               aria-invalid={Boolean(nameErr) || undefined}
               className={`${inputCls(Boolean(nameErr))} ${nameErr ? 'mb-1' : 'mb-3'}`}
             />
-            {nameErr && <p className="text-[14px] text-danger mb-2">{nameErr}</p>}
-            <label className="block text-[14px] text-muted mb-1">{t.orderPhone}</label>
+            {nameErr && <p className="text-label text-danger mb-2">{nameErr}</p>}
+            <label className="block text-label text-muted mb-1">{t.orderPhone}</label>
             <input
               type="tel"
               inputMode="tel"
@@ -165,7 +168,7 @@ const OrderForm: FC<{
               aria-invalid={Boolean(phoneErr) || undefined}
               className={`${inputCls(Boolean(phoneErr))} tabular-nums ${phoneErr ? 'mb-1' : 'mb-4'}`}
             />
-            {phoneErr && <p className="text-[14px] text-danger mb-3">{phoneErr}</p>}
+            {phoneErr && <p className="text-label text-danger mb-3">{phoneErr}</p>}
             {/* honeypot — foydalanuvchiga ko'rinmaydi, bot to'ldirsa buyurtma tashlanadi */}
             <input
               tabIndex={-1}
@@ -176,19 +179,19 @@ const OrderForm: FC<{
               aria-hidden="true"
             />
 
-            {err && <p className="text-[14px] text-sale mb-3">{err}</p>}
+            {err && <p className="text-label text-sale mb-3">{err}</p>}
 
             <button
               type="submit"
               disabled={busy}
-              className="w-full h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="press w-full h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Send className="w-4.5 h-4.5" /> {busy ? t.orderSending : t.orderSubmit}
             </button>
           </form>
         )}
       </div>
-    </div>
+    </Modal>
   );
 };
 

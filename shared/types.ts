@@ -22,6 +22,10 @@ export interface ApiProduct {
   brandId: string | null;
   slug: string | null;
   minPriceUzs: number;
+  /** Yulduzcha o'rtachasi 0–5; baholanmagan bo'lsa `null`. Admin qo'lda kiritadi. */
+  ratingAvg: number | null;
+  /** Sharhlar soni; 0 = hali sharh yo'q. */
+  reviewCount: number;
 }
 
 export interface ApiSettings {

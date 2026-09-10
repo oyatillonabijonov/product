@@ -23,7 +23,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
     if (input instanceof Response) return input;
     if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
     const update = env.DB.prepare(
-      `UPDATE products SET name=?, category=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, old_price_uzs=?, description=?, brand_id=?, slug=? WHERE id=?`,
+      `UPDATE products SET name=?, category=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, old_price_uzs=?, description=?, brand_id=?, slug=?, rating_avg=?, review_count=? WHERE id=?`,
     ).bind(
       input.name,
       input.category,
@@ -38,6 +38,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       input.description,
       input.brandId,
       input.slug,
+      input.ratingAvg,
+      input.reviewCount,
       id,
     );
     // Bitta atomik tranzaksiya: yozuv o'rtada uzilsa yarim yozilgan mahsulot qolmaydi.

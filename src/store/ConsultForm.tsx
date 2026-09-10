@@ -6,8 +6,8 @@ import { PILL, SECTION_HEADING } from './ui';
 import type { ApiSiteConfig } from '../../shared/types';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
 import { ymGoal } from '../lib/metrica';
+import { SPRING_UI } from '../lib/motion';
 
-const GLIDE = [0.16, 1, 0.3, 1] as const;
 
 /** Chip — bosilganda ichidagi doira to'ladi. Ko'p tanlash mumkin. */
 const Chip: FC<{ label: string; on: boolean; onToggle: () => void }> = ({ label, on, onToggle }) => (
@@ -16,7 +16,7 @@ const Chip: FC<{ label: string; on: boolean; onToggle: () => void }> = ({ label,
     role="checkbox"
     aria-checked={on}
     onClick={onToggle}
-    className={`inline-flex h-11 items-center gap-3 rounded-full border pl-3 pr-6 text-[15px] font-medium transition-colors duration-200 ${
+    className={`press inline-flex h-11 items-center gap-3 rounded-full border pl-3 pr-6 text-copy font-normal ${
       on ? 'border-primary bg-primary/[0.06] text-primary' : 'border-line text-body hover:border-muted-3'
     }`}
   >
@@ -81,36 +81,36 @@ const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config 
 
   // Chiziqli (underline) maydon — to'ldirilganda label tepaga chiqadi.
   const field = (bad: boolean) =>
-    `peer w-full border-0 border-b bg-transparent pb-3 pt-6 text-[17px] text-primary outline-none transition-colors placeholder:text-transparent ${
+    `peer w-full border-0 border-b bg-transparent pb-3 pt-6 text-copy text-primary outline-none transition-colors placeholder:text-transparent ${
       bad ? 'border-danger' : 'border-line focus:border-primary'
     }`;
-  const label = 'pointer-events-none absolute left-0 top-6 text-[17px] text-muted-2 transition-all duration-200 peer-focus:top-0 peer-focus:text-[14px] peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-[14px]';
+  const label = 'pointer-events-none absolute left-0 top-6 text-copy text-muted-2 transition-all duration-200 peer-focus:top-0 peer-focus:text-label peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-label';
 
   if (done) {
     return (
-      <section id="konsultatsiya" className="scroll-mt-24 rounded-[24px] bg-surface px-6 py-16 text-center md:px-10 md:py-24">
+      <section id="konsultatsiya" className="rounded-xl scroll-mt-24 bg-surface px-6 py-16 text-center md:px-10 md:py-24">
         <motion.div
           initial={{ opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: GLIDE }}
+          transition={SPRING_UI}
           className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-bg"
         >
           <Check className="h-7 w-7" strokeWidth={2.5} />
         </motion.div>
-        <h2 className="mt-6 text-[24px] md:text-[32px] font-semibold tracking-[-0.02em]">{t.consultDoneTitle}</h2>
-        <p className="mx-auto mt-3 max-w-[46ch] text-[15px] leading-relaxed text-muted">{t.consultDoneText}</p>
+        <h2 className="mt-6 text-subhead md:text-heading font-semibold">{t.consultDoneTitle}</h2>
+        <p className="mx-auto mt-3 max-w-[46ch] text-para leading-relaxed text-muted">{t.consultDoneText}</p>
       </section>
     );
   }
 
   return (
-    <section id="konsultatsiya" className="scroll-mt-24 overflow-hidden rounded-[24px] bg-surface">
+    <section id="konsultatsiya" className="rounded-xl scroll-mt-24 overflow-hidden bg-surface">
       <div className="grid gap-10 px-6 py-10 md:px-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:gap-16">
         <div>
           <h2 className={SECTION_HEADING}>
             {t.consultTitle}
           </h2>
-          <p className="mt-4 max-w-[52ch] text-[15px] md:text-[16px] leading-relaxed text-muted text-pretty">
+          <p className="mt-4 max-w-[52ch] text-para md:text-control leading-relaxed text-muted text-pretty">
             {t.consultLead}
           </p>
           <div className="mt-8 flex flex-wrap gap-2.5">
@@ -160,7 +160,7 @@ const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config 
             className="absolute h-0 w-0 opacity-0"
           />
 
-          {err && <p className="mt-4 text-[14px] text-danger">{err}</p>}
+          {err && <p className="mt-4 text-label text-danger">{err}</p>}
 
           <button
             type="submit"

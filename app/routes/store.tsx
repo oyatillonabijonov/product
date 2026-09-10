@@ -54,7 +54,7 @@ export function ErrorBoundary() {
   const notFound = isRouteErrorResponse(error) && error.status === 404;
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center px-4">
-      <h1 className="text-[40px] font-semibold">{notFound ? '404' : t.errorGeneric.split('.')[0]}</h1>
+      <h1 className="text-title font-semibold">{notFound ? '404' : t.errorGeneric.split('.')[0]}</h1>
       <p className="text-muted">{notFound ? t.notFoundTitle : t.errorGeneric}</p>
       <a href={localizedPath(locale, '/')} className="px-6 py-3 bg-accent text-bg font-semibold rounded-full">
         {t.backHome}
