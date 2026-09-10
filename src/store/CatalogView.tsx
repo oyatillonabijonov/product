@@ -68,20 +68,32 @@ const CatalogView: FC<{
 
   return (
     <div className="shell py-6 md:py-10">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <div className="flex items-baseline gap-3">
-          <h1 className="text-heading md:text-title font-semibold">{title}</h1>
-          <span className="text-label text-muted-2">{result.total} {t.resultsCount}</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => setSheetOpen(true)} className="press lg:hidden inline-flex h-11 items-center gap-2 border border-line rounded-full px-4 text-copy font-normal">
-            <SlidersHorizontal className="w-4 h-4" /> {t.filterTitle}{active > 0 ? ` · ${active}` : ''}
-          </button>
-          <SortSelect t={t} value={filters.sort} onChange={(v: SortKey) => update({ sort: v })} />
-        </div>
-      </div>
+      {/* Sarlavha o'z qatorida turadi. Natija soni esa boshqaruvlar qatorida:
+          u filtr va saralash natijasi, sarlavhaning bo'lagi emas. Ilgari 14px
+          son 44px sarlavha bilan bitta baseline'da turib, unga yopishib
+          qolgandek ko'rinardi. Hairline keng ekranda chap va o'ng chekka
+          orasidagi bo'sh oraliqni bog'lab turadi. */}
+      <header className="mb-8 md:mb-10">
+        <h1 className="text-heading md:text-title font-semibold text-primary">{title}</h1>
 
-      <div className="mb-4"><ActiveFilterChips t={t} filters={hideBrands ? { ...filters, brands: [] } : filters} brands={brands} onRemove={removeChip} /></div>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-divider pt-4">
+          <span className="text-para tabular-nums text-muted">{result.total} {t.resultsCount}</span>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSheetOpen(true)} className="press lg:hidden inline-flex h-11 items-center gap-2 rounded-full border border-line px-4 text-copy font-normal">
+              <SlidersHorizontal className="h-4 w-4" /> {t.filterTitle}{active > 0 ? ` · ${active}` : ''}
+            </button>
+            <SortSelect t={t} value={filters.sort} onChange={(v: SortKey) => update({ sort: v })} />
+          </div>
+        </div>
+
+        {/* `active > 0` chip'lar bor degani — komponentning o'zi bo'sh bo'lsa
+            `null` qaytaradi, shuning uchun shartsiz o'ram bo'sh joy qoldirardi. */}
+        {active > 0 && (
+          <div className="mt-4">
+            <ActiveFilterChips t={t} filters={hideBrands ? { ...filters, brands: [] } : filters} brands={brands} onRemove={removeChip} />
+          </div>
+        )}
+      </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
         <aside className="hidden lg:block">{panel}</aside>
