@@ -1,5 +1,5 @@
 import type { Env } from '../../functions/env';
-import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiPage, ApiPost, ApiSiteConfig, LocalizedText } from '../../shared/types';
+import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiPage, ApiPost, ApiReview, ApiSiteConfig, LocalizedText } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
 import {
   installmentConfig as fallbackConfig,
@@ -135,6 +135,23 @@ export async function loadProductDetail(env: Env, id: string): Promise<ProductDe
       ...p, oldPriceUzs: p.oldPriceUzs ?? null, description: p.description ?? null, images: p.image ? [p.image, ...(p.gallery ?? [])] : (p.gallery ?? []), specs: p.specs ?? [],
       brand: null, options: [], variants: [],
     };
+  }
+}
+
+/**
+ * Mahsulot sharhlari — eng yangisi birinchi. Jadval bo'lmasa (eski baza) yoki
+ * so'rov yiqilsa bo'sh ro'yxat: sharhlar sahifani bloklamaydi.
+ */
+export async function loadReviews(env: Env, productId: string): Promise<ApiReview[]> {
+  try {
+    const { results } = await env.DB
+      .prepare('SELECT id, author, rating, body, created_at FROM product_reviews WHERE product_id = ? ORDER BY created_at DESC LIMIT 50')
+      .bind(productId)
+      .all<{ id: string; author: string; rating: number; body: string; created_at: number }>();
+    return results.map((r) => ({ id: r.id, author: r.author, rating: r.rating, body: r.body, createdAt: r.created_at }));
+  } catch (err) {
+    console.error('loadReviews fallback:', err);
+    return [];
   }
 }
 

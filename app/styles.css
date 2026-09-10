@@ -89,6 +89,7 @@
   --color-segment: #E4E7EC;
   --color-trust-soft: #EDEFF2;
   --color-danger: #E30000;
+  --color-new: #B64400;  /* Apple'ning "New" yorlig'i — faqat yangi mahsulot yozuvi */
   --color-cta: #0071E3; /* Apple "Buy" CTA ko'k — faqat naqd xarid tugmasi */
   --color-cta-hover: #0077ED;
 }
@@ -128,6 +129,7 @@
   --color-segment: #2A2D30;
   --color-sale: #FF5C67;
   --color-danger: #FF6B6B;
+  --color-new: #FF8A50;
   --color-cta: #0071E3;
   --color-cta-hover: #0A84FF;
   background-color: var(--color-bg);

@@ -28,6 +28,16 @@ export interface ApiProduct {
   reviewCount: number;
 }
 
+export interface ApiReview {
+  id: string;
+  author: string;
+  /** 1..5 */
+  rating: number;
+  body: string;
+  /** unix sekund */
+  createdAt: number;
+}
+
 export interface ApiSettings {
   downPaymentPercent: number;
   downPaymentMaxPercent: number;

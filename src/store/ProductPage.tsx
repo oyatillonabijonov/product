@@ -3,17 +3,19 @@ import type { FC } from 'react';
 import { ShieldCheck, ChevronRight, Truck, ShoppingCart, MessageCircle, Wallet } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
-import type { ApiSiteConfig } from '../../shared/types';
+import type { ApiReview, ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import { calcInstallment, discountPercent, formatUzs } from '../lib/installment';
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, valuePrice, type VariantSelection } from '../lib/variants';
 import { safeHref } from '../lib/safe-href';
 import { useCart } from './CartContext';
+import Expandable from './Expandable';
 import Gallery from './Gallery';
 import FavoriteButton from './FavoriteButton';
 import LocaleLink from './LocaleLink';
 import OrderForm, { type OrderDraft } from './OrderForm';
 import ProductGrid from './ProductGrid';
+import Reviews from './Reviews';
 import SetupBand from './SetupBand';
 import Stars from './Stars';
 import TermSegments from './TermSegments';
@@ -37,10 +39,11 @@ const InfoRow: FC<{ icon: FC<{ className?: string }>; label: string; value: stri
 );
 
 const ProductPage: FC<{
-  t: Translation; product: ProductDetail; config: InstallmentConfig; similar: Product[]; site: ApiSiteConfig;
+  t: Translation; product: ProductDetail; config: InstallmentConfig;
+  similar: Product[]; reviews: ApiReview[]; site: ApiSiteConfig;
   /** Ko'rinadigan breadcrumb JSON-LD BreadcrumbList bilan mos bo'lishi uchun. */
   categoryName?: string | null;
-}> = ({ t, product, config, similar, site, categoryName }) => {
+}> = ({ t, product, config, similar, reviews, site, categoryName }) => {
   // Default — sozlamalardagi eng uzun muddat (qattiq 12 emas: admin muddatlarni o'zgartirsa
   // tanlanmagan segment + noto'g'ri yorliq chiqib qolardi).
   const [months, setMonths] = useState(() => config.terms[config.terms.length - 1]?.months ?? 12);
@@ -105,6 +108,7 @@ const ProductPage: FC<{
   }
 
   const helpHref = safeHref(site.telegram) ?? (site.phone ? `tel:${site.phone}` : null);
+  const isNew = product.condition === 'yangi';
 
   return (
     <div className="shell py-6 md:py-10">
@@ -122,9 +126,10 @@ const ProductPage: FC<{
         <span className="max-w-[220px] truncate text-primary">{product.name}</span>
       </nav>
 
-      {/* Rasm kattaroq ustunni oladi. Sticky ishlatilmaydi: ustunlar uzunligi
-          mahsulotga qarab har xil (variant + kalkulyator bor-yo'qligi), shuning uchun
-          biri qotib qolsa ikkinchisi yonidan sirg'alib o'tgandek ko'rinardi. */}
+      {/* Yuqori blok: chapda rasm, o'ngda xarid ustuni. Ketma-ketlik har bir
+          mahsulotda bir xil — yorliq · nom · sharh · narx · versiyalar ·
+          yetkazish/kafolat · tugmalar. Mijoz bir marta o'rgansa, keyingi
+          mahsulotda ham xuddi shu joyda topadi. */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-7">
           <Gallery key={variant?.id ?? 'base'} images={galleryImages} name={product.name} />
@@ -134,13 +139,12 @@ const ProductPage: FC<{
           <div>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                {/* Badge faqat istisno holatda — "Yangi" axborot bermaydi. */}
-                {product.condition !== 'yangi' && (
-                  <span className="mb-3 inline-flex rounded-full bg-trust-soft px-2.5 py-1 text-label font-semibold text-trust">
-                    {t.badgeUsed}
-                  </span>
-                )}
-                <h1 className="text-heading md:text-title font-semibold text-primary">{product.name}</h1>
+                {/* Apple uslubidagi matn-yorliq: pill emas, sarlavha ustidagi
+                    kichik qalin yozuv. Yangi — to'q sariq, ishlatilgan — neytral. */}
+                <div className={`text-label font-semibold ${isNew ? 'text-new' : 'text-trust'}`}>
+                  {isNew ? t.badgeNew : t.badgeUsed}
+                </div>
+                <h1 className="mt-1.5 text-heading md:text-title font-semibold text-balance text-primary">{product.name}</h1>
                 <Stars t={t} rating={product.ratingAvg} count={product.reviewCount ?? 0} />
               </div>
               <FavoriteButton
@@ -167,7 +171,7 @@ const ProductPage: FC<{
             )}
           </div>
 
-          {/* Konfigurator — har bir qiymat o'z narxi bilan, bosishdan oldin ko'rinadi. */}
+          {/* Versiyalar (xotira, rang, …) — har bir qiymat o'z narxi bilan. */}
           {product.options.length > 0 && selection && product.options.map((o) => (
             <section key={o.id} className="flex flex-col gap-3">
               <SectionTitle name={o.name} prompt={t.optionPrompt} />
@@ -249,20 +253,6 @@ const ProductPage: FC<{
             </section>
           )}
 
-          {product.specs.length > 0 && (
-            <section className="flex flex-col gap-3">
-              <SectionTitle name={t.specsTitle} prompt={t.specsPrompt} />
-              <dl className="rounded-sm border border-line bg-surface">
-                {product.specs.map((s, i) => (
-                  <div key={i} className={`flex gap-4 px-5 py-3.5 text-para ${i > 0 ? 'border-t border-divider' : ''}`}>
-                    <dt className="w-2/5 shrink-0 text-muted">{s.label}</dt>
-                    <dd className="min-w-0 font-medium text-primary">{s.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-          )}
-
           <div className="flex flex-col gap-4">
             <InfoRow icon={Truck} label={t.svcDeliveryTitle} value={`${t.svcDeliveryFact} · ${t.feature3}`} />
             <InfoRow icon={ShieldCheck} label={t.svcWarrantyTitle} value={`${t.svcWarrantyFact} · ${t.feature2}`} />
@@ -304,30 +294,48 @@ const ProductPage: FC<{
 
       {draft && <OrderForm t={t} draft={draft} onClose={() => setDraft(null)} />}
 
-      {/* Tavsif va izoh — xarid qarorini qabul qilgandan keyin o'qiladigan qism,
-          shuning uchun ikki ustunning ostida va o'qish uchun tor konteynerda. */}
-      {(product.description || product.conditionNote) && (
-        <div className="mt-14 max-w-[760px] border-t border-divider pt-10">
-          {product.description && (
-            <>
-              <h2 className="text-subhead font-semibold text-primary">{t.descTitle}</h2>
-              <p className="mt-3 whitespace-pre-line text-copy text-body">{product.description}</p>
-            </>
-          )}
-          {product.conditionNote && (
-            <>
-              <h2 className={`text-subhead font-semibold text-primary ${product.description ? 'mt-8' : ''}`}>{t.noteTitle}</h2>
-              <p className="mt-3 whitespace-pre-line text-copy text-body">{product.conditionNote}</p>
-            </>
-          )}
-        </div>
+      {/* Rasmdan pastda — xarid qarori qabul qilingandan keyin o'qiladigan qism:
+          xususiyatlar → tavsif → sharhlar → o'xshashlar → sozlash bo'limi. */}
+      {product.specs.length > 0 && (
+        <section className="mt-14 border-t border-divider pt-10">
+          <h2 className="text-subhead font-semibold text-primary">{t.specsTitle}</h2>
+          <dl className="mt-6 max-w-[860px]">
+            {product.specs.map((s, i) => (
+              <div key={i} className="flex flex-wrap gap-x-4 gap-y-1 border-t border-divider py-3.5 first:border-t-0 sm:flex-nowrap">
+                <dt className="w-full shrink-0 text-para text-muted sm:w-[280px]">{s.label}</dt>
+                <dd className="min-w-0 text-para font-medium text-primary">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       )}
 
+      {(product.description || product.conditionNote) && (
+        <section className="mt-14 border-t border-divider pt-10">
+          <h2 className="text-subhead font-semibold text-primary">{t.descTitle}</h2>
+          <div className="mt-6 max-w-[760px]">
+            <Expandable moreLabel={t.showMore} lessLabel={t.showLess}>
+              {product.description && (
+                <p className="whitespace-pre-line text-copy text-body">{product.description}</p>
+              )}
+              {product.conditionNote && (
+                <>
+                  <h3 className={`text-copy font-semibold text-primary ${product.description ? 'mt-6' : ''}`}>{t.noteTitle}</h3>
+                  <p className="mt-2 whitespace-pre-line text-copy text-body">{product.conditionNote}</p>
+                </>
+              )}
+            </Expandable>
+          </div>
+        </section>
+      )}
+
+      <Reviews t={t} reviews={reviews} ratingAvg={product.ratingAvg} reviewCount={product.reviewCount ?? 0} />
+
       {similar.length > 0 && (
-        <div className="mt-14">
-          <h2 className="mb-4 text-subhead font-semibold">{t.similarProducts}</h2>
+        <section className="mt-14 border-t border-divider pt-10">
+          <h2 className="mb-6 text-subhead font-semibold text-primary">{t.similarProducts}</h2>
           <ProductGrid t={t} items={similar} config={config} />
-        </div>
+        </section>
       )}
 
       {/* Faqat Apple yo'nalishida: bepul sozlash — shu yo'nalishning o'ziga xos

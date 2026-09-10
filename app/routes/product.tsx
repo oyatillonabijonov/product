@@ -2,7 +2,7 @@ import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/product';
 import { resolveLocale, localizedPath, localeToLang, categoryLabel } from '../lib/i18n';
 import { pageTitle, storeConfigFrom, productJsonLd, breadcrumbJsonLd, ogMeta } from '../lib/seo';
-import { loadProductDetail, loadConfig, loadProductsBy, loadCategories } from '../lib/loaders';
+import { loadProductDetail, loadConfig, loadProductsBy, loadCategories, loadReviews } from '../lib/loaders';
 import { fallbackCategoryOf } from '../../src/data/products';
 import { translations } from '../../src/locales';
 import { firstParagraph } from '../../src/lib/markdown';
@@ -13,8 +13,9 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.env;
-  const [product, config, categories] = await Promise.all([
+  const [product, config, categories, reviews] = await Promise.all([
     loadProductDetail(env, params.id as string), loadConfig(env), loadCategories(env),
+    loadReviews(env, params.id as string),
   ]);
   if (!product) throw new Response('Not Found', { status: 404 });
   const categoryId = product.categoryId ?? fallbackCategoryOf(product);
@@ -25,7 +26,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     : [];
   const category = categories.find((c) => c.id === product.categoryId);
   const categoryName = category ? categoryLabel(category, locale) : null;
-  return { product, config, similar, locale, categoryName, origin: new URL(request.url).origin };
+  return { product, config, similar, reviews, locale, categoryName, origin: new URL(request.url).origin };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
@@ -60,7 +61,7 @@ export function meta({ data, matches }: Route.MetaArgs) {
 }
 
 export default function ProductRoute() {
-  const { product, config, similar, categoryName } = useLoaderData<typeof loader>();
+  const { product, config, similar, reviews, categoryName } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
-  return <ProductPage key={product.id} t={ctx.t} product={product} config={config} similar={similar} site={ctx.config} categoryName={categoryName} />;
+  return <ProductPage key={product.id} t={ctx.t} product={product} config={config} similar={similar} reviews={reviews} site={ctx.config} categoryName={categoryName} />;
 }
