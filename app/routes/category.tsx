@@ -52,9 +52,12 @@ export default function CategoryRoute() {
   return (
     <>
       {cover && <CategoryCover {...cover} t={ctx.t} />}
+      {/* Sarlavha davomi har bir yo'nalishda bir xil — bu do'konning va'dasi,
+          yo'nalishning ta'rifi emas; shuning uchun `HERO_COLUMNS`da emas,
+          `locales.ts`da turadi (ru tarjimasi bilan). */}
       <CatalogView
         t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters}
-        subtitle={isOwnColumn ? col.subtitle : undefined}
+        subtitle={isOwnColumn ? ctx.t.proTitle : undefined}
         lede={localeField(category.coverLede, category.coverLedeRu, ctx.locale) || (isOwnColumn ? col.lede : undefined)}
       />
       {category.id === 'pc' && (
