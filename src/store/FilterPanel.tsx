@@ -16,8 +16,13 @@ const Heading: FC<{ title: string; note?: string }> = ({ title, note }) => (
 
 // Native input `sr-only` (klaviatura/skrinrider qoladi), ko'rinadigan qism `group-has-checked` bilan bo'yaladi —
 // dark rejimda brauzerning oq checkbox'i og'ir ko'rinardi.
-const ROW = 'group relative flex h-9 cursor-pointer items-center gap-2.5 -mx-2 px-2 text-label text-primary transition-colors hover:bg-row-alt has-checked:bg-row-alt';
+// Balandlik ikki xil: mobil varaqda 44px (tegish maydonining pastki chegarasi),
+// desktop yon panelda 36px — u yerda sichqoncha aniq va zichlik foydali.
+const ROW = 'group relative flex h-11 lg:h-9 cursor-pointer items-center gap-2.5 -mx-2 px-2 text-label text-primary transition-colors hover:bg-row-alt has-checked:bg-row-alt';
 const BOX = 'flex h-[18px] w-[18px] shrink-0 items-center justify-center border border-line-2 bg-surface transition-colors group-has-checked:border-accent group-has-checked:bg-accent group-has-focus-visible:ring-2 group-has-focus-visible:ring-accent/40';
+// Radio — dumaloq, checkbox esa kvadrat: shakl bittasini tanlash bilan bir nechtasini
+// tanlashni ajratib turadi (yorliqni o'qimasdan ham ko'rinadi).
+const DOT = 'flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface transition-colors group-has-checked:border-accent group-has-focus-visible:ring-2 group-has-focus-visible:ring-accent/40';
 const SECTION = 'border-t border-divider py-5 first:border-t-0 first:pt-0';
 
 const FilterPanel: FC<{
@@ -105,16 +110,21 @@ const FilterPanel: FC<{
 
       <section className={SECTION}>
         <Heading title={t.filterCondition} />
-        {/* TermSegments bilan bir xil segment-kontrol; radio inputlar sr-only. */}
-        <div className="grid grid-cols-3 gap-1 rounded-full bg-segment p-1">
+        {/* Ilgari bu uchta teng bo'lakli segment-kontrol edi. 240px enli panelda
+            "Ishlatilgan" o'z bo'lagiga zo'rg'a sig'ar, "Yangi" esa bo'sh joyda
+            suzib turardi — uchala yorliq uzunligi har xil bo'lgani uchun teng
+            bo'lish ishlamaydi. Endi u tepasidagi brendlar ro'yxati bilan bir xil
+            qator idiomasi: to'liq enli, bosish maydoni butun qator. */}
+        <div className="flex flex-col">
           {([null, 'yangi', 'ishlatilgan'] as const).map((c) => {
             const label = c === null ? t.filterAll : c === 'yangi' ? t.badgeNew : t.badgeUsed;
             return (
-              <label key={c ?? 'all'} className="group relative cursor-pointer">
+              <label key={c ?? 'all'} className={ROW}>
                 <input type="radio" name="holat" className="sr-only" aria-label={label} checked={filters.condition === c} onChange={() => onChange({ condition: c })} />
-                <span className="flex h-9 items-center justify-center rounded-full text-label font-medium text-muted transition-colors group-hover:text-primary group-has-checked:bg-surface group-has-checked:text-primary group-has-focus-visible:ring-2 group-has-focus-visible:ring-accent/40">
-                  {label}
+                <span aria-hidden className={DOT}>
+                  <span className="h-2 w-2 rounded-full bg-accent opacity-0 transition-opacity group-has-checked:opacity-100" />
                 </span>
+                <span className="flex-1 truncate">{label}</span>
               </label>
             );
           })}
