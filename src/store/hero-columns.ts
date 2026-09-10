@@ -11,10 +11,14 @@ export interface HeroColumn {
   key: string;
   /** Kartadagi sarlavha; `\n` qatorga bo'ladi (whitespace-pre-line). */
   label: string;
-  /** Cover'dagi nom ustidagi kichik satr. */
-  tag: string;
+  /**
+   * Kategoriya sahifasidagi `h1`da nom ortidan keladigan davomi — "PC" o'zi
+   * sahifa haqida hech nima aytmaydi, "PC — Personal Computers" aytadi.
+   */
+  subtitle: string;
 /** Cover shu kategoriyada ko'rsatiladi (yo'nalish id'si). */
   primary: string;
+  /** `h1` ostidagi izoh — yo'nalish nimani qamrashini bir gapda aytadi. */
   lede: string;
   img: string;
   /**
@@ -38,7 +42,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
   {
     key: 'apple',
     label: 'Apple',
-    tag: 'Mac · iPhone · iPad',
+    subtitle: 'Mac · iPhone · iPad',
     lede: "Rasmiy Apple texnikasi — konfiguratsiya tanlash, ma'lumot ko'chirish va servis ko'magi bilan.",
     img: appleImg,
     videos: [appleVideo1, appleVideo2],
@@ -49,7 +53,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
   {
     key: 'pc',
     label: 'Personal\nComputers',
-    tag: 'Workstation · Gaming',
+    subtitle: 'Personal Computers',
     lede: "Windows segmentidagi noutbuk va yig'ma kompyuterlar — ish vazifasiga qarab hisoblab beriladi.",
     img: pcImg,
     primary: 'pc',
@@ -58,7 +62,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
   {
     key: 'audio',
     label: 'Audio',
-    tag: 'Studiya · Sahna',
+    subtitle: 'Studiya · Sahna',
     lede: "Interfeys, mikrofon, monitor va akustika — studiya to'liq jihozlanadi.",
     img: audioImg,
     primary: 'audio',
@@ -67,7 +71,7 @@ export const HERO_COLUMNS: HeroColumn[] = [
   {
     key: 'video',
     label: 'Video',
-    tag: 'Kamera · Optika',
+    subtitle: 'Kamera · Optika',
     lede: "Kamera, optika, yorug'lik va post-produksiya uchun to'liq to'plam.",
     img: videoImg,
     primary: 'video',

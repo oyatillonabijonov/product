@@ -22,7 +22,11 @@ const CatalogView: FC<{
   brands: ApiBrand[];
   filters: CatalogFilters;
   hideBrands?: boolean;
-}> = ({ t, title, result, config, brands, filters, hideBrands }) => {
+  /** `h1`da nom ortidan keladigan och rangli davomi ("PC — Personal Computers"). */
+  subtitle?: string;
+  /** `h1` ostidagi izoh — yo'nalish nimani qamrashi. */
+  lede?: string;
+}> = ({ t, title, result, config, brands, filters, hideBrands, subtitle, lede }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -74,7 +78,14 @@ const CatalogView: FC<{
           qolgandek ko'rinardi. Hairline keng ekranda chap va o'ng chekka
           orasidagi bo'sh oraliqni bog'lab turadi. */}
       <header className="mb-8 md:mb-10">
-        <h1 className="text-heading md:text-title font-semibold text-primary">{title}</h1>
+        {/* Qalin nom + och rangli davomi — mahsulot sahifasidagi bo'lim
+            sarlavhalari bilan bir naqsh. "PC" o'zi sahifa haqida hech nima
+            aytmaydi, izoh esa uni yo'nalishga bog'laydi. */}
+        <h1 className="text-heading md:text-title font-semibold text-balance text-primary">
+          {title}
+          {subtitle && <span className="font-normal text-muted-2"> — {subtitle}</span>}
+        </h1>
+        {lede && <p className="mt-3 max-w-[60ch] text-copy text-pretty text-muted">{lede}</p>}
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-divider pt-4">
           <span className="text-para tabular-nums text-muted">{result.total} {t.resultsCount}</span>
