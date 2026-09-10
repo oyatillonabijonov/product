@@ -122,10 +122,11 @@ const ProductPage: FC<{
         <span className="max-w-[220px] truncate text-primary">{product.name}</span>
       </nav>
 
-      {/* Rasm kattaroq ustunni oladi va yopishib turadi; o'ng ustun (konfigurator,
-          xususiyatlar, xarid) uning yonida suriladi — apple.com xarid sahifasi kabi. */}
+      {/* Rasm kattaroq ustunni oladi. Sticky ishlatilmaydi: ustunlar uzunligi
+          mahsulotga qarab har xil (variant + kalkulyator bor-yo'qligi), shuning uchun
+          biri qotib qolsa ikkinchisi yonidan sirg'alib o'tgandek ko'rinardi. */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
-        <div className="lg:col-span-7 lg:sticky lg:top-24 lg:self-start">
+        <div className="lg:col-span-7">
           <Gallery key={variant?.id ?? 'base'} images={galleryImages} name={product.name} />
         </div>
 
