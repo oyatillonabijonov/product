@@ -14,17 +14,25 @@ const STARS = [0, 1, 2, 3, 4];
  *
  * Rang — palitra tokenlari (oltin emas): to'lgan yulduzcha `primary`, bo'shi
  * `disabled`. Ikkala temada ham o'zi to'g'ri ranglanadi.
+ *
+ * `compact` — kartada. U yerda joy tor (5 ustunli to'rda karta 173px gacha
+ * tushadi), shuning uchun to'liq yorliq o'rniga faqat son ko'rsatiladi, sharh
+ * yo'q bo'lsa esa bo'sh yulduzchalarning o'zi yetarli. To'liq matn baribir
+ * `aria-label`da qoladi — screen reader hech narsa yo'qotmaydi.
  */
-const Stars: FC<{ t: Translation; rating: number | null | undefined; count: number }> = ({ t, rating, count }) => {
+const Stars: FC<{ t: Translation; rating: number | null | undefined; count: number; compact?: boolean }> = ({
+  t, rating, count, compact,
+}) => {
   const pct = starFillPercent(rating);
-  const label = count > 0
+  const full = count > 0
     ? [t.reviewsOne, t.reviewsFew, t.reviewsMany][ruPluralIndex(count)].replace('{n}', String(count))
     : t.reviewsNone;
+  const shown = compact ? (count > 0 ? `(${count})` : null) : full;
 
   return (
     <div
       className="mt-1.5 flex items-center gap-1.5"
-      aria-label={count > 0 && pct > 0 ? `${rating} / 5 — ${label}` : label}
+      aria-label={count > 0 && pct > 0 ? `${rating} / 5 — ${full}` : full}
     >
       <span className="relative inline-flex shrink-0" aria-hidden>
         <span className="flex gap-px text-disabled">
@@ -37,7 +45,7 @@ const Stars: FC<{ t: Translation; rating: number | null | undefined; count: numb
           {STARS.map((i) => <Star key={i} className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} fill="currentColor" />)}
         </span>
       </span>
-      <span className="truncate text-label text-muted-2">{label}</span>
+      {shown && <span aria-hidden className="truncate text-label text-muted-2 tabular-nums">{shown}</span>}
     </div>
   );
 };

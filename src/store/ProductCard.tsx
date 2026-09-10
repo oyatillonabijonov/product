@@ -96,7 +96,7 @@ const ProductCard: FC<{
           {product.name}
         </LocaleLink>
 
-        <Stars t={t} rating={product.ratingAvg} count={product.reviewCount ?? 0} />
+        <Stars t={t} rating={product.ratingAvg} count={product.reviewCount ?? 0} compact />
 
         {/* Hamma qator chapdan bir tekis (chip/inset yo'q); oylik doim muddati bilan: "X so'm × 12 oy". */}
         <div className="mt-auto pt-3">
