@@ -119,7 +119,7 @@ export default function Header({
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b transition-colors duration-300 ${
+      className={`sticky top-0 z-40 bg-bg border-b transition-colors duration-300 ${
         scrolled ? 'border-line-2' : 'border-transparent'
       }`}
     >
