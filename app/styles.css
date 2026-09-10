@@ -186,6 +186,37 @@ body {
   color: #121417;
 }
 
+/* ── Sahifa konteyneri ──────────────────────────────────────────────────────
+   Header, footer, kontent va kategoriya cover'i — hammasi shu bitta klassdan
+   foydalanadi. Ilgari `max-w-[1440px] mx-auto px-4` har joyda qaytarilardi va
+   cover o'z `mx-[14px]`si bilan boshqa chiziqda turardi: keng ekranda banner
+   deyarli chetgacha cho'zilib, kontent esa 280px ichkarida qolardi.
+   Kenglik shu yerda o'zgartiriladi — boshqa hech qayerda emas. */
+:root {
+  --shell-max: 1760px;
+  --shell-pad: 1rem;
+}
+@media (min-width: 768px) {
+  :root { --shell-pad: 1.5rem; }
+}
+
+.shell {
+  width: 100%;
+  max-width: var(--shell-max);
+  margin-inline: auto;
+  padding-inline: var(--shell-pad);
+}
+
+/* Ichki emas, tashqi chetlari `shell` kontenti bilan tekislanadigan blok
+   (kategoriya cover'i kabi o'z foni va radiusi bor elementlar uchun) — shuning
+   uchun padding emas, kenglikning o'zi qisqartiriladi. Ikkalasi bitta
+   o'zgaruvchidan oziqlanadi, ya'ni ajralib keta olmaydi. */
+.shell-box {
+  width: calc(100% - var(--shell-pad) * 2);
+  max-width: calc(var(--shell-max) - var(--shell-pad) * 2);
+  margin-inline: auto;
+}
+
 /* ── Bosish javobi (§1 "Response") ──────────────────────────────────────────
    Apple qoidasi: javob barmoq tushganda beriladi, qo'yib yuborilganda emas.
    `:active` aynan pointer-down'da yonadi, `:hover` esa sensorli ekranda yo'q —

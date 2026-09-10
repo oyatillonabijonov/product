@@ -107,7 +107,7 @@ const ProductPage: FC<{
   const helpHref = safeHref(site.telegram) ?? (site.phone ? `tel:${site.phone}` : null);
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-6 md:py-10">
+    <div className="shell py-6 md:py-10">
       <nav aria-label="breadcrumb" className="mb-5 flex items-center gap-1 text-label text-muted-2">
         <LocaleLink to="/" className="hover:text-primary transition-colors">{t.breadcrumbHome}</LocaleLink>
         {categoryName && product.categoryId && (

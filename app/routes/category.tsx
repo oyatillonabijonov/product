@@ -50,7 +50,7 @@ export default function CategoryRoute() {
       {cover && <CategoryCover {...cover} title={title} total={result.total} t={ctx.t} />}
       <CatalogView t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters} hideTitle={!!cover} />
       {category.id === 'pc' && (
-        <div className="max-w-[1440px] mx-auto px-4 pb-14 md:pb-20">
+        <div className="shell pb-14 md:pb-20">
           <PcConfigurator t={ctx.t} />
         </div>
       )}

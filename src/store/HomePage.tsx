@@ -25,7 +25,7 @@ export default function HomePage({
       {/* Hero'da ko'rinadigan h1 yo'q (kartalar o'zi sarlavha) — ierarxiya uchun sr-only. */}
       <h1 className="sr-only">{`${site.name} — ${t.proTitle}`}</h1>
       <HeroColumns categories={categories} />
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-16 px-4 py-14 md:gap-24 md:py-20">
+      <div className="shell flex flex-col gap-16 py-14 md:gap-24 md:py-20">
         <ServiceCards t={t} />
         <BlogSection title={t.blogTitle} allLabel={t.blogAll} posts={posts} locale={locale} />
         <BrandStrip title={t.homeBrands} />

@@ -15,9 +15,12 @@ export default function CategoryCover({ img, tag, lede, title, total, t }: {
   const imgY = useTransform(scrollYProgress, [0, 1], reduced ? ['0%', '0%'] : ['0%', '12%']);
 
   return (
+    // `shell-box` — chetlari `shell` kontentining chetlari bilan aynan bir
+    // chiziqda turadigan blok. Ilgari cover'da o'zining `mx-[14px]`si bor edi va
+    // keng ekranda banner kontentdan ancha kengroq bo'lib ko'rinardi.
     <div
       ref={ref}
-      className="rounded-xl relative mx-[14px] mt-[14px] h-[min(76vh,700px)] overflow-hidden bg-black"
+      className="rounded-xl shell-box relative mt-4 h-[min(76vh,700px)] overflow-hidden bg-black"
     >
       <motion.img
         src={img}

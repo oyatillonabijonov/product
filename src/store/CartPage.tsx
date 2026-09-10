@@ -40,7 +40,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
 
   if (items.length === 0) {
     return (
-      <div className="max-w-[1440px] mx-auto px-4 py-16 flex flex-col items-center gap-4 text-center">
+      <div className="shell py-16 flex flex-col items-center gap-4 text-center">
         <ShoppingCart className="w-12 h-12 text-disabled" />
         <h1 className="text-subhead font-semibold">{t.cartEmpty}</h1>
         <LocaleLink to="/katalog" className="press inline-flex h-[52px] items-center justify-center rounded-full bg-accent px-7 font-semibold text-bg">
@@ -51,7 +51,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
   }
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 py-6 md:py-10">
+    <div className="shell py-6 md:py-10">
       <div className="flex items-baseline gap-3 mb-6">
         <h1 className="text-heading md:text-title font-semibold">{t.cartTitle}</h1>
         <span className="text-label text-muted-2">{count} {t.cartItemsCount}</span>

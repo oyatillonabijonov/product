@@ -53,7 +53,7 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
   const info = pageLinks.map((p) => ({ to: `/page/${p.slug}`, label: p.title[textKey] }));
   return (
     <footer className="mt-auto w-full border-t border-line bg-surface-2">
-      <div className="mx-auto w-full max-w-[1440px] px-4 py-16 md:py-20">
+      <div className="shell py-16 md:py-20">
         {/* Xarita — to'liq enli past tasma. Yandex vidjeti o'z boshqaruvlarini
             ko'rsatadi, shuning uchun balandligi ataylab past: u footer'ni
             egallamaydi, manzil esa pastdagi ustunda matn bo'lib turadi. */}

@@ -28,7 +28,7 @@ export function meta({ data, matches }: Route.MetaArgs) {
 export default function BlogRoute() {
   const { posts, locale } = useLoaderData<typeof loader>();
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-10 md:py-14">
+    <div className="shell py-10 md:py-14">
       <h1 className="mb-3 text-heading font-semibold text-primary md:text-title">Blog</h1>
       <p className="mb-9 max-w-[560px] text-control leading-relaxed text-muted">
         {locale === 'ru'
