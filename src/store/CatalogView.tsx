@@ -22,11 +22,9 @@ const CatalogView: FC<{
   brands: ApiBrand[];
   filters: CatalogFilters;
   hideBrands?: boolean;
-  /** `h1`da nom ortidan keladigan och rangli davomi ("PC — Personal Computers"). */
+  /** `h1`da nom ortidan keladigan och rangli davomi ("PC — Professional yondashuv"). */
   subtitle?: string;
-  /** `h1` ostidagi izoh — yo'nalish nimani qamrashi. */
-  lede?: string;
-}> = ({ t, title, result, config, brands, filters, hideBrands, subtitle, lede }) => {
+}> = ({ t, title, result, config, brands, filters, hideBrands, subtitle }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -85,7 +83,6 @@ const CatalogView: FC<{
           {title}
           {subtitle && <span className="font-normal text-muted-2"> — {subtitle}</span>}
         </h1>
-        {lede && <p className="mt-3 max-w-[60ch] text-copy text-pretty text-muted">{lede}</p>}
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-divider pt-4">
           <span className="text-para tabular-nums text-muted">{result.total} {t.resultsCount}</span>

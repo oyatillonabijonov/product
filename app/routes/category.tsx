@@ -1,6 +1,6 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/category';
-import { localeField, resolveLocale, categoryLabel } from '../lib/i18n';
+import { resolveLocale, categoryLabel } from '../lib/i18n';
 import { pageTitle, catalogMeta, storeConfigFrom } from '../lib/seo';
 import { parseCatalogFilters } from '../lib/catalog';
 import { queryProducts, loadConfig, loadCategories, loadBrands } from '../lib/loaders';
@@ -58,7 +58,6 @@ export default function CategoryRoute() {
       <CatalogView
         t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters}
         subtitle={isOwnColumn ? ctx.t.proTitle : undefined}
-        lede={localeField(category.coverLede, category.coverLedeRu, ctx.locale) || (isOwnColumn ? col.lede : undefined)}
       />
       {category.id === 'pc' && (
         <div className="shell pb-14 md:pb-20">
