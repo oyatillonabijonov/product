@@ -22,9 +22,7 @@ const CatalogView: FC<{
   brands: ApiBrand[];
   filters: CatalogFilters;
   hideBrands?: boolean;
-  /** Cover blok sarlavhani o'zi ko'rsatganda (kategoriya sahifasi) takrorlanmasin. */
-  hideTitle?: boolean;
-}> = ({ t, title, result, config, brands, filters, hideBrands, hideTitle }) => {
+}> = ({ t, title, result, config, brands, filters, hideBrands }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -72,7 +70,7 @@ const CatalogView: FC<{
     <div className="shell py-6 md:py-10">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div className="flex items-baseline gap-3">
-          {!hideTitle && <h1 className="text-heading md:text-title font-semibold">{title}</h1>}
+          <h1 className="text-heading md:text-title font-semibold">{title}</h1>
           <span className="text-label text-muted-2">{result.total} {t.resultsCount}</span>
         </div>
         <div className="flex items-center gap-3">

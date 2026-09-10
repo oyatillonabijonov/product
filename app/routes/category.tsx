@@ -1,6 +1,6 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/category';
-import { localeField, resolveLocale, categoryLabel } from '../lib/i18n';
+import { resolveLocale, categoryLabel } from '../lib/i18n';
 import { pageTitle, catalogMeta, storeConfigFrom } from '../lib/seo';
 import { parseCatalogFilters } from '../lib/catalog';
 import { queryProducts, loadConfig, loadCategories, loadBrands } from '../lib/loaders';
@@ -41,14 +41,18 @@ export default function CategoryRoute() {
   // ustuni, lekin faqat o'zinikida: HERO_COLUMNS landing uchun yasalgan, boshqa
   // kategoriyada uning rasmi ham, matni ham yolg'on gapiradi.
   const col = columnForCategory(category);
-  const own = category.coverUrl
-    ? { img: category.coverUrl, lede: localeField(category.coverLede, category.coverLedeRu, ctx.locale) }
-    : null;
-  const cover = own ?? (col && col.primary === category.id ? { img: col.img, tag: col.tag, lede: col.lede } : null);
+  const isOwnColumn = col !== null && col.primary === category.id;
+  const own = category.coverUrl ? { img: category.coverUrl } : null;
+  const base = own ?? (isOwnColumn ? { img: col.img } : null);
+  // Video — yo'nalishning o'z san'ati, shuning uchun admin rasmi bo'lsa ham u
+  // poster bo'lib qoladi, harakat esa videodan keladi.
+  const cover = base && isOwnColumn && col.videos
+    ? { ...base, videos: col.videos, poster: col.poster }
+    : base;
   return (
     <>
-      {cover && <CategoryCover {...cover} title={title} total={result.total} t={ctx.t} />}
-      <CatalogView t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters} hideTitle={!!cover} />
+      {cover && <CategoryCover {...cover} t={ctx.t} />}
+      <CatalogView t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters} />
       {category.id === 'pc' && (
         <div className="shell pb-14 md:pb-20">
           <PcConfigurator t={ctx.t} />
