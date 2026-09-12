@@ -155,7 +155,15 @@ const ProductPage: FC<{
               />
             </div>
 
-            <div className="mt-4 flex flex-wrap items-baseline gap-2.5">
+            {/* Narx ustidagi haqiqiylik yorlig'i — rasmiy import va kafolat
+                va'dasi xarid qarorining bir qismi, shuning uchun narxdan
+                oldin turadi. Rang `trust` tokeni: palitrada yashil o'rniga
+                neytral to'q rang tanlangan (`@theme` izohiga qarang). */}
+            <div className="mt-4 inline-flex items-center gap-1.5 text-label font-medium text-trust">
+              <ShieldCheck className="h-4 w-4" /> {t.badgeOriginal}
+            </div>
+
+            <div className="mt-1.5 flex flex-wrap items-baseline gap-2.5">
               <span className="text-subhead md:text-heading font-semibold tabular-nums text-primary">{formatUzs(displayCash, t.sum)}</span>
               {displayOld && disc !== null && (
                 <>
