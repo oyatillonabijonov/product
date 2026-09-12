@@ -90,6 +90,11 @@
   --color-trust-soft: #EDEFF2;
   --color-danger: #E30000;
   --color-new: #B64400;  /* Apple'ning "New" yorlig'i — faqat yangi mahsulot yozuvi */
+  /* "Original" belgisining yashili — faqat shu belgi uchun. Palitradagi yagona
+     yashil: `trust` neytral siyoh bo'lib qoladi. Qiymat WCAG AA'ga moslangan
+     (sahifa fonida 4.99, oq kartada 5.45) — referensdagi ochroq yashil 2.85
+     berardi, ya'ni 14px matn uchun yetarli emas. */
+  --color-verified: #0E7A36;
   --color-cta: #0071E3; /* Apple "Buy" CTA ko'k — faqat naqd xarid tugmasi */
   --color-cta-hover: #0077ED;
 }
@@ -130,6 +135,7 @@
   --color-sale: #FF5C67;
   --color-danger: #FF6B6B;
   --color-new: #FF8A50;
+  --color-verified: #3FD47A;
   --color-cta: #0071E3;
   --color-cta-hover: #0A84FF;
   background-color: var(--color-bg);

@@ -155,11 +155,10 @@ const ProductPage: FC<{
               />
             </div>
 
-            {/* Narx ustidagi haqiqiylik yorlig'i — rasmiy import va kafolat
+            {/* Narx ustidagi haqiqiylik belgisi — rasmiy import va kafolat
                 va'dasi xarid qarorining bir qismi, shuning uchun narxdan
-                oldin turadi. Rang `trust` tokeni: palitrada yashil o'rniga
-                neytral to'q rang tanlangan (`@theme` izohiga qarang). */}
-            <div className="mt-4 inline-flex items-center gap-1.5 text-label font-medium text-trust">
+                oldin turadi. `verified` — palitradagi yagona yashil. */}
+            <div className="mt-4 inline-flex items-center gap-1.5 text-label font-medium text-verified">
               <ShieldCheck className="h-4 w-4" /> {t.badgeOriginal}
             </div>
 
