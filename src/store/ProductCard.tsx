@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import type { FC } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShieldCheck, ShoppingCart } from 'lucide-react';
 import { useOutletContext } from 'react-router';
 import type { Translation } from '../locales';
 import type { InstallmentConfig, Product } from '../data/products';
@@ -100,6 +100,10 @@ const ProductCard: FC<{
 
         {/* Hamma qator chapdan bir tekis (chip/inset yo'q); oylik doim muddati bilan: "X so'm × 12 oy". */}
         <div className="mt-auto pt-3">
+          {/* Mahsulot sahifasidagi kabi — narx ustidagi haqiqiylik belgisi. */}
+          <div className="mb-1.5 inline-flex items-center gap-1 text-label font-medium text-verified">
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> {t.badgeOriginal}
+          </div>
           {pv.monthlyPrimary ? (
             <>
               <div className="text-copy md:text-lede font-semibold text-primary leading-tight tabular-nums">
