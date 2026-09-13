@@ -2,6 +2,7 @@ import express from 'express';
 import { createRequestHandler } from '@react-router/express';
 import type { ServerBuild } from 'react-router';
 import { createEnv } from './env.ts';
+import { createBillzSync } from './billz-sync.ts';
 
 /**
  * Ilova serveri — dev va production uchun bitta fayl.
@@ -14,6 +15,10 @@ import { createEnv } from './env.ts';
 const PORT = Number(process.env.PORT ?? 3000);
 const isProd = process.env.NODE_ENV === 'production';
 const env = createEnv();
+// Billz sinxronizatsiyasi — bitta runner: rejalashtirgich shu yerda, admin tugmasi
+// route orqali (`context.billz`). Token kiritilmagan bo'lsa tick'lar bo'sh o'tadi.
+const billz = createBillzSync(env);
+billz.start();
 
 const app = express();
 app.disable('x-powered-by');
@@ -47,7 +52,7 @@ if (isProd) {
   app.use(express.static('build/client', { maxAge: '1h', redirect: false, index: false }));
   // Build vaqtida yaratiladi — tsc uni ko'rmaydi, shu sabab tip aniqlanadi.
   const build = (await import('../build/server/index.js')) as unknown as ServerBuild;
-  app.use(createRequestHandler({ build, getLoadContext: () => ({ env }) }));
+  app.use(createRequestHandler({ build, getLoadContext: () => ({ env, billz }) }));
 } else {
   const vite = await import('vite');
   const devServer = await vite.createServer({ server: { middlewareMode: true } });
@@ -55,7 +60,7 @@ if (isProd) {
   app.use(
     createRequestHandler({
       build: () => devServer.ssrLoadModule('virtual:react-router/server-build') as Promise<ServerBuild>,
-      getLoadContext: () => ({ env }),
+      getLoadContext: () => ({ env, billz }),
     }),
   );
 }
