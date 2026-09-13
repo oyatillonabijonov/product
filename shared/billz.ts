@@ -1,4 +1,5 @@
-import { typeForBillzCategory } from './product-types';
+// `.ts` kengaytmasi — Node (server/) type-stripping rejimida kengaytmasiz import ishlamaydi.
+import { typeForBillzCategory } from './product-types.ts';
 
 /**
  * Billz (billz.io) — faqat o'qish. Bu fayl sof: tarmoq ham, baza ham yo'q,

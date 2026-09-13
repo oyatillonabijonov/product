@@ -2,8 +2,8 @@ import type { Env, SqlStatement } from '../shared/runtime';
 import {
   BILLZ_BASE, productsUrl, utcStamp, hiddenIds, mapBillzProduct,
   type BillzProductsPage, type BillzShop, type BillzSyncResult, type BillzSyncStatus, type MapContext, type MappedProduct,
-} from '../shared/billz';
-import { imagesStatements, specsStatements } from '../shared/product-statements';
+} from '../shared/billz.ts';
+import { imagesStatements, specsStatements } from '../shared/product-statements.ts';
 
 /**
  * Billz → sayt sinxronizatsiyasi (faqat o'qish: login + GET, boshqa hech narsa).
@@ -33,9 +33,12 @@ const PHOTO_PARALLEL = 4;
 
 interface Config { token: string; shopId: string; usdToUzs: number }
 
+// Node strip-only rejimi parametr-xususiyatni (`public code`) qo'llamaydi — maydon alohida.
 class BillzError extends Error {
-  constructor(public code: string, message?: string) {
+  code: string;
+  constructor(code: string, message?: string) {
     super(message ?? code);
+    this.code = code;
   }
 }
 
