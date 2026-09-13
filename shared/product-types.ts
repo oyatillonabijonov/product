@@ -13,32 +13,34 @@ export interface ProductType {
   id: string;
   label: string;
   labelRu: string;
+  /** Billz kategoriya nomlari (katta-kichik harfsiz) — sinxronizatsiya shu orqali turga tushadi. `label` ham mos keladi. */
+  billz?: string[];
 }
 
 export const PRODUCT_TYPES: Record<string, ProductType[]> = {
   apple: [
     { id: 'iphone', label: 'iPhone', labelRu: 'iPhone' },
-    { id: 'ipad', label: 'iPad', labelRu: 'iPad' },
-    { id: 'macbook', label: 'MacBook', labelRu: 'MacBook' },
+    { id: 'ipad', label: 'iPad', labelRu: 'iPad', billz: ['iPad Pro', 'iPad Air', 'iPad mini'] },
+    { id: 'macbook', label: 'MacBook', labelRu: 'MacBook', billz: ['MacBook Pro', 'MacBook Air'] },
     { id: 'imac', label: 'iMac', labelRu: 'iMac' },
-    { id: 'mac-mini', label: 'Mac mini', labelRu: 'Mac mini' },
-    { id: 'apple-watch', label: 'Apple Watch', labelRu: 'Apple Watch' },
-    { id: 'airpods', label: 'AirPods', labelRu: 'AirPods' },
-    { id: 'aksessuar', label: 'Aksessuar', labelRu: 'Аксессуары' },
+    { id: 'mac-mini', label: 'Mac mini', labelRu: 'Mac mini', billz: ['Mac Studio', 'Mac Pro'] },
+    { id: 'apple-watch', label: 'Apple Watch', labelRu: 'Apple Watch', billz: ['iWatch', 'Watch'] },
+    { id: 'airpods', label: 'AirPods', labelRu: 'AirPods', billz: ['Air Pods'] },
+    { id: 'aksessuar', label: 'Aksessuar', labelRu: 'Аксессуары', billz: ['Phone Case', 'Case', 'Cable', 'Glass', 'Charger', 'Adapter', 'Bag', 'Trackpad', 'Keyboard', 'Mouse', 'Magic Mouse', 'Magic Keyboard', 'Pencil', 'HUB', 'Kronshteyn', 'Combo', 'Speaker', 'Headset', 'Mousepad', 'Apple TV', 'Chair'] },
   ],
   pc: [
-    { id: 'noutbuk', label: 'Noutbuk', labelRu: 'Ноутбуки' },
-    { id: 'tayyor-pc', label: 'Tayyor PC', labelRu: 'Готовые ПК' },
-    { id: 'cpu', label: 'CPU', labelRu: 'CPU' },
-    { id: 'gpu', label: 'GPU', labelRu: 'GPU' },
+    { id: 'noutbuk', label: 'Noutbuk', labelRu: 'Ноутбуки', billz: ['Laptop', 'Notebook'] },
+    { id: 'tayyor-pc', label: 'Tayyor PC', labelRu: 'Готовые ПК', billz: ['PC', 'Monoblock', 'Mini PC'] },
+    { id: 'cpu', label: 'CPU', labelRu: 'CPU', billz: ['Processor'] },
+    { id: 'gpu', label: 'GPU', labelRu: 'GPU', billz: ['Videokarta', 'Video Card'] },
     { id: 'motherboard', label: 'Motherboard', labelRu: 'Материнские платы' },
-    { id: 'ram', label: 'RAM', labelRu: 'RAM' },
-    { id: 'xotira', label: 'Xotira', labelRu: 'Накопители' },
-    { id: 'korpus', label: 'Korpus', labelRu: 'Корпуса' },
-    { id: 'psu', label: 'Quvvat bloki', labelRu: 'Блоки питания' },
-    { id: 'sovutish', label: 'Sovutish', labelRu: 'Охлаждение' },
+    { id: 'ram', label: 'RAM', labelRu: 'RAM', billz: ['DDR4', 'DDR5'] },
+    { id: 'xotira', label: 'Xotira', labelRu: 'Накопители', billz: ['SSD', 'SSD M2', 'SSD M.2', 'NVMe', 'HDD', 'External SSD', 'External HDD'] },
+    { id: 'korpus', label: 'Korpus', labelRu: 'Корпуса', billz: ['PC Case', 'Case'] },
+    { id: 'psu', label: 'Quvvat bloki', labelRu: 'Блоки питания', billz: ['PSU', 'Power Supply'] },
+    { id: 'sovutish', label: 'Sovutish', labelRu: 'Охлаждение', billz: ['Liquid Cooler', 'CPU Cooler', 'Cooler', 'Fan', 'Fans'] },
     { id: 'monitor', label: 'Monitor', labelRu: 'Мониторы' },
-    { id: 'aksessuar', label: 'Aksessuar', labelRu: 'Аксессуары' },
+    { id: 'aksessuar', label: 'Aksessuar', labelRu: 'Аксессуары', billz: ['Mouse', 'Keyboard', 'Mousepad', 'Glasspad', 'Headset', 'Speaker', 'Cable', 'HUB', 'Kronshteyn', 'Combo', 'Chair', 'Bag', 'Webcam', 'Microphone', 'Glass'] },
   ],
   audio: [
     { id: 'mikrofon', label: 'Mikrofon', labelRu: 'Микрофоны' },
@@ -68,4 +70,15 @@ export function typesFor(categoryId: string | null | undefined): ProductType[] {
 /** Tur shu yo'nalishda mavjudmi — validatsiya va tile'lar shu orqali tekshiradi. */
 export function findType(categoryId: string | null | undefined, id: string): ProductType | undefined {
   return typesFor(categoryId).find((t) => t.id === id);
+}
+
+/** Billz kategoriya nomi → shu yo'nalishdagi tur id'si; mos kelmasa `null`. */
+export function typeForBillzCategory(categoryId: string | null, billzName: string): string | null {
+  const needle = billzName.trim().toLowerCase();
+  if (!needle) return null;
+  for (const t of typesFor(categoryId)) {
+    if (t.label.toLowerCase() === needle) return t.id;
+    if (t.billz?.some((a) => a.toLowerCase() === needle)) return t.id;
+  }
+  return null;
 }
