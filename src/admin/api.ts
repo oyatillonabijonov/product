@@ -13,6 +13,7 @@ import type {
   ApiVariant,
   OrderStatus,
 } from '../../shared/types';
+import type { BillzShop, BillzSyncStatus } from '../../shared/billz';
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -282,5 +283,19 @@ export async function getSiteConfig(): Promise<ApiSiteConfig> {
 export async function updateSiteConfig(c: ApiSiteConfig): Promise<ApiSiteConfig> {
   return handle(await fetch('/api/admin/site-config', {
     method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(c),
+  }));
+}
+
+// ── Billz sinxronizatsiyasi ─────────────────────────────────────────────────
+export async function getBillzStatus(): Promise<BillzSyncStatus> {
+  return handle(await fetch('/api/admin/billz'));
+}
+export async function getBillzShops(): Promise<BillzShop[]> {
+  return handle(await fetch('/api/admin/billz?shops=1'));
+}
+/** Fon vazifasini boshlaydi (202); holatni `getBillzStatus` bilan so'rab turiladi. */
+export async function runBillzSync(mode: 'full' | 'delta'): Promise<void> {
+  await handle(await fetch('/api/admin/billz', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode }),
   }));
 }

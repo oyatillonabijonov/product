@@ -65,6 +65,7 @@ export default [
   route('api/admin/pages', 'routes/api.admin.pages.tsx'),
   route('api/admin/pages/:id', 'routes/api.admin.pages.$id.tsx'),
   route('api/admin/site-config', 'routes/api.admin.site-config.tsx'),
+  route('api/admin/billz', 'routes/api.admin.billz.tsx'),
   route('api/admin/orders', 'routes/api.admin.orders.tsx'),
   route('api/admin/orders/:id', 'routes/api.admin.orders.$id.tsx'),
   route('*', 'routes/not-found.tsx'),
