@@ -100,8 +100,23 @@ const Footer: FC<{ t: Translation; locale: Locale; config: ApiSiteConfig; pageLi
         </div>
 
         <div className="mt-16 flex flex-col-reverse items-center gap-4 border-t border-line pt-6 text-label md:flex-row md:justify-between">
-          <p className="text-muted-2">{`© ${new Date().getFullYear()} ${config.name}. ${t.footerCopyright}`}</p>
-          <div className="flex items-center gap-3">
+          {/* apple.com'dagi pastki qator: copyright, ortidan sahifa havolalari `|`
+              bilan. Ajratgich havolaning **ichida**, ortidan keladi — shuning uchun
+              qator ko'chganda yangi satr `|` bilan boshlanmaydi. */}
+          <div className="flex flex-col items-center gap-3 md:flex-row md:gap-8">
+            <p className="shrink-0 text-muted-2">{`© ${new Date().getFullYear()} ${config.name}. ${t.footerCopyright}`}</p>
+            <nav className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+              {info.map((m, i) => (
+                <span key={m.to} className="flex items-center gap-3">
+                  <Link to={localizedPath(locale, m.to)} className="text-muted-2 transition-colors duration-200 hover:text-primary">
+                    {m.label}
+                  </Link>
+                  {i < info.length - 1 && <span aria-hidden className="text-line">|</span>}
+                </span>
+              ))}
+            </nav>
+          </div>
+          <div className="flex shrink-0 items-center gap-3">
             <Link to={barePath + location.search} className={locale === 'uz' ? 'font-medium text-primary' : 'text-muted-2 transition-colors hover:text-primary'}>
               O'zbekcha
             </Link>
