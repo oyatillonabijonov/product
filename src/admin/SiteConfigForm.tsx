@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ApiSiteConfig } from '../../shared/types';
-import { getSiteConfig, updateSiteConfig } from './api';
+import type { BillzShop } from '../../shared/billz';
+import { getBillzShops, getSiteConfig, updateSiteConfig } from './api';
 import { errText } from './errText';
 
 type Field = { key: keyof ApiSiteConfig; label: string; placeholder?: string; secret?: boolean; hint?: string };
@@ -54,6 +55,14 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    title: 'Billz (ombor va narxlar)',
+    desc: 'Tovarlar, narxlar, qoldiq va rasmlar Billz\'dan o\'zi keladi. Billz\'ga hech narsa yozilmaydi.',
+    optional: true,
+    fields: [
+      { key: 'billzSecretToken', label: 'Integratsiya kaliti', secret: true, hint: 'Billz → Sozlamalar → Integratsiya → kalit yarating va shu yerga qo\'ying.' },
+    ],
+  },
+  {
     title: 'SEO va analitika (ilg\'or)',
     desc: 'Qidiruv tizimlari va tashrif statistikasi. Bilmasangiz tegmasangiz ham bo\'ladi.',
     optional: true,
@@ -72,12 +81,22 @@ export default function SiteConfigForm() {
   const [form, setForm] = useState<ApiSiteConfig | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
+  const [shops, setShops] = useState([] as BillzShop[]);
+  const [shopsBusy, setShopsBusy] = useState(false);
 
   useEffect(() => {
     getSiteConfig().then(setForm).catch(() => setMsg('Yuklashda xatolik (migratsiya qo\'llanganmi?)'));
   }, []);
 
   if (!form) return <p className="text-muted">{msg || 'Yuklanmoqda…'}</p>;
+
+  // Do'konlar ro'yxati Billz'dan — avval kalit saqlangan bo'lishi kerak (server o'qiydi).
+  async function loadShops() {
+    setShopsBusy(true); setMsg('');
+    try { setShops(await getBillzShops()); }
+    catch (e) { setMsg(errText(e)); }
+    finally { setShopsBusy(false); }
+  }
 
   async function save() {
     if (!form) return;
@@ -118,6 +137,23 @@ export default function SiteConfigForm() {
                 {f.hint && <span className="block text-[11.5px] text-muted-2 font-normal mt-1">{f.hint}</span>}
               </label>
             ))}
+            {g.title === 'Billz (ombor va narxlar)' && (
+              <label className="block text-[12.5px] font-medium text-muted">
+                Do'kon
+                {shops.length > 0 ? (
+                  <select value={form.billzShopId} onChange={(e) => setForm({ ...form, billzShopId: e.target.value })} className={inputCls}>
+                    <option value="">— tanlang —</option>
+                    {shops.map((sh) => <option key={sh.id} value={sh.id}>{sh.name}</option>)}
+                  </select>
+                ) : (
+                  <input type="text" value={form.billzShopId} placeholder="shop UUID" onChange={(e) => setForm({ ...form, billzShopId: e.target.value })} className={inputCls} />
+                )}
+                <button type="button" onClick={loadShops} disabled={shopsBusy} className="press mt-1.5 text-[12px] font-semibold text-accent disabled:opacity-50">
+                  {shopsBusy ? 'Yuklanmoqda…' : "Do'konlarni yuklash"}
+                </button>
+                <span className="block text-[11.5px] text-muted-2 font-normal mt-1">Avval kalitni saqlang, keyin ro'yxatni yuklang. Narx va qoldiq shu do'kondan olinadi.</span>
+              </label>
+            )}
             {g.title === "Do'kon ma'lumotlari" && (
               <label className="block text-[12.5px] font-medium text-muted">
                 Narx ko'rsatish rejimi

@@ -24,6 +24,7 @@ import PostList from './PostList';
 import ProductList from './ProductList';
 import SettingsForm from './SettingsForm';
 import SiteConfigForm from './SiteConfigForm';
+import BillzPanel from './BillzPanel';
 
 type Tab = 'products' | 'orders' | 'models' | 'settings' | 'categories' | 'brands' | 'banners' | 'posts';
 
@@ -160,6 +161,9 @@ export default function AdminApp() {
           {tab === 'settings' && (
             <>
               <SettingsForm />
+              <div className="mt-8">
+                <BillzPanel />
+              </div>
               <div className="mt-8">
                 <SiteConfigForm />
               </div>

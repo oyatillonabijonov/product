@@ -17,6 +17,14 @@ describe('filterProducts', () => {
     p({ id: '3', name: 'Galaxy S24', categoryId: 'phones', brandId: 'samsung', condition: 'yangi', isActive: true }),
   ];
 
+  it("status=needs_image → Billz'dan kelgan, rasmsiz", () => {
+    const withBillz = [
+      p({ id: 'b1', billzId: 'x1', imageUrl: '' }),
+      p({ id: 'b2', billzId: 'x2', imageUrl: '/images/products/a.jpg' }),
+      p({ id: 'm1', billzId: null, imageUrl: '' }),
+    ];
+    expect(filterProducts(withBillz, { status: 'needs_image' }).map((x) => x.id)).toEqual(['b1']);
+  });
   it('bo\'sh filtr → hammasini qaytaradi', () => {
     expect(filterProducts(items, {}).map((x) => x.id)).toEqual(['1', '2', '3']);
   });

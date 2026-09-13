@@ -81,7 +81,7 @@ export default function SettingsForm() {
         />
       </label>
 
-      <label className="flex items-center justify-between mb-5 text-[14px]">
+      <label className="flex items-center justify-between mb-1 text-[14px]">
         USD kursi (so'm)
         <input
           type="number"
@@ -90,6 +90,7 @@ export default function SettingsForm() {
           onChange={(e) => setS({ ...s, usdToUzs: Number(e.target.value) })}
         />
       </label>
+      <p className="mb-5 text-[12px] text-muted-2">Billz narxlari (USD) shu kurs bilan so'mga o'giriladi — kurs o'zgarsa keyingi sinxronizatsiyada narxlar yangilanadi.</p>
 
       <div className="text-[13px] font-semibold text-muted mb-2">Muddatlar va ustama</div>
       <div className="space-y-2 mb-4">

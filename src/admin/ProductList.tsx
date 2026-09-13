@@ -98,6 +98,7 @@ export default function ProductList() {
           <option value="">Status</option>
           <option value="active">Faol</option>
           <option value="hidden">Yashirin</option>
+          <option value="needs_image">Rasm kerak</option>
         </select>
         <button onClick={() => setCreating(true)} className="press px-4 py-2 bg-primary text-white font-semibold rounded-full text-[14px]">
           + Yangi
@@ -127,7 +128,18 @@ export default function ProductList() {
                     ? <img src={p.imageUrl} alt="" className="rounded-xs w-11 h-11 object-contain bg-bg" />
                     : <div className="rounded-xs w-11 h-11 bg-bg" />}
                 </td>
-                <td className="p-3"><div className="font-semibold text-primary max-w-[240px] truncate">{p.name}</div></td>
+                <td className="p-3">
+                  <div className="font-semibold text-primary max-w-[240px] truncate">{p.name}</div>
+                  {p.billzId && (
+                    <div className="mt-0.5 flex gap-1.5 text-[11px] font-semibold">
+                      <span className="rounded-full bg-bg px-2 py-0.5 text-muted-2">Billz</span>
+                      {!p.imageUrl && (
+                        <span className={`rounded-full px-2 py-0.5 ${(p.billzStock ?? 0) > 0 ? 'bg-danger/10 text-danger' : 'bg-bg text-muted-2'}`}>Rasm kerak</span>
+                      )}
+                      {(p.billzStock ?? 0) === 0 && <span className="rounded-full bg-bg px-2 py-0.5 text-muted-2">Qoldiq 0</span>}
+                    </div>
+                  )}
+                </td>
                 <td className="p-3 text-muted whitespace-nowrap">{catName(p.categoryId)}</td>
                 <td className="p-3 text-muted whitespace-nowrap">{brandName(p.brandId)}</td>
                 <td className="p-3 whitespace-nowrap">{formatThousands(p.minPriceUzs)} so'm</td>

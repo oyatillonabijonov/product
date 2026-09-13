@@ -408,6 +408,11 @@ const ProductForm: FC<{
           images={form.imageUrl ? [form.imageUrl] : []}
           onChange={(next) => set('imageUrl', next[0] ?? '')}
         />
+        {initial?.billzId && (
+          <p className="mt-2 text-[12.5px] text-muted-2">
+            Billz'dan kelgan mahsulot: nomi, narxi, qoldig'i, turi va tavsifi sinxronizatsiyada qayta yoziladi. Billz'da rasm bo'lmasa shu yerda yuklagan rasmingiz saqlanadi.
+          </p>
+        )}
       </div>
 
       <div className="mt-4">

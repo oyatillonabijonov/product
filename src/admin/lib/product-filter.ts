@@ -5,7 +5,7 @@ export interface ProductFilter {
   categoryId?: string;
   brandId?: string;
   condition?: string; // '' | 'yangi' | 'ishlatilgan'
-  status?: string; // '' | 'active' | 'hidden'
+  status?: string; // '' | 'active' | 'hidden' | 'needs_image' (Billz'dan kelgan, rasmsiz)
 }
 
 /**
@@ -21,6 +21,7 @@ export function filterProducts(items: ApiProduct[], f: ProductFilter): ApiProduc
     if (f.condition && p.condition !== f.condition) return false;
     if (f.status === 'active' && !p.isActive) return false;
     if (f.status === 'hidden' && p.isActive) return false;
+    if (f.status === 'needs_image' && !(p.billzId && !p.imageUrl)) return false;
     return true;
   });
 }
