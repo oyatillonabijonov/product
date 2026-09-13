@@ -3,10 +3,12 @@ import type { Route } from './+types/category';
 import { resolveLocale, categoryLabel } from '../lib/i18n';
 import { pageTitle, catalogMeta, storeConfigFrom } from '../lib/seo';
 import { parseCatalogFilters } from '../lib/catalog';
-import { queryProducts, loadConfig, loadCategories, loadBrands } from '../lib/loaders';
+import { queryProducts, loadConfig, loadCategories, loadBrands, loadTileRows } from '../lib/loaders';
+import { categoryTiles } from '../lib/tiles';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import CatalogView from '../../src/store/CatalogView';
 import CategoryCover from '../../src/store/CategoryCover';
+import CategoryTiles from '../../src/store/CategoryTiles';
 import PcConfigurator from '../../src/store/PcConfigurator';
 import { columnForCategory } from '../../src/store/hero-columns';
 
@@ -21,11 +23,12 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const categories = await loadCategories(env);
   const category = categories.find((c) => c.id === slug);
   if (!category) throw new Response('Not Found', { status: 404 }); // noma'lum slug 200 + soft-404 bo'lib indekslanmasin
-  const [result, config, brands] = await Promise.all([
-    queryProducts(env, filters), loadConfig(env), loadBrands(env),
+  const [result, config, brands, tileRows] = await Promise.all([
+    queryProducts(env, filters), loadConfig(env), loadBrands(env), loadTileRows(env, slug),
   ]);
   const title = categoryLabel(category, locale);
-  return { result, config, title, brands, filters, requestUrl: request.url, category };
+  const tiles = categoryTiles(tileRows, slug, locale === 'ru' ? 'ru' : 'uz');
+  return { result, config, title, brands, filters, requestUrl: request.url, category, tiles };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
@@ -35,7 +38,7 @@ export function meta({ data, matches }: Route.MetaArgs) {
 }
 
 export default function CategoryRoute() {
-  const { result, config, title, brands, filters, category } = useLoaderData<typeof loader>();
+  const { result, config, title, brands, filters, category, tiles } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
   // Cover — avval kategoriyaning o'z rasmi (admin yuklaydi). Bo'lmasa landing
   // ustuni, lekin faqat o'zinikida: HERO_COLUMNS landing uchun yasalgan, boshqa
@@ -58,6 +61,7 @@ export default function CategoryRoute() {
       <CatalogView
         t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters}
         subtitle={isOwnColumn ? ctx.t.proTitle : undefined}
+        tiles={<CategoryTiles tiles={tiles} label={ctx.t.homeCategories} />}
       />
       {category.id === 'pc' && (
         <div className="shell pb-14 md:pb-20">

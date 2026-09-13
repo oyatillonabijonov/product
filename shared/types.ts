@@ -18,6 +18,8 @@ export interface ApiProduct {
   sortOrder: number;
   isActive: boolean;
   categoryId: string | null;
+  /** Tovar turi (`shared/product-types.ts` registri); belgilanmagan bo'lsa `null`. */
+  type: string | null;
   oldPriceUzs: number | null;
   brandId: string | null;
   slug: string | null;

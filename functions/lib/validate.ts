@@ -13,6 +13,7 @@ import type {
   Term,
 } from '../../shared/types';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
+import { findType } from '../../shared/product-types';
 
 export class ValidationError extends Error {}
 
@@ -66,6 +67,9 @@ export function parseProductInput(body: unknown): ProductInput {
     typeof o.category === 'string' && o.category.trim() !== '' ? (o.category.trim() as Category) : null;
   if (rawCategory !== null && !CATEGORIES.includes(rawCategory)) throw new ValidationError('category_invalid');
   const category = rawCategory ?? deriveLegacyCategory(categoryId);
+  // Tovar turi yo'nalishga tegishli bo'lishi kerak: `pc` yo'nalishida `iphone` turi yo'q.
+  const type = typeof o.type === 'string' && o.type.trim() !== '' ? o.type.trim() : null;
+  if (type !== null && !findType(categoryId, type)) throw new ValidationError('type_invalid');
   const condition = reqString(o, 'condition') as Condition;
   if (!CONDITIONS.includes(condition)) throw new ValidationError('condition_invalid');
   const cashPriceUzs = reqNumber(o, 'cashPriceUzs');
@@ -176,6 +180,7 @@ export function parseProductInput(body: unknown): ProductInput {
     sortOrder,
     isActive,
     categoryId,
+    type,
     oldPriceUzs,
     description,
     images,

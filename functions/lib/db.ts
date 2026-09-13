@@ -42,6 +42,7 @@ export interface ProductRow {
   is_active: number;
   created_at: number;
   category_id: string | null;
+  type: string | null;
   old_price_uzs: number | null;
   description: string | null;
   brand_id: string | null;
@@ -71,6 +72,7 @@ export function rowToProduct(row: ProductRow): ApiProduct {
     sortOrder: row.sort_order,
     isActive: row.is_active === 1,
     categoryId: row.category_id,
+    type: row.type ?? null,
     oldPriceUzs: row.old_price_uzs,
     brandId: row.brand_id ?? null,
     slug: row.slug ?? null,

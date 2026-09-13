@@ -30,8 +30,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (input instanceof Response) return input;
   if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
   const insert = env.DB.prepare(
-    `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, old_price_uzs, description, brand_id, slug, rating_avg, review_count, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch())`,
+    `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, type, old_price_uzs, description, brand_id, slug, rating_avg, review_count, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch())`,
   ).bind(
     input.id,
     input.name,
@@ -43,6 +43,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     input.sortOrder,
     input.isActive ? 1 : 0,
     input.categoryId,
+    input.type,
     input.oldPriceUzs,
     input.description,
     input.brandId,

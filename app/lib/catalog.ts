@@ -5,7 +5,7 @@ export const PAGE_SIZE = 24;
 export const SORTS = ['default', 'arzon', 'qimmat', 'yangi'] as const;
 export type SortKey = (typeof SORTS)[number];
 const CONDITIONS = ['yangi', 'ishlatilgan'] as const;
-const FILTER_PARAMS = ['brand', 'narx', 'holat', 'cat', 'sort', 'page', 'q'] as const;
+const FILTER_PARAMS = ['brand', 'narx', 'holat', 'cat', 'sort', 'page', 'q', 'tur'] as const;
 
 export interface CatalogFilters {
   category: string | null;
@@ -13,6 +13,8 @@ export interface CatalogFilters {
   priceMin: number | null;
   priceMax: number | null;
   condition: 'yangi' | 'ishlatilgan' | null;
+  /** Tovar turi (`shared/product-types.ts` id'si) — yo'nalish sahifasidagi tile qatori. */
+  type: string | null;
   q: string | null;
   sort: SortKey;
   page: number;
@@ -47,9 +49,11 @@ export function parseCatalogFilters(sp: URLSearchParams, base?: Partial<CatalogF
   const qRaw = sp.get('q');
   const q = qRaw && qRaw.trim() !== '' ? qRaw.trim() : null;
   const cat = sp.get('cat');
+  const turRaw = sp.get('tur');
+  const type = turRaw && turRaw.trim() !== '' ? turRaw.trim() : null;
   return {
     category: base?.category ?? (cat && cat.trim() !== '' ? cat.trim() : null),
-    brands, priceMin, priceMax, condition, q, sort, page,
+    brands, priceMin, priceMax, condition, type, q, sort, page,
     onlyDeals: base?.onlyDeals ?? false,
   };
 }
@@ -72,6 +76,7 @@ export function applyFilters(products: Product[], f: CatalogFilters): CatalogRes
   let xs = products;
   if (f.category) xs = xs.filter((p) => fallbackCategoryOf(p) === f.category);
   if (f.condition) xs = xs.filter((p) => p.condition === f.condition);
+  if (f.type) xs = xs.filter((p) => p.type === f.type);
   if (f.q) {
     const q = f.q.toLowerCase();
     xs = xs.filter((p) =>

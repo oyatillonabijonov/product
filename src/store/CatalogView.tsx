@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { useSearchParams } from 'react-router';
 import { SlidersHorizontal, X } from 'lucide-react';
 import type { Translation } from '../locales';
@@ -24,7 +24,9 @@ const CatalogView: FC<{
   hideBrands?: boolean;
   /** `h1`da nom ortidan keladigan och rangli davomi ("PC — Professional yondashuv"). */
   subtitle?: string;
-}> = ({ t, title, result, config, brands, filters, hideBrands, subtitle }) => {
+  /** Sarlavha ostidagi qator — yo'nalish sahifasidagi rasmli bo'limlar. */
+  tiles?: ReactNode;
+}> = ({ t, title, result, config, brands, filters, hideBrands, subtitle, tiles }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -86,6 +88,8 @@ const CatalogView: FC<{
           <SortSelect t={t} value={filters.sort} onChange={(v: SortKey) => update({ sort: v })} />
         </div>
       </header>
+
+      {tiles}
 
       {/* `active > 0` chip'lar bor degani — komponentning o'zi bo'sh bo'lsa `null`
           qaytaradi, shuning uchun shartsiz o'ram bo'sh joy qoldirardi. */}

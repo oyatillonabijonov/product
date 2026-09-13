@@ -14,6 +14,7 @@ const MESSAGES: Record<string, string> = {
   categoryId_required: 'Kategoriya majburiy',
   price_positive: "Narx 0 dan katta bo'lishi kerak",
   variant_price_positive: "Variant narxi 0 dan katta bo'lishi kerak",
+  type_invalid: "Tanlangan tur bu kategoriyaga tegishli emas",
   category_invalid: "Kategoriya noto'g'ri",
   current_password_required: 'Joriy parolni kiriting',
   invalid_current_password: "Joriy parol noto'g'ri",

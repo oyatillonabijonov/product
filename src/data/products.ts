@@ -27,6 +27,8 @@ export interface Product {
   brandId?: string | null;
   /** Storefront kategoriya id (`categories` massividagi id), bog'lanmagan bo'lsa `null`. */
   categoryId?: string | null;
+  /** Tovar turi (`shared/product-types.ts`), belgilanmagan bo'lsa `null`. */
+  type?: string | null;
   /** Qo'shimcha galereya rasmlari (asosiy `image` dan tashqari). */
   gallery?: string[];
   /** Xususiyatlar (label/value). */

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import type { ApiBrand, ApiCategory, ApiDeviceModel, ApiProduct, ApiSpec, Category, Condition } from '../../shared/types';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
+import { typesFor, findType } from '../../shared/product-types';
 import { createProduct, getProductDetail, listBrands, listCategories, listDeviceModels, updateProduct, uploadImage } from './api';
 import type { AdminVariantInput } from './api';
 import ModelCombobox from './ModelCombobox';
@@ -23,6 +24,8 @@ interface FormState {
   name: string;
   category: Category;
   categoryId: string | null;
+  /** Tovar turi (`shared/product-types.ts`) — yo'nalish sahifasidagi tile qatorini boshqaradi. */
+  type: string | null;
   condition: Condition;
   conditionNote: string;
   cashPriceUzs: number;
@@ -42,7 +45,7 @@ interface FormState {
 }
 
 const empty: FormState = {
-  name: '', category: 'iphone', categoryId: null, condition: 'yangi', conditionNote: '',
+  name: '', category: 'iphone', categoryId: null, type: null, condition: 'yangi', conditionNote: '',
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
   brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, options: [], variants: [],
 };
@@ -90,7 +93,7 @@ const ProductForm: FC<{
         for (const v of o.values) optionValueMap.set(v.id, { optionName: o.name, value: v.value });
       }
       setForm({
-        name: d.name, category: d.category, categoryId: d.categoryId, condition: d.condition,
+        name: d.name, category: d.category, categoryId: d.categoryId, type: d.type, condition: d.condition,
         conditionNote: d.conditionNote ?? '', cashPriceUzs: d.cashPriceUzs, oldPriceUzs: d.oldPriceUzs ?? 0,
         ratingAvg: d.ratingAvg ?? 0, reviewCount: d.reviewCount ?? 0,
         description: d.description ?? '', imageUrl: d.imageUrl, images: gallery, specs: d.specs,
@@ -120,6 +123,7 @@ const ProductForm: FC<{
       brandId: m.brandId,
       categoryId: m.categoryId,
       category: m.legacyCategory,
+      type: f.type && findType(m.categoryId, f.type) ? f.type : null,
       specs: mergeSpecs(f.specs, modelToSpecs(m)),
     }));
   }
@@ -205,7 +209,7 @@ const ProductForm: FC<{
             ? Math.min(...pricedVariants.map((v) => v.cashPriceUzs))
             : 0;
       const payload = {
-        name: form.name, category: form.category, categoryId: form.categoryId, condition: form.condition,
+        name: form.name, category: form.category, categoryId: form.categoryId, type: form.type, condition: form.condition,
         conditionNote: form.conditionNote || null, cashPriceUzs,
         oldPriceUzs: form.oldPriceUzs > 0 ? form.oldPriceUzs : null, description: form.description || null,
         imageUrl: form.imageUrl, images: form.images,
@@ -271,11 +275,29 @@ const ProductForm: FC<{
             value={form.categoryId ?? ''}
             onChange={(e) => {
               setDirty(true);
-              setForm((f) => ({ ...f, categoryId: e.target.value || null, category: deriveLegacyCategory(e.target.value || null) }));
+              const categoryId = e.target.value || null;
+              // Yo'nalish almashsa eski tur begona bo'lib qoladi (masalan `pc`da `iphone`) — tozalanadi.
+              setForm((f) => ({
+                ...f,
+                categoryId,
+                category: deriveLegacyCategory(categoryId),
+                type: f.type && findType(categoryId, f.type) ? f.type : null,
+              }));
             }}
           >
             <option value="">— tanlang —</option>
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </label>
+        <label className="text-[13px] text-muted">Turi
+          <select
+            className={input}
+            value={form.type ?? ''}
+            disabled={form.categoryId === null}
+            onChange={(e) => set('type', e.target.value || null)}
+          >
+            <option value="">{form.categoryId === null ? '— avval kategoriya —' : '— tanlang —'}</option>
+            {typesFor(form.categoryId).map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
           </select>
         </label>
         <label className="text-[13px] text-muted">Naqd narx (so'm) <span className="text-danger">*</span>

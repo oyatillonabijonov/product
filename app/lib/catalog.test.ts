@@ -7,7 +7,7 @@ const sp = (s: string) => new URLSearchParams(s);
 describe('parseCatalogFilters', () => {
   it('defaults on empty params', () => {
     const f = parseCatalogFilters(sp(''));
-    expect(f).toEqual({ category: null, brands: [], priceMin: null, priceMax: null, condition: null, q: null, sort: 'default', page: 1, onlyDeals: false });
+    expect(f).toEqual({ category: null, brands: [], priceMin: null, priceMax: null, condition: null, type: null, q: null, sort: 'default', page: 1, onlyDeals: false });
   });
   it('parses full params', () => {
     const f = parseCatalogFilters(sp('brand=apple,samsung&narx=9000000-20000000&holat=yangi&cat=telefonlar&sort=arzon&page=3&q=iphone'));
@@ -65,6 +65,12 @@ describe('applyFilters', () => {
   it('filters by brand and condition', () => {
     expect(applyFilters(items, { ...base, brands: ['apple'] }).items.map((x) => x.id)).toEqual(['a', 'c']);
     expect(applyFilters(items, { ...base, condition: 'ishlatilgan' }).items.map((x) => x.id)).toEqual(['b']);
+  });
+  it('filters by product type (tile qatori)', () => {
+    const typed = [P({ id: 'x', cashPriceUzs: 1, minPriceUzs: 1, type: 'gpu' }), P({ id: 'y', cashPriceUzs: 2, minPriceUzs: 2, type: 'noutbuk' })];
+    expect(applyFilters(typed, { ...base, type: 'gpu' }).items.map((x) => x.id)).toEqual(['x']);
+    expect(parseCatalogFilters(sp('tur=noutbuk')).type).toBe('noutbuk');
+    expect(parseCatalogFilters(sp('tur=')).type).toBeNull();
   });
   it('filters by effective price (minPriceUzs)', () => {
     expect(applyFilters(items, { ...base, priceMin: 10, priceMax: 25 }).items.map((x) => x.id)).toEqual(['b']);

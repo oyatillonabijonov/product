@@ -34,6 +34,12 @@ describe('parseProductInput hardening', () => {
     expect(parseProductInput({ ...base, oldPriceUzs: 0 }).oldPriceUzs).toBeNull();
     expect(parseProductInput({ ...base, oldPriceUzs: 2000 }).oldPriceUzs).toBe(2000);
   });
+  it("tovar turi yo'nalishga tegishli bo'lishi shart", () => {
+    expect(parseProductInput({ ...base, categoryId: 'pc', type: 'gpu' }).type).toBe('gpu');
+    expect(parseProductInput({ ...base, categoryId: 'pc', type: '' }).type).toBeNull();
+    expect(parseProductInput({ ...base, categoryId: 'pc' }).type).toBeNull();
+    expect(() => parseProductInput({ ...base, categoryId: 'pc', type: 'iphone' })).toThrow('type_invalid');
+  });
   it('bir xil kombinatsiyali dublikat variantni rad etadi', () => {
     const dup = {
       ...base,
