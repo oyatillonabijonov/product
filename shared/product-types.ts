@@ -21,12 +21,12 @@ export const PRODUCT_TYPES: Record<string, ProductType[]> = {
   apple: [
     { id: 'iphone', label: 'iPhone', labelRu: 'iPhone' },
     { id: 'ipad', label: 'iPad', labelRu: 'iPad', billz: ['iPad Pro', 'iPad Air', 'iPad mini'] },
-    { id: 'macbook', label: 'MacBook', labelRu: 'MacBook', billz: ['MacBook Pro', 'MacBook Air'] },
+    { id: 'macbook', label: 'MacBook', labelRu: 'MacBook', billz: ['MacBook Pro', 'MacBook Air', 'MacBook Neo'] },
     { id: 'imac', label: 'iMac', labelRu: 'iMac' },
     { id: 'mac-mini', label: 'Mac mini', labelRu: 'Mac mini', billz: ['Mac Studio', 'Mac Pro'] },
     { id: 'apple-watch', label: 'Apple Watch', labelRu: 'Apple Watch', billz: ['iWatch', 'Watch'] },
     { id: 'airpods', label: 'AirPods', labelRu: 'AirPods', billz: ['Air Pods'] },
-    { id: 'aksessuar', label: 'Aksessuar', labelRu: 'Аксессуары', billz: ['Phone Case', 'Case', 'Cable', 'Glass', 'Charger', 'Adapter', 'Bag', 'Trackpad', 'Keyboard', 'Mouse', 'Magic Mouse', 'Magic Keyboard', 'Pencil', 'HUB', 'Kronshteyn', 'Combo', 'Speaker', 'Headset', 'Mousepad', 'Apple TV', 'Chair'] },
+    { id: 'aksessuar', label: 'Aksessuar', labelRu: 'Аксессуары', billz: ['Phone Case', 'Case', 'Cable', 'Glass', 'Charger', 'Adapter', 'Bag', 'Trackpad', 'Keyboard', 'Mouse', 'Magic Mouse', 'Magic Keyboard', 'Pencil', 'HUB', 'Kronshteyn', 'Combo', 'Speaker', 'Headset', 'Mousepad', 'Apple TV', 'Chair', 'MagSafe Battery', 'Magic trackpad', 'Power Bank', 'Power Adapter', 'Keyboard Guard', 'KIT', 'M.2 Adapter', 'SATA Adapter', 'Watch Band', 'Apple Pencil', 'EarPods'] },
   ],
   pc: [
     { id: 'noutbuk', label: 'Noutbuk', labelRu: 'Ноутбуки', billz: ['Laptop', 'Notebook'] },
@@ -40,7 +40,7 @@ export const PRODUCT_TYPES: Record<string, ProductType[]> = {
     { id: 'psu', label: 'Quvvat bloki', labelRu: 'Блоки питания', billz: ['PSU', 'Power Supply'] },
     { id: 'sovutish', label: 'Sovutish', labelRu: 'Охлаждение', billz: ['Liquid Cooler', 'CPU Cooler', 'Cooler', 'Fan', 'Fans'] },
     { id: 'monitor', label: 'Monitor', labelRu: 'Мониторы' },
-    { id: 'aksessuar', label: 'Aksessuar', labelRu: 'Аксессуары', billz: ['Mouse', 'Keyboard', 'Mousepad', 'Glasspad', 'Headset', 'Speaker', 'Cable', 'HUB', 'Kronshteyn', 'Combo', 'Chair', 'Bag', 'Webcam', 'Microphone', 'Glass'] },
+    { id: 'aksessuar', label: 'Aksessuar', labelRu: 'Аксессуары', billz: ['Mouse', 'Keyboard', 'Mousepad', 'Glasspad', 'Headset', 'Speaker', 'Cable', 'HUB', 'Kronshteyn', 'Combo', 'Chair', 'Bag', 'Webcam', 'Microphone', 'Glass', 'Wired Headset', 'Controller Hub', 'DVD Writer'] },
   ],
   audio: [
     { id: 'mikrofon', label: 'Mikrofon', labelRu: 'Микрофоны' },

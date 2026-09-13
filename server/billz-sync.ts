@@ -161,6 +161,10 @@ export function createBillzSync(env: Env): BillzSyncHandle {
       .all<{ id: string; billz_id: string; image_url: string }>();
     const existing = new Map(existingRows.results.map((r) => [r.billz_id, { id: r.id, image: r.image_url }]));
     const seen = new Set<string>();
+    // Billz sahifalashi barqaror tartibsiz: bir tovar ikki sahifada kelib, boshqasi
+    // tushib qolishi mumkin. Shuning uchun `seen` — noyob id'lar; `fetched` faqat
+    // sahifalash tugashini aniqlaydi.
+    let fetched = 0;
 
     for (let page = 1; ; page++) {
       const data = await get<BillzProductsPage>(productsUrl(page, since), cfg.token);
@@ -204,8 +208,9 @@ export function createBillzSync(env: Env): BillzSyncHandle {
         seen.add(m.billzId);
       }
       if (stmts.length) await env.DB.batch(stmts);
-      result.seen += products.length;
-      if (result.seen >= data.count) break;
+      fetched += products.length;
+      result.seen = seen.size + result.skipped;
+      if (fetched >= data.count) break;
     }
 
     if (result.mode === 'full') {
@@ -217,7 +222,9 @@ export function createBillzSync(env: Env): BillzSyncHandle {
         }
         result.hidden = gone.length;
       } else {
-        // Sahifalash paytida katalog o'zgargan — yashirish keyingi to'liq run'ga qoladi.
+        // Sahifalash paytida katalog o'zgargan yoki takror qator keldi (ba'zi tovar
+        // ko'rilmagan) — yashirish keyingi to'liq run'ga qoladi, aks holda ko'rilmagan
+        // tovar noto'g'ri yashirilardi.
         result.note = 'count_mismatch';
       }
     }
