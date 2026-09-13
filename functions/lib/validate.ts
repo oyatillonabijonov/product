@@ -26,7 +26,8 @@ const MAX_OPTION_VALUES = 30;
 const MAX_VARIANTS = 300;
 const CONDITIONS: Condition[] = ['yangi', 'ishlatilgan'];
 
-export type ProductInput = Omit<ApiProduct, 'id' | 'minPriceUzs'> & {
+// `billzId`/`billzStock` — sinxronizatsiya mulki, admin PUT'ida yozilmaydi (UPDATE ustunlar ro'yxati aniq).
+export type ProductInput = Omit<ApiProduct, 'id' | 'minPriceUzs' | 'billzId' | 'billzStock'> & {
   id: string;
   description: string | null;
   images: string[];
@@ -467,6 +468,10 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
     // Server tomonidan boshqariladi (runtime generatsiya) — body'dan kelmaydi, yozuvda saqlanadi.
     customerSessionSecret: '',
     yandexMetricaId,
+    billzSecretToken: opt('billzSecretToken'),
+    billzShopId: opt('billzShopId'),
+    // Server mulki (sinxronizatsiya runner'i yozadi) — body'dan kelmaydi.
+    billzLastSync: '',
   };
 }
 

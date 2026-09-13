@@ -220,6 +220,12 @@ describe('parseSiteConfigInput', () => {
   it('rejects missing name', () => {
     expect(() => parseSiteConfigInput({ phone: '+998900000000' })).toThrow('name_required');
   });
+  it("billz maydonlari: token trim, billzLastSync body'dan kelmaydi", () => {
+    const c = parseSiteConfigInput({ name: 'Store', phone: '+998900000000', billzSecretToken: ' abc ', billzShopId: 'shop-1', billzLastSync: '{"ok":true}' });
+    expect(c.billzSecretToken).toBe('abc');
+    expect(c.billzShopId).toBe('shop-1');
+    expect(c.billzLastSync).toBe('');
+  });
 });
 
 describe('deriveLegacyCategory', () => {

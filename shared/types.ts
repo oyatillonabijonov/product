@@ -28,6 +28,10 @@ export interface ApiProduct {
   ratingAvg: number | null;
   /** Sharhlar soni; 0 = hali sharh yo'q. */
   reviewCount: number;
+  /** Billz tovar UUID'si — sinxronizatsiya bog'lanishi; qo'lda kiritilgan mahsulotda `null`. */
+  billzId: string | null;
+  /** Billz'dagi qoldiq (tanlangan do'kon); qo'lda kiritilganda `null`. */
+  billzStock: number | null;
 }
 
 export interface ApiReview {
@@ -192,6 +196,12 @@ export interface ApiSiteConfig {
   customerSessionSecret: string;
   /** Yandex Metrica hisoblagich raqami (ommaviy); bo'sh = analitika o'chiq. */
   yandexMetricaId: string;
+  /** Billz integratsiya kaliti. SIR. */
+  billzSecretToken: string;
+  /** Billz do'koni (shop UUID) — narx va qoldiq shu do'kondan. */
+  billzShopId: string;
+  /** Oxirgi sinxronizatsiya natijasi (JSON) — server yozadi, admin o'qiydi. */
+  billzLastSync: string;
 }
 
 export interface ApiCustomer {

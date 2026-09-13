@@ -43,6 +43,8 @@ export interface ProductRow {
   created_at: number;
   category_id: string | null;
   type: string | null;
+  billz_id: string | null;
+  billz_stock: number | null;
   old_price_uzs: number | null;
   description: string | null;
   brand_id: string | null;
@@ -79,6 +81,8 @@ export function rowToProduct(row: ProductRow): ApiProduct {
     minPriceUzs: row.min_variant_price ?? row.cash_price_uzs,
     ratingAvg: row.rating_avg,
     reviewCount: row.review_count ?? 0,
+    billzId: row.billz_id ?? null,
+    billzStock: row.billz_stock ?? null,
   };
 }
 
@@ -347,30 +351,7 @@ export async function updateLoginThrottle(env: Env, failedAttempts: number, lock
 // caller can execute the whole product write in one atomic env.DB.batch() — a mid-write
 // failure must not leave the old rows deleted and the new ones half-inserted.
 
-export function imagesAndSpecsStatements(
-  env: Env,
-  productId: string,
-  images: string[],
-  specs: { label: string; value: string }[],
-): SqlStatement[] {
-  const stmts: SqlStatement[] = [
-    env.DB.prepare('DELETE FROM product_images WHERE product_id = ?').bind(productId),
-    env.DB.prepare('DELETE FROM product_specs WHERE product_id = ?').bind(productId),
-  ];
-  for (let i = 0; i < images.length; i++) {
-    stmts.push(
-      env.DB.prepare('INSERT INTO product_images (id, product_id, image_url, sort_order) VALUES (?, ?, ?, ?)')
-        .bind(crypto.randomUUID(), productId, images[i], i),
-    );
-  }
-  for (let i = 0; i < specs.length; i++) {
-    stmts.push(
-      env.DB.prepare('INSERT INTO product_specs (id, product_id, label, value, sort_order) VALUES (?, ?, ?, ?, ?)')
-        .bind(crypto.randomUUID(), productId, specs[i].label, specs[i].value, i),
-    );
-  }
-  return stmts;
-}
+export { imagesAndSpecsStatements } from '../../shared/product-statements';
 
 export interface OptionInput {
   name: string;
@@ -520,6 +501,9 @@ export interface SiteConfigRow {
   telegram_login_bot: string;
   customer_session_secret: string;
   yandex_metrica_id: string;
+  billz_secret_token: string;
+  billz_shop_id: string;
+  billz_last_sync: string;
 }
 
 export interface DeviceModelRow {
@@ -548,6 +532,7 @@ export function rowToSiteConfig(r: SiteConfigRow): ApiSiteConfig {
     googleClientId: r.google_client_id, googleClientSecret: r.google_client_secret,
     telegramLoginBot: r.telegram_login_bot, customerSessionSecret: r.customer_session_secret,
     yandexMetricaId: r.yandex_metrica_id ?? '',
+    billzSecretToken: r.billz_secret_token ?? '', billzShopId: r.billz_shop_id ?? '', billzLastSync: r.billz_last_sync ?? '',
   };
 }
 
