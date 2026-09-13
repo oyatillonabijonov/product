@@ -30,6 +30,10 @@ function pathFor(dir: string, key: string): string | null {
 export function openImageStore(dir: string): ImageStore {
   mkdirSync(dir, { recursive: true });
   return {
+    async has(key) {
+      const file = pathFor(dir, key);
+      return file !== null && existsSync(file);
+    },
     async get(key) {
       const file = pathFor(dir, key);
       if (!file || !existsSync(file)) return null;

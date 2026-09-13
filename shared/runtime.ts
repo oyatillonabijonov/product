@@ -33,6 +33,8 @@ export interface StoredObject {
 
 export interface ImageStore {
   get(key: string): Promise<StoredObject | null>;
+  /** Fayl bormi — sinxronizatsiya rasmni qayta yuklamaslik uchun (oqim ochmasdan). */
+  has(key: string): Promise<boolean>;
   put(key: string, data: ArrayBuffer, options?: { httpMetadata?: { contentType?: string } }): Promise<void>;
 }
 
