@@ -1,0 +1,143 @@
+import { describe, it, expect } from 'vitest';
+import {
+  toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct,
+  type BillzProduct, type MapContext,
+} from './billz';
+
+const SHOP = 'shop-1';
+const ctx: MapContext = {
+  shopId: SHOP,
+  usdToUzs: 12600,
+  categoryIds: new Set(['apple', 'pc', 'audio', 'video']),
+  brandsByName: new Map([['apple', 'apple'], ['asus', 'asus']]),
+  existingImage: null,
+};
+const raw = (over: Partial<BillzProduct> = {}): BillzProduct => ({
+  id: '2ce40c63-4527-4898-a975-7c30c255fd50',
+  name: 'iPhone 17 Pro 256GB Cosmic Orange',
+  brand_name: 'Apple',
+  categories: [{ id: 'c1', name: 'iPhone' }],
+  description: '',
+  updated_at: '2026-09-09 21:22:28',
+  main_image_url_full: '',
+  photos: [],
+  custom_fields: [
+    { custom_field_name: 'Nad Kategoriya', custom_field_value: 'Apple' },
+    { custom_field_name: 'Память', custom_field_value: '256GB' },
+    { custom_field_name: 'Цвет', custom_field_value: 'Cosmic Orange' },
+    { custom_field_name: 'Состояние', custom_field_value: 'A19 Pro' },
+    { custom_field_name: 'Postavshik', custom_field_value: 'YATT' },
+  ],
+  product_attributes: [],
+  shop_prices: [{ shop_id: SHOP, retail_price: 1497, retail_currency: 'USD', promo_price: 0 }],
+  shop_measurement_values: [{ shop_id: SHOP, active_measurement_value: 3 }],
+  ...over,
+});
+const CDN = 'https://fra1.digitaloceanspaces.com/billz2-minio-billz/7b57f5e0-c9c7-44f3-9f58-93f1a9564b11.jpg';
+
+describe('yordamchilar', () => {
+  it('toUzs: USD kurs bilan 1000 ga yaxlitlanadi, UZS yaxlitlanadi, boshqasi null', () => {
+    expect(toUzs(1497, 'USD', 12600)).toBe(18862000);
+    expect(toUzs(710, 'USD', 12600)).toBe(8946000);
+    expect(toUzs(1234567, 'UZS', 12600)).toBe(1235000);
+    expect(toUzs(10, 'EUR', 12600)).toBeNull();
+    expect(toUzs(0, 'USD', 12600)).toBeNull();
+  });
+  it('htmlToText: Lexical HTML → matn', () => {
+    expect(htmlToText('<p class="x" dir="ltr"><span>Salom&nbsp;dunyo</span></p><p>Ikki<br>uch</p><p></p><p></p><p>&amp;</p>')).toBe('Salom dunyo\nIkki\nuch\n\n&');
+    expect(htmlToText('<p></p>')).toBe('');
+  });
+  it('asciiSlug', () => {
+    expect(asciiSlug('iPhone 17 Pro 256GB / Cosmic Orange')).toBe('iphone-17-pro-256gb-cosmic-orange');
+    expect(asciiSlug('Клавиатура')).toBe('');
+  });
+  it('photoKey: faqat CDN host, uuid nomi, ruxsat etilgan kengaytma', () => {
+    expect(photoKey(CDN)).toBe('products/billz-7b57f5e0-c9c7-44f3-9f58-93f1a9564b11.jpg');
+    expect(photoKey('https://fra1.digitaloceanspaces.com/b/x.gif')).toBeNull();
+    expect(photoKey('https://evil.example/7b57f5e0-c9c7-44f3-9f58-93f1a9564b11.jpg')).toBeNull();
+    expect(photoKey('http://fra1.digitaloceanspaces.com/b/7b57f5e0-c9c7-44f3-9f58-93f1a9564b11.jpg')).toBeNull();
+    expect(photoKey('https://fra1.digitaloceanspaces.com/b/photo one.png')).toMatch(/^products\/billz-[0-9a-f]{8}\.png$/);
+  });
+  it("hiddenIds: bazada bor, Billz'da ko'rinmaganlar", () => {
+    expect(hiddenIds(['a', 'b', 'c'], new Set(['b']))).toEqual(['a', 'c']);
+  });
+  it('productsUrl va utcStamp', () => {
+    expect(productsUrl(2)).toBe('https://api-admin.billz.ai/v2/products?limit=200&page=2');
+    expect(productsUrl(1, '2026-09-13 10:00:00')).toBe('https://api-admin.billz.ai/v2/products?limit=200&page=1&last_updated_date=2026-09-13+10%3A00%3A00');
+    expect(utcStamp(new Date(Date.UTC(2026, 8, 13, 7, 5, 9)))).toBe('2026-09-13 07:05:09');
+  });
+});
+
+describe('mapBillzProduct', () => {
+  it("to'liq namuna", () => {
+    const m = mapBillzProduct(raw({ photos: [
+      { photo_url: 'https://fra1.digitaloceanspaces.com/b/aaaaaaaa-0000-0000-0000-000000000002.jpg', sequence: 1, is_main: false },
+      { photo_url: 'https://fra1.digitaloceanspaces.com/b/aaaaaaaa-0000-0000-0000-000000000001.jpg', sequence: 0, is_main: true },
+    ] }), ctx);
+    expect(m).not.toBeNull();
+    expect(m?.billzId).toBe('2ce40c63-4527-4898-a975-7c30c255fd50');
+    expect(m?.slug).toBe('iphone-17-pro-256gb-cosmic-orange-2ce40c63');
+    expect(m?.categoryId).toBe('apple');
+    expect(m?.legacyCategory).toBe('iphone');
+    expect(m?.type).toBe('iphone');
+    expect(m?.brandId).toBe('apple');
+    expect(m?.newBrand).toBeNull();
+    expect(m?.cashPriceUzs).toBe(18862000);
+    expect(m?.oldPriceUzs).toBeNull();
+    expect(m?.stock).toBe(3);
+    expect(m?.description).toBeNull();
+    expect(m?.specs).toEqual([{ label: 'Xotira', value: '256GB' }, { label: 'Rang', value: 'Cosmic Orange' }, { label: 'Chip', value: 'A19 Pro' }]);
+    expect(m?.photos.map((p) => p.key)).toEqual([
+      'products/billz-aaaaaaaa-0000-0000-0000-000000000001.jpg',
+      'products/billz-aaaaaaaa-0000-0000-0000-000000000002.jpg',
+    ]);
+    expect(m?.imageUrl).toBe('/images/products/billz-aaaaaaaa-0000-0000-0000-000000000001.jpg');
+    expect(m?.gallery).toEqual(['/images/products/billz-aaaaaaaa-0000-0000-0000-000000000002.jpg']);
+    expect(m?.isActive).toBe(true);
+  });
+  it('promo: chegirma narx + eski narx', () => {
+    const m = mapBillzProduct(raw({ shop_prices: [{ shop_id: SHOP, retail_price: 1000, retail_currency: 'USD', promo_price: 900 }] }), ctx);
+    expect(m?.cashPriceUzs).toBe(11340000);
+    expect(m?.oldPriceUzs).toBe(12600000);
+  });
+  it("yo'nalish katta-kichik harfsiz, noma'lum → null; tur yo'nalishsiz null", () => {
+    const pc = mapBillzProduct(raw({ custom_fields: [{ custom_field_name: 'Nad Kategoriya', custom_field_value: 'Pc' }], categories: [{ id: 'c', name: 'DDR5' }] }), ctx);
+    expect(pc?.categoryId).toBe('pc');
+    expect(pc?.type).toBe('ram');
+    const m = mapBillzProduct(raw({ custom_fields: [{ custom_field_name: 'Nad Kategoriya', custom_field_value: 'Gaming' }] }), ctx);
+    expect(m?.categoryId).toBeNull();
+    expect(m?.type).toBeNull();
+    expect(m?.legacyCategory).toBe('pc');
+  });
+  it('yangi brend', () => {
+    const m = mapBillzProduct(raw({ brand_name: 'ADAM Audio' }), ctx);
+    expect(m?.brandId).toBe('adam-audio');
+    expect(m?.newBrand).toEqual({ id: 'adam-audio', name: 'ADAM Audio' });
+    expect(mapBillzProduct(raw({ brand_name: '' }), ctx)?.brandId).toBeNull();
+  });
+  it("rasm yo'q: admin rasmi saqlanadi, ko'rinish rasmga bog'liq", () => {
+    expect(mapBillzProduct(raw(), ctx)?.imageUrl).toBe('');
+    expect(mapBillzProduct(raw(), ctx)?.isActive).toBe(false);
+    const kept = mapBillzProduct(raw(), { ...ctx, existingImage: '/images/products/admin.webp' });
+    expect(kept?.imageUrl).toBe('/images/products/admin.webp');
+    expect(kept?.isActive).toBe(true);
+    const noStock = mapBillzProduct(raw({ shop_measurement_values: [{ shop_id: SHOP, active_measurement_value: 0 }] }), { ...ctx, existingImage: '/x.jpg' });
+    expect(noStock?.isActive).toBe(false);
+  });
+  it("do'kon narxi yo'q / nom bo'sh → null", () => {
+    expect(mapBillzProduct(raw({ shop_prices: [{ shop_id: 'other', retail_price: 1, retail_currency: 'USD', promo_price: 0 }] }), ctx)).toBeNull();
+    expect(mapBillzProduct(raw({ name: '  ' }), ctx)).toBeNull();
+  });
+  it("tavsif HTML → matn; product_attributes rangi custom field bo'lmasa qo'shiladi; bo'sh qiymatlar tashlanadi", () => {
+    const m = mapBillzProduct(raw({
+      description: '<p>Yaxshi <b>telefon</b></p>',
+      custom_fields: [
+        { custom_field_name: 'Nad Kategoriya', custom_field_value: 'Apple' },
+        { custom_field_name: 'Память', custom_field_value: '___' },
+      ],
+      product_attributes: [{ attribute_name: 'Цвет', attribute_value: 'Black' }],
+    }), ctx);
+    expect(m?.description).toBe('Yaxshi telefon');
+    expect(m?.specs).toEqual([{ label: 'Rang', value: 'Black' }]);
+  });
+});
