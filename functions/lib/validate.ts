@@ -225,6 +225,13 @@ export function parseSettingsInput(body: unknown): ApiSettings {
     throw new ValidationError('down_payment_max_range');
   const usdToUzs = reqNumber(o, 'usdToUzs');
   if (usdToUzs <= 0) throw new ValidationError('usd_positive');
+  // Ixtiyoriy: yo'q/null — avtomatik kurs o'chiq.
+  let usdMarkupPercent: number | null = null;
+  if (o.usdMarkupPercent !== undefined && o.usdMarkupPercent !== null) {
+    const m = o.usdMarkupPercent;
+    if (typeof m !== 'number' || !Number.isFinite(m) || m < 0 || m > 100) throw new ValidationError('usd_markup_range');
+    usdMarkupPercent = m;
+  }
   if (!Array.isArray(o.terms) || o.terms.length === 0) throw new ValidationError('terms_required');
   const terms: Term[] = o.terms.map((raw) => {
     const t = asRecord(raw);
@@ -234,7 +241,8 @@ export function parseSettingsInput(body: unknown): ApiSettings {
     if (markup < 0) throw new ValidationError('markup_negative');
     return { months, markup };
   });
-  return { downPaymentPercent, downPaymentMaxPercent, usdToUzs, terms };
+  // usdCbuRate/usdRateDate — server mulki (server/usd-rate.ts yozadi), body'dan olinmaydi.
+  return { downPaymentPercent, downPaymentMaxPercent, usdToUzs, terms, usdMarkupPercent, usdCbuRate: null, usdRateDate: '' };
 }
 
 export interface CategoryInput {

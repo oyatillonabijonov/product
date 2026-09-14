@@ -48,6 +48,12 @@ export interface ApiSettings {
   downPaymentPercent: number;
   downPaymentMaxPercent: number;
   usdToUzs: number;
+  /** Markaziy bank kursiga qo'shiladigan ustama (%); `null` — avtomatik kurs o'chiq, `usdToUzs` qo'lda. */
+  usdMarkupPercent: number | null;
+  /** Oxirgi olingan MB kursi — server yozadi. */
+  usdCbuRate: number | null;
+  /** MB kursi sanasi ("14.09.2026") — server yozadi. */
+  usdRateDate: string;
   terms: Term[];
 }
 

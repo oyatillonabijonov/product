@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ApiSettings, Term } from '../../shared/types';
 import { getSettings, updateSettings } from './api';
+import { storeRate } from '../../shared/usd-rate';
 
 const SAMPLE = 10_000_000;
 
@@ -46,7 +47,8 @@ export default function SettingsForm() {
     setSaved(false);
     setError('');
     try {
-      await updateSettings(s);
+      // Kursni server hisoblaydi (ustama bo'lsa) — formaga saqlangan holat qaytadi.
+      setS(await updateSettings(s));
       setSaved(true);
     } catch {
       setError('Saqlashda xatolik');
@@ -81,16 +83,44 @@ export default function SettingsForm() {
         />
       </label>
 
-      <label className="flex items-center justify-between mb-1 text-[14px]">
-        USD kursi (so'm)
-        <input
-          type="number"
-          className={input}
-          value={s.usdToUzs}
-          onChange={(e) => setS({ ...s, usdToUzs: Number(e.target.value) })}
-        />
-      </label>
-      <p className="mb-5 text-[12px] text-muted-2">Billz narxlari (USD) shu kurs bilan so'mga o'giriladi — kurs o'zgarsa keyingi sinxronizatsiyada narxlar yangilanadi.</p>
+      <div className="mb-5 rounded-sm border border-line p-4 text-[14px]">
+        <div className="mb-3 font-semibold">Dollar kursi</div>
+        <label className="mb-2 flex items-center justify-between">
+          Ustama (%)
+          <input
+            type="number"
+            min={0}
+            max={100}
+            step="0.1"
+            placeholder="o'chiq"
+            className={input}
+            value={s.usdMarkupPercent ?? ''}
+            onChange={(e) => setS({ ...s, usdMarkupPercent: e.target.value === '' ? null : Number(e.target.value) })}
+          />
+        </label>
+        <p className="mb-3 text-[12px] text-muted-2">
+          {s.usdCbuRate !== null ? `Markaziy bank: ${s.usdCbuRate} (${s.usdRateDate})` : 'Markaziy bank kursi hali olinmadi'}
+        </p>
+        {s.usdMarkupPercent !== null && s.usdCbuRate !== null ? (
+          <p>
+            Do'kon kursi: <b>{fmt(storeRate(s.usdCbuRate, s.usdMarkupPercent))}</b> — avtomatik, har 6 soatda yangilanadi
+          </p>
+        ) : (
+          <label className="flex items-center justify-between">
+            USD kursi (so'm)
+            <input
+              type="number"
+              className={input}
+              value={s.usdToUzs}
+              onChange={(e) => setS({ ...s, usdToUzs: Number(e.target.value) })}
+            />
+          </label>
+        )}
+        <p className="mt-3 text-[12px] text-muted-2">
+          Billz narxlari (USD) shu kurs bilan so'mga o'giriladi, saytdagi USD narxlar ham shu kursda. Ustama kiritilsa kurs
+          Markaziy bankdan avtomatik olinadi; kurs o'zgarsa so'm narxlar keyingi sinxronizatsiyada yangilanadi.
+        </p>
+      </div>
 
       <div className="text-[13px] font-semibold text-muted mb-2">Muddatlar va ustama</div>
       <div className="space-y-2 mb-4">

@@ -5,9 +5,10 @@ import { ShieldCheck, ShoppingCart } from 'lucide-react';
 import { useOutletContext } from 'react-router';
 import type { Translation } from '../locales';
 import type { InstallmentConfig, Product } from '../data/products';
-import { discountPercent, formatUzs, priceView } from '../lib/installment';
+import { discountPercent, priceView } from '../lib/installment';
 import LocaleLink from './LocaleLink';
 import { useCart } from './CartContext';
+import { useCurrency } from './CurrencyContext';
 import { SPRING_UI } from '../lib/motion';
 import Stars from './Stars';
 import FavoriteButton from './FavoriteButton';
@@ -28,6 +29,7 @@ const ProductCard: FC<{
   const { config: site } = useOutletContext<StoreContext>();
   const pv = priceView(product, config, site.paymentMode);
   const cart = useCart();
+  const { price } = useCurrency();
   const [added, setAdded] = useState(false);
 
   // ponytail: karta variantlarni bilmaydi — eng arzon variant narxi bilan variantsiz
@@ -109,29 +111,29 @@ const ProductCard: FC<{
           {pv.monthlyPrimary ? (
             <>
               <div className="text-copy md:text-lede font-semibold text-primary leading-tight tabular-nums">
-                {formatUzs(pv.monthlyUzs, t.sum)}
+                {price(pv.monthlyUzs)}
                 <span className="text-label font-normal text-muted-2"> × {pv.months} {t.calcMonths}</span>
               </div>
               <div className="text-label text-muted mt-1.5 flex items-center gap-2 flex-wrap tabular-nums">
                 {disc !== null && product.oldPriceUzs && (
-                  <span className="line-through text-disabled-2">{formatUzs(product.oldPriceUzs, t.sum)}</span>
+                  <span className="line-through text-disabled-2">{price(product.oldPriceUzs)}</span>
                 )}
-                <span>{formatUzs(pv.cashUzs, t.sum)}</span>
+                <span>{price(pv.cashUzs)}</span>
               </div>
             </>
           ) : (
             <>
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-copy md:text-lede font-semibold text-primary leading-tight tabular-nums whitespace-nowrap">
-                  {formatUzs(pv.cashUzs, t.sum)}
+                  {price(pv.cashUzs)}
                 </span>
                 {disc !== null && product.oldPriceUzs && (
-                  <span className="text-label line-through text-disabled-2 tabular-nums">{formatUzs(product.oldPriceUzs, t.sum)}</span>
+                  <span className="text-label line-through text-disabled-2 tabular-nums">{price(product.oldPriceUzs)}</span>
                 )}
               </div>
               {pv.showMonthly && (
                 <div className="text-label mt-1.5 tabular-nums">
-                  <span className="font-medium text-body">{formatUzs(pv.monthlyUzs, t.sum)}</span>
+                  <span className="font-medium text-body">{price(pv.monthlyUzs)}</span>
                   <span className="text-muted-2"> × {pv.months} {t.calcMonths}</span>
                 </div>
               )}

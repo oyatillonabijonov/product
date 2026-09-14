@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import type { Translation } from '../locales';
 import type { ApiBrand } from '../../shared/types';
 import type { CatalogFilters } from '../../app/lib/catalog';
-import { formatUzs } from '../lib/installment';
+import { useCurrency } from './CurrencyContext';
 
 const Chip: FC<{ label: string; onRemove: () => void }> = ({ label, onRemove }) => (
   <button onClick={onRemove} className="press inline-flex items-center gap-1.5 bg-accent-soft text-accent text-label font-semibold px-3 py-1.5 rounded-full hover:bg-accent-soft-2">
@@ -16,14 +16,15 @@ const ActiveFilterChips: FC<{
   brands: ApiBrand[];
   onRemove: (kind: 'brand' | 'price' | 'condition', value?: string) => void;
 }> = ({ t, filters, brands, onRemove }) => {
+  const { price } = useCurrency();
   const chips: { key: string; label: string; remove: () => void }[] = [];
   for (const b of filters.brands) {
     const name = brands.find((x) => x.id === b || x.slug === b)?.name ?? b;
     chips.push({ key: `b-${b}`, label: name, remove: () => onRemove('brand', b) });
   }
   if (filters.priceMin !== null || filters.priceMax !== null) {
-    const lo = filters.priceMin !== null ? formatUzs(filters.priceMin, t.sum) : '0';
-    const hi = filters.priceMax !== null ? formatUzs(filters.priceMax, t.sum) : '∞';
+    const lo = filters.priceMin !== null ? price(filters.priceMin) : '0';
+    const hi = filters.priceMax !== null ? price(filters.priceMax) : '∞';
     chips.push({ key: 'price', label: `${lo} – ${hi}`, remove: () => onRemove('price') });
   }
   if (filters.condition) {

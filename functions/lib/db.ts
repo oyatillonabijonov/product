@@ -60,6 +60,9 @@ export interface SettingsRow {
   down_payment_percent: number;
   down_payment_max_percent: number;
   usd_to_uzs: number;
+  usd_markup_percent: number | null;
+  usd_cbu_rate: number | null;
+  usd_rate_date: string;
   terms: string;
 }
 
@@ -93,6 +96,9 @@ export function rowToSettings(row: SettingsRow): ApiSettings {
     downPaymentPercent: row.down_payment_percent,
     downPaymentMaxPercent: row.down_payment_max_percent,
     usdToUzs: row.usd_to_uzs,
+    usdMarkupPercent: row.usd_markup_percent ?? null,
+    usdCbuRate: row.usd_cbu_rate ?? null,
+    usdRateDate: row.usd_rate_date ?? '',
     terms,
   };
 }

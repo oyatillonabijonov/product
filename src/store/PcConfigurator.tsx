@@ -5,8 +5,8 @@ import type { LucideIcon } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { Product } from '../data/products';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
-import { formatUzs } from '../lib/installment';
 import { useCart } from './CartContext';
+import { useCurrency } from './CurrencyContext';
 import { SECTION_HEADING, BTN_LG } from './ui';
 
 interface Slot { key: string; type: string; icon: LucideIcon; label: (t: Translation) => string }
@@ -37,6 +37,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Record<string,
   const picked = pickedRaw as Record<string, Product>;
   const cart = useCart();
   const navigate = useNavigate();
+  const { price } = useCurrency();
 
   if (slots.length < 2) return null;
   const slot = slots.find((s) => s.key === active) ?? slots[0];
@@ -112,7 +113,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Record<string,
                       <span className="sr-only">{on ? t.cfgSelected : t.cfgSelect}</span>
                     </span>
                     <span className="shrink-0 text-para font-semibold tabular-nums">
-                      {formatUzs(part.minPriceUzs, t.sum)}
+                      {price(part.minPriceUzs)}
                     </span>
                     {/* Radio uslubidagi belgi — mobil kenglikda ham "bosiladi" degan ishora qoladi. */}
                     <span
@@ -143,7 +144,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Record<string,
                   </span>
                   {picked[s.key] && (
                     <span className="shrink-0 tabular-nums text-muted">
-                      {formatUzs(picked[s.key].minPriceUzs, t.sum)}
+                      {price(picked[s.key].minPriceUzs)}
                     </span>
                   )}
                 </dd>
@@ -154,7 +155,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Record<string,
           <div className="mt-4 flex items-baseline justify-between gap-3 border-t border-line pt-4">
             <span className="text-para text-muted">{t.cfgTotal}</span>
             <span className="text-subhead font-semibold tabular-nums">
-              {formatUzs(total, t.sum)}
+              {price(total)}
             </span>
           </div>
 

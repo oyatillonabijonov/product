@@ -13,6 +13,7 @@ import ActiveFilterChips from './ActiveFilterChips';
 import Pagination from './Pagination';
 import Sheet from './Sheet';
 import { PILL } from './ui';
+import { useCurrency } from './CurrencyContext';
 
 const CatalogView: FC<{
   t: Translation;
@@ -29,6 +30,7 @@ const CatalogView: FC<{
 }> = ({ t, title, result, config, brands, filters, hideBrands, subtitle, tiles }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const { currency } = useCurrency();
 
   function update(next: Partial<CatalogFilters>, resetPage = true) {
     const p = new URLSearchParams(sp);
@@ -59,7 +61,8 @@ const CatalogView: FC<{
   const active = activeFilterCount(filters, { ignoreBrands: hideBrands });
   const panel = (
     <FilterPanel
-      key={`price-${filters.priceMin ?? ''}-${filters.priceMax ?? ''}`}
+      // Valyuta ham kalitda — almashganda input holati tozalanadi (qiymat boshqa birlikda).
+      key={`price-${currency}-${filters.priceMin ?? ''}-${filters.priceMax ?? ''}`}
       t={t}
       brands={brands}
       facets={result.facets}

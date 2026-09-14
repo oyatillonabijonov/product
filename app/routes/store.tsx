@@ -1,7 +1,8 @@
 import { Outlet, isRouteErrorResponse, redirect, useLoaderData, useLocation, useRouteError } from 'react-router';
 import type { Route } from './+types/store';
 import { resolveLocale, localeToLang, localizedPath, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
-import { loadSiteConfig, loadPages, loadCategories, hasDeals, publicSiteConfig, type PageLink } from '../lib/loaders';
+import { loadSiteConfig, loadPages, loadCategories, loadConfig, hasDeals, publicSiteConfig, type PageLink } from '../lib/loaders';
+import { CURRENCY_COOKIE, parseCurrency } from '../../src/lib/currency';
 import { loadCustomer } from '../../functions/lib/db';
 import { getCookie, verifySession } from '../../functions/lib/auth';
 import type { ApiCustomer } from '../../shared/types';
@@ -21,7 +22,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const env = context.env;
   // Kategoriyalar ham shu yerda — Header dropdown'i SSR HTMLda chiqadi
   // (crawler ichki linklarni ko'radi) va klientdagi qo'shimcha /api/categories so'rovi yo'qoladi.
-  const [siteConfig, pages, categories, deals] = await Promise.all([loadSiteConfig(env), loadPages(env), loadCategories(env), hasDeals(env)]);
+  const [siteConfig, pages, categories, deals, settings] = await Promise.all([loadSiteConfig(env), loadPages(env), loadCategories(env), hasDeals(env), loadConfig(env)]);
   const pageLinks: PageLink[] = pages.map((p) => ({ slug: p.slug, title: p.title }));
   // Kirgan mijoz — sessiya sirini allaqachon yuklangan siteConfig'dan olamiz (qo'shimcha D1 o'qishsiz).
   const token = getCookie(request, 'customer_session');
@@ -32,15 +33,17 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   }
   // origin — root.tsx'dagi hreflang va route meta'lardagi absolut URL'lar uchun.
   // publicSiteConfig — sirlar (bot token, OAuth secret, sessiya siri) klientga (HTML) chiqmasin.
-  return { locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, deals, origin: new URL(request.url).origin };
+  // Valyuta tanlovi cookie'da (USD bo'lsa server/index.ts javobni umumiy keshdan chiqaradi).
+  const currency = parseCurrency(getCookie(request, CURRENCY_COOKIE));
+  return { locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, deals, currency, usdRate: settings.usdToUzs, origin: new URL(request.url).origin };
 }
 
 export default function StoreRoot() {
-  const { locale, siteConfig, pageLinks, categories, customer, deals } = useLoaderData<typeof loader>();
+  const { locale, siteConfig, pageLinks, categories, customer, deals, currency, usdRate } = useLoaderData<typeof loader>();
   const lang = localeToLang(locale);
   const t = translations[lang];
   return (
-    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories} hasDeals={deals}>
+    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories} hasDeals={deals} currency={currency} usdRate={usdRate}>
       <Outlet context={{ t, lang, locale, config: siteConfig, customer, pageLinks }} />
     </StoreLayout>
   );

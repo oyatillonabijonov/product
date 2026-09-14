@@ -414,3 +414,27 @@ describe('parsePasswordInput', () => {
     expect(() => parsePasswordInput({ newPassword: 'short' })).toThrow('password_too_short');
   });
 });
+
+describe('parseSettingsInput — usdMarkupPercent', () => {
+  const base = {
+    downPaymentPercent: 20, downPaymentMaxPercent: 90, usdToUzs: 12600,
+    terms: [{ months: 3, markup: 0.1 }],
+  };
+  it("berilmasa null — avtomatik kurs o'chiq", () => {
+    expect(parseSettingsInput(base).usdMarkupPercent).toBeNull();
+  });
+  it("0–100 oralig'ini qabul qiladi", () => {
+    expect(parseSettingsInput({ ...base, usdMarkupPercent: 7 }).usdMarkupPercent).toBe(7);
+    expect(parseSettingsInput({ ...base, usdMarkupPercent: 0 }).usdMarkupPercent).toBe(0);
+  });
+  it('diapazondan tashqarisini rad etadi', () => {
+    expect(() => parseSettingsInput({ ...base, usdMarkupPercent: -1 })).toThrow('usd_markup_range');
+    expect(() => parseSettingsInput({ ...base, usdMarkupPercent: 101 })).toThrow('usd_markup_range');
+    expect(() => parseSettingsInput({ ...base, usdMarkupPercent: '7' })).toThrow('usd_markup_range');
+  });
+  it("MB kursi va sanasi body'dan olinmaydi (server mulki)", () => {
+    const s = parseSettingsInput({ ...base, usdCbuRate: 1, usdRateDate: 'x' });
+    expect(s.usdCbuRate).toBeNull();
+    expect(s.usdRateDate).toBe('');
+  });
+});

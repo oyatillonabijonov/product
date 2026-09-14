@@ -5,8 +5,8 @@ import type { Translation } from '../locales';
 import type { InstallmentConfig } from '../data/products';
 import type { ApiSiteConfig } from '../../shared/types';
 import { cartSum, cartInstallment } from '../lib/cart';
-import { formatUzs } from '../lib/installment';
 import { useCart } from './CartContext';
+import { useCurrency } from './CurrencyContext';
 import LocaleLink from './LocaleLink';
 import OrderForm, { type OrderDraft } from './OrderForm';
 import TermSegments from './TermSegments';
@@ -14,6 +14,7 @@ import TermSegments from './TermSegments';
 const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteConfig }> = ({ t, config, site }) => {
   const showInstallment = site.paymentMode !== 'cash';
   const { items, count, remove, changeQty, clear } = useCart();
+  const { price } = useCurrency();
   // Default — sozlamalardagi eng uzun muddat (qattiq 12 emas).
   const [months, setMonths] = useState(() => config.terms[config.terms.length - 1]?.months ?? 12);
   const sum = cartSum(items);
@@ -67,7 +68,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
               <div className="min-w-[45%] flex-1">
                 <div className="font-semibold text-para line-clamp-2">{it.name}</div>
                 {it.variantLabel && <div className="text-label text-muted">{it.variantLabel}</div>}
-                <div className="text-label text-muted mt-0.5 tabular-nums">{formatUzs(it.priceUzs * it.qty, t.sum)}</div>
+                <div className="text-label text-muted mt-0.5 tabular-nums">{price(it.priceUzs * it.qty)}</div>
               </div>
               <div className="ml-auto flex shrink-0 items-center gap-1.5">
                 <button onClick={() => changeQty(it.productId, it.variantId, it.qty - 1)} aria-label={t.qtyDecrease} className="press w-9 h-9 rounded-full border border-line flex items-center justify-center hover:border-accent"><Minus className="w-3.5 h-3.5" /></button>
@@ -90,16 +91,16 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
             </>
           )}
           <div className="space-y-2 text-label">
-            <div className="flex justify-between"><span className="text-muted">{t.cartTotalCash}</span><span className="font-medium tabular-nums">{formatUzs(sum, t.sum)}</span></div>
+            <div className="flex justify-between"><span className="text-muted">{t.cartTotalCash}</span><span className="font-medium tabular-nums">{price(sum)}</span></div>
             {showInstallment && (
-              <div className="flex justify-between"><span className="text-muted">{t.calcDownPayment}</span><span className="font-medium tabular-nums">{formatUzs(result.downPaymentUzs, t.sum)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">{t.calcDownPayment}</span><span className="font-medium tabular-nums">{price(result.downPaymentUzs)}</span></div>
             )}
           </div>
           {showInstallment && (
             <div className="mt-4 pt-4 border-t border-divider">
               <div className="text-label text-muted">{t.cartMonthlyTotal}</div>
               <div className="text-subhead font-semibold text-accent leading-none mt-1 tabular-nums">
-                {formatUzs(result.monthly, t.sum)} <span className="text-label text-muted-2 font-normal">× {months} {t.calcMonths}</span>
+                {price(result.monthly)} <span className="text-label text-muted-2 font-normal">× {months} {t.calcMonths}</span>
               </div>
             </div>
           )}

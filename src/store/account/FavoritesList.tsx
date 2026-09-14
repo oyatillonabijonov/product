@@ -1,12 +1,15 @@
 import type { FC } from 'react';
 import { X, Heart } from 'lucide-react';
 import type { Translation } from '../../locales';
-import { formatUzs } from '../../lib/installment';
 import { useFavorites } from '../FavoritesContext';
+import { useCurrency } from '../CurrencyContext';
 import LocaleLink from '../LocaleLink';
 
 const FavoritesList: FC<{ t: Translation }> = ({ t }) => {
-  const { items, remove } = useFavorites();
+  const { items, remove, loaded } = useFavorites();
+  const { price } = useCurrency();
+  // SSR'da ro'yxat hali o'qilmagan — "bo'sh" holati chaqnab o'tmasin.
+  if (!loaded) return null;
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center text-center py-14 gap-3">
@@ -36,7 +39,7 @@ const FavoritesList: FC<{ t: Translation }> = ({ t }) => {
           <LocaleLink to={`/product/${f.productId}`} className="text-label font-medium mt-2.5 line-clamp-2 hover:text-accent transition-colors">
             {f.name}
           </LocaleLink>
-          <div className="text-para font-semibold text-primary mt-1 tabular-nums">{formatUzs(f.priceUzs, t.sum)}</div>
+          <div className="text-para font-semibold text-primary mt-1 tabular-nums">{price(f.priceUzs)}</div>
         </div>
       ))}
     </div>

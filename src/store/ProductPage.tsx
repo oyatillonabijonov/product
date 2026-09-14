@@ -5,10 +5,11 @@ import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
 import type { ApiReview, ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
-import { calcInstallment, discountPercent, formatUzs } from '../lib/installment';
+import { calcInstallment, discountPercent } from '../lib/installment';
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, valuePrice, type VariantSelection } from '../lib/variants';
 import { safeHref } from '../lib/safe-href';
 import { useCart } from './CartContext';
+import { useCurrency } from './CurrencyContext';
 import Expandable from './Expandable';
 import Gallery from './Gallery';
 import FavoriteButton from './FavoriteButton';
@@ -48,6 +49,7 @@ const ProductPage: FC<{
   // tanlanmagan segment + noto'g'ri yorliq chiqib qolardi).
   const [months, setMonths] = useState(() => config.terms[config.terms.length - 1]?.months ?? 12);
   const showInstallment = site.paymentMode !== 'cash';
+  const { price } = useCurrency();
   // Boshlang'ich to'lov foizi — min (config.downPaymentPercent) dan max (downPaymentMaxPercent) gacha slider.
   const [downPct, setDownPct] = useState(config.downPaymentPercent);
   const [selection, setSelection] = useState<VariantSelection | null>(
@@ -163,10 +165,10 @@ const ProductPage: FC<{
             </div>
 
             <div className="mt-1.5 flex flex-wrap items-baseline gap-2.5">
-              <span className="text-subhead md:text-heading font-semibold tabular-nums text-primary">{formatUzs(displayCash, t.sum)}</span>
+              <span className="text-subhead md:text-heading font-semibold tabular-nums text-primary">{price(displayCash)}</span>
               {displayOld && disc !== null && (
                 <>
-                  <span className="text-control md:text-copy tabular-nums text-disabled-2 line-through">{formatUzs(displayOld, t.sum)}</span>
+                  <span className="text-control md:text-copy tabular-nums text-disabled-2 line-through">{price(displayOld)}</span>
                   <span className="rounded-full bg-sale px-2 py-0.5 text-label font-bold text-white">-{disc}%</span>
                 </>
               )}
@@ -205,9 +207,9 @@ const ProductPage: FC<{
                     </span>
                     {cash !== null && (
                       <span className="shrink-0 text-right text-label leading-snug text-muted-2 tabular-nums">
-                        <span className="block">{formatUzs(cash, t.sum)}</span>
+                        <span className="block">{price(cash)}</span>
                         {showInstallment && (
-                          <span className="mt-1 block">{formatUzs(monthlyOf(cash), t.sum)} × {months} {t.calcMonths}</span>
+                          <span className="mt-1 block">{price(monthlyOf(cash))} × {months} {t.calcMonths}</span>
                         )}
                       </span>
                     )}
@@ -227,7 +229,7 @@ const ProductPage: FC<{
                   <div className="mb-2 flex items-center justify-between text-label">
                     <span className="font-semibold text-muted">{t.calcDownPayment}</span>
                     <span className="font-semibold tabular-nums text-primary">
-                      {downPct}% · {formatUzs(result.downPaymentUzs, t.sum)}
+                      {downPct}% · {price(result.downPaymentUzs)}
                     </span>
                   </div>
                   <input
@@ -246,7 +248,7 @@ const ProductPage: FC<{
                   <div>
                     <div className="text-label text-muted">{t.calcMonthly}</div>
                     <div className="mt-1 text-subhead md:text-heading font-semibold leading-none text-accent">
-                      {formatUzs(result.monthly, t.sum)}
+                      {price(result.monthly)}
                     </div>
                   </div>
                   <span className="pb-1 text-label text-muted-2">× {months} {t.calcMonths}</span>
@@ -254,7 +256,7 @@ const ProductPage: FC<{
 
                 <div className="mt-4 flex justify-between border-t border-divider pt-4 text-label">
                   <span className="text-muted">{t.calcTotal}</span>
-                  <span className="font-medium text-primary">{formatUzs(result.total, t.sum)}</span>
+                  <span className="font-medium text-primary">{price(result.total)}</span>
                 </div>
               </div>
             </section>

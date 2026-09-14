@@ -4,6 +4,7 @@ import { createRequestHandler } from '@react-router/express';
 import type { ServerBuild } from 'react-router';
 import { createEnv } from './env.ts';
 import { createBillzSync } from './billz-sync.ts';
+import { createUsdRate } from './usd-rate.ts';
 
 /**
  * Ilova serveri — dev va production uchun bitta fayl.
@@ -20,6 +21,8 @@ const env = createEnv();
 // route orqali (`context.billz`). Token kiritilmagan bo'lsa tick'lar bo'sh o'tadi.
 const billz = createBillzSync(env);
 billz.start();
+// Dollar kursi — cbu.uz'dan har 6 soatda (ustama kiritilgan bo'lsa do'kon kursini ham yangilaydi).
+createUsdRate(env).start();
 
 const app = express();
 app.disable('x-powered-by');
@@ -47,7 +50,10 @@ app.use((req, res, next) => {
   const path = req.path;
   const skip = NO_CACHE.some((p) => path.startsWith(p))
     || NO_CACHE_EXACT.some((p) => path === p || path.endsWith(p));
-  if (!skip) res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=240');
+  // USD tanlagan foydalanuvchi sahifasi boshqa narxda chiziladi — umumiy keshga tushmasin
+  // (deploy/nginx.conf ham shu cookie bo'yicha bypass qiladi).
+  const usd = /(?:^|;\s*)currency=USD(?:;|$)/.test(req.headers.cookie ?? '');
+  if (!skip) res.setHeader('Cache-Control', usd ? 'private, no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=240');
   next();
 });
 

@@ -14,6 +14,8 @@ import LoginModal from './LoginModal';
 import { loginEnabled } from './LoginPanel';
 import { CartProvider } from './CartContext';
 import { FavoritesProvider } from './FavoritesContext';
+import { CurrencyProvider } from './CurrencyContext';
+import type { Currency } from '../lib/currency';
 
 export interface StoreContext {
   t: Translation;
@@ -28,8 +30,8 @@ export interface StoreContext {
 }
 
 export default function StoreLayout({
-  locale, lang, t, config, customer, pageLinks, categories, hasDeals, children,
-}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; customer: ApiCustomer | null; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean; children: ReactNode }) {
+  locale, lang, t, config, customer, pageLinks, categories, hasDeals, currency, usdRate, children,
+}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; customer: ApiCustomer | null; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean; currency: Currency; usdRate: number; children: ReactNode }) {
   // SSR navigatsiyasi (filtr/sort/sahifa) sekin tarmoqda feedback'siz edi — indeterminate progress-bar.
   const navigation = useNavigation();
   const pending = navigation.state !== 'idle';
@@ -49,6 +51,7 @@ export default function StoreLayout({
   return (
     <CartProvider>
      <FavoritesProvider>
+     <CurrencyProvider initial={currency} rate={usdRate} sum={t.sum}>
       {/* Sayt sukut bo'yicha qorong'i — tokenlar `.theme-dark` ichida qayta e'lon
           qilinadi (app/styles.css), shu sabab ichkaridagi bloklar o'zgarishsiz
           qayta ranglanadi. Yorug' rejim — foydalanuvchi tanlovi
@@ -69,6 +72,7 @@ export default function StoreLayout({
         <CookieBanner t={t} />
         {canLogin && <LoginModal t={t} config={config} open={loginOpen} onClose={() => setLoginOpen(false)} />}
       </div>
+     </CurrencyProvider>
      </FavoritesProvider>
     </CartProvider>
   );

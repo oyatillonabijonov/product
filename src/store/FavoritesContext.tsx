@@ -5,6 +5,8 @@ import { toggleFavorite, removeFavorite, isFavorite, parseFavorites, serializeFa
 interface FavoritesApi {
   items: FavoriteItem[];
   count: number;
+  /** localStorage o'qilganmi — undan oldin ro'yxat "bo'sh" deb ko'rsatilmasin. */
+  loaded: boolean;
   isFavorite(productId: string): boolean;
   toggle(item: FavoriteItem): void;
   remove(productId: string): void;
@@ -44,6 +46,7 @@ export const FavoritesProvider: FC<{ children: ReactNode }> = ({ children }) => 
   const api: FavoritesApi = {
     items,
     count: items.length,
+    loaded,
     isFavorite: (productId) => isFavorite(items, productId),
     toggle: (item) => setItems((xs) => toggleFavorite(xs, item)),
     remove: (productId) => setItems((xs) => removeFavorite(xs, productId)),

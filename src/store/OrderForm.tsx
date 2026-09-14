@@ -5,11 +5,11 @@ import { X, Send } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { OrderInput } from '../../shared/types';
 import type { StoreContext } from './StoreLayout';
-import { formatUzs } from '../lib/installment';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
 import { ymGoal } from '../lib/metrica';
 import { safeHref } from '../lib/safe-href';
 import Modal from './Modal';
+import { useCurrency } from './CurrencyContext';
 
 /** Ism/telefonsiz tayyor buyurtma — chaqiruvchi (ProductPage/CartPage) to'ldiradi. */
 export type OrderDraft = Omit<OrderInput, 'name' | 'phone' | 'note'> & { title: string };
@@ -22,6 +22,7 @@ const OrderForm: FC<{
   onDone?: () => void;
 }> = ({ t, draft, onClose, onDone }) => {
   const { customer, config } = useOutletContext<StoreContext>();
+  const { price } = useCurrency();
   const [name, setName] = useState(customer?.name ?? '');
   const [phone, setPhone] = useState(formatUzPhone(customer?.phone ?? ''));
   const [company, setCompany] = useState(''); // honeypot
@@ -133,19 +134,19 @@ const OrderForm: FC<{
               {installment && draft.downPaymentUzs !== null && (
                 <div className="flex justify-between gap-3">
                   <span className="text-muted">{t.calcDownPayment}</span>
-                  <span className="font-semibold tabular-nums">{formatUzs(draft.downPaymentUzs, t.sum)}</span>
+                  <span className="font-semibold tabular-nums">{price(draft.downPaymentUzs)}</span>
                 </div>
               )}
               {installment && draft.monthlyUzs !== null && (
                 <div className="flex justify-between gap-3">
                   <span className="text-muted">{t.calcMonthly}</span>
-                  <span className="font-semibold tabular-nums">{formatUzs(draft.monthlyUzs, t.sum)}</span>
+                  <span className="font-semibold tabular-nums">{price(draft.monthlyUzs)}</span>
                 </div>
               )}
               <div className="flex justify-between gap-3">
                 <span className="text-muted">{t.calcTotal}</span>
                 <span className="font-semibold tabular-nums">
-                  {formatUzs(installment && draft.totalUzs !== null ? draft.totalUzs : cashTotal, t.sum)}
+                  {price(installment && draft.totalUzs !== null ? draft.totalUzs : cashTotal)}
                 </span>
               </div>
             </div>

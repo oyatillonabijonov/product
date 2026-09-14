@@ -5,6 +5,8 @@ import type { Translation } from '../locales';
 import type { ApiBrand } from '../../shared/types';
 import { activeFilterCount, type CatalogFilters, type CatalogFacets } from '../../app/lib/catalog';
 import { formatThousands, parseDigits } from '../admin/lib/format';
+import { fromUzs, toUzs } from '../lib/currency';
+import { useCurrency } from './CurrencyContext';
 
 /** Bo'lim sarlavhasi — o'ngida ixtiyoriy izoh ("1 tanlangan"). */
 const Heading: FC<{ title: string; note?: string }> = ({ title, note }) => (
@@ -29,9 +31,10 @@ const SECTION = 'border-t border-line pt-5 pb-3 first:border-t-0 first:pt-0 last
 // Fokus halqasi butun qatorda: 18px doiradagi halqa klaviaturada sezilmasdi.
 const ROW = 'press press-surface group flex h-11 cursor-pointer items-center gap-3 rounded-xs px-3 text-label outline-none hover:bg-fill-2 focus-visible:ring-2 focus-visible:ring-accent has-focus-visible:ring-2 has-focus-visible:ring-accent lg:h-9';
 // Native input `sr-only` (klaviatura va skrinrider qoladi; brauzerning oq checkbox'i dark rejimda
-// og'ir ko'rinardi), ko'rinadigan doira `group-has-checked` bilan bo'yaladi. Checkbox ham, radio ham dumaloq: radius shkalasida 18px kvadrat uchun pog'ona
-// yo'q — 8px uni baribir doiraga aylantiradi, o'tkir burchak esa tizimga begona. Farq belgilanganda
-// ko'rinadi (✓ yoki nuqta); "Holati"da bittasi doim tanlangan, shuning uchun nuqta doim ko'rinadi.
+// og'ir ko'rinardi), ko'rinadigan doira `group-has-checked` bilan bo'yaladi. Checkbox ham, radio ham
+// dumaloq: radius shkalasida 18px kvadrat uchun pog'ona yo'q — 8px uni baribir doiraga aylantiradi,
+// o'tkir burchak esa tizimga begona. Farq belgilanganda ko'rinadi (✓ yoki nuqta); "Holati"da bittasi
+// doim tanlangan, shuning uchun nuqta doim ko'rinadi.
 const GLYPH = 'flex size-4.5 shrink-0 items-center justify-center rounded-full border border-muted-3 transition-colors group-hover:border-muted-2 group-has-checked:border-accent group-has-checked:bg-accent';
 // Mobil varaqda 16px (pastida iOS fokusda zoom qiladi), desktop panelda 14px.
 const INPUT = 'h-11 w-full min-w-0 rounded-xs border border-line bg-transparent px-3 text-control text-primary tabular-nums transition-colors placeholder:text-muted-2 hover:border-muted-3 focus:border-accent focus:outline-none lg:h-9 lg:text-label';
@@ -45,8 +48,11 @@ const FilterPanel: FC<{
   onClear: () => void;
   hideBrands?: boolean;
 }> = ({ t, brands, facets, filters, onChange, onClear, hideBrands }) => {
-  const appliedLo = filters.priceMin !== null ? String(filters.priceMin) : '';
-  const appliedHi = filters.priceMax !== null ? String(filters.priceMax) : '';
+  // Inputlar tanlangan valyutada; URL `narx` doim so'mda (qo'llashda toUzs).
+  const { currency, rate } = useCurrency();
+  const shown = (uzs: number | null) => (uzs !== null ? String(fromUzs(uzs, currency, rate)) : '');
+  const appliedLo = shown(filters.priceMin);
+  const appliedHi = shown(filters.priceMax);
   const [lo, setLo] = useState(appliedLo);
   const [hi, setHi] = useState(appliedHi);
   // "Ko'rsatish" faqat kiritilgan qiymat qo'llanganidan farq qilganda chiqadi.
@@ -60,7 +66,10 @@ const FilterPanel: FC<{
     if (!dirty) return;
     const pm = parseDigits(lo) || null; // "11 900 000" ham o'tadi; 0/bo'sh → chegara yo'q
     const px = parseDigits(hi) || null;
-    onChange({ priceMin: pm, priceMax: px });
+    onChange({
+      priceMin: pm === null ? null : toUzs(pm, currency, rate),
+      priceMax: px === null ? null : toUzs(px, currency, rate),
+    });
   }
 
   const visibleBrands = brands.filter((b) => (facets.brandCounts[b.id] ?? 0) > 0 || filters.brands.includes(b.id));
@@ -88,7 +97,7 @@ const FilterPanel: FC<{
       )}
 
       <section className={SECTION}>
-        <Heading title={t.filterPrice} />
+        <Heading title={currency === 'USD' ? t.filterPriceUsd : t.filterPrice} />
         {/* Placeholder — joriy natijadagi narx diapazoni. Oradagi tire yo'q: 240px kartada
             u "60 480 000"ni kesib qo'yardi, ikki maydonning "dan–gacha" ekani esa
             placeholder'dan ko'rinib turadi (skrinrider uchun `aria-label`). */}
@@ -96,7 +105,7 @@ const FilterPanel: FC<{
           <div className="flex items-center gap-2">
             <input
               inputMode="numeric"
-              placeholder={formatThousands(facets.priceMin) || t.filterPriceFrom}
+              placeholder={formatThousands(fromUzs(facets.priceMin, currency, rate)) || t.filterPriceFrom}
               aria-label={t.filterPriceFrom}
               className={INPUT}
               value={lo}
@@ -105,7 +114,7 @@ const FilterPanel: FC<{
             />
             <input
               inputMode="numeric"
-              placeholder={formatThousands(facets.priceMax) || t.filterPriceTo}
+              placeholder={formatThousands(fromUzs(facets.priceMax, currency, rate)) || t.filterPriceTo}
               aria-label={t.filterPriceTo}
               className={INPUT}
               value={hi}
