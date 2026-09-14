@@ -13,7 +13,7 @@ import {
   type ProductRow, type CategoryRow, type SettingsRow, rowToSettings, type BrandRow,
   rowToBanner, rowToPage, rowToPost, rowToSiteConfig, type BannerRow, type PageRow, type PostRow, type SiteConfigRow,
 } from '../../functions/lib/db';
-import { applyFilters, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
+import { applyFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 import type { TileRow } from './tiles';
 import { siteConfig as staticSiteConfig } from './site.config';
 
@@ -101,13 +101,18 @@ function escapeLike(s: string): string {
   return s.replace(/[\\%_]/g, (m) => `\\${m}`);
 }
 
-export async function loadProductsBy(env: Env, params: { category?: string; q?: string; limit?: number }): Promise<Product[]> {
+export async function loadProductsBy(
+  env: Env,
+  params: { category?: string; type?: string; exclude?: string; q?: string; limit?: number; order?: 'default' | 'random' },
+): Promise<Product[]> {
   try {
     let sql = `SELECT ${PRODUCT_COLS} FROM products WHERE is_active = 1`;
     const binds: unknown[] = [];
     if (params.category) { sql += ' AND category_id = ?'; binds.push(params.category); }
-    if (params.q && params.q.trim() !== '') { sql += " AND name LIKE ? ESCAPE '\\'"; binds.push(`%${escapeLike(params.q.trim())}%`); }
-    sql += ' ORDER BY sort_order ASC, created_at ASC';
+    if (params.type) { sql += ' AND type = ?'; binds.push(params.type); }
+    if (params.exclude) { sql += ' AND id <> ?'; binds.push(params.exclude); }
+    for (const term of searchTerms(params.q ?? '')) { sql += " AND name LIKE ? ESCAPE '\\'"; binds.push(`%${escapeLike(term)}%`); }
+    sql += params.order === 'random' ? ' ORDER BY random()' : ' ORDER BY sort_order ASC, created_at ASC';
     if (params.limit) { sql += ' LIMIT ?'; binds.push(params.limit); }
     const { results } = await env.DB.prepare(sql).bind(...binds).all<ProductRow>();
     return results.map(rowToProduct).map(mapProduct);
@@ -115,8 +120,10 @@ export async function loadProductsBy(env: Env, params: { category?: string; q?: 
     console.error('loadProductsBy fallback:', err);
     let items = fallbackProducts;
     if (params.category) items = items.filter((p) => fallbackCategoryOf(p) === params.category);
-    if (params.q) { const q = params.q.toLowerCase(); items = items.filter((p) => p.name.toLowerCase().includes(q)); }
-    return items;
+    if (params.type) items = items.filter((p) => p.type === params.type);
+    if (params.exclude) items = items.filter((p) => p.id !== params.exclude);
+    for (const term of searchTerms((params.q ?? '').toLowerCase())) items = items.filter((p) => p.name.toLowerCase().includes(term));
+    return params.limit ? items.slice(0, params.limit) : items;
   }
 }
 
@@ -176,12 +183,15 @@ function buildConds(f: CatalogFilters, opts: { skipBrands?: boolean; skipPrice?:
   if (f.condition) { conds.push('condition = ?'); binds.push(f.condition); }
   if (f.type) { conds.push('type = ?'); binds.push(f.type); }
   if (f.q) {
-    const like = `%${escapeLike(f.q)}%`;
-    // Match product name, brand name, or category name so a search like "Apple" or "telefon" works.
-    conds.push(
-      "(name LIKE ? ESCAPE '\\' OR brand_id IN (SELECT id FROM brands WHERE name LIKE ? ESCAPE '\\') OR category_id IN (SELECT id FROM categories WHERE name LIKE ? ESCAPE '\\'))",
-    );
-    binds.push(like, like, like);
+    // Har bir so'z alohida LIKE, AND bilan: "macbook 14 pro" nomdagi tartibdan qat'i nazar topiladi.
+    // So'z mahsulot nomi, brend nomi yoki kategoriya nomiga mos kelishi mumkin.
+    for (const term of searchTerms(f.q)) {
+      const like = `%${escapeLike(term)}%`;
+      conds.push(
+        "(name LIKE ? ESCAPE '\\' OR brand_id IN (SELECT id FROM brands WHERE name LIKE ? ESCAPE '\\') OR category_id IN (SELECT id FROM categories WHERE name LIKE ? ESCAPE '\\'))",
+      );
+      binds.push(like, like, like);
+    }
   }
   if (f.onlyDeals) conds.push('old_price_uzs IS NOT NULL AND old_price_uzs > cash_price_uzs');
   if (!opts.skipBrands && f.brands.length > 0) {
@@ -310,6 +320,17 @@ export async function loadBanners(env: Env): Promise<ApiBanner[]> {
   } catch (err) {
     console.error('loadBanners fallback:', err);
     return [];
+  }
+}
+
+/** Chegirmadagi mahsulot bormi — footer'dagi "Chegirmalar" havolasi bo'sh sahifaga olib bormasin. */
+export async function hasDeals(env: Env): Promise<boolean> {
+  try {
+    const row = await env.DB.prepare('SELECT 1 AS x FROM products WHERE is_active = 1 AND old_price_uzs > cash_price_uzs LIMIT 1').first<{ x: number }>();
+    return row !== null;
+  } catch (err) {
+    console.error('hasDeals fallback:', err);
+    return fallbackProducts.some((p) => p.oldPriceUzs != null && p.oldPriceUzs > p.cashPriceUzs);
   }
 }
 

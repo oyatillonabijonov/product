@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pageTitle, productJsonLd, breadcrumbJsonLd, storeConfigFrom } from './seo';
+import { pageTitle, productJsonLd, breadcrumbJsonLd, storeConfigFrom, productDescriptionFallback, catalogMeta, organizationJsonLd } from './seo';
 import type { ProductDetail } from './loaders';
 
 function makeDetail(over: Partial<ProductDetail> = {}): ProductDetail {
@@ -81,5 +81,40 @@ describe('storeConfigFrom', () => {
   it('returns undefined for junk', () => {
     expect(storeConfigFrom(undefined)).toBeUndefined();
     expect(storeConfigFrom([{ data: { x: 1 } }, null])).toBeUndefined();
+  });
+});
+
+describe('productDescriptionFallback', () => {
+  it('nom, brend, narx va do\'kon nomidan tavsif yasaydi', () => {
+    const d = productDescriptionFallback('uz', 'MacBook Pro 14', 'Apple', "30 240 000 so'm", 'ProDuct');
+    expect(d).toContain('MacBook Pro 14');
+    expect(d).toContain('Apple');
+    expect(d).toContain("30 240 000 so'm");
+    expect(d).toContain('ProDuct');
+  });
+  it('ruscha va brendsiz', () => {
+    const d = productDescriptionFallback('ru', 'HomePod', null, '5 000 000 сум', 'ProDuct');
+    expect(d).toContain('Ташкент');
+    expect(d).not.toContain('null');
+  });
+});
+
+describe('catalogMeta description', () => {
+  it('tavsif berilsa description meta qo\'shiladi', () => {
+    const metas = catalogMeta('Apple — ProDuct', 'https://x.uz/category/apple', 'Apple texnikasi');
+    expect(metas).toContainEqual({ name: 'description', content: 'Apple texnikasi' });
+  });
+});
+
+describe('organizationJsonLd manzil', () => {
+  it('manzil, ish vaqti va sayt URL\'i kiradi', () => {
+    const ld = organizationJsonLd({ name: 'ProDuct', phone: '+998', telegram: 't', instagram: 'i', mapLl: '69.27,41.33', mapLabel: 'Tong Yulduzi MFY, 30-uy, Toshkent' } as never, 'https://product.uz') as {
+      address: { streetAddress: string; addressLocality: string }; openingHours: string; url: string; geo: { latitude: number; longitude: number };
+    };
+    expect(ld.address.streetAddress).toBe('Tong Yulduzi MFY, 30-uy, Toshkent');
+    expect(ld.address.addressLocality).toBe('Toshkent');
+    expect(ld.openingHours).toBe('Mo-Su 10:00-21:00');
+    expect(ld.url).toBe('https://product.uz');
+    expect(ld.geo).toMatchObject({ latitude: 41.33, longitude: 69.27 });
   });
 });

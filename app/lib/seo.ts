@@ -9,13 +9,14 @@ export function pageTitle(title?: string, suffix?: string): string {
   return title ? `${title} — ${sfx}` : sfx;
 }
 
-export function catalogMeta(title: string, requestUrl: string): Array<Record<string, string>> {
+export function catalogMeta(title: string, requestUrl: string, description?: string): Array<Record<string, string>> {
   const url = new URL(requestUrl);
   // Canonical har doim (absolut, toza path) — utm-li nusxalar asl sahifaga birlashadi;
   // filtr/sahifalash parametrlari qo'shimcha noindex oladi.
   const metas: Array<Record<string, string>> = [
     { title },
     { tagName: 'link', rel: 'canonical', href: url.origin + url.pathname },
+    ...(description ? [{ name: 'description', content: description }] : []),
   ];
   if (hasActiveParams(url.searchParams)) {
     metas.push({ name: 'robots', content: 'noindex,follow' });
@@ -35,13 +36,33 @@ export function ogMeta(o: { title: string; description?: string; image?: string;
   ];
 }
 
-export function organizationJsonLd(config?: ApiSiteConfig) {
+/** Mahsulot tavsifi bo'sh bo'lganda (Billz tovarlarining ko'pchiligi) meta description shablondan yasaladi. */
+export function productDescriptionFallback(locale: 'uz' | 'ru', name: string, brand: string | null, price: string, store: string): string {
+  const b = brand ? `${brand}, ` : '';
+  return locale === 'ru'
+    ? `${name} — ${b}оригинал с официальной гарантией. Цена ${price}. ${store}, Ташкент.`
+    : `${name} — ${b}original, rasmiy kafolat bilan. Narxi ${price}. ${store}, Toshkent.`;
+}
+
+export function organizationJsonLd(config?: ApiSiteConfig, origin?: string) {
+  // Yandex `ll` = "lon,lat"; schema.org geo lat/lon alohida.
+  const [lon, lat] = (config?.mapLl ?? siteConfig.map.ll).split(',').map(Number);
   return {
     '@context': 'https://schema.org',
     '@type': 'Store',
     name: config?.name ?? siteConfig.name,
     telephone: config?.phone ?? siteConfig.phone,
     sameAs: [config?.telegram ?? siteConfig.telegram, config?.instagram ?? siteConfig.instagram],
+    ...(origin ? { url: origin } : {}),
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: config?.mapLabel ?? siteConfig.map.label,
+      addressLocality: 'Toshkent',
+      addressCountry: 'UZ',
+    },
+    ...(Number.isFinite(lat) && Number.isFinite(lon) ? { geo: { '@type': 'GeoCoordinates', latitude: lat, longitude: lon } } : {}),
+    // Ish vaqti footer'dagi `footerTime` bilan bir xil (Du-Yak 10:00-21:00).
+    openingHours: 'Mo-Su 10:00-21:00',
   };
 }
 

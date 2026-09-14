@@ -15,7 +15,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig; origin?: string } | undefined;
   const lang = htmlLang(storeData?.locale ?? DEFAULT_LOCALE);
   const location = useLocation();
-  const jsonLd = JSON.stringify(organizationJsonLd(storeData?.siteConfig)).replace(/</g, '\\u003c');
+  const jsonLd = JSON.stringify(organizationJsonLd(storeData?.siteConfig, storeData?.origin)).replace(/</g, '\\u003c');
   // Yandex Metrica — faqat hisoblagich sozlanganda (admin "Sayt ma'lumotlari") va
   // faqat storefront'da (storeData admin/resource routelarda yo'q). Id raqamligini
   // parseSiteConfigInput kafolatlaydi — baribir Number() bilan qo'shamiz (XSS himoyasi).
@@ -33,9 +33,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {storeData && (
           <>
             {hreflangLinks(location.pathname, storeData.origin ?? '').map((link) => (
-              // lowercase `hreflang` (not `hrefLang`) so React emits the literal HTML
-              // attribute name `hreflang=` instead of the DOM-property-cased `hrefLang=`.
-              <link key={link.hrefLang} rel={link.rel} hreflang={link.hrefLang} href={link.href} />
+              // React `hrefLang` propini HTMLga `hreflang=` qilib chiqaradi (kichik harfli prop ogohlantirish berardi).
+              <link key={link.hrefLang} rel={link.rel} hrefLang={link.hrefLang} href={link.href} />
             ))}
             {/* eslint-disable-next-line react/no-danger */}
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />

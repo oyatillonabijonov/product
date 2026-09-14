@@ -492,7 +492,8 @@ const MAX_TOPICS = 12;
  */
 export function parseConsultInput(body: unknown): ConsultInput {
   const o = asRecord(body);
-  const name = reqString(o, 'name');
+  // Ism ixtiyoriy: footer'dagi qo'ng'iroq so'rovi faqat telefon yuboradi.
+  const name = typeof o.name === 'string' ? o.name.trim() : '';
   const phone = reqString(o, 'phone');
   const digits = phone.replace(/\D/g, '');
   if (digits.length < 7 || digits.length > 15) throw new ValidationError('phone_invalid');

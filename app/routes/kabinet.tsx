@@ -4,7 +4,7 @@ import { resolveLocale, localeToLang, localizedPath } from '../lib/i18n';
 import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { translations } from '../../src/locales';
 import { currentCustomerId } from '../../functions/lib/customer-auth';
-import { loadCustomer, loadCustomerOrders, customerHasPassword } from '../../functions/lib/db';
+import { loadCustomer, loadCustomerOrders } from '../../functions/lib/db';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import AccountPage from '../../src/store/AccountPage';
 
@@ -17,8 +17,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const customer = await loadCustomer(env, id);
   if (!customer) throw redirect(localizedPath(locale, '/kirish'));
   const orders = await loadCustomerOrders(env, id);
-  const hasPassword = await customerHasPassword(env, id);
-  return { customer, orders, hasPassword, metaTitle: translations[localeToLang(locale)].accountTitle };
+  return { customer, orders, metaTitle: translations[localeToLang(locale)].accountTitle };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
@@ -29,7 +28,7 @@ export function meta({ data, matches }: Route.MetaArgs) {
 }
 
 export default function KabinetRoute() {
-  const { customer, orders, hasPassword } = useLoaderData<typeof loader>();
+  const { customer, orders } = useLoaderData<typeof loader>();
   const { t } = useOutletContext<StoreContext>();
-  return <AccountPage t={t} customer={customer} orders={orders} hasPassword={hasPassword} />;
+  return <AccountPage t={t} customer={customer} orders={orders} />;
 }

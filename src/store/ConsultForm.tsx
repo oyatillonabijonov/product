@@ -7,6 +7,7 @@ import type { ApiSiteConfig } from '../../shared/types';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
 import { ymGoal } from '../lib/metrica';
 import { SPRING_UI } from '../lib/motion';
+import consultArt from '../assets/consult.webp';
 
 
 /** Chip — bosilganda ichidagi doira to'ladi. Ko'p tanlash mumkin. */
@@ -35,6 +36,11 @@ const Chip: FC<{ label: string; on: boolean; onToggle: () => void }> = ({ label,
 /**
  * Bepul konsultatsiya formasi — landingda FAQ o'rnida. Ariza `/api/consult`ga
  * ketadi va admin "Buyurtmalar" bo'limida `consult` belgisi bilan ko'rinadi.
+ *
+ * Joylashuv apple.com'ning "Handled with AppleCare" kartasidan: bitta katta
+ * karta, chap yarmida chetigacha rasm, o'ng yarmida sarlavha, mavzular va forma.
+ * Mobilda rasm tepada. Muvaffaqiyat xabari ham o'ng yarmida chiqadi — rasm
+ * joyida qoladi, bo'lim balandligi sakramaydi.
  */
 const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config }) => {
   const topics = [
@@ -86,91 +92,99 @@ const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config 
     }`;
   const label = 'pointer-events-none absolute left-0 top-6 text-copy text-muted-2 transition-all duration-200 peer-focus:top-0 peer-focus:text-label peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-label';
 
-  if (done) {
-    return (
-      <section id="konsultatsiya" className="rounded-xl scroll-mt-24 bg-surface px-6 py-16 text-center md:px-10 md:py-24">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.94 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={SPRING_UI}
-          className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-bg"
-        >
-          <Check className="h-7 w-7" strokeWidth={2.5} />
-        </motion.div>
-        <h2 className="mt-6 text-subhead md:text-heading font-semibold">{t.consultDoneTitle}</h2>
-        <p className="mx-auto mt-3 max-w-[46ch] text-para leading-relaxed text-muted">{t.consultDoneText}</p>
-      </section>
-    );
-  }
-
   return (
     <section id="konsultatsiya" className="rounded-xl scroll-mt-24 overflow-hidden bg-surface">
-      <div className="grid gap-10 px-6 py-10 md:px-10 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:gap-16">
-        <div>
-          <h2 className={SECTION_HEADING}>
-            {t.consultTitle}
-          </h2>
-          <p className="mt-4 max-w-[52ch] text-para md:text-control leading-relaxed text-muted text-pretty">
-            {t.consultLead}
-          </p>
-          <div className="mt-8 flex flex-wrap gap-2.5">
-            {topics.map((label_) => (
-              <Chip key={label_} label={label_} on={picked.includes(label_)} onToggle={() => toggle(label_)} />
-            ))}
-          </div>
+      <div className="grid lg:grid-cols-2">
+        {/* Rasm balandlikni belgilamaydi — uni o'ng tomondagi forma belgilaydi, rasm
+            esa `absolute` bo'lib shu balandlikni to'ldiradi (`object-cover`, markaz —
+            pin va otvertka doim kadrda). Aks holda rasm o'z tabiiy balandligini
+            tortib, kartani cho'zib yuborardi. */}
+        <div aria-hidden className="relative h-72 md:h-96 lg:h-auto">
+          <img src={consultArt} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
         </div>
 
-        <form onSubmit={submit} noValidate className="flex flex-col">
-          <div className="relative">
-            <input
-              id="consult-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder=" "
-              autoComplete="name"
-              aria-invalid={touched && badName}
-              className={field(touched && badName)}
-            />
-            <label htmlFor="consult-name" className={label}>{t.consultName} *</label>
-          </div>
+        <div className="flex flex-col justify-center px-6 py-10 md:px-12 md:py-14 lg:px-16 lg:py-20">
+          {done ? (
+            <div className="text-center lg:text-left">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.94 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={SPRING_UI}
+                className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-bg lg:mx-0"
+              >
+                <Check className="h-7 w-7" strokeWidth={2.5} />
+              </motion.div>
+              <h2 className="mt-6 text-subhead md:text-heading font-semibold">{t.consultDoneTitle}</h2>
+              <p className="mx-auto mt-3 max-w-[46ch] text-para leading-relaxed text-muted lg:mx-0">{t.consultDoneText}</p>
+            </div>
+          ) : (
+            <>
+              <h2 className={SECTION_HEADING}>
+                {t.consultTitle}
+              </h2>
+              <p className="mt-4 max-w-[52ch] text-para md:text-control leading-relaxed text-muted text-pretty">
+                {t.consultLead}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-2.5">
+                {topics.map((label_) => (
+                  <Chip key={label_} label={label_} on={picked.includes(label_)} onToggle={() => toggle(label_)} />
+                ))}
+              </div>
 
-          <div className="relative mt-7">
-            <input
-              id="consult-phone"
-              value={phone}
-              onChange={(e) => setPhone(formatUzPhone(e.target.value))}
-              onFocus={() => { if (!phone) setPhone('+998 '); }}
-              placeholder=" "
-              inputMode="tel"
-              autoComplete="tel"
-              aria-invalid={touched && badPhone}
-              className={field(touched && badPhone)}
-            />
-            <label htmlFor="consult-phone" className={label}>{t.consultPhone} *</label>
-          </div>
+              <form onSubmit={submit} noValidate className="mt-10 flex flex-col">
+                <div className="relative">
+                  <input
+                    id="consult-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder=" "
+                    autoComplete="name"
+                    aria-invalid={touched && badName}
+                    className={field(touched && badName)}
+                  />
+                  <label htmlFor="consult-name" className={label}>{t.consultName} *</label>
+                </div>
 
-          {/* honeypot — foydalanuvchiga ko'rinmaydi, bot to'ldirsa ariza tashlanadi */}
-          <input
-            type="text"
-            tabIndex={-1}
-            autoComplete="off"
-            aria-hidden
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            className="absolute h-0 w-0 opacity-0"
-          />
+                <div className="relative mt-7">
+                  <input
+                    id="consult-phone"
+                    value={phone}
+                    onChange={(e) => setPhone(formatUzPhone(e.target.value))}
+                    onFocus={() => { if (!phone) setPhone('+998 '); }}
+                    placeholder=" "
+                    inputMode="tel"
+                    autoComplete="tel"
+                    aria-invalid={touched && badPhone}
+                    className={field(touched && badPhone)}
+                  />
+                  <label htmlFor="consult-phone" className={label}>{t.consultPhone} *</label>
+                </div>
 
-          {err && <p className="mt-4 text-label text-danger">{err}</p>}
+                {/* honeypot — foydalanuvchiga ko'rinmaydi, bot to'ldirsa ariza tashlanadi */}
+                <input
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  className="absolute h-0 w-0 opacity-0"
+                />
 
-          <button
-            type="submit"
-            disabled={busy}
-            className={`${PILL} group mt-8 justify-center disabled:opacity-60`}
-          >
-            {busy ? t.consultSending : t.consultSubmit}
-            {!busy && <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />}
-          </button>
-        </form>
+                {err && <p className="mt-4 text-label text-danger">{err}</p>}
+
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className={`${PILL} group mt-8 justify-center disabled:opacity-60`}
+                >
+                  {busy ? t.consultSending : t.consultSubmit}
+                  {!busy && <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />}
+                </button>
+              </form>
+            </>
+          )}
+        </div>
       </div>
     </section>
   );

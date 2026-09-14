@@ -11,6 +11,7 @@ import Footer from './Footer';
 import ContactFab from './ContactFab';
 import CookieBanner from './CookieBanner';
 import LoginModal from './LoginModal';
+import { loginEnabled } from './LoginPanel';
 import { CartProvider } from './CartContext';
 import { FavoritesProvider } from './FavoritesContext';
 
@@ -27,8 +28,8 @@ export interface StoreContext {
 }
 
 export default function StoreLayout({
-  locale, lang, t, config, customer, pageLinks, categories, children,
-}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; customer: ApiCustomer | null; pageLinks: PageLink[]; categories: ApiCategory[]; children: ReactNode }) {
+  locale, lang, t, config, customer, pageLinks, categories, hasDeals, children,
+}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; customer: ApiCustomer | null; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean; children: ReactNode }) {
   // SSR navigatsiyasi (filtr/sort/sahifa) sekin tarmoqda feedback'siz edi — indeterminate progress-bar.
   const navigation = useNavigation();
   const pending = navigation.state !== 'idle';
@@ -36,8 +37,9 @@ export default function StoreLayout({
   // Metrica SPA hit — birinchi renderni tashlab (uni 'init' o'zi qayd etadi), keyingi navigatsiyalarni yuboramiz.
   const location = useLocation();
   const isHome = stripLocale(location.pathname) === '/';
+  const canLogin = loginEnabled(config);
   const header = (
-    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} onLoginClick={() => setLoginOpen(true)} />
+    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} loginEnabled={canLogin} onLoginClick={() => setLoginOpen(true)} />
   );
   const firstHit = useRef(true);
   useEffect(() => {
@@ -62,10 +64,10 @@ export default function StoreLayout({
             ishlamaydi — u yerda odatdagi header qoladi. */}
         {isHome ? <div className="md:hidden">{header}</div> : header}
         <main className="flex-1">{children}</main>
-        <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} />
+        <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} hasDeals={hasDeals} />
         <ContactFab t={t} config={config} />
         <CookieBanner t={t} />
-        <LoginModal t={t} config={config} open={loginOpen} onClose={() => setLoginOpen(false)} />
+        {canLogin && <LoginModal t={t} config={config} open={loginOpen} onClose={() => setLoginOpen(false)} />}
       </div>
      </FavoritesProvider>
     </CartProvider>

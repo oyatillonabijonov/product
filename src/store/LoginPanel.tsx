@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
@@ -14,20 +14,19 @@ const GoogleG: FC = () => (
   </svg>
 );
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Kirish faqat Google yoki Telegram sozlanganda ko'rsatiladi (Header/StoreLayout/kirish shu qoidani tekshiradi). */
+export function loginEnabled(config: ApiSiteConfig): boolean {
+  return Boolean(config.googleClientId || config.telegramLoginBot);
+}
 
 // Kirish kontenti — LoginModal va /kirish sahifasi ikkisi ham shundan foydalanadi.
 // `active`: Telegram widget skriptini faqat ko'rinib turganda inject qiladi.
+// Email+parol yo'li UI'dan olib tashlangan (2026-09): parolni tiklash oqimi yo'q edi,
+// unutgan mijoz abadiy qulflanardi. Server routelari (`auth/email`) turibdi.
 const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; active?: boolean }> = ({
   t, config, error, active = true,
 }) => {
   const tgRef = useRef<HTMLDivElement>(null);
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
 
   useEffect(() => {
     const host = tgRef.current;
@@ -44,111 +43,23 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
     return () => { host.innerHTML = ''; };
   }, [active, config.telegramLoginBot]);
 
-  function errMsg(code: string): string {
-    if (code === 'email_taken') return t.loginEmailTaken;
-    if (code === 'bad_credentials') return t.loginBadCredentials;
-    if (code === 'password_too_short') return t.loginPasswordShort;
-    if (code === 'email_invalid') return t.loginEmailInvalid;
-    return t.loginError;
-  }
-
-  async function submit(e: { preventDefault: () => void }) {
-    e.preventDefault();
-    setErr('');
-    if (!EMAIL_RE.test(email.trim())) { setErr(t.loginEmailInvalid); return; }
-    if (password.length < 8) { setErr(t.loginPasswordShort); return; }
-    setBusy(true);
-    try {
-      const res = await fetch('/auth/email', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ mode, email: email.trim(), password, name: name.trim() }),
-      });
-      if (res.ok) { window.location.reload(); return; }
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      setErr(errMsg(data.error ?? ''));
-    } catch {
-      setErr(t.loginError);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  // Maydon kartadan bir pog'ona to'q (`bg-bg`) + ko'rinadigan chegara: shaffof
-  // input `border-line-2` bilan qorong'i temada karta fonidan deyarli ajralmaydi.
-  const inputCls = 'rounded-sm w-full bg-bg border border-line px-3.5 py-3 text-para text-primary placeholder:text-muted-2 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25 transition-colors';
-
   return (
     <div className="flex flex-col items-center gap-5">
       <img src={logo} alt={config.name} className="logo-light h-9 w-auto object-contain" />
       <img src={logoDark} alt="" aria-hidden className="logo-dark h-9 w-auto object-contain" />
+      <h2 className="text-lede font-semibold text-primary">{t.loginTitle}</h2>
 
-      {/* Kirish / Ro'yxatdan o'tish toggle */}
-      <div className="w-full grid grid-cols-2 p-1 bg-bg rounded-full text-label font-medium">
-        {(['login', 'register'] as const).map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => { setMode(m); setErr(''); }}
-            className={` press py-2 rounded-full ${mode === m ? 'bg-surface text-primary' : 'text-muted'}`}
-          >
-            {m === 'login' ? t.loginTab : t.registerTab}
-          </button>
-        ))}
-      </div>
+      {error && <p className="text-sale text-label">{t.loginError}</p>}
 
-      <form onSubmit={submit} className="w-full flex flex-col gap-3">
-        {mode === 'register' && (
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={t.loginName}
-            autoComplete="name"
-            className={inputCls}
-          />
-        )}
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={t.loginEmail}
-          autoComplete="email"
-          className={inputCls}
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder={t.loginPassword}
-          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-          className={inputCls}
-        />
-        {mode === 'register' && <p className="text-label text-muted-2 -mt-1">{t.loginPasswordHint}</p>}
-
-        {(err || error) && <p className="text-sale text-label">{err || t.loginError}</p>}
-
-        <button
-          type="submit"
-          disabled={busy}
-          className="press w-full h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover disabled:opacity-50"
-        >
-          {busy ? t.loginSubmitting : mode === 'login' ? t.loginTab : t.registerTab}
-        </button>
-      </form>
-
-      <div className="w-full flex items-center gap-3 text-muted-2 text-label">
-        <span className="h-px flex-1 bg-line" />{t.loginOr}<span className="h-px flex-1 bg-line" />
-      </div>
       <div className="w-full flex flex-col items-center gap-3">
-        {/* ponytail: tugma har doim ko'rinadi — hozircha UI. Kalitlar bo'lmasa
-            `/auth/google` `/kirish?e=google`ga qaytaradi, ya'ni jim sinmaydi.
-            Yoqish: admin → Sayt ma'lumotlari → Google Client ID + Secret. */}
-        <a
-          href="/auth/google"
-          className="press w-full h-[52px] border border-line rounded-full font-medium text-para text-primary hover:border-accent hover:bg-bg flex items-center justify-center gap-3"
-        >
-          <GoogleG /> {mode === 'login' ? t.loginGoogle : t.registerGoogle}
-        </a>
+        {config.googleClientId && (
+          <a
+            href="/auth/google"
+            className="press w-full h-[52px] border border-line rounded-full font-medium text-para text-primary hover:border-accent hover:bg-bg flex items-center justify-center gap-3"
+          >
+            <GoogleG /> {t.loginGoogle}
+          </a>
+        )}
         <div ref={tgRef} className="min-h-[1px] flex items-center justify-center empty:hidden" />
       </div>
     </div>

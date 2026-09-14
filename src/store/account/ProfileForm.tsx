@@ -38,17 +38,17 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer }> = ({ t, custome
     <form onSubmit={submit} className="max-w-lg">
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className={labelCls}>{t.loginName}</label>
-          <input value={name} onChange={(e) => { setName(e.target.value); setSaved(false); }} className={inputCls} />
+          <label htmlFor="profile-name" className={labelCls}>{t.loginName}</label>
+          <input id="profile-name" value={name} onChange={(e) => { setName(e.target.value); setSaved(false); }} className={inputCls} />
         </div>
         <div>
-          <label className={labelCls}>{t.orderPhone}</label>
-          <input type="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setSaved(false); }} className={`${inputCls} tabular-nums`} placeholder="+998 " />
+          <label htmlFor="profile-phone" className={labelCls}>{t.orderPhone}</label>
+          <input id="profile-phone" type="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setSaved(false); }} className={`${inputCls} tabular-nums`} placeholder="+998 " />
         </div>
       </div>
       <div className="mt-4">
-        <label className={labelCls}>{t.loginEmail}</label>
-        <input value={customer.email ?? '—'} readOnly disabled className={`${inputCls} bg-bg text-muted cursor-not-allowed`} />
+        <label htmlFor="profile-email" className={labelCls}>{t.loginEmail}</label>
+        <input id="profile-email" value={customer.email ?? '—'} readOnly disabled className={`${inputCls} bg-bg text-muted cursor-not-allowed`} />
       </div>
 
       {err && <p className="text-sale text-label mt-3">{err}</p>}

@@ -58,6 +58,13 @@ export function parseCatalogFilters(sp: URLSearchParams, base?: Partial<CatalogF
   };
 }
 
+/** Qidiruv so'zlari: bo'shliq bo'yicha, takrorsiz, ko'pi bilan 6 ta — har biri alohida LIKE bo'lib AND bilan bog'lanadi. */
+export function searchTerms(q: string): string[] {
+  const out: string[] = [];
+  for (const w of q.split(/\s+/)) if (w && !out.includes(w)) out.push(w);
+  return out.slice(0, 6);
+}
+
 export function hasActiveParams(sp: URLSearchParams): boolean {
   return FILTER_PARAMS.some((k) => sp.get(k) !== null && sp.get(k) !== '');
 }
@@ -78,12 +85,13 @@ export function applyFilters(products: Product[], f: CatalogFilters): CatalogRes
   if (f.condition) xs = xs.filter((p) => p.condition === f.condition);
   if (f.type) xs = xs.filter((p) => p.type === f.type);
   if (f.q) {
-    const q = f.q.toLowerCase();
-    xs = xs.filter((p) =>
-      p.name.toLowerCase().includes(q) ||
-      (p.brandId ?? '').toLowerCase().includes(q) ||
-      (fallbackCategoryOf(p) ?? '').toLowerCase().includes(q),
-    );
+    for (const term of searchTerms(f.q.toLowerCase())) {
+      xs = xs.filter((p) =>
+        p.name.toLowerCase().includes(term) ||
+        (p.brandId ?? '').toLowerCase().includes(term) ||
+        (fallbackCategoryOf(p) ?? '').toLowerCase().includes(term),
+      );
+    }
   }
   if (f.onlyDeals) xs = xs.filter((p) => p.oldPriceUzs != null && p.oldPriceUzs > p.cashPriceUzs);
   // fasetlar brend filtridan OLDIN (brend hisoblagichlari boshqa filtrlar bo'yicha)

@@ -145,7 +145,7 @@ const ProductPage: FC<{
                   {isNew ? t.badgeNew : t.badgeUsed}
                 </div>
                 <h1 className="mt-1.5 text-heading md:text-title font-semibold text-balance text-primary">{product.name}</h1>
-                <Stars t={t} rating={product.ratingAvg} count={product.reviewCount ?? 0} />
+                {(product.reviewCount ?? 0) > 0 && <Stars t={t} rating={product.ratingAvg} count={product.reviewCount ?? 0} />}
               </div>
               <FavoriteButton
                 item={{ productId: product.id, name: product.name, image: product.image, priceUzs: product.minPriceUzs }}

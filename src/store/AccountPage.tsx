@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import type { FC } from 'react';
-import { User, Package, Heart, ShieldCheck, LogOut } from 'lucide-react';
+import { User, Package, Heart, LogOut } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiCustomer, ApiOrder } from '../../shared/types';
 import { useFavorites } from './FavoritesContext';
 import ProfileForm from './account/ProfileForm';
 import OrdersList from './account/OrdersList';
 import FavoritesList from './account/FavoritesList';
-import PasswordForm from './account/PasswordForm';
 
-type TabKey = 'profile' | 'orders' | 'favorites' | 'security';
+type TabKey = 'profile' | 'orders' | 'favorites';
 
 function initials(name: string, email: string): string {
   const src = (name || '').trim() || email || '?';
@@ -18,8 +17,8 @@ function initials(name: string, email: string): string {
   return src.slice(0, 2).toUpperCase();
 }
 
-const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[]; hasPassword: boolean }> = ({
-  t, customer, orders, hasPassword,
+const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[] }> = ({
+  t, customer, orders,
 }) => {
   const [tab, setTab] = useState<TabKey>('profile');
   const { count: favCount } = useFavorites();
@@ -28,7 +27,6 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
     { key: 'profile', label: t.accountTabProfile, Icon: User, badge: 0 },
     { key: 'orders', label: t.accountOrders, Icon: Package, badge: orders.length },
     { key: 'favorites', label: t.accountTabFavorites, Icon: Heart, badge: favCount },
-    { key: 'security', label: t.accountTabSecurity, Icon: ShieldCheck, badge: 0 },
   ] as const;
   const active = nav.find((n) => n.key === tab) ?? nav[0];
   const ActiveIcon = active.Icon;
@@ -88,7 +86,6 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
             {tab === 'profile' && <ProfileForm t={t} customer={customer} />}
             {tab === 'orders' && <OrdersList t={t} orders={orders} />}
             {tab === 'favorites' && <FavoritesList t={t} />}
-            {tab === 'security' && <PasswordForm t={t} hasEmail={Boolean(customer.email)} hasPassword={hasPassword} />}
           </section>
         </div>
       </div>

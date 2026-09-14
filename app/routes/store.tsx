@@ -1,7 +1,7 @@
 import { Outlet, isRouteErrorResponse, redirect, useLoaderData, useLocation, useRouteError } from 'react-router';
 import type { Route } from './+types/store';
 import { resolveLocale, localeToLang, localizedPath, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
-import { loadSiteConfig, loadPages, loadCategories, publicSiteConfig, type PageLink } from '../lib/loaders';
+import { loadSiteConfig, loadPages, loadCategories, hasDeals, publicSiteConfig, type PageLink } from '../lib/loaders';
 import { loadCustomer } from '../../functions/lib/db';
 import { getCookie, verifySession } from '../../functions/lib/auth';
 import type { ApiCustomer } from '../../shared/types';
@@ -21,7 +21,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const env = context.env;
   // Kategoriyalar ham shu yerda — Header dropdown'i SSR HTMLda chiqadi
   // (crawler ichki linklarni ko'radi) va klientdagi qo'shimcha /api/categories so'rovi yo'qoladi.
-  const [siteConfig, pages, categories] = await Promise.all([loadSiteConfig(env), loadPages(env), loadCategories(env)]);
+  const [siteConfig, pages, categories, deals] = await Promise.all([loadSiteConfig(env), loadPages(env), loadCategories(env), hasDeals(env)]);
   const pageLinks: PageLink[] = pages.map((p) => ({ slug: p.slug, title: p.title }));
   // Kirgan mijoz — sessiya sirini allaqachon yuklangan siteConfig'dan olamiz (qo'shimcha D1 o'qishsiz).
   const token = getCookie(request, 'customer_session');
@@ -32,15 +32,15 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   }
   // origin — root.tsx'dagi hreflang va route meta'lardagi absolut URL'lar uchun.
   // publicSiteConfig — sirlar (bot token, OAuth secret, sessiya siri) klientga (HTML) chiqmasin.
-  return { locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, origin: new URL(request.url).origin };
+  return { locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, deals, origin: new URL(request.url).origin };
 }
 
 export default function StoreRoot() {
-  const { locale, siteConfig, pageLinks, categories, customer } = useLoaderData<typeof loader>();
+  const { locale, siteConfig, pageLinks, categories, customer, deals } = useLoaderData<typeof loader>();
   const lang = localeToLang(locale);
   const t = translations[lang];
   return (
-    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories}>
+    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories} hasDeals={deals}>
       <Outlet context={{ t, lang, locale, config: siteConfig, customer, pageLinks }} />
     </StoreLayout>
   );
@@ -52,9 +52,12 @@ export function ErrorBoundary() {
   const locale: Locale = pathname === '/ru' || pathname.startsWith('/ru/') ? 'ru' : 'uz';
   const t = translations[localeToLang(locale)];
   const notFound = isRouteErrorResponse(error) && error.status === 404;
+  const heading = notFound ? '404' : t.errorGeneric.split('.')[0];
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center px-4">
-      <h1 className="text-title font-semibold">{notFound ? '404' : t.errorGeneric.split('.')[0]}</h1>
+      {/* Layout loader'i yiqilganda meta() ishlamaydi — React 19 <title>'ni head'ga o'zi ko'taradi. */}
+      <title>{notFound ? `404 — ${t.notFoundTitle}` : heading}</title>
+      <h1 className="text-title font-semibold">{heading}</h1>
       <p className="text-muted">{notFound ? t.notFoundTitle : t.errorGeneric}</p>
       <a href={localizedPath(locale, '/')} className="px-6 py-3 bg-accent text-bg font-semibold rounded-full">
         {t.backHome}

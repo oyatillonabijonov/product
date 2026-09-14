@@ -1,4 +1,4 @@
-import type { ApiCategory, ApiPost, ApiSiteConfig } from '../../shared/types';
+import type { ApiBanner, ApiCategory, ApiPost, ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import HeroColumns from './HeroColumns';
@@ -7,6 +7,7 @@ import ServiceCards from './ServiceCards';
 import BlogSection from './BlogSection';
 import BrandStrip from './BrandStrip';
 import ConsultForm from './ConsultForm';
+import BannerSlider from './BannerSlider';
 
 /**
  * Landing hech narsa sotmaydi — u brend haqida gapiradi va mijozni hero'dagi
@@ -14,10 +15,10 @@ import ConsultForm from './ConsultForm';
  * katalog/mahsulot sahifalarida qoladi.
  */
 export default function HomePage({
-  t, categories, locale, site, posts,
+  t, categories, locale, site, posts, banners,
 }: {
   t: Translation; categories: ApiCategory[]; locale: Locale;
-  site: ApiSiteConfig; posts: ApiPost[];
+  site: ApiSiteConfig; posts: ApiPost[]; banners: ApiBanner[];
 }) {
   return (
     <>
@@ -26,6 +27,8 @@ export default function HomePage({
       <h1 className="sr-only">{`${site.name} — ${t.proTitle}`}</h1>
       <HeroColumns categories={categories} />
       <div className="shell flex flex-col gap-16 py-14 md:gap-24 md:py-20">
+        {/* Admin bannerlari (aksiya, yangi kelgan tovar) — hero'dan keyin, bo'sh bo'lsa hech narsa. */}
+        {banners.length > 0 && <BannerSlider banners={banners} locale={locale} t={t} />}
         <ServiceCards t={t} />
         <BlogSection title={t.blogTitle} allLabel={t.blogAll} posts={posts} locale={locale} />
         <BrandStrip title={t.homeBrands} />

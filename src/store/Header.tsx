@@ -24,6 +24,7 @@ export default function Header({
   categories: cats,
   brandName,
   customerName,
+  loginEnabled,
   onLoginClick,
 }: {
   t: Translation;
@@ -34,6 +35,8 @@ export default function Header({
   brandName: string;
   /** Kirgan mijoz nomi, yoki null (kirmagan). */
   customerName: string | null;
+  /** Google/Telegram sozlanmagan bo'lsa akkaunt ustuni umuman chiqmaydi (mehmon buyurtma ishlayveradi). */
+  loginEnabled: boolean;
   /** Kirmagan holatda akkaunt ikonkasi kirish drawer'ini ochadi. */
   onLoginClick: () => void;
 }) {
@@ -167,7 +170,7 @@ export default function Header({
             <User className="w-5 h-5" />
             <span className={ICON_LABEL}>{t.navAccount}</span>
           </Link>
-        ) : (
+        ) : loginEnabled ? (
           <button
             type="button"
             onClick={onLoginClick}
@@ -178,7 +181,7 @@ export default function Header({
             <User className="w-5 h-5" />
             <span className={ICON_LABEL}>{t.loginTitle}</span>
           </button>
-        )}
+        ) : null}
 
         <div className={`rounded-sm relative focus-within:ring-2 focus-within:ring-accent/50 ${ICON_COL}`}>
           <Globe className="w-5 h-5" />

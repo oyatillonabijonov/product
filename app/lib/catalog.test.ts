@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseCatalogFilters, applyFilters, hasActiveParams, activeFilterCount, PAGE_SIZE } from './catalog';
+import { parseCatalogFilters, applyFilters, hasActiveParams, activeFilterCount, searchTerms, PAGE_SIZE } from './catalog';
 import type { Product } from '../../src/data/products';
 
 const sp = (s: string) => new URLSearchParams(s);
@@ -101,5 +101,14 @@ describe('activeFilterCount', () => {
     expect(activeFilterCount(f)).toBe(4);
     expect(activeFilterCount(f, { ignoreBrands: true })).toBe(2);
     expect(activeFilterCount(parseCatalogFilters(sp('sort=arzon&page=2&q=x')))).toBe(0);
+  });
+});
+
+describe('searchTerms', () => {
+  it('bo\'shliq bo\'yicha bo\'ladi, takrorlarni tashlaydi, 6 tadan oshirmaydi', () => {
+    expect(searchTerms('macbook 14 pro')).toEqual(['macbook', '14', 'pro']);
+    expect(searchTerms('  iphone   iphone ')).toEqual(['iphone']);
+    expect(searchTerms('a b c d e f g h')).toHaveLength(6);
+    expect(searchTerms('   ')).toEqual([]);
   });
 });

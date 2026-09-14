@@ -1,4 +1,4 @@
-import { useLoaderData } from 'react-router';
+import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/page';
 import { loadPage } from '../lib/loaders';
 import { resolveLocale, localeToTextKey } from '../lib/i18n';
@@ -6,8 +6,10 @@ import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { firstParagraph } from '../../src/lib/markdown';
 import Markdown from '../../src/store/Markdown';
 import TermsBento from '../../src/store/TermsBento';
+import type { StoreContext } from '../../src/store/StoreLayout';
 
-/** Slug rendered with the bespoke bento layout instead of generic markdown. */
+/** Slug rendered with the bespoke bento layout instead of generic markdown — faqat muddatli to'lov yoqilganda;
+ *  naqd rejimda (`payment_mode='cash'`) sahifa bazadagi matnni ko'rsatadi, muddatli shartlar yolg'on bo'lardi. */
 const TERMS_SLUG = 'muddatli-tolov';
 const TERMS_LEAD: Record<string, string> = {
   uz: "Muddatli to'lovni rasmiylashtirish juda oddiy — quyidagi shartlar bilan tanishing.",
@@ -37,9 +39,10 @@ export function meta({ data, matches }: Route.MetaArgs) {
 
 export default function ContentPage() {
   const { page, locale } = useLoaderData<typeof loader>();
+  const { config } = useOutletContext<StoreContext>();
   const key = localeToTextKey(locale);
 
-  if (page.slug === TERMS_SLUG) {
+  if (page.slug === TERMS_SLUG && config.paymentMode !== 'cash') {
     return <TermsBento locale={locale} heading={page.title[key]} lead={TERMS_LEAD[key]} />;
   }
 

@@ -1,14 +1,18 @@
-import { useOutletContext, useSearchParams } from 'react-router';
+import { redirect, useOutletContext, useSearchParams } from 'react-router';
 import type { Route } from './+types/kirish';
-import { resolveLocale, localeToLang } from '../lib/i18n';
+import { resolveLocale, localeToLang, localizedPath } from '../lib/i18n';
+import { loadSiteConfig } from '../lib/loaders';
+import { loginEnabled } from '../../src/store/LoginPanel';
 import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { translations } from '../../src/locales';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import LoginPage from '../../src/store/LoginPage';
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
+  // Google/Telegram sozlanmagan — kirish yo'q, mehmon buyurtma ishlayveradi.
+  if (!loginEnabled(await loadSiteConfig(context.env))) throw redirect(localizedPath(locale, '/'));
   return { metaTitle: translations[localeToLang(locale)].loginTitle };
 }
 

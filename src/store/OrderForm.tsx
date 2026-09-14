@@ -150,8 +150,9 @@ const OrderForm: FC<{
               </div>
             </div>
 
-            <label className="block text-label text-muted mb-1">{t.orderName}</label>
+            <label htmlFor="order-name" className="block text-label text-muted mb-1">{t.orderName}</label>
             <input
+              id="order-name"
               value={name}
               onChange={(e) => { setName(e.target.value); if (nameErr) setNameErr(''); }}
               autoFocus
@@ -159,8 +160,9 @@ const OrderForm: FC<{
               className={`${inputCls(Boolean(nameErr))} ${nameErr ? 'mb-1' : 'mb-3'}`}
             />
             {nameErr && <p className="text-label text-danger mb-2">{nameErr}</p>}
-            <label className="block text-label text-muted mb-1">{t.orderPhone}</label>
+            <label htmlFor="order-phone" className="block text-label text-muted mb-1">{t.orderPhone}</label>
             <input
+              id="order-phone"
               type="tel"
               inputMode="tel"
               value={phone}

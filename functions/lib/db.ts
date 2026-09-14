@@ -611,13 +611,6 @@ export async function setCustomerPassword(env: Env, id: number, hash: string, sa
     .bind(hash, salt, id).run();
 }
 
-/** Kabinet loader: parol formasi joriy-parol maydonini ko'rsatish kerakmi. */
-export async function customerHasPassword(env: Env, id: number): Promise<boolean> {
-  const row = await env.DB.prepare('SELECT (password_hash IS NOT NULL) AS has_pw FROM customers WHERE id = ?')
-    .bind(id).first<{ has_pw: number }>();
-  return Boolean(row?.has_pw);
-}
-
 /** Telegram user id bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */
 export async function upsertCustomerByTelegram(env: Env, telegramId: string, name: string): Promise<number> {
   const existing = await env.DB.prepare('SELECT id FROM customers WHERE telegram_id = ?').bind(telegramId).first<{ id: number }>();

@@ -1,7 +1,9 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/product';
 import { resolveLocale, localizedPath, localeToLang, categoryLabel } from '../lib/i18n';
-import { pageTitle, storeConfigFrom, productJsonLd, breadcrumbJsonLd, ogMeta } from '../lib/seo';
+import { pageTitle, storeConfigFrom, productJsonLd, breadcrumbJsonLd, ogMeta, productDescriptionFallback } from '../lib/seo';
+import { siteConfig } from '../lib/site.config';
+import { formatUzs } from '../../src/lib/installment';
 import { loadProductDetail, loadConfig, loadProductsBy, loadCategories, loadReviews } from '../lib/loaders';
 import { fallbackCategoryOf } from '../../src/data/products';
 import { translations } from '../../src/locales';
@@ -19,11 +21,15 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   ]);
   if (!product) throw new Response('Not Found', { status: 404 });
   const categoryId = product.categoryId ?? fallbackCategoryOf(product);
-  const similar = categoryId
-    ? (await loadProductsBy(env, { category: categoryId, limit: 5 }))
-        .filter((p) => p.id !== product.id)
-        .slice(0, 4)
+  // O'xshashlar — avval shu turdagi (type) tovarlar, yetmasa shu yo'nalishdan;
+  // tasodifiy tartib — aks holda har bir Apple sahifasida bir xil 4 ta aksessuar chiqardi.
+  const similar = product.type
+    ? await loadProductsBy(env, { category: categoryId ?? undefined, type: product.type, exclude: product.id, limit: 4, order: 'random' })
     : [];
+  if (similar.length < 4 && categoryId) {
+    const more = await loadProductsBy(env, { category: categoryId, exclude: product.id, limit: 8, order: 'random' });
+    for (const m of more) if (similar.length < 4 && !similar.some((s) => s.id === m.id)) similar.push(m);
+  }
   const category = categories.find((c) => c.id === product.categoryId);
   const categoryName = category ? categoryLabel(category, locale) : null;
   return { product, config, similar, reviews, locale, categoryName, origin: new URL(request.url).origin };
@@ -35,7 +41,12 @@ export function meta({ data, matches }: Route.MetaArgs) {
   const t = translations[localeToLang(data.locale)];
   // JSON-LD/OG'dagi URL'lar absolut bo'lishi shart — nisbiylarini qidiruv tizimlari tashlab yuboradi.
   const url = data.origin + localizedPath(data.locale, `/product/${data.product.id}`);
-  const desc = (data.product.conditionNote ?? firstParagraph(data.product.description ?? '')).slice(0, 160);
+  const own = (data.product.conditionNote ?? firstParagraph(data.product.description ?? '')).slice(0, 160);
+  // Billz tovarlarining 90%+ da tavsif yo'q — bo'sh description o'rniga shablon (nom, brend, narx, do'kon).
+  const desc = own || productDescriptionFallback(
+    data.locale === 'ru' ? 'ru' : 'uz', data.product.name, data.product.brand?.name ?? null,
+    formatUzs(data.product.minPriceUzs, t.sum), cfg?.name ?? siteConfig.name,
+  );
   const title = pageTitle(data.product.name, cfg?.seoTitleSuffix);
   const img = data.product.images[0];
   return [
