@@ -64,7 +64,7 @@ export default function StoreLayout({
             ishlamaydi — u yerda odatdagi header qoladi. */}
         {isHome ? <div className="md:hidden">{header}</div> : header}
         <main className="flex-1">{children}</main>
-        <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} hasDeals={hasDeals} />
+        <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} categories={categories} hasDeals={hasDeals} />
         <ContactFab t={t} config={config} />
         <CookieBanner t={t} />
         {canLogin && <LoginModal t={t} config={config} open={loginOpen} onClose={() => setLoginOpen(false)} />}
