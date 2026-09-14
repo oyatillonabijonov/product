@@ -1,10 +1,10 @@
-import type { ApiBanner, ApiCategory, ApiPost, ApiSiteConfig } from '../../shared/types';
+import type { ApiBanner, ApiCategory, ApiNews, ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import HeroColumns from './HeroColumns';
 import HeroNotch from './HeroNotch';
 import ServiceCards from './ServiceCards';
-import BlogSection from './BlogSection';
+import NewsSection from './NewsSection';
 import BrandStrip from './BrandStrip';
 import ConsultForm from './ConsultForm';
 import BannerSlider from './BannerSlider';
@@ -15,10 +15,10 @@ import BannerSlider from './BannerSlider';
  * katalog/mahsulot sahifalarida qoladi.
  */
 export default function HomePage({
-  t, categories, locale, site, posts, banners,
+  t, categories, locale, site, news, banners,
 }: {
   t: Translation; categories: ApiCategory[]; locale: Locale;
-  site: ApiSiteConfig; posts: ApiPost[]; banners: ApiBanner[];
+  site: ApiSiteConfig; news: ApiNews[]; banners: ApiBanner[];
 }) {
   return (
     <>
@@ -30,7 +30,7 @@ export default function HomePage({
         {/* Admin bannerlari (aksiya, yangi kelgan tovar) — hero'dan keyin, bo'sh bo'lsa hech narsa. */}
         {banners.length > 0 && <BannerSlider banners={banners} locale={locale} t={t} />}
         <ServiceCards t={t} />
-        <BlogSection title={t.blogTitle} allLabel={t.blogAll} posts={posts} locale={locale} />
+        <NewsSection t={t} news={news} locale={locale} />
         <BrandStrip title={t.homeBrands} />
         <ConsultForm t={t} config={site} />
       </div>

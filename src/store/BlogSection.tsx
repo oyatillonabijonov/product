@@ -1,9 +1,7 @@
 import type { FC } from 'react';
-import { ArrowRight } from 'lucide-react';
 import type { ApiPost } from '../../shared/types';
 import { localeField, type Locale } from '../../app/lib/i18n';
 import LocaleLink from './LocaleLink';
-import { PILL, SECTION_HEADING } from './ui';
 
 // `uz-UZ` ICU'da oy nomi "M08" ko'rinishida chiqadi — o'zbekcha oylar qo'lda.
 const UZ_MONTHS = [
@@ -66,45 +64,3 @@ export const PostCard: FC<{ post: ApiPost; locale: Locale; featured?: boolean; c
     </LocaleLink>
   );
 };
-
-const BlogSection: FC<{ title: string; allLabel: string; posts: ApiPost[]; locale: Locale }> = ({
-  title, allLabel, posts, locale,
-}) => {
-  if (posts.length === 0) return null;
-  const [featured, ...rest] = posts;
-
-  return (
-    <section className="flex flex-col gap-8 md:gap-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <h2 className={SECTION_HEADING}>{title}</h2>
-        <LocaleLink
-          to="/blog"
-          className={`${PILL} group shrink-0`}
-        >
-          {allLabel}
-          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-        </LocaleLink>
-      </div>
-
-      {/* Birinchi maqola yirik, qolganlari yonida ustun bo'lib turadi. `auto-rows-fr`
-          tufayli ustun 1 ta ham, 2 ta ham maqolada to'g'ri bo'linadi. */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <PostCard
-          post={featured}
-          locale={locale}
-          featured
-          className={`min-h-[320px] lg:min-h-[460px] ${rest.length > 0 ? 'lg:col-span-2' : 'lg:col-span-3'}`}
-        />
-        {rest.length > 0 && (
-          <div className="grid auto-rows-fr gap-4">
-            {rest.map((p) => (
-              <PostCard key={p.id} post={p} locale={locale} className="min-h-[220px]" />
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-};
-
-export default BlogSection;

@@ -1,5 +1,6 @@
 const MESSAGES: Record<string, string> = {
-  imageUrl_required: 'Banner rasmi majburiy',
+  imageUrl_required: 'Rasm majburiy',
+  title_required: 'Sarlavha majburiy',
   link_invalid: "Link '/' yoki 'https://' bilan boshlanishi kerak",
   slug_required: 'Slug majburiy',
   slug_invalid: "Slug faqat kichik lotin harflari, raqam va '-' dan iborat bo'lishi kerak",

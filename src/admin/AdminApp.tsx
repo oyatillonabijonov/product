@@ -1,5 +1,5 @@
 import {
-  FileText, Image, LayoutGrid, LogOut, Newspaper, Package, Receipt, Settings, Smartphone, Tag, type LucideIcon,
+  FileText, Image, LayoutGrid, LogOut, Megaphone, Newspaper, Package, Receipt, Settings, Smartphone, Tag, type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -11,6 +11,7 @@ import CategoryList from './CategoryList';
 import Login from './Login';
 import ModelList from './ModelList';
 import OrdersPage from './OrdersPage';
+import NewsList from './NewsList';
 import PageList from './PageList';
 import PostList from './PostList';
 import ProductList from './ProductList';
@@ -18,7 +19,7 @@ import SettingsForm from './SettingsForm';
 import SiteConfigForm from './SiteConfigForm';
 import BillzPanel from './BillzPanel';
 
-type Tab = 'products' | 'orders' | 'models' | 'settings' | 'categories' | 'brands' | 'banners' | 'posts' | 'pages';
+type Tab = 'products' | 'orders' | 'models' | 'settings' | 'categories' | 'brands' | 'banners' | 'news' | 'posts' | 'pages';
 
 type NavItem = { id: Tab; label: string; Icon: LucideIcon };
 
@@ -29,6 +30,7 @@ const NAV: NavItem[] = [
   { id: 'categories', label: 'Kategoriyalar', Icon: LayoutGrid },
   { id: 'brands', label: 'Brendlar', Icon: Tag },
   { id: 'banners', label: 'Bannerlar', Icon: Image },
+  { id: 'news', label: 'Yangiliklar', Icon: Megaphone },
   { id: 'posts', label: 'Blog', Icon: Newspaper },
   { id: 'pages', label: 'Sahifalar', Icon: FileText },
   { id: 'settings', label: 'Sozlamalar', Icon: Settings },
@@ -38,7 +40,7 @@ const DEFAULT_PW_KEY = 'admin-default-pw';
 
 // Tab <-> URL path: /admin = products, /admin/<id> = boshqa bo'limlar.
 // URL-bog'langan tab → deep-link, F5-bardosh, brauzer back/forward ishlaydi.
-const SECTION_TABS: Tab[] = ['orders', 'models', 'categories', 'brands', 'banners', 'posts', 'pages', 'settings'];
+const SECTION_TABS: Tab[] = ['orders', 'models', 'categories', 'brands', 'banners', 'news', 'posts', 'pages', 'settings'];
 function pathToTab(pathname: string): Tab {
   const seg = pathname.split('/')[2] ?? '';
   return SECTION_TABS.includes(seg as Tab) ? (seg as Tab) : 'products';
@@ -168,6 +170,7 @@ export default function AdminApp() {
           {tab === 'categories' && <CategoryList />}
           {tab === 'brands' && <BrandList />}
           {tab === 'banners' && <BannerList />}
+          {tab === 'news' && <NewsList />}
           {tab === 'posts' && <PostList />}
           {tab === 'pages' && <PageList />}
         </div>

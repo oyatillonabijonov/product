@@ -1,5 +1,6 @@
 import type {
   ApiCategory,
+  ApiNews,
   ApiProduct,
   ApiSettings,
   ApiSiteConfig,
@@ -290,6 +291,29 @@ export function parseBannerInput(body: unknown): BannerInput {
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
   return { id, imageUrl, linkUrl, altText, sortOrder, isActive };
+}
+
+export type NewsInput = ApiNews;
+
+/** Yangilik tile'i: sarlavha va rasm majburiy, havola bannerdagi qoida bilan, matnlar uzunligi cheklangan. */
+export function parseNewsInput(body: unknown): NewsInput {
+  const o = asRecord(body);
+  const title = reqString(o, 'title').slice(0, 80);
+  const imageUrl = reqString(o, 'imageUrl');
+  const str = (k: string, max: number) => (typeof o[k] === 'string' ? (o[k] as string).trim().slice(0, max) : '');
+  const linkUrl = str('linkUrl', 500);
+  if (linkUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(linkUrl)) throw new ValidationError('link_invalid');
+  return {
+    id: typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID(),
+    badge: str('badge', 40), badgeRu: str('badgeRu', 40),
+    tag: str('tag', 40), tagRu: str('tagRu', 40),
+    title, titleRu: str('titleRu', 80),
+    text: str('text', 200), textRu: str('textRu', 200),
+    cta: str('cta', 40), ctaRu: str('ctaRu', 40),
+    linkUrl, imageUrl,
+    sortOrder: typeof o.sortOrder === 'number' ? o.sortOrder : 0,
+    isActive: o.isActive === undefined ? true : Boolean(o.isActive),
+  };
 }
 
 const PAGE_SLUG_RE = /^[a-z0-9-]+$/;

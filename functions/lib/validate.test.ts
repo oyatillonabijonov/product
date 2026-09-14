@@ -3,6 +3,7 @@ import {
   parseProductInput,
   parseBrandInput,
   parseBannerInput,
+  parseNewsInput,
   parsePageInput,
   parseSiteConfigInput,
   parseDeviceModelInput,
@@ -178,6 +179,30 @@ describe('parseBannerInput', () => {
   });
   it('rejects missing imageUrl', () => {
     expect(() => parseBannerInput({ linkUrl: '/katalog' })).toThrow('imageUrl_required');
+  });
+});
+
+describe('parseNewsInput', () => {
+  const base = { title: ' iPhone 17 Pro ', imageUrl: '/products/iph1.webp' };
+  it("majburiy — sarlavha va rasm; qolgani bo'sh qatorga tushadi", () => {
+    const n = parseNewsInput(base);
+    expect(n).toMatchObject({
+      title: 'iPhone 17 Pro', titleRu: '', badge: '', badgeRu: '', tag: '', tagRu: '',
+      text: '', textRu: '', cta: '', ctaRu: '', linkUrl: '', sortOrder: 0, isActive: true,
+    });
+    expect(n.id.length).toBeGreaterThan(0);
+  });
+  it('sarlavhasiz yoki rasmsiz — xato', () => {
+    expect(() => parseNewsInput({ imageUrl: '/x.webp' })).toThrow('title_required');
+    expect(() => parseNewsInput({ title: 'X' })).toThrow('imageUrl_required');
+  });
+  it("havola faqat ichki yo'l yoki http(s)", () => {
+    expect(parseNewsInput({ ...base, linkUrl: '/category/apple?tur=iphone' }).linkUrl).toBe('/category/apple?tur=iphone');
+    expect(() => parseNewsInput({ ...base, linkUrl: 'javascript:alert(1)' })).toThrow('link_invalid');
+    expect(() => parseNewsInput({ ...base, linkUrl: '//evil.example' })).toThrow('link_invalid');
+  });
+  it('uzun matn kesiladi', () => {
+    expect(parseNewsInput({ ...base, text: 'a'.repeat(500) }).text).toHaveLength(200);
   });
 });
 

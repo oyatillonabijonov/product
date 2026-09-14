@@ -129,6 +129,28 @@ export interface ApiBanner {
   isActive: boolean;
 }
 
+/** Landing "Yangiliklar" tile'i. uz maydonlari asosiy, `*Ru` bo'sh bo'lsa UI o'zbekchasiga tushadi. */
+export interface ApiNews {
+  id: string;
+  /** To'q sariq yorliq ("Yangi"). */
+  badge: string;
+  badgeRu: string;
+  /** Yashil teg ("Tez orada"). */
+  tag: string;
+  tagRu: string;
+  title: string;
+  titleRu: string;
+  text: string;
+  textRu: string;
+  /** Tugma matni; bo'sh bo'lsa "Batafsil". Havola bo'lmasa tugma chiqmaydi. */
+  cta: string;
+  ctaRu: string;
+  linkUrl: string;
+  imageUrl: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
 export interface ApiPost {
   id: string;
   slug: string;

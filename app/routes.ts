@@ -60,6 +60,8 @@ export default [
   route('api/admin/upload', 'routes/api.admin.upload.tsx'),
   route('api/admin/banners', 'routes/api.admin.banners.tsx'),
   route('api/admin/banners/:id', 'routes/api.admin.banners.$id.tsx'),
+  route('api/admin/news', 'routes/api.admin.news.tsx'),
+  route('api/admin/news/:id', 'routes/api.admin.news.$id.tsx'),
   route('api/admin/posts', 'routes/api.admin.posts.tsx'),
   route('api/admin/posts/:id', 'routes/api.admin.posts.$id.tsx'),
   route('api/admin/pages', 'routes/api.admin.pages.tsx'),

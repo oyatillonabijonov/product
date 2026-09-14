@@ -3,6 +3,7 @@ import type {
   ApiBrand,
   ApiCategory,
   ApiDeviceModel,
+  ApiNews,
   ApiOption,
   ApiOrder,
   ApiPage,
@@ -234,6 +235,23 @@ export async function updateBanner(id: string, b: Partial<ApiBanner>): Promise<A
 }
 export async function deleteBanner(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/banners/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function listNews(): Promise<ApiNews[]> {
+  return handle(await fetch('/api/admin/news'));
+}
+export async function createNews(n: Partial<ApiNews>): Promise<ApiNews> {
+  return handle(await fetch('/api/admin/news', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(n),
+  }));
+}
+export async function updateNews(id: string, n: Partial<ApiNews>): Promise<ApiNews> {
+  return handle(await fetch(`/api/admin/news/${encodeURIComponent(id)}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(n),
+  }));
+}
+export async function deleteNews(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/news/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
 
 export async function listPosts(): Promise<ApiPost[]> {

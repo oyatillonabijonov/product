@@ -1,5 +1,5 @@
 import type { Env } from '../../functions/env';
-import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiPage, ApiPost, ApiReview, ApiSiteConfig, LocalizedText } from '../../shared/types';
+import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiNews, ApiPage, ApiPost, ApiReview, ApiSiteConfig, LocalizedText } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
 import {
   installmentConfig as fallbackConfig,
@@ -11,7 +11,7 @@ import {
 import {
   rowToProduct, rowToCategory, rowToBrand, buildProductDetail, PRODUCT_COLS,
   type ProductRow, type CategoryRow, type SettingsRow, rowToSettings, type BrandRow,
-  rowToBanner, rowToPage, rowToPost, rowToSiteConfig, type BannerRow, type PageRow, type PostRow, type SiteConfigRow,
+  rowToBanner, rowToNews, rowToPage, rowToPost, rowToSiteConfig, type BannerRow, type NewsRow, type PageRow, type PostRow, type SiteConfigRow,
 } from '../../functions/lib/db';
 import { applyFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 import type { TileRow } from './tiles';
@@ -320,6 +320,17 @@ export async function loadBanners(env: Env): Promise<ApiBanner[]> {
   } catch (err) {
     console.error('loadBanners fallback:', err);
     return [];
+  }
+}
+
+/** Landing "Yangiliklar" bo'limi — faol, tartib bo'yicha birinchi 3 tasi (tile to'ri shuncha joyga chizilgan). */
+export async function loadNews(env: Env): Promise<ApiNews[]> {
+  try {
+    const { results } = await env.DB.prepare('SELECT * FROM news WHERE is_active = 1 ORDER BY sort_order ASC LIMIT 3').all<NewsRow>();
+    return results.map(rowToNews);
+  } catch (err) {
+    console.error('loadNews fallback:', err);
+    return []; // bo'lim bezak — bazasiz landing usiz ochilaveradi
   }
 }
 
