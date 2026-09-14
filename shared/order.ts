@@ -31,7 +31,7 @@ export function composeOrderMessage(o: OrderInput, brand: string): string {
 
 /** Konsultatsiya arizasini Telegram matniga aylantiradi. */
 export function composeConsultMessage(c: ConsultInput, brand: string): string {
-  const lines: string[] = [`💬 ${brand} — bepul konsultatsiya arizasi`, '', ...(c.name ? [`👤 ${c.name}`] : []), `📞 ${c.phone}`];
+  const lines: string[] = [`💬 ${brand} — bepul konsultatsiya arizasi`, '', `👤 ${c.name}`, `📞 ${c.phone}`];
   if (c.topics.length > 0) lines.push('', `🏷 ${c.topics.join(' · ')}`);
   if (c.note) lines.push('', `📝 ${c.note}`);
   return lines.join('\n');

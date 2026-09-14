@@ -391,15 +391,3 @@ body {
     animation: none !important;
   }
 }
-
-/* Footer CTA kartasi — har ikki temada ham qorong'i, o'ng yuqorida issiq nur
-   (hero singari sof bezak, shuning uchun tokenlar emas, o'z ranglari). Tugma
-   matni ham shu yerda: karta doim qorong'i, tugma doim oq, matn doim to'q. */
-.footer-glow {
-  color: #fff;
-  background:
-    radial-gradient(55% 85% at 97% 6%, rgba(255, 178, 76, 0.95) 0%, rgba(222, 116, 30, 0.6) 20%, rgba(130, 56, 14, 0.3) 42%, transparent 68%),
-    radial-gradient(80% 60% at 72% 105%, rgba(150, 66, 16, 0.5), transparent 62%),
-    linear-gradient(118deg, #0a0605 0%, #160b06 46%, #2c1409 100%);
-}
-.footer-glow-btn { color: #0a0605; }
