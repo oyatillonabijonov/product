@@ -8,22 +8,33 @@ import { formatThousands, parseDigits } from '../admin/lib/format';
 
 /** Bo'lim sarlavhasi — o'ngida ixtiyoriy izoh ("1 tanlangan"). */
 const Heading: FC<{ title: string; note?: string }> = ({ title, note }) => (
-  <div className="mb-2.5 flex items-baseline justify-between gap-3">
+  <div className="mb-2 flex items-baseline justify-between gap-3">
     <h3 className="text-label font-semibold text-primary">{title}</h3>
     {note && <span className="text-label text-muted-2">{note}</span>}
   </div>
 );
 
-// Native input `sr-only` (klaviatura/skrinrider qoladi), ko'rinadigan qism `group-has-checked` bilan bo'yaladi —
-// dark rejimda brauzerning oq checkbox'i og'ir ko'rinardi.
-// Balandlik ikki xil: mobil varaqda 44px (tegish maydonining pastki chegarasi),
-// desktop yon panelda 36px — u yerda sichqoncha aniq va zichlik foydali.
-const ROW = 'group relative flex h-11 lg:h-9 cursor-pointer items-center gap-2.5 -mx-2 px-2 text-label text-primary transition-colors hover:bg-row-alt has-checked:bg-row-alt';
-const BOX = 'flex h-[18px] w-[18px] shrink-0 items-center justify-center border border-line-2 bg-surface transition-colors group-has-checked:border-accent group-has-checked:bg-accent group-has-focus-visible:ring-2 group-has-focus-visible:ring-accent/40';
-// Radio — dumaloq, checkbox esa kvadrat: shakl bittasini tanlash bilan bir nechtasini
-// tanlashni ajratib turadi (yorliqni o'qimasdan ham ko'rinadi).
-const DOT = 'flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-line-2 bg-surface transition-colors group-has-checked:border-accent group-has-focus-visible:ring-2 group-has-focus-visible:ring-accent/40';
-const SECTION = 'border-t border-divider py-5 first:border-t-0 first:pt-0';
+// Ikki chiziq: matn (sarlavha, yorliq, input ichidagi raqam) konteyner chetida,
+// bosiladigan quti (qator to'ldirmasi, input) undan 12px tashqarida (`BLEED`).
+// Desktop kartasi ham, mobil varaq ham `px-6` — quti chetdan 12px ichkarida qoladi
+// va uning 8px radiusi kartaning 20px radiusi bilan konsentrik (20 − 12).
+const BLEED = '-mx-3';
+// Ajratgich ustida ham, ostida ham ~24px ko'rinadigan bo'shliq: qatorning o'z ichki bo'shlig'i
+// (36px balandlikda 14px matn) pastki `pb-3`ga qo'shiladi, shuning uchun tepadagi `pt-5` kattaroq.
+const SECTION = 'border-t border-line pt-5 pb-3 first:border-t-0 first:pt-0 last:pb-0';
+// Qator balandligi: mobil varaqda 44px (tegish maydonining pastki chegarasi), desktop panelda 36px.
+// Tanlangan qator to'ldirilmaydi — tanlovni belgi aytadi; "Holati"da bittasi doim tanlangan edi
+// va uning kulrang polosasi hech narsa bildirmay turardi. Hover `fill-2`: panel endi karta
+// (`surface`) ustida, `row-alt` esa sahifa foniga moslangan — dark'da u kartadan to'qroq chiqardi.
+// Fokus halqasi butun qatorda: 18px doiradagi halqa klaviaturada sezilmasdi.
+const ROW = 'press press-surface group flex h-11 cursor-pointer items-center gap-3 rounded-xs px-3 text-label outline-none hover:bg-fill-2 focus-visible:ring-2 focus-visible:ring-accent has-focus-visible:ring-2 has-focus-visible:ring-accent lg:h-9';
+// Native input `sr-only` (klaviatura va skrinrider qoladi; brauzerning oq checkbox'i dark rejimda
+// og'ir ko'rinardi), ko'rinadigan doira `group-has-checked` bilan bo'yaladi. Checkbox ham, radio ham dumaloq: radius shkalasida 18px kvadrat uchun pog'ona
+// yo'q — 8px uni baribir doiraga aylantiradi, o'tkir burchak esa tizimga begona. Farq belgilanganda
+// ko'rinadi (✓ yoki nuqta); "Holati"da bittasi doim tanlangan, shuning uchun nuqta doim ko'rinadi.
+const GLYPH = 'flex size-4.5 shrink-0 items-center justify-center rounded-full border border-muted-3 transition-colors group-hover:border-muted-2 group-has-checked:border-accent group-has-checked:bg-accent';
+// Mobil varaqda 16px (pastida iOS fokusda zoom qiladi), desktop panelda 14px.
+const INPUT = 'h-11 w-full min-w-0 rounded-xs border border-line bg-transparent px-3 text-control text-primary tabular-nums transition-colors placeholder:text-muted-2 hover:border-muted-3 focus:border-accent focus:outline-none lg:h-9 lg:text-label';
 
 const FilterPanel: FC<{
   t: Translation;
@@ -54,8 +65,6 @@ const FilterPanel: FC<{
 
   const visibleBrands = brands.filter((b) => (facets.brandCounts[b.id] ?? 0) > 0 || filters.brands.includes(b.id));
   const active = activeFilterCount(filters, { ignoreBrands: hideBrands });
-  // Header qidiruvi bilan bir xil: 44px, to'liq radius. Placeholder — joriy natijadagi narx diapazoni.
-  const input = 'h-11 w-full min-w-0 rounded-full border border-line bg-transparent px-4 text-label text-primary tabular-nums transition-colors focus:border-accent focus:outline-none';
   const onEnter = (e: { key: string }) => { if (e.key === 'Enter') applyPrice(); };
 
   return (
@@ -63,15 +72,15 @@ const FilterPanel: FC<{
       {!hideBrands && visibleBrands.length > 0 && (
         <section className={SECTION}>
           <Heading title={t.filterBrand} note={filters.brands.length > 0 ? `${filters.brands.length} ${t.filterSelected}` : undefined} />
-          <div className="flex flex-col">
+          <div className={`${BLEED} flex flex-col`}>
             {visibleBrands.map((b) => (
-              <label key={b.id} className={ROW}>
+              <label key={b.id} className={`${ROW} text-primary`}>
                 <input type="checkbox" className="sr-only" aria-label={b.name} checked={filters.brands.includes(b.id)} onChange={() => toggleBrand(b.id)} />
-                <span aria-hidden className={BOX}>
-                  <Check className="h-3 w-3 text-bg opacity-0 transition-opacity group-has-checked:opacity-100" strokeWidth={3} />
+                <span aria-hidden className={GLYPH}>
+                  <Check className="size-3 text-bg opacity-0 transition-opacity group-has-checked:opacity-100" strokeWidth={3} />
                 </span>
                 <span className="flex-1 truncate">{b.name}</span>
-                <span className="text-label text-muted-2 tabular-nums">{facets.brandCounts[b.id] ?? 0}</span>
+                <span className="text-muted-2 tabular-nums">{facets.brandCounts[b.id] ?? 0}</span>
               </label>
             ))}
           </div>
@@ -80,32 +89,36 @@ const FilterPanel: FC<{
 
       <section className={SECTION}>
         <Heading title={t.filterPrice} />
-        <div className="flex items-center gap-2">
-          <input
-            inputMode="numeric"
-            placeholder={formatThousands(facets.priceMin) || t.filterPriceFrom}
-            aria-label={t.filterPriceFrom}
-            className={input}
-            value={lo}
-            onChange={(e) => setLo(e.target.value)}
-            onKeyDown={onEnter}
-          />
-          <span className="text-muted-2">–</span>
-          <input
-            inputMode="numeric"
-            placeholder={formatThousands(facets.priceMax) || t.filterPriceTo}
-            aria-label={t.filterPriceTo}
-            className={input}
-            value={hi}
-            onChange={(e) => setHi(e.target.value)}
-            onKeyDown={onEnter}
-          />
+        {/* Placeholder — joriy natijadagi narx diapazoni. Oradagi tire yo'q: 240px kartada
+            u "60 480 000"ni kesib qo'yardi, ikki maydonning "dan–gacha" ekani esa
+            placeholder'dan ko'rinib turadi (skrinrider uchun `aria-label`). */}
+        <div className={BLEED}>
+          <div className="flex items-center gap-2">
+            <input
+              inputMode="numeric"
+              placeholder={formatThousands(facets.priceMin) || t.filterPriceFrom}
+              aria-label={t.filterPriceFrom}
+              className={INPUT}
+              value={lo}
+              onChange={(e) => setLo(e.target.value)}
+              onKeyDown={onEnter}
+            />
+            <input
+              inputMode="numeric"
+              placeholder={formatThousands(facets.priceMax) || t.filterPriceTo}
+              aria-label={t.filterPriceTo}
+              className={INPUT}
+              value={hi}
+              onChange={(e) => setHi(e.target.value)}
+              onKeyDown={onEnter}
+            />
+          </div>
+          {dirty && (
+            <button onClick={applyPrice} className="press mt-2 flex h-11 w-full items-center justify-center rounded-xs bg-accent text-control text-bg hover:bg-accent-hover lg:h-9 lg:text-label">
+              {t.filterApply}
+            </button>
+          )}
         </div>
-        {dirty && (
-          <button onClick={applyPrice} className="press mt-2 h-11 w-full rounded-full bg-accent text-copy font-normal text-bg hover:bg-accent-hover">
-            {t.filterApply}
-          </button>
-        )}
       </section>
 
       <section className={SECTION}>
@@ -115,14 +128,14 @@ const FilterPanel: FC<{
             suzib turardi — uchala yorliq uzunligi har xil bo'lgani uchun teng
             bo'lish ishlamaydi. Endi u tepasidagi brendlar ro'yxati bilan bir xil
             qator idiomasi: to'liq enli, bosish maydoni butun qator. */}
-        <div className="flex flex-col">
+        <div className={`${BLEED} flex flex-col`}>
           {([null, 'yangi', 'ishlatilgan'] as const).map((c) => {
             const label = c === null ? t.filterAll : c === 'yangi' ? t.badgeNew : t.badgeUsed;
             return (
-              <label key={c ?? 'all'} className={ROW}>
+              <label key={c ?? 'all'} className={`${ROW} text-primary`}>
                 <input type="radio" name="holat" className="sr-only" aria-label={label} checked={filters.condition === c} onChange={() => onChange({ condition: c })} />
-                <span aria-hidden className={DOT}>
-                  <span className="h-2 w-2 rounded-full bg-accent opacity-0 transition-opacity group-has-checked:opacity-100" />
+                <span aria-hidden className={GLYPH}>
+                  <span className="size-1.5 rounded-full bg-bg opacity-0 transition-opacity group-has-checked:opacity-100" />
                 </span>
                 <span className="flex-1 truncate">{label}</span>
               </label>
@@ -132,9 +145,15 @@ const FilterPanel: FC<{
       </section>
 
       {active > 0 && (
-        <button onClick={onClear} className="press flex h-9 items-center justify-between border-t border-divider pt-5 text-label font-medium text-muted hover:text-primary">
-          {t.filterClear} <X className="h-4 w-4" />
-        </button>
+        <section className={SECTION}>
+          <div className={`${BLEED} flex flex-col`}>
+            {/* Belgi ustunida X — yorliq brend nomlari bilan bir chiziqda. */}
+            <button onClick={onClear} className={`${ROW} text-muted hover:text-primary`}>
+              <X aria-hidden className="size-4.5 shrink-0" />
+              {t.filterClear}
+            </button>
+          </div>
+        </section>
       )}
     </div>
   );

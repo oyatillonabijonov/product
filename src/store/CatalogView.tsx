@@ -97,11 +97,16 @@ const CatalogView: FC<{
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
-        <aside className="hidden lg:block">{panel}</aside>
-        {/* `min-w-0` — tur qatorining gorizontal scroll'i ustunni kengaytirib yubormasin. */}
+      <div className="grid grid-cols-1 gap-x-8 lg:grid-cols-[240px_1fr]">
+        {/* Tur qatori o'z qatorida, faqat kartalar ustunida — filtr undan pastda, mahsulot
+            kartalari bilan bir chiziqdan boshlanadi. `CategoryTiles` bo'sh bo'lsa `null`
+            qaytaradi: `empty:hidden` bo'sh qatorni yo'qotadi. `min-w-0` — qatorning
+            gorizontal scroll'i ustunni kengaytirib yubormasin. */}
+        <div className="min-w-0 empty:hidden lg:col-start-2">{tiles}</div>
+        {/* Karta — yonidagi mahsulot kartalari bilan bir xil yuza. `self-start`: aks holda
+            grid uni butun mahsulot to'ri balandligiga cho'zardi. */}
+        <aside className="hidden self-start rounded-lg border border-divider bg-surface px-6 pb-3 pt-5 lg:block">{panel}</aside>
         <div className="min-w-0">
-          {tiles}
           <ProductGrid t={t} items={result.items} config={config} eagerCount={4} />
           {result.total === 0 &&
             (filters.brands.length > 0 || filters.priceMin !== null || filters.priceMax !== null || filters.condition !== null) && (
