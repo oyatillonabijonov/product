@@ -24,7 +24,7 @@ const CatalogView: FC<{
   hideBrands?: boolean;
   /** `h1`da nom ortidan keladigan och rangli davomi ("PC — Professional yondashuv"). */
   subtitle?: string;
-  /** Sarlavha ostidagi qator — yo'nalish sahifasidagi rasmli bo'limlar. */
+  /** Yo'nalish sahifasidagi rasmli tur qatori — kartalar ustunida, to'r tepasida (desktopda filtr panelining o'ng tomonida). */
   tiles?: ReactNode;
 }> = ({ t, title, result, config, brands, filters, hideBrands, subtitle, tiles }) => {
   const [sp, setSp] = useSearchParams();
@@ -89,8 +89,6 @@ const CatalogView: FC<{
         </div>
       </header>
 
-      {tiles}
-
       {/* `active > 0` chip'lar bor degani — komponentning o'zi bo'sh bo'lsa `null`
           qaytaradi, shuning uchun shartsiz o'ram bo'sh joy qoldirardi. */}
       {active > 0 && (
@@ -101,7 +99,9 @@ const CatalogView: FC<{
 
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
         <aside className="hidden lg:block">{panel}</aside>
-        <div>
+        {/* `min-w-0` — tur qatorining gorizontal scroll'i ustunni kengaytirib yubormasin. */}
+        <div className="min-w-0">
+          {tiles}
           <ProductGrid t={t} items={result.items} config={config} eagerCount={4} />
           {result.total === 0 &&
             (filters.brands.length > 0 || filters.priceMin !== null || filters.priceMax !== null || filters.condition !== null) && (

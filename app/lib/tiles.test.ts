@@ -6,16 +6,29 @@ const row = (type: string, imageUrl: string): TileRow => ({ type, imageUrl });
 describe('categoryTiles', () => {
   it('keeps the registry order, not the product count', () => {
     const tiles = categoryTiles([
-      row('macbook', '/mac.webp'),
-      row('iphone', '/iph.webp'),
-      row('macbook', '/mac2.webp'),
-      row('ipad', '/pad.webp'),
-    ], 'apple', 'uz');
+      row('gpu', '/gpu.jpg'),
+      row('noutbuk', '/nb.jpg'),
+      row('gpu', '/gpu2.jpg'),
+      row('cpu', '/cpu.jpg'),
+    ], 'pc', 'uz');
     expect(tiles).toEqual([
-      { id: 'iphone', label: 'iPhone', img: '/iph.webp' },
-      { id: 'ipad', label: 'iPad', img: '/pad.webp' },
-      { id: 'macbook', label: 'MacBook', img: '/mac.webp' },
+      { id: 'noutbuk', label: 'Noutbuk', img: '/nb.jpg', icon: false },
+      { id: 'cpu', label: 'CPU', img: '/cpu.jpg', icon: false },
+      { id: 'gpu', label: 'GPU', img: '/gpu.jpg', icon: false },
     ]);
+  });
+
+  it('registrda ikonka bo\'lsa mahsulot rasmi o\'rniga shu, bo\'lmasa mahsulot rasmi', () => {
+    const tiles = categoryTiles([row('iphone', '/iph.webp'), row('aksessuar', '/acc.jpg')], 'apple', 'uz');
+    expect(tiles).toEqual([
+      { id: 'iphone', label: 'iPhone', img: '/sections/image-grid-iphone-nav_2x.png', icon: true },
+      { id: 'aksessuar', label: 'Aksessuar', img: '/acc.jpg', icon: false },
+    ]);
+  });
+
+  it('ikonkasi bor tur ham mahsuloti bo\'lmasa chiqmaydi', () => {
+    const tiles = categoryTiles([row('iphone', '/i.webp'), row('ipad', '/p.webp')], 'apple', 'uz');
+    expect(tiles.map((t) => t.id)).toEqual(['iphone', 'ipad']); // vision-pro, airpods… yo'q
   });
 
   it('localizes the label', () => {

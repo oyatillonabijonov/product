@@ -11,6 +11,8 @@ export interface CategoryTile {
   id: string;
   label: string;
   img: string;
+  /** `img` — registrdagi shaffof 2x ikonka (true) yoki mahsulot fotosi (false); ko'rinishi farq qiladi. */
+  icon: boolean;
 }
 
 /**
@@ -18,8 +20,8 @@ export interface CategoryTile {
  * faqat mahsuloti borlari — bo'sh turga bosgan mijoz bo'sh katalogga tushardi.
  *
  * Tartib registrdagi tartib (do'kon egasi qo'ygan mantiq), mahsulot soni emas.
- * Rasm — o'sha turdagi birinchi mahsulotniki, shuning uchun yangi tur qo'shilsa
- * qator o'zi yangilanadi: alohida asset yuklash kerak emas.
+ * Rasm — registrdagi ikonka (`ProductType.icon`), bo'lmasa o'sha turdagi birinchi
+ * mahsulotniki: yangi tur qo'shilsa qator ikonkasiz ham o'zi yangilanadi.
  */
 export function categoryTiles(rows: TileRow[], categoryId: string, lang: 'uz' | 'ru'): CategoryTile[] {
   const firstImage = new Map<string, string>();
@@ -27,7 +29,8 @@ export function categoryTiles(rows: TileRow[], categoryId: string, lang: 'uz' | 
   const tiles: CategoryTile[] = [];
   for (const t of typesFor(categoryId)) {
     const img = firstImage.get(t.id);
-    if (img) tiles.push({ id: t.id, label: lang === 'ru' ? t.labelRu : t.label, img });
+    // Mahsuloti yo'q tur ikonkasi bo'lsa ham chiqmaydi — bo'sh katalogga olib borardi.
+    if (img) tiles.push({ id: t.id, label: lang === 'ru' ? t.labelRu : t.label, img: t.icon ?? img, icon: Boolean(t.icon) });
   }
   // Bitta tile qator emas — u faqat "hammasi" degan yolg'on tanlov bo'lib qolardi.
   return tiles.length >= 2 ? tiles : [];

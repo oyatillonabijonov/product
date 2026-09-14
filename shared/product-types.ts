@@ -15,17 +15,24 @@ export interface ProductType {
   labelRu: string;
   /** Billz kategoriya nomlari (katta-kichik harfsiz) — sinxronizatsiya shu orqali turga tushadi. `label` ham mos keladi. */
   billz?: string[];
+  /**
+   * Tile qatoridagi ikonka — `public/sections/` dagi shaffof 2x PNG (Apple nav
+   * rasmlari, pastki chetlari bir chiziqda). Bo'lmasa o'sha turdagi birinchi
+   * mahsulot rasmi ishlatiladi.
+   */
+  icon?: string;
 }
 
 export const PRODUCT_TYPES: Record<string, ProductType[]> = {
   apple: [
-    { id: 'iphone', label: 'iPhone', labelRu: 'iPhone' },
-    { id: 'ipad', label: 'iPad', labelRu: 'iPad', billz: ['iPad Pro', 'iPad Air', 'iPad mini'] },
-    { id: 'macbook', label: 'MacBook', labelRu: 'MacBook', billz: ['MacBook Pro', 'MacBook Air', 'MacBook Neo'] },
+    { id: 'iphone', label: 'iPhone', labelRu: 'iPhone', icon: '/sections/image-grid-iphone-nav_2x.png' },
+    { id: 'ipad', label: 'iPad', labelRu: 'iPad', billz: ['iPad Pro', 'iPad Air', 'iPad mini'], icon: '/sections/image-grid-ipad-tn_2x.png' },
+    { id: 'macbook', label: 'MacBook', labelRu: 'MacBook', billz: ['MacBook Pro', 'MacBook Air', 'MacBook Neo'], icon: '/sections/image-grid-mac-nav_2x.png' },
     { id: 'imac', label: 'iMac', labelRu: 'iMac' },
-    { id: 'mac-mini', label: 'Mac mini', labelRu: 'Mac mini', billz: ['Mac Studio', 'Mac Pro'] },
-    { id: 'apple-watch', label: 'Apple Watch', labelRu: 'Apple Watch', billz: ['iWatch', 'Watch'] },
-    { id: 'airpods', label: 'AirPods', labelRu: 'AirPods', billz: ['Air Pods'] },
+    { id: 'mac-mini', label: 'Mac mini', labelRu: 'Mac mini', billz: ['Mac Studio', 'Mac Pro'], icon: '/sections/image-grid-mac-mini_2x.png' },
+    { id: 'apple-watch', label: 'Apple Watch', labelRu: 'Apple Watch', billz: ['iWatch', 'Watch'], icon: '/sections/image-grid-watch_2x.png' },
+    { id: 'vision-pro', label: 'Apple Vision Pro', labelRu: 'Apple Vision Pro', billz: ['Vision Pro'], icon: '/sections/image-grid-apple-vision-pro_2x.png' },
+    { id: 'airpods', label: 'AirPods', labelRu: 'AirPods', billz: ['Air Pods'], icon: '/sections/image-grid-airpods_2x.png' },
     { id: 'aksessuar', label: 'Aksessuar', labelRu: 'Аксессуары', billz: ['Phone Case', 'Case', 'Cable', 'Glass', 'Charger', 'Adapter', 'Bag', 'Trackpad', 'Keyboard', 'Mouse', 'Magic Mouse', 'Magic Keyboard', 'Pencil', 'HUB', 'Kronshteyn', 'Combo', 'Speaker', 'Headset', 'Mousepad', 'Apple TV', 'Chair', 'MagSafe Battery', 'Magic trackpad', 'Power Bank', 'Power Adapter', 'Keyboard Guard', 'KIT', 'M.2 Adapter', 'SATA Adapter', 'Watch Band', 'Apple Pencil', 'EarPods'] },
   ],
   pc: [
