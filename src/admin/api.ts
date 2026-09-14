@@ -5,7 +5,9 @@ import type {
   ApiDeviceModel,
   ApiOption,
   ApiOrder,
+  ApiPage,
   ApiPost,
+  ApiReview,
   ApiProduct,
   ApiSettings,
   ApiSiteConfig,
@@ -134,7 +136,7 @@ export async function setProductActive(id: string, isActive: boolean): Promise<A
 }
 
 export async function getProductDetail(id: string): Promise<AdminProductDetail> {
-  return handle(await fetch(`/api/products/${encodeURIComponent(id)}`));
+  return handle(await fetch(`/api/admin/products/${encodeURIComponent(id)}`));
 }
 
 export async function listCategories(): Promise<ApiCategory[]> {
@@ -198,7 +200,7 @@ export async function deleteProduct(id: string): Promise<void> {
 }
 
 export async function getSettings(): Promise<ApiSettings> {
-  return handle(await fetch('/api/settings'));
+  return handle(await fetch('/api/admin/settings'));
 }
 
 export async function updateSettings(s: ApiSettings): Promise<ApiSettings> {
@@ -249,6 +251,35 @@ export async function updatePost(id: string, p: Partial<ApiPost>): Promise<ApiPo
 }
 export async function deletePost(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/posts/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function listPages(): Promise<ApiPage[]> {
+  return handle(await fetch('/api/admin/pages'));
+}
+export async function createPage(p: Partial<ApiPage>): Promise<ApiPage> {
+  return handle(await fetch('/api/admin/pages', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p),
+  }));
+}
+export async function updatePage(id: string, p: Partial<ApiPage>): Promise<ApiPage> {
+  return handle(await fetch(`/api/admin/pages/${encodeURIComponent(id)}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(p),
+  }));
+}
+export async function deletePage(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/pages/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function listReviews(productId: string): Promise<ApiReview[]> {
+  return handle(await fetch(`/api/admin/reviews?productId=${encodeURIComponent(productId)}`));
+}
+export async function createReview(r: { productId: string; author: string; rating: number; body: string; createdAt: string }): Promise<ApiReview> {
+  return handle(await fetch('/api/admin/reviews', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(r),
+  }));
+}
+export async function deleteReview(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/reviews/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
 
 export async function listDeviceModels(): Promise<ApiDeviceModel[]> {

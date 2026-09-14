@@ -1,15 +1,6 @@
 import {
-  DeviceMobile,
-  Gear,
-  type Icon,
-  ImageSquare,
-  Package,
-  Newspaper,
-  Receipt,
-  SignOut,
-  SquaresFour,
-  Tag,
-} from '@phosphor-icons/react';
+  FileText, Image, LayoutGrid, LogOut, Newspaper, Package, Receipt, Settings, Smartphone, Tag, type LucideIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { getMe, logout } from './api';
@@ -20,32 +11,34 @@ import CategoryList from './CategoryList';
 import Login from './Login';
 import ModelList from './ModelList';
 import OrdersPage from './OrdersPage';
+import PageList from './PageList';
 import PostList from './PostList';
 import ProductList from './ProductList';
 import SettingsForm from './SettingsForm';
 import SiteConfigForm from './SiteConfigForm';
 import BillzPanel from './BillzPanel';
 
-type Tab = 'products' | 'orders' | 'models' | 'settings' | 'categories' | 'brands' | 'banners' | 'posts';
+type Tab = 'products' | 'orders' | 'models' | 'settings' | 'categories' | 'brands' | 'banners' | 'posts' | 'pages';
 
-type NavItem = { id: Tab; label: string; Icon: Icon };
+type NavItem = { id: Tab; label: string; Icon: LucideIcon };
 
 const NAV: NavItem[] = [
   { id: 'products', label: 'Mahsulotlar', Icon: Package },
   { id: 'orders', label: 'Buyurtmalar', Icon: Receipt },
-  { id: 'models', label: 'Modellar', Icon: DeviceMobile },
-  { id: 'categories', label: 'Kategoriyalar', Icon: SquaresFour },
+  { id: 'models', label: 'Modellar', Icon: Smartphone },
+  { id: 'categories', label: 'Kategoriyalar', Icon: LayoutGrid },
   { id: 'brands', label: 'Brendlar', Icon: Tag },
-  { id: 'banners', label: 'Bannerlar', Icon: ImageSquare },
+  { id: 'banners', label: 'Bannerlar', Icon: Image },
   { id: 'posts', label: 'Blog', Icon: Newspaper },
-  { id: 'settings', label: 'Sozlamalar', Icon: Gear },
+  { id: 'pages', label: 'Sahifalar', Icon: FileText },
+  { id: 'settings', label: 'Sozlamalar', Icon: Settings },
 ];
 
 const DEFAULT_PW_KEY = 'admin-default-pw';
 
 // Tab <-> URL path: /admin = products, /admin/<id> = boshqa bo'limlar.
 // URL-bog'langan tab → deep-link, F5-bardosh, brauzer back/forward ishlaydi.
-const SECTION_TABS: Tab[] = ['orders', 'models', 'categories', 'brands', 'banners', 'posts', 'settings'];
+const SECTION_TABS: Tab[] = ['orders', 'models', 'categories', 'brands', 'banners', 'posts', 'pages', 'settings'];
 function pathToTab(pathname: string): Tab {
   const seg = pathname.split('/')[2] ?? '';
   return SECTION_TABS.includes(seg as Tab) ? (seg as Tab) : 'products';
@@ -107,7 +100,7 @@ export default function AdminApp() {
                 active ? 'bg-accent text-white' : 'text-primary hover:bg-bg'
               }`}
             >
-              <Icon size={18} weight={active ? 'fill' : 'regular'} />
+              <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
               {label}
             </button>
           );
@@ -116,7 +109,7 @@ export default function AdminApp() {
           onClick={handleLogout}
           className="rounded-sm press mt-auto flex items-center gap-3 w-full px-4 py-2.5 text-[14px] font-semibold text-left text-muted hover:text-primary"
         >
-          <SignOut size={18} />
+          <LogOut size={18} />
           Chiqish
         </button>
       </aside>
@@ -131,7 +124,7 @@ export default function AdminApp() {
                 active ? 'bg-accent text-white' : 'text-primary'
               }`}
             >
-              <Icon size={18} weight={active ? 'fill' : 'regular'} />
+              <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
               {label}
             </button>
           );
@@ -140,7 +133,7 @@ export default function AdminApp() {
           onClick={handleLogout}
           className="press flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap text-muted hover:text-primary"
         >
-          <SignOut size={18} />
+          <LogOut size={18} />
           Chiqish
         </button>
       </header>
@@ -176,6 +169,7 @@ export default function AdminApp() {
           {tab === 'brands' && <BrandList />}
           {tab === 'banners' && <BannerList />}
           {tab === 'posts' && <PostList />}
+          {tab === 'pages' && <PageList />}
         </div>
       </main>
     </div>

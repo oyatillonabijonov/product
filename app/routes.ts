@@ -68,5 +68,7 @@ export default [
   route('api/admin/billz', 'routes/api.admin.billz.tsx'),
   route('api/admin/orders', 'routes/api.admin.orders.tsx'),
   route('api/admin/orders/:id', 'routes/api.admin.orders.$id.tsx'),
+  route('api/admin/reviews', 'routes/api.admin.reviews.tsx'),
+  route('api/admin/reviews/:id', 'routes/api.admin.reviews.$id.tsx'),
   route('*', 'routes/not-found.tsx'),
 ] satisfies RouteConfig;

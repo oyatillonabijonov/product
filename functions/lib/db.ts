@@ -190,8 +190,10 @@ function inClause(count: number): string {
 export async function buildProductDetail(
   env: { DB: SqlDatabase },
   id: string,
+  opts?: { includeInactive?: boolean },
 ): Promise<ApiProductDetail | null> {
-  const row = await env.DB.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE id = ? AND is_active = 1`)
+  // Storefront faqat faol mahsulotni ko'radi; admin (tahrirlash) nofaolini ham.
+  const row = await env.DB.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE id = ?${opts?.includeInactive ? '' : ' AND is_active = 1'}`)
     .bind(id)
     .first<ProductRow>();
   if (!row) return null;
@@ -643,4 +645,14 @@ export function rowToOrder(r: OrderRow): ApiOrder {
     status: r.status as OrderStatus,
     telegramSent: r.telegram_sent === 1,
   };
+}
+
+/** Sharh qo'shilgan/o'chirilganda mahsulot reytingi shu sharhlardan qayta hisoblanadi (sharh qolmasa NULL/0). */
+export async function recomputeRating(env: Env, productId: string): Promise<void> {
+  await env.DB.prepare(
+    `UPDATE products SET
+       rating_avg = (SELECT ROUND(AVG(rating), 1) FROM product_reviews WHERE product_id = ?),
+       review_count = (SELECT COUNT(*) FROM product_reviews WHERE product_id = ?)
+     WHERE id = ?`,
+  ).bind(productId, productId, productId).run();
 }

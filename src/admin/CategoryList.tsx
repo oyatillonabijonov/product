@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PencilSimple, Trash } from '@phosphor-icons/react';
+import { Pencil, Trash2 } from 'lucide-react';
 import type { ApiCategory } from '../../shared/types';
 import { deleteCategory, listCategories } from './api';
 import { categoryIcon } from '../lib/category-icons';
@@ -60,8 +60,8 @@ export default function CategoryList() {
               </div>
             )}
             <div className="flex-1 font-semibold">{c.name}</div>
-            <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(c)} />
-            <IconAction Icon={Trash} label="O'chir" onClick={() => remove(c)} danger />
+            <IconAction Icon={Pencil} label="Tahrir" onClick={() => setEditing(c)} />
+            <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(c)} danger />
           </div>
           );
         })}

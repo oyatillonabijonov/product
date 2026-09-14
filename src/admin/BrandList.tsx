@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PencilSimple, Trash } from '@phosphor-icons/react';
+import { Pencil, Trash2 } from 'lucide-react';
 import type { ApiBrand } from '../../shared/types';
 import { deleteBrand, listBrands } from './api';
 import IconAction from './IconAction';
@@ -54,8 +54,8 @@ export default function BrandList() {
               <div className="font-semibold">{b.name}</div>
               <div className="text-[13px] text-muted">{b.slug}</div>
             </div>
-            <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(b)} />
-            <IconAction Icon={Trash} label="O'chir" onClick={() => remove(b)} danger />
+            <IconAction Icon={Pencil} label="Tahrir" onClick={() => setEditing(b)} />
+            <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(b)} danger />
           </div>
         ))}
       </div>

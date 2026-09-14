@@ -5,11 +5,22 @@ import {
   imagesAndSpecsStatements,
   optionsAndVariantsStatements,
   ensureUniqueSlug,
+  buildProductDetail,
   PRODUCT_COLS,
   type ProductRow,
 } from '../../functions/lib/db';
 import { parseProductInput } from '../../functions/lib/validate';
 import { requireAdmin, parseBody } from './api.admin.guard';
+
+/** Tahrirlash formasi uchun to'liq mahsulot (galereya, xususiyatlar, variantlar) — nofaol ham. */
+export async function loader({ request, context, params }: Route.LoaderArgs) {
+  const env = context.env;
+  const who = await requireAdmin(request, env);
+  if (who instanceof Response) return who;
+  const detail = await buildProductDetail(env, String(params.id), { includeInactive: true });
+  if (!detail) return json({ error: 'not_found' }, { status: 404 });
+  return json(detail);
+}
 
 export async function action({ request, context, params }: Route.ActionArgs) {
   const env = context.env;

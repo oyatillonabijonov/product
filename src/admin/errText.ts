@@ -50,6 +50,11 @@ const MESSAGES: Record<string, string> = {
   options_limit: "Opsiyalar soni chegaradan oshdi",
   option_values_limit: "Opsiya qiymatlari soni chegaradan oshdi",
   variants_limit: "Variantlar soni chegaradan oshdi",
+  author_required: 'Muallif ismi majburiy',
+  body_required: 'Sharh matni majburiy',
+  rating_range: "Baho 1 dan 5 gacha bo'lsin",
+  content_uz_required: "Matn (o'zbek) majburiy",
+  too_many_requests: "Juda ko'p urinish — birozdan so'ng qayta urining",
 };
 
 export function errText(e: unknown): string {

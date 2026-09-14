@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PencilSimple, Trash } from '@phosphor-icons/react';
+import { Pencil, Trash2 } from 'lucide-react';
 import type { ApiBanner } from '../../shared/types';
 import { deleteBanner, listBanners } from './api';
 import IconAction from './IconAction';
@@ -54,8 +54,8 @@ export default function BannerList() {
               <div className="text-[13px] text-muted truncate">{b.linkUrl || '—'}</div>
               <div className="text-[12px] text-muted-2">Tartib: {b.sortOrder} · {b.isActive ? 'Faol' : 'Nofaol'}</div>
             </div>
-            <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(b)} />
-            <IconAction Icon={Trash} label="O'chir" onClick={() => remove(b)} danger />
+            <IconAction Icon={Pencil} label="Tahrir" onClick={() => setEditing(b)} />
+            <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(b)} danger />
           </div>
         ))}
         {items.length === 0 && <p className="text-muted text-[14px]">Bannerlar yo'q.</p>}

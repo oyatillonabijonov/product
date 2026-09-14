@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PencilSimple, Trash } from '@phosphor-icons/react';
+import { Pencil, Trash2 } from 'lucide-react';
 import type { ApiDeviceModel } from '../../shared/types';
 import { deleteDeviceModel, listDeviceModels } from './api';
 import { filterModels } from './lib/models';
@@ -104,8 +104,8 @@ export default function ModelList() {
                 <td className="p-3 text-muted whitespace-nowrap">{m.chip}</td>
                 <td className="p-3">
                   <div className="flex items-center justify-end gap-1">
-                    <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(m)} />
-                    <IconAction Icon={Trash} label="O'chir" onClick={() => remove(m)} danger />
+                    <IconAction Icon={Pencil} label="Tahrir" onClick={() => setEditing(m)} />
+                    <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(m)} danger />
                   </div>
                 </td>
               </tr>

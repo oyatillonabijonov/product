@@ -1,9 +1,9 @@
 import type { FC } from 'react';
-import type { Icon } from '@phosphor-icons/react';
+import type { LucideIcon } from 'lucide-react';
 
 // Ro'yxat qatorlaridagi ikonка-amal tugmasi (Tahrir/Ko'rsat/O'chir).
 // aria-label + title bilan — ikonка-only tugmalar uchun kirish imkoniyati.
-const IconAction: FC<{ Icon: Icon; label: string; onClick: () => void; danger?: boolean }> = ({
+const IconAction: FC<{ Icon: LucideIcon; label: string; onClick: () => void; danger?: boolean }> = ({
   Icon,
   label,
   onClick,

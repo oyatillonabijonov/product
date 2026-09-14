@@ -302,7 +302,8 @@ function localizedText(o: Record<string, unknown>, key: string, required: boolea
   for (const k of TEXT_KEYS) {
     const v = r[k];
     const s = typeof v === 'string' ? v.trim() : '';
-    if (required && s === '') throw new ValidationError(`${key}_${k}_required`);
+    // Sayt faqat uz/ru ni chiqaradi — en/uzCyrl ustunlari ixtiyoriy (eski migratsiyalar to'ldirgan, admin to'ldirmaydi).
+    if (required && s === '' && (k === 'uz' || k === 'ru')) throw new ValidationError(`${key}_${k}_required`);
     out[k] = s;
   }
   return out;
@@ -551,4 +552,21 @@ export function parseOrderInput(body: unknown): OrderInput {
     items,
     source: o.source === 'cart' ? 'cart' : 'product',
   };
+}
+
+export interface ReviewInput {
+  id: string; productId: string; author: string; rating: number; body: string; createdAt: number;
+}
+
+/** Admin sharh kiritadi (sayt o'z sharh tizimini yuritmaydi — egasi tashqi manbadan ko'chiradi). */
+export function parseReviewInput(body: unknown): ReviewInput {
+  const o = asRecord(body);
+  const productId = reqString(o, 'productId');
+  const author = reqString(o, 'author').slice(0, 80);
+  const text = reqString(o, 'body').slice(0, 2000);
+  const rating = o.rating;
+  if (typeof rating !== 'number' || !Number.isInteger(rating) || rating < 1 || rating > 5) throw new ValidationError('rating_range');
+  const date = typeof o.createdAt === 'string' && ISO_DATE_RE.test(o.createdAt) ? Date.parse(`${o.createdAt}T00:00:00Z`) : NaN;
+  const createdAt = Number.isFinite(date) ? Math.floor(date / 1000) : Math.floor(Date.now() / 1000);
+  return { id: crypto.randomUUID(), productId, author, rating, body: text, createdAt };
 }

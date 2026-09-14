@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Eye, EyeSlash, PencilSimple, Trash } from '@phosphor-icons/react';
+import { Eye, EyeOff, Pencil, Trash2 } from 'lucide-react';
 import type { ApiBrand, ApiCategory, ApiProduct } from '../../shared/types';
 import { deleteProduct, listBrands, listCategories, listProducts, setProductActive } from './api';
 import { filterProducts } from './lib/product-filter';
@@ -151,9 +151,9 @@ export default function ProductList() {
                 </td>
                 <td className="p-3">
                   <div className="flex items-center justify-end gap-1">
-                    <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(p)} />
-                    <IconAction Icon={p.isActive ? EyeSlash : Eye} label={p.isActive ? 'Yashir' : "Ko'rsat"} onClick={() => toggle(p)} />
-                    <IconAction Icon={Trash} label="O'chir" onClick={() => remove(p)} danger />
+                    <IconAction Icon={Pencil} label="Tahrir" onClick={() => setEditing(p)} />
+                    <IconAction Icon={p.isActive ? EyeOff : Eye} label={p.isActive ? 'Yashir' : "Ko'rsat"} onClick={() => toggle(p)} />
+                    <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(p)} danger />
                   </div>
                 </td>
               </tr>

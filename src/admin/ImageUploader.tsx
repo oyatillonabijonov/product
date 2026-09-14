@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { FC } from 'react';
-import { UploadSimple, X } from '@phosphor-icons/react';
+import { Upload, X } from 'lucide-react';
 import { uploadImage } from './api';
 import { normalizeImage } from './lib/image-normalize';
 import { moveItem } from './lib/reorder';
@@ -79,7 +79,7 @@ const ImageUploader: FC<{
                 aria-label="Rasmni o'chirish"
                 className="press absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-danger text-white flex items-center justify-center opacity-0 group-hover:opacity-100"
               >
-                <X size={12} weight="bold" />
+                <X size={12} strokeWidth={2.5} />
               </button>
             </div>
           ))}
@@ -95,7 +95,7 @@ const ImageUploader: FC<{
         onDrop={onZoneDrop}
         className={`rounded-sm flex flex-col items-center justify-center gap-1 py-5 px-4 border-2 border-dashed cursor-pointer transition-colors ${dragOver ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted'}`}
       >
-        <UploadSimple size={20} />
+        <Upload size={20} />
         <span className="text-[13px]">Rasm tashlang yoki tanlang</span>
         <input
           type="file"

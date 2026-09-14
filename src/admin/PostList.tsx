@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PencilSimple, Trash } from '@phosphor-icons/react';
+import { Pencil, Trash2 } from 'lucide-react';
 import type { ApiPost } from '../../shared/types';
 import { deletePost, listPosts } from './api';
 import IconAction from './IconAction';
@@ -58,8 +58,8 @@ export default function PostList() {
                 /blog/{p.slug} · {p.publishedAt || 'sanasiz'} · {p.isActive ? 'Faol' : 'Nofaol'}
               </div>
             </div>
-            <IconAction Icon={PencilSimple} label="Tahrir" onClick={() => setEditing(p)} />
-            <IconAction Icon={Trash} label="O'chir" onClick={() => remove(p)} danger />
+            <IconAction Icon={Pencil} label="Tahrir" onClick={() => setEditing(p)} />
+            <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(p)} danger />
           </div>
         ))}
         {items.length === 0 && <p className="text-muted text-[14px]">Maqolalar yo'q.</p>}

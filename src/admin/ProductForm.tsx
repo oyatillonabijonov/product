@@ -8,6 +8,7 @@ import type { AdminVariantInput } from './api';
 import ModelCombobox from './ModelCombobox';
 import PriceInput from './PriceInput';
 import ImageUploader from './ImageUploader';
+import ReviewsEditor from './ReviewsEditor';
 import { generateVariants } from './lib/variant-gen';
 import { normalizeImage } from './lib/image-normalize';
 import { modelToSpecs, mergeSpecs } from './lib/models';
@@ -306,8 +307,8 @@ const ProductForm: FC<{
         <label className="text-[13px] text-muted">Eski narx (ixtiyoriy)
           <PriceInput className={input} value={form.oldPriceUzs} onChange={(v) => set('oldPriceUzs', v)} />
         </label>
-        {/* Reyting sayt ichida hisoblanmaydi — egasi tashqi manbadan ko'chiradi.
-            Ikkalasi bo'sh bo'lsa kartada yulduzchalar bo'sh holatda ko'rinadi. */}
+        {/* Reyting pastdagi sharhlardan hisoblanadi; sharhsiz mahsulotga tashqi manba
+            qiymatini qo'lda kiritish mumkin. Sharh soni 0 bo'lsa kartada yulduzcha chiqmaydi. */}
         <label className="text-[13px] text-muted">Reyting (0–5)
           <input
             type="number" min={0} max={5} step={0.1} className={input}
@@ -438,6 +439,14 @@ const ProductForm: FC<{
         </div>
         <button onClick={() => set('specs', [...form.specs, { label: '', value: '' }])} className="press text-[13px] text-accent font-semibold mt-2">+ xususiyat qo'shish</button>
       </div>
+
+      {/* Sharhlar faqat saqlangan mahsulotda (product_id kerak). Reyting/soni sharhlardan qayta hisoblanadi. */}
+      {initial && (
+        <ReviewsEditor
+          productId={initial.id}
+          onChanged={(avg, count) => setForm((f) => ({ ...f, ratingAvg: avg, reviewCount: count }))}
+        />
+      )}
 
       <label className="mt-4 flex items-center gap-2 text-[14px]">
         <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} />
