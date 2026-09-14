@@ -98,8 +98,8 @@ ma'lumoti, admin.
 
 ## 6. Navbar
 
-**Desktop (`lg`dan):** logo · Katalog · qidiruv · **Profil** · **UZS/USD** · **Sevimlilar** · Savat ·
-Til · Mavzu. Oltita yozuvli ustun 768–1023px'ga sig'maydi (qidiruv 0 ga tushadi), shuning uchun
+**Desktop (`lg`dan):** logo · Katalog · qidiruv · **UZS/USD** · **Sevimlilar** · Savat · Til · Mavzu ·
+**Profil** (o'ng chetda). Oltita yozuvli ustun 768–1023px'ga sig'maydi (qidiruv 0 ga tushadi), shuning uchun
 Header'dagi `md:` bo'linishlari `lg:`ga o'tadi; 1024px'da qidiruvga ~300px qoladi.
 
 - **UZS/USD** — til ustuni naqshi: `Wallet` ikonkasi, yozuvda joriy valyuta (`UZS`/`USD`), ustida
@@ -109,7 +109,7 @@ Header'dagi `md:` bo'linishlari `lg:`ga o'tadi; 1024px'da qidiruvga ~300px qolad
   login sozlangan, kirmagan → login oynasi; login sozlanmagan → `/kirish` (u bosh sahifaga qaytaradi).
   `navAccount` kaliti ishlatilmay qoladi → o'chiriladi.
 
-**Mobil/planshet (`lg`gacha):** 1-qator — logo + Profil + Sevimlilar + Savat (ikonkalar). UZS/USD,
+**Mobil/planshet (`lg`gacha):** 1-qator — logo + Sevimlilar + Savat + Profil (ikonkalar). UZS/USD,
 Til va Mavzu ☰ menyuning (kategoriyalar dropdown'i) pastidagi sozlamalar blokiga ko'chadi
 (`lg:hidden`): valyuta va til — ikki bo'lakli tanlov, mavzu — `ThemeToggle`.
 

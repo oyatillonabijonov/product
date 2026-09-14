@@ -1,32 +1,44 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router';
-import { Search, ShoppingCart, Menu, Globe, User, Heart, Wallet } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { Search, ShoppingCart, LayoutGrid, X, Globe, User, Heart, Wallet } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import { localizedPath, langToLocale, stripLocale, categoryLabel, type Locale } from '../../app/lib/i18n';
 import { formatUzs } from '../lib/installment';
 import { parseCurrency } from '../lib/currency';
+import { SPRING_SNAPPY, SPRING_UI } from '../lib/motion';
 import logo from '../assets/logo.svg';
 import logoDark from '../assets/hero/wordmark.webp';
 import { useCart } from './CartContext';
 import { useFavorites } from './FavoritesContext';
 import { useCurrency } from './CurrencyContext';
 import ThemeToggle from './ThemeToggle';
+import { PILL } from './ui';
 
 /**
  * O'ng tomondagi ikon ustunlari — ikonka + tagida nomi (nomi faqat `lg`dan yuqorida).
  *
- * Bir qatorli desktop header `lg`dan boshlanadi: oltita yozuvli ustun (Profil · UZS/USD ·
- * Sevimlilar · Savat · Til · Mavzu) 768–1023px'ga sig'maydi — qidiruv 0 ga tushardi. Torroq ekranda
- * 1-qatorda Profil/Sevimlilar/Savat ikonkalari, valyuta/til/mavzu ☰ menyusining pastida.
+ * Bir qatorli desktop header `lg`dan boshlanadi: oltita yozuvli ustun (UZS/USD · Sevimlilar ·
+ * Savat · Til · Mavzu · Profil) 768–1023px'ga sig'maydi — qidiruv 0 ga tushardi. Torroq ekranda
+ * 1-qatorda Sevimlilar/Savat/Profil ikonkalari, valyuta/til/mavzu Katalog menyusining pastida.
+ * Profil har ikkala holatda o'ng chetda.
  */
 const ICON_COL =
   'press flex flex-col items-center justify-center gap-1 shrink-0 min-w-[44px] min-h-[44px] lg:min-h-0 text-muted hover:text-primary';
 const ICON_LABEL = 'hidden lg:block text-label leading-none whitespace-nowrap';
 /** Soni belgisi — savat va sevimlilar. */
 const BADGE = 'absolute -top-2 -right-2.5 min-w-[20px] h-[20px] px-1 rounded-full bg-accent text-bg text-label font-bold leading-none flex items-center justify-center';
-/** ☰ menyusidagi ikki bo'lakli tanlov (valyuta, til). */
+/** Menyudagi ikki bo'lakli tanlov (valyuta, til). */
 const SEG = 'press h-9 flex-1 rounded-xs text-label';
+/*
+ * Katalog menyusi — apple.com global navigatsiyasining ochiladigan paneli naqshida: sarlavha ostidan
+ * to'liq enli panel, ikonka va karta yo'q, ierarxiyani faqat tipografiya beradi — kulrang kichik
+ * ustun sarlavhasi, katta qalin yo'nalish havolalari, yonida kichik qalin "Do'kon" havolalari.
+ */
+const MENU_HEADING = 'mb-3 text-label text-muted-2';
+const MENU_BIG = 'text-subhead font-semibold text-primary transition-colors hover:text-muted-2';
+const MENU_SMALL = 'text-para font-semibold text-primary transition-colors hover:text-muted-2';
 
 export default function Header({
   t,
@@ -37,6 +49,7 @@ export default function Header({
   customerName,
   loginEnabled,
   onLoginClick,
+  hasDeals,
 }: {
   t: Translation;
   lang: LangKey;
@@ -50,6 +63,8 @@ export default function Header({
   loginEnabled: boolean;
   /** Kirmagan holatda akkaunt ikonkasi kirish drawer'ini ochadi. */
   onLoginClick: () => void;
+  /** Chegirma bormi — bo'lmasa menyuda "Chegirmalar" havolasi chiqmaydi (footer bilan bir qoida). */
+  hasDeals: boolean;
 }) {
   const [q, setQ] = useState('');
   const [catOpen, setCatOpen] = useState(false);
@@ -59,6 +74,8 @@ export default function Header({
   const { count } = useCart();
   const { count: favCount } = useFavorites();
   const { currency, rate, setCurrency } = useCurrency();
+  const reduced = useReducedMotion();
+  const closeMenu = () => setCatOpen(false);
   function switchLang(nextLang: LangKey) {
     const nextLocale = langToLocale(nextLang);
     const bare = stripLocale(location.pathname);
@@ -72,6 +89,14 @@ export default function Header({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Katalog menyusi Escape bilan yopiladi.
+  useEffect(() => {
+    if (!catOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setCatOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [catOpen]);
+
   function submitSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const query = q.trim();
@@ -83,10 +108,12 @@ export default function Header({
     navigate(localizedPath(locale, `/search?q=${encodeURIComponent(query)}`));
   }
 
-  // Ikkala joyda (desktop 1-qator / mobil 2-qator) bir xil forma.
+  // Ikkala joyda (desktop markaziy guruh / mobil 2-qator) bir xil forma, Katalog tugmasi bilan bir
+  // balandlikda (44px). Qidiruv ikonkasi maydon ichida chapda: alohida qora doira sarlavhadagi yagona
+  // to'q urg'u — Katalog — bilan raqobatlashardi. Enter ham yuboradi.
   // text-control — iOS Safari 16px dan kichik inputni fokusda zoom qiladi.
   const searchForm = (
-    <form onSubmit={submitSearch} className="w-full relative">
+    <form onSubmit={submitSearch} role="search" className="relative w-full">
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}
@@ -94,21 +121,41 @@ export default function Header({
         enterKeyHint="search"
         placeholder={t.navSearchPlaceholder}
         aria-label={t.navSearch}
-        className="w-full bg-segment rounded-full pl-4 pr-11 py-2.5 text-control placeholder:text-muted-2 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:bg-surface transition-colors [&::-webkit-search-cancel-button]:hidden"
+        className="h-11 w-full rounded-full bg-segment pl-11 pr-4 text-control text-primary placeholder:text-muted-2 transition-colors focus:bg-surface focus:outline-none focus:ring-2 focus:ring-accent/30 [&::-webkit-search-cancel-button]:hidden"
       />
       <button
         type="submit"
         aria-label={t.navSearch}
-        className="press absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-accent text-bg flex items-center justify-center hover:bg-accent-hover"
+        className="press absolute left-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-2 hover:text-primary"
       >
-        <Search className="w-4 h-4" />
+        <Search aria-hidden className="size-4.5" />
       </button>
     </form>
   );
 
-  // `lg`gacha valyuta, til va mavzu 1-qatorga sig'maydi — ☰ menyusining pastida turadi.
+  // Katalog tugmasidagi ikonka: yopiq — grid, ochiq — ✕. Ikkalasi bir joyda ustma-ust turib
+  // almashadi (masshtab + shaffoflik + blur), tugma kengligi o'zgarmaydi.
+  const iconOut = reduced ? { opacity: 0 } : { opacity: 0, scale: 0.25, filter: 'blur(4px)' };
+  const toggleIcon = (cls: string) => (
+    <span aria-hidden className={`relative ${cls}`}>
+      <AnimatePresence initial={false}>
+        <motion.span
+          key={catOpen ? 'close' : 'open'}
+          initial={iconOut}
+          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          exit={iconOut}
+          transition={SPRING_SNAPPY}
+          className="absolute inset-0"
+        >
+          {catOpen ? <X className="size-full" /> : <LayoutGrid className="size-full" />}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+
+  // `lg`gacha valyuta, til va mavzu 1-qatorga sig'maydi — Katalog menyusining pastida turadi.
   const settings = (
-    <div className="lg:hidden mt-1 flex flex-col gap-2 border-t border-divider px-1 pt-2">
+    <div className="lg:hidden flex flex-col gap-2 border-t border-line pt-6">
       <div className="flex gap-1" role="group" aria-label={t.currencyLabel}>
         {(['UZS', 'USD'] as const).filter((c) => c === 'UZS' || rate > 0).map((c) => (
           <button
@@ -128,52 +175,98 @@ export default function Header({
             key={l}
             type="button"
             aria-pressed={lang === l}
-            onClick={() => { setCatOpen(false); switchLang(l); }}
+            onClick={() => { closeMenu(); switchLang(l); }}
             className={`${SEG} ${lang === l ? 'bg-accent text-bg' : 'bg-segment text-primary'}`}
           >
             {l === 'Rus tili' ? 'Русский' : "O'zbek"}
           </button>
         ))}
       </div>
-      <div className="flex items-center justify-between px-2 text-label text-primary">
+      <div className="flex items-center justify-between text-label text-primary">
         {t.themeLabel}
         <ThemeToggle label={t.themeLabel} className="press flex h-9 w-9 items-center justify-center rounded-full border border-line" iconCls="w-4 h-4" />
       </div>
     </div>
   );
 
-  const catMenu = catOpen && (
-    <>
-      <div className="fixed inset-0 z-40" onClick={() => setCatOpen(false)} />
-      <div className=" rounded-lg absolute left-0 top-full mt-2 w-60 max-h-[70vh] overflow-y-auto bg-surface border border-line-2 p-2 z-50">
-        <div className="border-b border-divider mb-1 pb-1">
-          <Link
-            to={localizedPath(locale, '/katalog')}
-            onClick={() => setCatOpen(false)}
-            className="rounded-sm block px-3 py-2.5 text-label hover:bg-bg transition-colors"
-          >
-            {t.catalogAll}
-          </Link>
-        </div>
-        {cats.map((c) => (
-          <Link
-            key={c.id}
-            to={localizedPath(locale, `/category/${c.id}`)}
-            onClick={() => setCatOpen(false)}
-            className="rounded-sm block px-3 py-2.5 text-label hover:bg-bg transition-colors"
-          >
-            {categoryLabel(c, locale)}
-          </Link>
-        ))}
-        {settings}
-      </div>
-    </>
+  const shopLinks = [
+    { to: '/katalog', label: t.catalogAll },
+    ...(hasDeals ? [{ to: '/chegirmalar', label: t.dealsTitle }] : []),
+    { to: '/sevimlilar', label: t.accountTabFavorites },
+  ];
+  // Panel yuqoridan pastga ochiladi (clip-path), havolalar ketma-ket paydo bo'ladi; yopilish
+  // shu yo'ldan qaytadi (§7). Harakat kamaytirilganda faqat shaffoflik.
+  const panelVariants = reduced
+    ? { hidden: { opacity: 0 }, shown: { opacity: 1 } }
+    : { hidden: { opacity: 0, clipPath: 'inset(0 0 100% 0)' }, shown: { opacity: 1, clipPath: 'inset(0 0 0% 0)' } };
+  const itemVariants = reduced
+    ? { hidden: { opacity: 0 }, shown: { opacity: 1 } }
+    : { hidden: { opacity: 0, y: -6 }, shown: { opacity: 1, y: 0 } };
+
+  const catMenu = (
+    <AnimatePresence>
+      {/* Ostidagi sahifa xiralashadi va xira qatlam bosilsa menyu yopiladi. Qatlam header'ning
+          ostidan boshlanadi: header ustini qoplasa blur pastdagi rasm rangini uning chetiga oqizardi. */}
+      {catOpen && (
+        <motion.div
+          key="menu-scrim"
+          aria-hidden
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={SPRING_UI}
+          onClick={closeMenu}
+          className="absolute inset-x-0 top-full h-dvh bg-bg/40 backdrop-blur-xl"
+        />
+      )}
+      {catOpen && (
+        <motion.nav
+          key="menu-panel"
+          aria-label={t.navCatalog}
+          variants={panelVariants}
+          initial="hidden"
+          animate="shown"
+          exit="hidden"
+          transition={{ ...SPRING_UI, staggerChildren: 0.03 }}
+          className="absolute inset-x-0 top-full bg-bg"
+        >
+          <div className="shell flex max-h-[calc(100dvh-7rem)] flex-col gap-8 overflow-y-auto pb-8 pt-4 lg:max-h-[calc(100dvh-4rem)] lg:flex-row lg:gap-24 lg:pb-14 lg:pt-8">
+            <div>
+              <motion.p variants={itemVariants} className={MENU_HEADING}>{t.homeCategories}</motion.p>
+              <ul className="flex flex-col gap-2">
+                {cats.map((c) => (
+                  <motion.li key={c.id} variants={itemVariants}>
+                    <Link to={localizedPath(locale, `/category/${c.id}`)} onClick={closeMenu} className={MENU_BIG}>
+                      {categoryLabel(c, locale)}
+                    </Link>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <motion.p variants={itemVariants} className={MENU_HEADING}>{t.footerShop}</motion.p>
+              <ul className="flex flex-col gap-3">
+                {shopLinks.map((l) => (
+                  <motion.li key={l.to} variants={itemVariants}>
+                    <Link to={localizedPath(locale, l.to)} onClick={closeMenu} className={MENU_SMALL}>
+                      {l.label}
+                    </Link>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+            {settings}
+          </div>
+        </motion.nav>
+      )}
+    </AnimatePresence>
   );
 
   return (
     <header
       className={`sticky top-0 z-40 bg-bg border-b transition-colors duration-300 ${
-        scrolled ? 'border-line-2' : 'border-transparent'
+        // Menyu ochiq bo'lsa chiziq yo'q — header va panel bitta yuza bo'lib ko'rinsin.
+        scrolled && !catOpen ? 'border-line-2' : 'border-transparent'
       }`}
     >
       <div className="shell h-14 lg:h-16 flex items-center gap-2 lg:gap-4">
@@ -183,44 +276,17 @@ export default function Header({
           <img src={logoDark} alt="" aria-hidden className="logo-dark h-8 lg:h-9" />
         </Link>
 
-        {/* Katalog — desktop (torroq ekranda qidiruv qatorida) */}
-        <div className="relative hidden lg:block">
-          <button
-            onClick={() => setCatOpen((v) => !v)}
-            aria-label={t.navCatalog}
-            className="press inline-flex h-9 items-center gap-2 rounded-full border border-line px-4 text-label font-medium hover:border-accent hover:text-accent"
-          >
-            <Menu className="w-4 h-4" /> {t.navCatalog}
+        {/* Katalog + qidiruv — bitta "mahsulot topish" guruhi, logo va ikonkalar orasidagi bo'sh joy
+            markazida. Qidiruv `max-w-xl`dan uzaymaydi: keng ekranda chetdan-chetga cho'zilgan maydon
+            ko'zni ikonkalardan uzoqqa olib ketardi. Faqat desktop; torroq ekranda 2-qatorda. */}
+        <div className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-3">
+          {/* Tizimdagi asosiy tugma (`PILL`, 44px) — qidiruv bilan bir balandlikda; chap tomondagi
+              ikonka qutisining ichki bo'shlig'i `-ml-1` bilan optik tekislanadi. */}
+          <button type="button" onClick={() => setCatOpen((v) => !v)} aria-expanded={catOpen} className={`${PILL} shrink-0`}>
+            {toggleIcon('-ml-1 size-4.5')} {t.navCatalog}
           </button>
-          {catMenu}
+          <div className="w-full max-w-xl">{searchForm}</div>
         </div>
-
-        {/* Qidiruv — faqat desktop qatorida; torroq ekranda alohida to'liq enli qator */}
-        <div className="hidden lg:block flex-1 min-w-0">{searchForm}</div>
-
-        {/* Profil — ustunlarning birinchisi, doim ko'rinadi: kirgan → kabinet; login sozlangan →
-            kirish oynasi; sozlanmagan → /kirish (u bosh sahifaga qaytaradi — egasining tanlovi). */}
-        {customerName !== null ? (
-          <Link
-            to={localizedPath(locale, '/kabinet')}
-            className={ICON_COL}
-            aria-label={customerName || t.navProfile}
-            title={customerName || t.navProfile}
-          >
-            <User className="w-5 h-5" />
-            <span className={ICON_LABEL}>{t.navProfile}</span>
-          </Link>
-        ) : loginEnabled ? (
-          <button type="button" onClick={onLoginClick} className={ICON_COL} aria-label={t.navProfile} title={t.navProfile}>
-            <User className="w-5 h-5" />
-            <span className={ICON_LABEL}>{t.navProfile}</span>
-          </button>
-        ) : (
-          <Link to={localizedPath(locale, '/kirish')} className={ICON_COL} aria-label={t.navProfile} title={t.navProfile}>
-            <User className="w-5 h-5" />
-            <span className={ICON_LABEL}>{t.navProfile}</span>
-          </Link>
-        )}
 
         {/* Valyuta — til ustuni naqshi: yozuvda joriy valyuta, ustida shaffof native select. */}
         <div className="hidden lg:contents">
@@ -273,22 +339,48 @@ export default function Header({
 
           <ThemeToggle label={t.themeLabel} caption={t.themeLabel} className={ICON_COL} iconCls="w-5 h-5" />
         </div>
+
+        {/* Profil — o'ng chetda, doim ko'rinadi: kirgan → kabinet; login sozlangan → kirish oynasi;
+            sozlanmagan → /kirish (u bosh sahifaga qaytaradi — egasining tanlovi). */}
+        {customerName !== null ? (
+          <Link
+            to={localizedPath(locale, '/kabinet')}
+            className={ICON_COL}
+            aria-label={customerName || t.navProfile}
+            title={customerName || t.navProfile}
+          >
+            <User className="w-5 h-5" />
+            <span className={ICON_LABEL}>{t.navProfile}</span>
+          </Link>
+        ) : loginEnabled ? (
+          <button type="button" onClick={onLoginClick} className={ICON_COL} aria-label={t.navProfile} title={t.navProfile}>
+            <User className="w-5 h-5" />
+            <span className={ICON_LABEL}>{t.navProfile}</span>
+          </button>
+        ) : (
+          <Link to={localizedPath(locale, '/kirish')} className={ICON_COL} aria-label={t.navProfile} title={t.navProfile}>
+            <User className="w-5 h-5" />
+            <span className={ICON_LABEL}>{t.navProfile}</span>
+          </Link>
+        )}
       </div>
 
       {/* `lg`gacha: Katalog (ikon) + to'liq enli qidiruv qatori. */}
       <div className="lg:hidden shell pb-2.5 flex items-center gap-2">
-        <div className="relative shrink-0">
-          <button
-            onClick={() => setCatOpen((v) => !v)}
-            aria-label={t.navCatalog}
-            className="press flex items-center justify-center w-11 h-11 rounded-full border border-line hover:border-accent hover:text-accent"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          {catMenu}
-        </div>
+        {/* Desktop'dagi Katalog pill'ining ikonkali shakli — xuddi shu to'q urg'u. */}
+        <button
+          type="button"
+          onClick={() => setCatOpen((v) => !v)}
+          aria-label={t.navCatalog}
+          aria-expanded={catOpen}
+          className="press flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-bg hover:opacity-85"
+        >
+          {toggleIcon('size-5')}
+        </button>
         {searchForm}
       </div>
+
+      {catMenu}
     </header>
   );
 }

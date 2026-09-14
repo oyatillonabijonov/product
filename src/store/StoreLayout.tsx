@@ -41,7 +41,7 @@ export default function StoreLayout({
   const isHome = stripLocale(location.pathname) === '/';
   const canLogin = loginEnabled(config);
   const header = (
-    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} loginEnabled={canLogin} onLoginClick={() => setLoginOpen(true)} />
+    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} loginEnabled={canLogin} onLoginClick={() => setLoginOpen(true)} hasDeals={hasDeals} />
   );
   const firstHit = useRef(true);
   useEffect(() => {
