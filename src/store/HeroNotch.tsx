@@ -23,8 +23,10 @@ const ICON_BTN =
  * Faqat `md`dan yuqorida: ochilish hover'ga bog'liq, sensorli ekranda esa hover
  * yo'q — mobilda o'rniga saytning odatdagi headeri qoladi.
  */
-export default function HeroNotch({ t, locale, categories }: {
+export default function HeroNotch({ t, locale, categories, showAccount }: {
   t: Translation; locale: Locale; categories: ApiCategory[];
+  /** Google/Telegram sozlanmagan bo'lsa Kirish va kabinet yashiriladi — `/kirish` bosh sahifaga qaytarardi. */
+  showAccount: boolean;
 }) {
   const [hover, setHover] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -132,15 +134,19 @@ export default function HeroNotch({ t, locale, categories }: {
         <div aria-hidden className="h-[22px] w-px bg-white/[0.34]" />
 
         <div className="flex items-center gap-4">
-          <LocaleLink
-            to="/kirish"
-            className="press flex h-9 items-center rounded-full bg-[#0071E3] px-5 text-label font-medium text-white hover:bg-[#0A84FF]"
-          >
-            {t.loginTitle}
-          </LocaleLink>
-          <LocaleLink to="/kabinet" aria-label={t.accountTitle} title={t.accountTitle} className={ICON_BTN}>
-            <User aria-hidden className="h-[18px] w-[18px]" strokeWidth={1.8} />
-          </LocaleLink>
+          {showAccount && (
+            <>
+              <LocaleLink
+                to="/kirish"
+                className="press flex h-9 items-center rounded-full bg-[#0071E3] px-5 text-label font-medium text-white hover:bg-[#0A84FF]"
+              >
+                {t.loginTitle}
+              </LocaleLink>
+              <LocaleLink to="/kabinet" aria-label={t.accountTitle} title={t.accountTitle} className={ICON_BTN}>
+                <User aria-hidden className="h-[18px] w-[18px]" strokeWidth={1.8} />
+              </LocaleLink>
+            </>
+          )}
           <Link
             to={locale === 'ru' ? '/' : '/ru'}
             aria-label={`${t.langLabel}: ${locale === 'ru' ? "O'zbekcha" : 'Русский'}`}

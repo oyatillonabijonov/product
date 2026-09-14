@@ -5,6 +5,7 @@ import HeroColumns from './HeroColumns';
 import HeroNotch from './HeroNotch';
 import ServiceCards from './ServiceCards';
 import NewsSection from './NewsSection';
+import { loginEnabled } from './LoginPanel';
 import BrandStrip from './BrandStrip';
 import ConsultForm from './ConsultForm';
 import BannerSlider from './BannerSlider';
@@ -22,7 +23,7 @@ export default function HomePage({
 }) {
   return (
     <>
-      <HeroNotch t={t} locale={locale} categories={categories} />
+      <HeroNotch t={t} locale={locale} categories={categories} showAccount={loginEnabled(site)} />
       {/* Hero'da ko'rinadigan h1 yo'q (kartalar o'zi sarlavha) — ierarxiya uchun sr-only. */}
       <h1 className="sr-only">{`${site.name} — ${t.proTitle}`}</h1>
       <HeroColumns categories={categories} />
