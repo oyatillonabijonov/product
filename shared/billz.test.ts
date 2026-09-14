@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct,
+  toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct, nameKey, mergeDuplicates,
   type BillzProduct, type MapContext,
 } from './billz';
 
@@ -139,5 +139,43 @@ describe('mapBillzProduct', () => {
     }), ctx);
     expect(m?.description).toBe('Yaxshi telefon');
     expect(m?.specs).toEqual([{ label: 'Rang', value: 'Black' }]);
+  });
+});
+
+describe('dublikatlarni birlashtirish', () => {
+  const mapped = (over: Partial<import('./billz').MappedProduct> = {}): import('./billz').MappedProduct => ({
+    billzId: 'a', name: 'Apple TV 4K', slug: 'apple-tv-4k-a', categoryId: 'apple', legacyCategory: 'mac', type: 'aksessuar',
+    brandId: 'apple', newBrand: null, cashPriceUzs: 2142000, oldPriceUzs: null, stock: 1, description: null, specs: [],
+    photos: [], imageUrl: '', gallery: [], isActive: false, ...over,
+  });
+  it('nameKey: harf registri va ortiqcha bo\'shliqlar farq qilmaydi', () => {
+    expect(nameKey('  Apple  TV 4K ')).toBe('apple tv 4k');
+    expect(nameKey('APPLE TV 4K')).toBe(nameKey('apple tv 4k'));
+  });
+  it('bir xil nomli tovarlar bitta bo\'lib, qoldiq yig\'iladi', () => {
+    const out = mergeDuplicates([
+      mapped({ billzId: 'a', stock: 1 }),
+      mapped({ billzId: 'b', stock: 2, name: 'apple tv 4k' }),
+      mapped({ billzId: 'c', name: 'HomePod', stock: 5 }),
+    ]);
+    expect(out).toHaveLength(2);
+    expect(out[0].stock).toBe(3);
+    expect(out[1].name).toBe('HomePod');
+  });
+  it('vakil sifatida rasmi bor yozuv olinadi, ko\'rinish qayta hisoblanadi', () => {
+    const photo = { url: 'https://fra1.digitaloceanspaces.com/b/x.jpg', key: 'products/billz-x.jpg' };
+    const out = mergeDuplicates([
+      mapped({ billzId: 'a', stock: 0 }),
+      mapped({ billzId: 'b', stock: 1, photos: [photo], imageUrl: '/images/products/billz-x.jpg' }),
+    ]);
+    expect(out[0].billzId).toBe('b');
+    expect(out[0].imageUrl).toBe('/images/products/billz-x.jpg');
+    expect(out[0].stock).toBe(1);
+    expect(out[0].isActive).toBe(true);
+  });
+  it('rasmsiz guruh qoldiq bo\'lsa ham ko\'rinmaydi', () => {
+    const out = mergeDuplicates([mapped({ billzId: 'a', stock: 2 }), mapped({ billzId: 'b', stock: 3 })]);
+    expect(out[0].stock).toBe(5);
+    expect(out[0].isActive).toBe(false);
   });
 });

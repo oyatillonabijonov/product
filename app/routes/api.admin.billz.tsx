@@ -24,8 +24,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const who = await requireAdmin(request, context.env);
   if (who instanceof Response) return who;
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, { status: 405 });
-  const body = (await request.json().catch(() => ({}))) as { mode?: string };
-  const r = await context.billz.run(body.mode === 'full' ? 'full' : 'delta');
+  const r = await context.billz.run();
   if (r === 'started') return json({ started: true }, { status: 202 });
   return json({ error: r }, { status: r === 'sync_running' ? 409 : 400 });
 }

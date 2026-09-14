@@ -1,7 +1,7 @@
 import type { Env, SqlStatement } from '../shared/runtime';
 import {
-  BILLZ_BASE, productsUrl, utcStamp, hiddenIds, mapBillzProduct,
-  type BillzProductsPage, type BillzShop, type BillzSyncResult, type BillzSyncStatus, type MapContext, type MappedProduct,
+  BILLZ_BASE, productsUrl, hiddenIds, mapBillzProduct, mergeDuplicates, nameKey,
+  type BillzProduct, type BillzProductsPage, type BillzShop, type BillzSyncResult, type BillzSyncStatus, type MapContext, type MappedProduct,
 } from '../shared/billz.ts';
 import { imagesStatements, specsStatements } from '../shared/product-statements.ts';
 
@@ -10,8 +10,12 @@ import { imagesStatements, specsStatements } from '../shared/product-statements.
  *
  * Bitta jarayonda bitta runner: rejalashtirgich ham, admin tugmasi ham shu
  * obyektni chaqiradi, `running` qulfi ikki run'ni bir vaqtda yurgizmaydi.
- * JWT diskka yozilmaydi (xotirada, 401 → qayta login). Delta kursori ham
- * xotirada — restart to'liq run bilan boshlanadi (o'chirilganlarni ham ushlaydi).
+ * JWT diskka yozilmaydi (xotirada, 401 → qayta login).
+ *
+ * Har run to'liq: butun katalog o'qiladi (≈8 sahifa, arzon), bir nomdagi Billz
+ * yozuvlari (har dona alohida tovar) bitta sayt mahsulotiga birlashtiriladi va
+ * qoldiq yig'iladi. Delta (last_updated_date) rejimi olib tashlandi — u guruhning
+ * bitta a'zosini keltirib yig'indi qoldiqni buzardi va o'chirilganlarni ko'rmasdi.
  *
  * Docker `functions/`ni tashimaydi, shuning uchun bu fayl faqat `server/` va
  * `shared/`dan import qiladi va SQL'ni `Env` shartnomasi orqali yozadi.
@@ -19,14 +23,14 @@ import { imagesStatements, specsStatements } from '../shared/product-statements.
 export interface BillzSyncHandle {
   status(): Promise<BillzSyncStatus>;
   /** Fon vazifasini boshlaydi va darhol qaytadi; natija `site_config.billz_last_sync`ga tushadi. */
-  run(mode: 'full' | 'delta'): Promise<'started' | 'sync_running' | 'not_configured'>;
+  run(): Promise<'started' | 'sync_running' | 'not_configured'>;
   shops(): Promise<BillzShop[]>;
   start(): void;
 }
 
-const DELTA_EVERY_MS = 30 * 60 * 1000;
-const FULL_EVERY_MS = 6 * 60 * 60 * 1000;
+const EVERY_MS = 30 * 60 * 1000;
 const BOOT_DELAY_MS = 10 * 1000;
+const WRITE_BATCH = 200;
 const MIN_GAP_MS = 500; // Billz chegarasi 2 so'rov/s
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const PHOTO_PARALLEL = 4;
@@ -47,7 +51,6 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export function createBillzSync(env: Env): BillzSyncHandle {
   let running = false;
   let jwt: { token: string; expiresAt: number } | null = null;
-  let lastSyncedAt: string | null = null; // UTC 'YYYY-MM-DD HH:MM:SS'
   let lastRequestAt = 0;
 
   async function config(): Promise<Config | null> {
@@ -144,11 +147,11 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     return { stmts, id };
   }
 
-  async function execute(mode: 'full' | 'delta', cfg: Config): Promise<BillzSyncResult> {
-    const startedAt = new Date();
-    const since = mode === 'delta' && lastSyncedAt ? lastSyncedAt : undefined;
+  interface ExistingRow { id: string; billz_id: string; image_url: string; name: string }
+
+  async function execute(cfg: Config): Promise<BillzSyncResult> {
     const result: BillzSyncResult = {
-      at: startedAt.toISOString(), mode: since ? 'delta' : 'full', ok: false,
+      at: new Date().toISOString(), mode: 'full', ok: false,
       count: 0, seen: 0, inserted: 0, updated: 0, hidden: 0, photos: 0, skipped: 0,
     };
 
@@ -157,78 +160,95 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     const brands = await env.DB.prepare('SELECT id, name FROM brands').all<{ id: string; name: string }>();
     const brandsByName = new Map(brands.results.map((b) => [b.name.toLowerCase(), b.id]));
     const brandIds = new Set(brands.results.map((b) => b.id));
-    const existingRows = await env.DB.prepare('SELECT id, billz_id, image_url FROM products WHERE billz_id IS NOT NULL')
-      .all<{ id: string; billz_id: string; image_url: string }>();
-    const existing = new Map(existingRows.results.map((r) => [r.billz_id, { id: r.id, image: r.image_url }]));
-    const seen = new Set<string>();
-    // Billz sahifalashi barqaror tartibsiz: bir tovar ikki sahifada kelib, boshqasi
-    // tushib qolishi mumkin. Shuning uchun `seen` — noyob id'lar; `fetched` faqat
-    // sahifalash tugashini aniqlaydi.
-    let fetched = 0;
+    // Mavjud Billz qatorlari — nom bo'yicha (bir nomga bir nechta qator bo'lsa eng eskisi
+    // vakil, qolganlari run oxirida yashiriladi) va billz_id bo'yicha (nom o'zgargan holat).
+    const existingRows = await env.DB.prepare(
+      'SELECT id, billz_id, image_url, name FROM products WHERE billz_id IS NOT NULL ORDER BY created_at ASC, id ASC',
+    ).all<ExistingRow>();
+    const byBillzId = new Map(existingRows.results.map((r) => [r.billz_id, r]));
+    const byName = new Map<string, ExistingRow>();
+    for (const r of existingRows.results) { const k = nameKey(r.name); if (!byName.has(k)) byName.set(k, r); }
+    const findRow = (billzId: string, name: string): ExistingRow | undefined =>
+      byName.get(nameKey(name)) ?? byBillzId.get(billzId);
 
+    // 1) Butun katalog — dublikatlar sahifalar orasida bo'lishi mumkin, shuning uchun
+    //    avval hammasi o'qiladi. Billz sahifalashi beqaror: id bo'yicha noyoblanadi.
+    const raws = new Map<string, BillzProduct>();
+    let fetched = 0;
     for (let page = 1; ; page++) {
-      const data = await get<BillzProductsPage>(productsUrl(page, since), cfg.token);
+      const data = await get<BillzProductsPage>(productsUrl(page), cfg.token);
       result.count = data.count;
       const products = data.products ?? [];
       if (products.length === 0) break;
+      for (const raw of products) raws.set(raw.id, raw);
+      fetched += products.length;
+      if (fetched >= data.count) break;
+    }
+    result.seen = raws.size;
 
-      const mapped: MappedProduct[] = [];
-      for (const raw of products) {
-        const ctx: MapContext = {
-          shopId: cfg.shopId, usdToUzs: cfg.usdToUzs, categoryIds, brandsByName,
-          existingImage: existing.get(raw.id)?.image || null,
-        };
-        const m = mapBillzProduct(raw, ctx);
-        if (m) mapped.push(m);
-        else result.skipped++;
-      }
+    // 2) Moslashtirish va bir nomdagilarni birlashtirish.
+    const mapped: MappedProduct[] = [];
+    for (const raw of raws.values()) {
+      const ctx: MapContext = {
+        shopId: cfg.shopId, usdToUzs: cfg.usdToUzs, categoryIds, brandsByName,
+        existingImage: findRow(raw.id, raw.name ?? '')?.image_url || null,
+      };
+      const m = mapBillzProduct(raw, ctx);
+      if (m) mapped.push(m);
+      else result.skipped++;
+    }
+    const merged = mergeDuplicates(mapped);
 
-      const { downloaded, failed } = await fetchPhotos(mapped);
-      result.photos += downloaded;
+    // 3) Rasmlar (CDN, bor bo'lsa o'tkazib yuboriladi).
+    const { downloaded, failed } = await fetchPhotos(merged);
+    result.photos = downloaded;
 
+    // 4) Yozish — 200 tadan atomik batch.
+    const seenRows = new Set<string>(); // shu run'da yozilgan qatorlarning billz_id'si
+    for (let i = 0; i < merged.length; i += WRITE_BATCH) {
       const stmts: SqlStatement[] = [];
-      for (const m of mapped) {
+      for (const m of merged.slice(i, i + WRITE_BATCH)) {
         if (m.newBrand && !brandIds.has(m.newBrand.id)) {
           stmts.push(env.DB.prepare("INSERT INTO brands (id, name, slug, logo_url, sort_order) VALUES (?, ?, ?, '', 0)")
             .bind(m.newBrand.id, m.newBrand.name, m.newBrand.id));
           brandIds.add(m.newBrand.id);
           brandsByName.set(m.newBrand.name.toLowerCase(), m.newBrand.id);
         }
-        const ex = existing.get(m.billzId);
+        const ex = findRow(m.billzId, m.name);
         // Asosiy rasm yuklanmagan bo'lsa saytdagi rasm qoladi (bo'sh bo'lsa tovar ko'rinmaydi).
         let eff = m;
         if (m.photos.length > 0 && failed.has(m.photos[0].key)) {
-          const imageUrl = ex?.image ?? '';
+          const imageUrl = ex?.image_url ?? '';
           eff = { ...m, photos: [], imageUrl, gallery: [], isActive: m.stock > 0 && imageUrl !== '' };
         }
         const { stmts: s, id } = upsertStatements(eff, ex?.id);
         stmts.push(...s);
-        if (ex) result.updated++;
-        else { result.inserted++; existing.set(m.billzId, { id, image: eff.imageUrl }); }
-        seen.add(m.billzId);
+        if (ex) { result.updated++; seenRows.add(ex.billz_id); }
+        else {
+          result.inserted++;
+          seenRows.add(m.billzId);
+          const row: ExistingRow = { id, billz_id: m.billzId, image_url: eff.imageUrl, name: m.name };
+          byBillzId.set(m.billzId, row);
+          byName.set(nameKey(m.name), row);
+        }
       }
       if (stmts.length) await env.DB.batch(stmts);
-      fetched += products.length;
-      result.seen = seen.size + result.skipped;
-      if (fetched >= data.count) break;
     }
 
-    if (result.mode === 'full') {
-      if (result.seen === result.count) {
-        const gone = hiddenIds(existingRows.results.map((r) => r.billz_id), seen);
-        if (gone.length) {
-          await env.DB.batch(gone.map((bid) =>
-            env.DB.prepare('UPDATE products SET is_active = 0, billz_stock = 0 WHERE billz_id = ?').bind(bid)));
-        }
-        result.hidden = gone.length;
-      } else {
-        // Sahifalash paytida katalog o'zgargan yoki takror qator keldi (ba'zi tovar
-        // ko'rilmagan) — yashirish keyingi to'liq run'ga qoladi, aks holda ko'rilmagan
-        // tovar noto'g'ri yashirilardi.
-        result.note = 'count_mismatch';
-      }
+    // 5) Bu run'da yozilmagan qatorlar yashiriladi. Ikki tur:
+    //    - nomi shu run'da ko'rilgan qator (eski dublikat) — har doim: tovar boshqa qatorda bor;
+    //    - nomi umuman ko'rinmagan qator (Billz'dan o'chirilgan) — faqat butun katalog
+    //      o'qilgan bo'lsa (Billz sahifalashi beqaror, 1–5 yozuv tushib qolishi mumkin).
+    const gone = hiddenIds(existingRows.results.map((r) => r.billz_id), seenRows);
+    const seenNames = new Set(merged.map((m) => nameKey(m.name)));
+    const complete = result.seen === result.count;
+    const toHide = gone.filter((bid) => complete || seenNames.has(nameKey(byBillzId.get(bid)?.name ?? '')));
+    if (toHide.length) {
+      await env.DB.batch(toHide.map((bid) =>
+        env.DB.prepare('UPDATE products SET is_active = 0, billz_stock = 0 WHERE billz_id = ?').bind(bid)));
     }
-    lastSyncedAt = utcStamp(startedAt);
+    result.hidden = toHide.length;
+    if (!complete) result.note = 'count_mismatch';
     result.ok = true;
     return result;
   }
@@ -240,7 +260,7 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     );
   }
 
-  async function run(mode: 'full' | 'delta'): Promise<'started' | 'sync_running' | 'not_configured'> {
+  async function run(): Promise<'started' | 'sync_running' | 'not_configured'> {
     if (running) return 'sync_running';
     const cfg = await config();
     if (!cfg) return 'not_configured';
@@ -248,11 +268,11 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     void (async () => {
       let result: BillzSyncResult;
       try {
-        result = await execute(mode, cfg);
+        result = await execute(cfg);
       } catch (err) {
         console.error('billz sync xato:', err);
         result = {
-          at: new Date().toISOString(), mode, ok: false,
+          at: new Date().toISOString(), mode: 'full', ok: false,
           count: 0, seen: 0, inserted: 0, updated: 0, hidden: 0, photos: 0, skipped: 0,
           error: err instanceof BillzError ? err.code : 'network',
         };
@@ -280,11 +300,9 @@ export function createBillzSync(env: Env): BillzSyncHandle {
       return (data.shops ?? []).map((s) => ({ id: s.id, name: s.name }));
     },
     start() {
-      const tick = (mode: 'full' | 'delta') => { void run(mode); };
       // unref — timerlar jarayonni tirik ushlab turmaydi (CLI/test chiqib ketaveradi).
-      setTimeout(() => tick('full'), BOOT_DELAY_MS).unref();
-      setInterval(() => tick('delta'), DELTA_EVERY_MS).unref();
-      setInterval(() => tick('full'), FULL_EVERY_MS).unref();
+      setTimeout(() => { void run(); }, BOOT_DELAY_MS).unref();
+      setInterval(() => { void run(); }, EVERY_MS).unref();
     },
   };
 }

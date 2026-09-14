@@ -294,8 +294,6 @@ export async function getBillzShops(): Promise<BillzShop[]> {
   return handle(await fetch('/api/admin/billz?shops=1'));
 }
 /** Fon vazifasini boshlaydi (202); holatni `getBillzStatus` bilan so'rab turiladi. */
-export async function runBillzSync(mode: 'full' | 'delta'): Promise<void> {
-  await handle(await fetch('/api/admin/billz', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode }),
-  }));
+export async function runBillzSync(): Promise<void> {
+  await handle(await fetch('/api/admin/billz', { method: 'POST' }));
 }

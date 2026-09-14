@@ -19,9 +19,9 @@ export default function BillzPanel() {
     return () => clearInterval(t);
   }, [status?.running]);
 
-  async function run(mode: 'full' | 'delta') {
+  async function run() {
     setMsg('');
-    try { await runBillzSync(mode); setMsg('Boshlandi…'); await load(); }
+    try { await runBillzSync(); setMsg('Boshlandi…'); await load(); }
     catch (e) { setMsg(errText(e)); }
   }
 
@@ -31,19 +31,18 @@ export default function BillzPanel() {
   return (
     <section className="rounded-md bg-white border border-line-2 p-5">
       <h2 className="text-[20px] font-semibold text-primary">Billz sinxronizatsiyasi</h2>
-      <p className="text-[13.5px] text-muted mt-0.5">Har 30 daqiqada o'zgarishlar, har 6 soatda to'liq katalog. Kerak bo'lsa hozir ishga tushiring.</p>
+      <p className="text-[13.5px] text-muted mt-0.5">Har 30 daqiqada butun katalog qayta o'qiladi; bir nomdagi Billz tovarlari saytda bitta mahsulot bo'lib, qoldig'i yig'iladi. Kerak bo'lsa hozir ishga tushiring.</p>
       <div className="mt-4 text-[14px] text-primary">
         {!status ? 'Yuklanmoqda…'
           : !status.configured ? <span className="text-danger">Sozlanmagan — «Sayt ma'lumotlari» bo'limida Billz kaliti va do'konini saqlang.</span>
           : status.running ? 'Ishlayapti…'
           : !last ? 'Hali sinxronlanmagan.'
           : last.ok
-            ? <>Oxirgi: {when} · {last.mode === 'full' ? "to'liq" : 'delta'} · ko'rildi {last.seen}/{last.count} · yangi {last.inserted} · yangilandi {last.updated} · yashirildi {last.hidden} · rasm {last.photos}{last.skipped ? ` · o'tkazildi ${last.skipped}` : ''}{last.note ? ` · ${last.note}` : ''}</>
+            ? <>Oxirgi: {when} · ko'rildi {last.seen}/{last.count} · yangi {last.inserted} · yangilandi {last.updated} · yashirildi {last.hidden} · rasm {last.photos}{last.skipped ? ` · o'tkazildi ${last.skipped}` : ''}{last.note ? ` · ${last.note}` : ''}</>
             : <span className="text-danger">Oxirgi urinish xato: {errText(new Error(last.error ?? 'network'))} ({when})</span>}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button onClick={() => run('delta')} disabled={busy} className="press px-5 py-2 bg-accent text-white font-semibold rounded-full text-[14px] disabled:opacity-50">Sinxronlash</button>
-        <button onClick={() => run('full')} disabled={busy} className="press px-5 py-2 border border-line-2 font-semibold rounded-full text-[14px] disabled:opacity-50">To'liq sinxronlash</button>
+        <button onClick={run} disabled={busy} className="press px-5 py-2 bg-accent text-white font-semibold rounded-full text-[14px] disabled:opacity-50">Sinxronlash</button>
         {msg && <span className="text-[13px] text-muted">{msg}</span>}
       </div>
       <p className="mt-4 text-[12.5px] text-muted-2">

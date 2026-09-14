@@ -237,3 +237,31 @@ export function mapBillzProduct(raw: BillzProduct, ctx: MapContext): MappedProdu
     isActive: stock > 0 && imageUrl !== '',
   };
 }
+
+/** Guruhlash kaliti: registr va ortiqcha bo'shliqlar farq qilmaydi. */
+export function nameKey(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+/**
+ * Billz har bir jismoniy dona uchun alohida tovar yozuvi yuritadi (Apple TV ×10,
+ * har biri qoldiq 1). Saytda bir nom = bitta mahsulot: qoldiq yig'iladi, vakil
+ * sifatida rasmi bor birinchi yozuv olinadi (narx/tavsif ham undan).
+ * ponytail: aynan bir xil nom bo'yicha; "14inch" va "14\"" farqli nom — ular
+ * Billz'da to'g'rilanadi, bu yerda taxmin qilinmaydi.
+ */
+export function mergeDuplicates(items: MappedProduct[]): MappedProduct[] {
+  const groups = new Map<string, MappedProduct[]>();
+  for (const m of items) {
+    const k = nameKey(m.name);
+    const g = groups.get(k);
+    if (g) g.push(m); else groups.set(k, [m]);
+  }
+  const out: MappedProduct[] = [];
+  for (const g of groups.values()) {
+    const rep = g.find((m) => m.photos.length > 0) ?? g[0];
+    const stock = g.reduce((s, m) => s + m.stock, 0);
+    out.push({ ...rep, stock, isActive: stock > 0 && rep.imageUrl !== '' });
+  }
+  return out;
+}
