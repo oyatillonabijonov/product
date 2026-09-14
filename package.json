@@ -11,15 +11,15 @@
     "typecheck": "react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
     "lint": "react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
     "test": "vitest run",
-    "import:d1": "node server/import-d1.ts"
+    "import:d1": "node server/import-d1.ts",
+    "backup": "node server/backup.ts"
   },
   "dependencies": {
-    "@phosphor-icons/react": "^2.1.10",
     "@react-router/dev": "^7",
     "@react-router/express": "^7",
-    "@react-router/node": "^7",
     "@tailwindcss/vite": "^4.1.14",
     "better-sqlite3": "^13.0.3",
+    "compression": "^1.8.2",
     "express": "^5.2.1",
     "isbot": "^5",
     "lucide-react": "^0.546.0",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "^9.6.0",
+    "@types/compression": "^1.8.1",
     "@types/express": "^5.0.6",
     "@types/node": "^22.14.0",
     "tailwindcss": "^4.1.14",

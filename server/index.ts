@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import { createRequestHandler } from '@react-router/express';
 import type { ServerBuild } from 'react-router';
 import { createEnv } from './env.ts';
@@ -22,6 +23,12 @@ billz.start();
 
 const app = express();
 app.disable('x-powered-by');
+// Oldinda reverse proxy (Coolify/Traefik yoki nginx) — `req.ip` haqiqiy mijoz manzili bo'lsin (rate limit uchun).
+app.set('trust proxy', 1);
+// HTML/JS/JSON gzip — SSR sahifasi ~100 KB, siqilganda ~20 KB.
+app.use(compression());
+// Coolify/uptime tekshiruvi uchun.
+app.get('/health', (_req, res) => { res.type('text/plain').send('ok'); });
 
 // Minimal xavfsizlik sarlavhalari: MIME-sniffing va clickjacking'ga qarshi
 // (ayniqsa cookie bilan autentifikatsiyalanadigan /admin uchun).
@@ -52,7 +59,7 @@ if (isProd) {
   app.use(express.static('build/client', { maxAge: '1h', redirect: false, index: false }));
   // Build vaqtida yaratiladi — tsc uni ko'rmaydi, shu sabab tip aniqlanadi.
   const build = (await import('../build/server/index.js')) as unknown as ServerBuild;
-  app.use(createRequestHandler({ build, getLoadContext: () => ({ env, billz }) }));
+  app.use(createRequestHandler({ build, getLoadContext: (req) => ({ env, billz, ip: req.ip ?? '' }) }));
 } else {
   const vite = await import('vite');
   const devServer = await vite.createServer({ server: { middlewareMode: true } });
@@ -60,7 +67,7 @@ if (isProd) {
   app.use(
     createRequestHandler({
       build: () => devServer.ssrLoadModule('virtual:react-router/server-build') as Promise<ServerBuild>,
-      getLoadContext: () => ({ env, billz }),
+      getLoadContext: (req) => ({ env, billz, ip: req.ip ?? '' }),
     }),
   );
 }

@@ -50,7 +50,13 @@ sudo systemctl restart product-store
 
 ## 4. Zaxira nusxa
 
-Hamma narsa bitta papkada:
+Avtomatik: `node server/backup.ts` bazani `DATA_DIR/backups/store-YYYY-MM-DD.db` ga nusxalaydi
+(SQLite backup API — ishlayotgan server bilan xavfsiz), oxirgi 7 tasi qoladi. Coolify'da
+**Scheduled Tasks** → har kuni `node server/backup.ts`; bare-metal'da cron. Rasmlar (`images/`)
+bunga kirmaydi — papkani vaqti-vaqti bilan qo'lda ko'chiring. Health: `GET /health` → `ok`
+(Dockerfile'da HEALTHCHECK bor, Coolify healthcheck yo'li ham shu).
+
+Qo'lda, hamma narsa bitta papkada:
 
 ```bash
 sudo systemctl stop product-store

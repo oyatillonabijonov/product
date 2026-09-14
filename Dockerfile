@@ -10,8 +10,9 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends python3 make g++ \
   && rm -rf /var/lib/apt/lists/*
 
-COPY package.json ./
-RUN npm install
+# Lock-fayl bilan: har deploy bir xil versiyalarni oladi (bare `npm install` yangi minorlarni tortardi).
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY . .
 RUN npm run build
@@ -31,5 +32,9 @@ COPY --from=build /app/package.json ./
 
 EXPOSE 3000
 
+# Coolify healthcheck: GET /health → 200 "ok".
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD node -e "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
+
 # Har ishga tushishda yangi migratsiyalar qo'llanadi, so'ng server ko'tariladi.
+# Zaxira: `node server/backup.ts` (Coolify Scheduled Task, har kuni).
 CMD ["sh", "-c", "node server/migrate.ts && node server/index.ts"]

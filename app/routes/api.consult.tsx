@@ -2,6 +2,9 @@ import type { Route } from './+types/api.consult';
 import { json, rowToSiteConfig, type SiteConfigRow } from '../../functions/lib/db';
 import { parseConsultInput, ValidationError } from '../../functions/lib/validate';
 import { customerIdFrom } from '../../functions/lib/customer-auth';
+import { allowLead } from '../../functions/lib/rate-limit';
+
+const MAX_LEAD_BYTES = 32 * 1024;
 import { composeConsultMessage } from '../../shared/order';
 
 /**
@@ -12,6 +15,10 @@ import { composeConsultMessage } from '../../shared/order';
 export async function action({ request, context }: Route.ActionArgs) {
   const env = context.env;
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, { status: 405 });
+  // Bitta IP'dan 10 daqiqada 10 ta — bot Telegram guruhini va jadvalni to'ldirib tashlamasin.
+  if (!allowLead(context.ip || 'unknown')) return json({ error: 'too_many_requests' }, { status: 429 });
+  // Lead JSON'i bir necha KB; kattasi body o'qilishidan oldin rad etiladi.
+  if (Number(request.headers.get('content-length') ?? '0') > MAX_LEAD_BYTES) return json({ error: 'too_large' }, { status: 413 });
 
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   // Honeypot: bot bo'sh 'company' maydonini to'ldiradi → jimgina "qabul qildik" deymiz.

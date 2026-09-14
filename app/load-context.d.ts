@@ -7,6 +7,8 @@ declare module 'react-router' {
     env: Env;
     /** Billz sinxronizatsiya runner'i (holat / ishga tushirish / do'konlar) — `server/index.ts` yaratadi. */
     billz: BillzSyncHandle;
+    /** Mijoz IP'si (`trust proxy` bilan) — ommaviy lead endpoint'lari rate limit uchun. */
+    ip: string;
   }
 }
 
