@@ -1,7 +1,9 @@
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { useRef, useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import type { Translation } from '../locales';
 import LocaleLink from './LocaleLink';
+import { BTN_MD } from './ui';
 import { EASE_GLIDE as GLIDE } from '../lib/motion';
 
 /**
@@ -65,11 +67,10 @@ export default function CategoryCover({ img, videos, poster, t }: {
         transition={{ duration: 0.38, delay: 0.2, ease: GLIDE }}
         className="absolute left-6 top-6 z-[4] md:left-8"
       >
-        <LocaleLink
-          to="/"
-          className="press flex h-9 items-center gap-2 rounded-full bg-black/[0.42] pl-[13px] pr-[18px] text-label font-normal text-[#F5F5F7] backdrop-blur-[14px] hover:bg-black/[0.62]"
-        >
-          <span aria-hidden className="text-control text-[#A1A1A6]">‹</span>
+        {/* Apple ko'k tugmasi — Yangiliklar CTA'si bilan bir xil (`BTN_MD` + `cta`). */}
+        <LocaleLink to="/" className={`${BTN_MD} bg-cta text-white hover:bg-cta-hover`}>
+          {/* Chevron qutisidagi ichki bo'shliq chap tomonni kengroq ko'rsatardi — optik tekislash. */}
+          <ChevronLeft aria-hidden className="-ml-1.5 -mr-1 size-4.5" />
           <span>{t.homeCategories}</span>
         </LocaleLink>
       </motion.div>
