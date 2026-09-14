@@ -24,7 +24,7 @@ const CatalogView: FC<{
   hideBrands?: boolean;
   /** `h1`da nom ortidan keladigan och rangli davomi ("PC — Professional yondashuv"). */
   subtitle?: string;
-  /** Yo'nalish sahifasidagi rasmli tur qatori — kartalar ustunida, to'r tepasida (desktopda filtr panelining o'ng tomonida). */
+  /** Yo'nalish sahifasidagi rasmli tur qatori — to'r tepasida, sahifa chetidan (filtr va kartalar ustida). */
   tiles?: ReactNode;
 }> = ({ t, title, result, config, brands, filters, hideBrands, subtitle, tiles }) => {
   const [sp, setSp] = useSearchParams();
@@ -97,12 +97,11 @@ const CatalogView: FC<{
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-x-8 lg:grid-cols-[240px_1fr]">
-        {/* Tur qatori o'z qatorida, faqat kartalar ustunida — filtr undan pastda, mahsulot
-            kartalari bilan bir chiziqdan boshlanadi. `CategoryTiles` bo'sh bo'lsa `null`
-            qaytaradi: `empty:hidden` bo'sh qatorni yo'qotadi. `min-w-0` — qatorning
-            gorizontal scroll'i ustunni kengaytirib yubormasin. */}
-        <div className="min-w-0 empty:hidden lg:col-start-2">{tiles}</div>
+      {/* Tur qatori grid'dan tashqarida — sahifa chetidan, sarlavha bilan bir chiziqda boshlanadi;
+          filtr kartasi uning ostida, mahsulot kartalari bilan bir chiziqda. */}
+      {tiles}
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr]">
         {/* Karta — yonidagi mahsulot kartalari bilan bir xil yuza. `self-start`: aks holda
             grid uni butun mahsulot to'ri balandligiga cho'zardi. */}
         <aside className="hidden self-start rounded-lg border border-divider bg-surface px-6 pb-3 pt-5 lg:block">{panel}</aside>
