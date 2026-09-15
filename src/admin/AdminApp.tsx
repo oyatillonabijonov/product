@@ -1,72 +1,92 @@
-import {
-  Briefcase, FileText, Image, LayoutGrid, LogOut, Megaphone, Newspaper, Package, Receipt, Settings, Smartphone, Tag, type LucideIcon,
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
-import { getMe, logout } from './api';
-import AccountForm from './AccountForm';
-import BannerList from './BannerList';
-import BrandList from './BrandList';
-import CategoryList from './CategoryList';
+import { useCallback, useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
+import type { ApiDashboard } from '../../shared/types';
+import { getDashboard, getMe, logout } from './api';
+import { adminPath, parseAdminPath, type AdminRoute } from './lib/admin-path';
+import { SECTIONS, SEGMENTS, activeTab, type SectionDef, type TabDef } from './nav';
+import AdminShell from './AdminShell';
 import Login from './Login';
+import Dashboard from './screens/Dashboard';
+import { Page, Tabs } from './ui';
+import { ToastProvider } from './ui/toast';
+import { ConfirmProvider } from './ui/confirm';
+// Eski ekranlar — bosqichma-bosqich almashtiriladi (2–5-bosqichlar), shu jadval orqali ulanadi.
+import ProductList from './ProductList';
+import CategoryList from './CategoryList';
+import BrandList from './BrandList';
 import ModelList from './ModelList';
 import OrdersPage from './OrdersPage';
+import JobApplicationsList from './JobApplicationsList';
+import BannerList from './BannerList';
 import NewsList from './NewsList';
-import PageList from './PageList';
 import PostList from './PostList';
-import ProductList from './ProductList';
-import SettingsForm from './SettingsForm';
+import PageList from './PageList';
+import VacancyList from './VacancyList';
 import SiteConfigForm from './SiteConfigForm';
+import SettingsForm from './SettingsForm';
 import BillzPanel from './BillzPanel';
-import CareersAdmin from './CareersAdmin';
-
-type Tab = 'products' | 'orders' | 'models' | 'settings' | 'categories' | 'brands' | 'banners' | 'news' | 'posts' | 'pages' | 'careers';
-
-type NavItem = { id: Tab; label: string; Icon: LucideIcon };
-
-const NAV: NavItem[] = [
-  { id: 'products', label: 'Mahsulotlar', Icon: Package },
-  { id: 'orders', label: 'Buyurtmalar', Icon: Receipt },
-  { id: 'models', label: 'Modellar', Icon: Smartphone },
-  { id: 'categories', label: 'Kategoriyalar', Icon: LayoutGrid },
-  { id: 'brands', label: 'Brendlar', Icon: Tag },
-  { id: 'banners', label: 'Bannerlar', Icon: Image },
-  { id: 'news', label: 'Yangiliklar', Icon: Megaphone },
-  { id: 'posts', label: 'Blog', Icon: Newspaper },
-  { id: 'pages', label: 'Sahifalar', Icon: FileText },
-  { id: 'careers', label: 'Vakansiyalar', Icon: Briefcase },
-  { id: 'settings', label: 'Sozlamalar', Icon: Settings },
-];
+import AccountForm from './AccountForm';
 
 const DEFAULT_PW_KEY = 'admin-default-pw';
 
-// Tab <-> URL path: /admin = products, /admin/<id> = boshqa bo'limlar.
-// URL-bog'langan tab → deep-link, F5-bardosh, brauzer back/forward ishlaydi.
-const SECTION_TABS: Tab[] = ['orders', 'models', 'categories', 'brands', 'banners', 'news', 'posts', 'pages', 'careers', 'settings'];
-function pathToTab(pathname: string): Tab {
-  const seg = pathname.split('/')[2] ?? '';
-  return SECTION_TABS.includes(seg as Tab) ? (seg as Tab) : 'products';
+/** Bo'lim + tab → ekran. Kalit `${section}/${tab.id}`. */
+function screenFor(key: string, clearDefaultPw: () => void) {
+  switch (key) {
+    case 'products/list': return <ProductList />;
+    case 'products/categories': return <CategoryList />;
+    case 'products/brands': return <BrandList />;
+    case 'products/models': return <ModelList />;
+    case 'orders/list': return <OrdersPage />;
+    case 'orders/applications': return <JobApplicationsList />;
+    case 'content/banners': return <BannerList />;
+    case 'content/news': return <NewsList />;
+    case 'content/posts': return <PostList />;
+    case 'content/pages': return <PageList />;
+    case 'content/vacancies': return <VacancyList />;
+    case 'settings/store': return <SiteConfigForm />;
+    case 'settings/payment': return <SettingsForm />;
+    case 'settings/integrations': return <BillzPanel />;
+    case 'settings/account': return <AccountForm onPasswordChanged={clearDefaultPw} />;
+    default: return null;
+  }
 }
-function tabToPath(id: Tab): string {
-  return id === 'products' ? '/admin' : `/admin/${id}`;
+
+/** Bo'lim sahifasi: sarlavha + (mobilda) tab segmenti + ekran. Desktopda tablar sidebar'da. */
+function SectionPage({ section, tab, route, clearDefaultPw }: { section: SectionDef; tab: TabDef; route: AdminRoute; clearDefaultPw: () => void }) {
+  return (
+    <Page title={section.label}>
+      {section.tabs.length > 1 && (
+        <Tabs
+          className="mb-6 md:hidden"
+          active={tab.id}
+          items={section.tabs.map((t) => ({ id: t.id, label: t.label, to: adminPath(section.id, t.segment) }))}
+        />
+      )}
+      {/* `key` — tab almashganda eski ekran holati (ochiq forma) qolib ketmasin. */}
+      <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw)}</div>
+    </Page>
+  );
 }
 
 export default function AdminApp() {
-  const [authed, setAuthed] = useState<boolean | null>(null);
-  const location = useLocation();
-  const navigate = useNavigate();
-  const tab = pathToTab(location.pathname);
+  const [authed, setAuthed] = useState(null as boolean | null);
   const [defaultPw, setDefaultPw] = useState(
     () => typeof window !== 'undefined' && sessionStorage.getItem(DEFAULT_PW_KEY) === '1',
   );
+  const [rawDash, setDash] = useState(null as ApiDashboard | null);
+  const dash = rawDash as ApiDashboard | null;
+  const location = useLocation();
+  const route = parseAdminPath(location.pathname, SEGMENTS);
 
   useEffect(() => {
-    getMe()
-      .then(() => setAuthed(true))
-      .catch(() => setAuthed(false));
+    getMe().then(() => setAuthed(true)).catch(() => setAuthed(false));
   }, []);
 
-  if (authed === null) return <div className="p-8 text-muted">Yuklanmoqda…</div>;
+  // ponytail: sanoqlar har navigatsiyada qayta so'raladi (3 ta COUNT — arzon); real-time kerak emas.
+  const refreshDash = useCallback(() => { getDashboard().then(setDash).catch(() => {}); }, []);
+  useEffect(() => { if (authed) refreshDash(); }, [authed, location.pathname, refreshDash]);
+
+  if (authed === null) return <div className="p-8 text-para text-muted">Yuklanmoqda…</div>;
   if (!authed) {
     return (
       <Login
@@ -80,104 +100,21 @@ export default function AdminApp() {
     );
   }
 
-  const clearDefaultPw = () => {
-    setDefaultPw(false);
-    sessionStorage.removeItem(DEFAULT_PW_KEY);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    setAuthed(false);
-  };
+  const clearDefaultPw = () => { setDefaultPw(false); sessionStorage.removeItem(DEFAULT_PW_KEY); };
+  const handleLogout = async () => { await logout(); setAuthed(false); };
+  const section = SECTIONS.find((s) => s.id === route.section) ?? SECTIONS[0];
+  const tab = activeTab(section, route);
+  const badge = (dash?.newOrders ?? 0) + (dash?.newApplications ?? 0);
 
   return (
-    <div className="min-h-screen bg-bg md:flex">
-      <aside className="hidden md:flex md:flex-col w-[230px] shrink-0 bg-white border-r border-line-2 sticky top-0 h-screen p-4">
-        <div className="text-[17px] font-semibold text-primary px-4 pb-4">Admin</div>
-        {NAV.map(({ id, label, Icon }) => {
-          const active = tab === id;
-          return (
-            <button
-              key={id}
-              onClick={() => navigate(tabToPath(id))}
-              className={`rounded-sm press flex items-center gap-3 w-full px-4 py-2.5 text-[14px] font-semibold text-left ${
-                active ? 'bg-accent text-white' : 'text-primary hover:bg-bg'
-              }`}
-            >
-              <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
-              {label}
-            </button>
-          );
-        })}
-        <button
-          onClick={handleLogout}
-          className="rounded-sm press mt-auto flex items-center gap-3 w-full px-4 py-2.5 text-[14px] font-semibold text-left text-muted hover:text-primary"
-        >
-          <LogOut size={18} />
-          Chiqish
-        </button>
-      </aside>
-      <header className="md:hidden bg-white border-b border-line-2 px-3 py-2 flex items-center gap-1 overflow-x-auto no-scrollbar">
-        {NAV.map(({ id, label, Icon }) => {
-          const active = tab === id;
-          return (
-            <button
-              key={id}
-              onClick={() => navigate(tabToPath(id))}
-              className={`press flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap ${
-                active ? 'bg-accent text-white' : 'text-primary'
-              }`}
-            >
-              <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
-              {label}
-            </button>
-          );
-        })}
-        <button
-          onClick={handleLogout}
-          className="press flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold whitespace-nowrap text-muted hover:text-primary"
-        >
-          <LogOut size={18} />
-          Chiqish
-        </button>
-      </header>
-      <main className="flex-1 min-w-0">
-        <div className="max-w-[900px] mx-auto px-4 md:px-8 py-8">
-          {defaultPw && (
-            <div className="rounded-md mb-6 border border-danger/30 bg-danger/5 px-4 py-3 text-[14px] text-danger flex flex-wrap items-center gap-2">
-              <span className="font-semibold">Diqqat:</span>
-              Standart «admin» paroli ishlatilmoqda — hoziroq o'zgartiring.
-              <button onClick={() => navigate('/admin/settings')} className="press font-semibold underline underline-offset-2">
-                Sozlamalarga o'tish
-              </button>
-            </div>
-          )}
-          {tab === 'products' && <ProductList />}
-          {tab === 'orders' && <OrdersPage />}
-          {tab === 'models' && <ModelList />}
-          {tab === 'settings' && (
-            <>
-              <SettingsForm />
-              <div className="mt-8">
-                <BillzPanel />
-              </div>
-              <div className="mt-8">
-                <SiteConfigForm />
-              </div>
-              <div className="mt-8">
-                <AccountForm onPasswordChanged={clearDefaultPw} />
-              </div>
-            </>
-          )}
-          {tab === 'categories' && <CategoryList />}
-          {tab === 'brands' && <BrandList />}
-          {tab === 'banners' && <BannerList />}
-          {tab === 'news' && <NewsList />}
-          {tab === 'posts' && <PostList />}
-          {tab === 'pages' && <PageList />}
-          {tab === 'careers' && <CareersAdmin />}
-        </div>
-      </main>
-    </div>
+    <ToastProvider>
+      <ConfirmProvider>
+        <AdminShell route={route} badge={badge} onLogout={handleLogout}>
+          {tab === null
+            ? <Dashboard data={dash} onRefresh={refreshDash} defaultPw={defaultPw as boolean} />
+            : <SectionPage section={section} tab={tab} route={route} clearDefaultPw={clearDefaultPw} />}
+        </AdminShell>
+      </ConfirmProvider>
+    </ToastProvider>
   );
 }
