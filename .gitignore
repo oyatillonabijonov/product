@@ -16,3 +16,6 @@ coverage/
 .wrangler
 .dev.vars
 .claude/
+
+# SDD workspace (superpowers scratch)
+.superpowers/
