@@ -127,6 +127,12 @@ export default function HeroNotch({ t, locale, categories }: {
           >
             {t.navCatalog}
           </LocaleLink>
+          <LocaleLink
+            to="/page/biz-haqimizda"
+            className="text-label font-normal text-[#A1A1A6] transition-colors duration-200 hover:text-[#F5F5F7]"
+          >
+            {t.navAbout}
+          </LocaleLink>
         </div>
 
         <div aria-hidden className="h-[22px] w-px bg-white/[0.34]" />

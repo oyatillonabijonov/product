@@ -42,7 +42,8 @@ const Footer: FC<{
     <li key={to}><Link to={localizedPath(locale, to)} className={linkCls}>{label}</Link></li>
   );
   const pages = pageLinks.map((p) => ({ slug: p.slug, to: `/page/${p.slug}`, label: p.title[textKey] }));
-  const buyers = pages.filter((p) => !COMPANY.has(p.slug) && !LEGAL.has(p.slug));
+  // Trade-In footer'da yo'q, sahifa faol qoladi — unga "Biz haqimizda"dan havola bor.
+  const buyers = pages.filter((p) => !COMPANY.has(p.slug) && !LEGAL.has(p.slug) && p.slug !== 'trade-in');
   const company = pages.filter((p) => COMPANY.has(p.slug));
   const legal = pages.filter((p) => LEGAL.has(p.slug));
   const telegram = safeHref(config.telegram);
@@ -59,7 +60,10 @@ const Footer: FC<{
             {hasDeals && link('/chegirmalar', t.dealsTitle)}
           </Col>
           {buyers.length > 0 && <Col title={t.footerBuyers}>{buyers.map((p) => link(p.to, p.label))}</Col>}
-          {company.length > 0 && <Col title={t.footerCompany}>{company.map((p) => link(p.to, p.label))}</Col>}
+          <Col title={t.footerCompany}>
+            {company.map((p) => link(p.to, p.label))}
+            {link('/vakansiyalar', t.footerCareers)}
+          </Col>
           <Col title={t.footerContact}>
             {config.phone && (
               <li><a href={`tel:${config.phone}`} className={`${linkCls} whitespace-nowrap`}>{config.phoneDisplay}</a></li>

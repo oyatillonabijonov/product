@@ -253,6 +253,11 @@ export default function Header({
                     </Link>
                   </motion.li>
                 ))}
+                <motion.li variants={itemVariants} className="lg:hidden">
+                  <Link to={localizedPath(locale, '/page/biz-haqimizda')} onClick={closeMenu} className={MENU_SMALL}>
+                    {t.navAbout}
+                  </Link>
+                </motion.li>
               </ul>
             </div>
             {settings}
@@ -274,6 +279,11 @@ export default function Header({
           <img src={logo} alt={brandName} className="logo-light h-8 lg:h-9" />
           {/* Qorong'i fonda logo.svg'ning to'q pillasi yo'qolib ketadi — o'rniga och wordmark. */}
           <img src={logoDark} alt="" aria-hidden className="logo-dark h-8 lg:h-9" />
+        </Link>
+
+        {/* Kompaniya havolasi logo yonida; `lg`gacha 1-qatorga sig'maydi — Katalog menyusida. */}
+        <Link to={localizedPath(locale, '/page/biz-haqimizda')} className="press hidden lg:block shrink-0 whitespace-nowrap text-label text-muted hover:text-primary">
+          {t.navAbout}
         </Link>
 
         {/* Katalog + qidiruv — bitta "mahsulot topish" guruhi, logo va ikonkalar orasidagi bo'sh joy
