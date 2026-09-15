@@ -1,5 +1,5 @@
 import type { OrderInput } from './types';
-import type { ConsultInput } from '../functions/lib/validate';
+import type { ConsultInput, JobApplicationInput } from '../functions/lib/validate';
 
 /** Server-side (Worker) Telegram xabari uchun sodda son formati — src/lib'ga (formatUzs)
  *  bog'lanmaydi, chunki functions/ tsconfig src/'ni ko'rmaydi. */
@@ -34,5 +34,13 @@ export function composeConsultMessage(c: ConsultInput, brand: string): string {
   const lines: string[] = [`💬 ${brand} — bepul konsultatsiya arizasi`, '', `👤 ${c.name}`, `📞 ${c.phone}`];
   if (c.topics.length > 0) lines.push('', `🏷 ${c.topics.join(' · ')}`);
   if (c.note) lines.push('', `📝 ${c.note}`);
+  return lines.join('\n');
+}
+
+/** Nomzod arizasini Telegram matniga aylantiradi. `position` — serverda vakansiyadan topilgan nom. */
+export function composeJobApplicationMessage(a: JobApplicationInput, position: string, brand: string): string {
+  const lines: string[] = [`💼 ${brand} — vakansiyaga ariza`, '', `🏷 ${position}`, `👤 ${a.name}`, `📞 ${a.phone}`];
+  if (a.message) lines.push('', `📝 ${a.message}`);
+  if (a.resumeUrl) lines.push('', `📎 ${a.resumeUrl}`);
   return lines.join('\n');
 }

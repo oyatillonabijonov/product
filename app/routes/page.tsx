@@ -4,14 +4,25 @@ import { loadPage } from '../lib/loaders';
 import { resolveLocale, localeToTextKey, localeToLang } from '../lib/i18n';
 import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { firstParagraph } from '../../src/lib/markdown';
-import { translations } from '../../src/locales';
+import { translations, type Translation } from '../../src/locales';
 import Markdown from '../../src/store/Markdown';
 import TermsBento from '../../src/store/TermsBento';
 import AboutPage from '../../src/store/AboutPage';
+import LegalPage from '../../src/store/LegalPage';
 import type { StoreContext } from '../../src/store/StoreLayout';
 
 /** "Biz haqimizda" — markdown o'rniga maxsus sahifa (matn `locales.ts`da); sarlavha va footer havolasi bazadagi yozuvdan. */
 const ABOUT_SLUG = 'biz-haqimizda';
+
+/** Huquqiy hujjatlar `LegalPage` shablonida (matn bazadan); hero izohi va meta description shu yerdan. */
+function legalLede(t: Translation, slug: string): string | undefined {
+  const ledes: Record<string, string | undefined> = {
+    oferta: t.legalLedeOferta,
+    maxfiylik: t.legalLedePrivacy,
+    qaytarish: t.legalLedeReturns,
+  };
+  return ledes[slug];
+}
 
 /** Slug rendered with the bespoke bento layout instead of generic markdown — faqat muddatli to'lov yoqilganda;
  *  naqd rejimda (`payment_mode='cash'`) sahifa bazadagi matnni ko'rsatadi, muddatli shartlar yolg'on bo'lardi. */
@@ -35,9 +46,10 @@ export function meta({ data, matches }: Route.MetaArgs) {
   const sfx = storeConfigFrom(matches)?.seoTitleSuffix;
   if (!data) return [{ title: pageTitle(undefined, sfx) }];
   const key = localeToTextKey(data.locale);
+  const t = translations[localeToLang(data.locale)];
   const desc = data.page.slug === ABOUT_SLUG
-    ? translations[localeToLang(data.locale)].aboutLede
-    : firstParagraph(data.page.content[key]);
+    ? t.aboutLede
+    : legalLede(t, data.page.slug) ?? firstParagraph(data.page.content[key]);
   return [
     { title: pageTitle(data.page.title[key], sfx) },
     ...(desc ? [{ name: 'description', content: desc }] : []),
@@ -50,6 +62,9 @@ export default function ContentPage() {
   const key = localeToTextKey(locale);
 
   if (page.slug === ABOUT_SLUG) return <AboutPage t={t} config={config} title={page.title[key]} />;
+
+  const lede = legalLede(t, page.slug);
+  if (lede) return <LegalPage t={t} title={page.title[key]} lede={lede} source={page.content[key]} />;
 
   if (page.slug === TERMS_SLUG && config.paymentMode !== 'cash') {
     return <TermsBento locale={locale} heading={page.title[key]} lead={TERMS_LEAD[key]} />;

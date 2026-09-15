@@ -57,6 +57,7 @@ const MESSAGES: Record<string, string> = {
   rating_range: "Baho 1 dan 5 gacha bo'lsin",
   content_uz_required: "Matn (o'zbek) majburiy",
   too_many_requests: "Juda ko'p urinish — birozdan so'ng qayta urining",
+  employment_invalid: "Bandlik turi noto'g'ri",
 };
 
 export function errText(e: unknown): string {

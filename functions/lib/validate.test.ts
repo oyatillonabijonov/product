@@ -12,6 +12,8 @@ import {
   parseEmailAuthInput,
   parseProfileInput,
   parsePasswordInput,
+  parseVacancyInput,
+  parseJobApplicationInput,
   ValidationError,
 } from './validate';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
@@ -436,5 +438,50 @@ describe('parseSettingsInput — usdMarkupPercent', () => {
     const s = parseSettingsInput({ ...base, usdCbuRate: 1, usdRateDate: 'x' });
     expect(s.usdCbuRate).toBeNull();
     expect(s.usdRateDate).toBe('');
+  });
+});
+
+describe('parseVacancyInput', () => {
+  it("majburiy — faqat lavozim nomi; qolgani sukut qiymatlar", () => {
+    const v = parseVacancyInput({ title: ' Sotuv maslahatchisi ' });
+    expect(v).toMatchObject({
+      title: 'Sotuv maslahatchisi', titleRu: '', department: '', departmentRu: '', employment: 'full',
+      salary: '', salaryRu: '', description: '', descriptionRu: '', sortOrder: 0, isActive: true,
+    });
+    expect(v.id.length).toBeGreaterThan(0);
+  });
+  it('nomsiz — xato', () => {
+    expect(() => parseVacancyInput({ department: 'Sotuv' })).toThrow('title_required');
+  });
+  it('bandlik turi faqat full | part | intern', () => {
+    expect(parseVacancyInput({ title: 'X', employment: 'intern' }).employment).toBe('intern');
+    expect(() => parseVacancyInput({ title: 'X', employment: 'freelance' })).toThrow('employment_invalid');
+  });
+  it('uzun tavsif kesiladi', () => {
+    expect(parseVacancyInput({ title: 'X', description: 'a'.repeat(6000) }).description).toHaveLength(4000);
+  });
+});
+
+describe('parseJobApplicationInput', () => {
+  const base = { name: ' Aziz ', phone: '+998 90 123-45-67' };
+  it("ism va telefon majburiy; qolgani bo'sh", () => {
+    expect(parseJobApplicationInput(base)).toEqual({
+      name: 'Aziz', phone: '+998 90 123-45-67', message: '', resumeUrl: '', vacancyId: null,
+    });
+  });
+  it('telefon 7–15 raqam', () => {
+    expect(() => parseJobApplicationInput({ ...base, phone: '12-34' })).toThrow('phone_invalid');
+    expect(() => parseJobApplicationInput({ name: 'A' })).toThrow('phone_required');
+  });
+  it('rezyume havolasi faqat https va 500 belgigacha', () => {
+    expect(parseJobApplicationInput({ ...base, resumeUrl: 'https://t.me/aziz' }).resumeUrl).toBe('https://t.me/aziz');
+    expect(() => parseJobApplicationInput({ ...base, resumeUrl: 'http://evil.example' })).toThrow('resume_invalid');
+    expect(() => parseJobApplicationInput({ ...base, resumeUrl: 'javascript:alert(1)' })).toThrow('resume_invalid');
+    expect(() => parseJobApplicationInput({ ...base, resumeUrl: `https://x.uz/${'a'.repeat(500)}` })).toThrow('resume_invalid');
+  });
+  it('xabar 1000 belgigacha kesiladi, vakansiya id ixtiyoriy', () => {
+    const a = parseJobApplicationInput({ ...base, message: 'a'.repeat(1500), vacancyId: ' v1 ' });
+    expect(a.message).toHaveLength(1000);
+    expect(a.vacancyId).toBe('v1');
   });
 });

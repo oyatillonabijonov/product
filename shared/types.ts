@@ -157,6 +157,43 @@ export interface ApiNews {
   isActive: boolean;
 }
 
+/** Bandlik turi — `vacancies.employment`. */
+export type EmploymentType = 'full' | 'part' | 'intern';
+
+/** Vakansiya. uz maydonlari asosiy, `*Ru` bo'sh bo'lsa sayt o'zbekchasini ko'rsatadi. */
+export interface ApiVacancy {
+  id: string;
+  title: string;
+  titleRu: string;
+  /** Bo'lim ("Sotuv", "Servis"). */
+  department: string;
+  departmentRu: string;
+  employment: EmploymentType;
+  /** Erkin matn; bo'sh bo'lsa ko'rsatilmaydi. */
+  salary: string;
+  salaryRu: string;
+  /** Markdown — vazifalar va talablar ro'yxati. */
+  description: string;
+  descriptionRu: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+/** Nomzod arizasi (admin → Vakansiyalar → Arizalar). */
+export interface ApiJobApplication {
+  id: number;
+  createdAt: number;
+  vacancyId: string | null;
+  /** Ariza paytidagi lavozim nomi — vakansiya keyin o'chsa ham qoladi. */
+  position: string;
+  name: string;
+  phone: string;
+  message: string;
+  resumeUrl: string;
+  status: OrderStatus;
+  telegramSent: boolean;
+}
+
 export interface ApiPost {
   id: string;
   slug: string;

@@ -14,6 +14,8 @@ import type {
   ApiSiteConfig,
   ApiSpec,
   ApiVariant,
+  ApiVacancy,
+  ApiJobApplication,
   OrderStatus,
 } from '../../shared/types';
 import type { BillzShop, BillzSyncStatus } from '../../shared/billz';
@@ -252,6 +254,31 @@ export async function updateNews(id: string, n: Partial<ApiNews>): Promise<ApiNe
 }
 export async function deleteNews(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/news/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+export async function listVacancies(): Promise<ApiVacancy[]> {
+  return handle(await fetch('/api/admin/vacancies'));
+}
+export async function createVacancy(v: Partial<ApiVacancy>): Promise<ApiVacancy> {
+  return handle(await fetch('/api/admin/vacancies', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(v),
+  }));
+}
+export async function updateVacancy(id: string, v: Partial<ApiVacancy>): Promise<ApiVacancy> {
+  return handle(await fetch(`/api/admin/vacancies/${encodeURIComponent(id)}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(v),
+  }));
+}
+export async function deleteVacancy(id: string): Promise<void> {
+  await handle(await fetch(`/api/admin/vacancies/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+export async function listJobApplications(): Promise<ApiJobApplication[]> {
+  return handle(await fetch('/api/admin/job-applications'));
+}
+export async function setJobApplicationStatus(id: number, status: OrderStatus): Promise<{ ok: true }> {
+  return handle(await fetch(`/api/admin/job-applications/${id}`, {
+    method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status }),
+  }));
 }
 
 export async function listPosts(): Promise<ApiPost[]> {

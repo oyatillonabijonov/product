@@ -1,5 +1,5 @@
 import type { Env } from '../../functions/env';
-import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiNews, ApiPage, ApiPost, ApiReview, ApiSiteConfig, LocalizedText } from '../../shared/types';
+import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiNews, ApiPage, ApiPost, ApiReview, ApiSiteConfig, ApiVacancy, LocalizedText } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
 import {
   installmentConfig as fallbackConfig,
@@ -12,6 +12,7 @@ import {
   rowToProduct, rowToCategory, rowToBrand, buildProductDetail, PRODUCT_COLS,
   type ProductRow, type CategoryRow, type SettingsRow, rowToSettings, type BrandRow,
   rowToBanner, rowToNews, rowToPage, rowToPost, rowToSiteConfig, type BannerRow, type NewsRow, type PageRow, type PostRow, type SiteConfigRow,
+  rowToVacancy, type VacancyRow,
 } from '../../functions/lib/db';
 import { applyFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 import { siteConfig as staticSiteConfig } from './site.config';
@@ -310,6 +311,17 @@ export async function loadNews(env: Env): Promise<ApiNews[]> {
   } catch (err) {
     console.error('loadNews fallback:', err);
     return []; // bo'lim bezak — bazasiz landing usiz ochilaveradi
+  }
+}
+
+/** "Vakansiyalar" sahifasi — faollari tartib bo'yicha. Xato bo'lsa bo'sh: sahifa umumiy ariza bilan ochilaveradi. */
+export async function loadVacancies(env: Env): Promise<ApiVacancy[]> {
+  try {
+    const { results } = await env.DB.prepare('SELECT * FROM vacancies WHERE is_active = 1 ORDER BY sort_order ASC, title ASC').all<VacancyRow>();
+    return results.map(rowToVacancy);
+  } catch (err) {
+    console.error('loadVacancies fallback:', err);
+    return [];
   }
 }
 

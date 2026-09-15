@@ -17,6 +17,9 @@ import type {
   ApiVariant,
   ApiOrder,
   ApiCustomer,
+  ApiVacancy,
+  ApiJobApplication,
+  EmploymentType,
   OrderItemInput,
   OrderPaymentKind,
   OrderSource,
@@ -472,6 +475,33 @@ export function rowToNews(r: NewsRow): ApiNews {
     id: r.id, badge: r.badge, badgeRu: r.badge_ru, tag: r.tag, tagRu: r.tag_ru,
     title: r.title, titleRu: r.title_ru, text: r.text, textRu: r.text_ru, cta: r.cta, ctaRu: r.cta_ru,
     linkUrl: r.link_url, imageUrl: r.image_url, sortOrder: r.sort_order, isActive: r.is_active === 1,
+  };
+}
+
+export interface VacancyRow {
+  id: string; title: string; title_ru: string; department: string; department_ru: string;
+  employment: string; salary: string; salary_ru: string; description: string; description_ru: string;
+  sort_order: number; is_active: number;
+}
+
+export function rowToVacancy(r: VacancyRow): ApiVacancy {
+  return {
+    id: r.id, title: r.title, titleRu: r.title_ru, department: r.department, departmentRu: r.department_ru,
+    employment: r.employment as EmploymentType, salary: r.salary, salaryRu: r.salary_ru,
+    description: r.description, descriptionRu: r.description_ru,
+    sortOrder: r.sort_order, isActive: r.is_active === 1,
+  };
+}
+
+export interface JobApplicationRow {
+  id: number; created_at: number; vacancy_id: string | null; position: string; name: string; phone: string;
+  message: string; resume_url: string; status: string; telegram_sent: number;
+}
+
+export function rowToJobApplication(r: JobApplicationRow): ApiJobApplication {
+  return {
+    id: r.id, createdAt: r.created_at, vacancyId: r.vacancy_id, position: r.position, name: r.name, phone: r.phone,
+    message: r.message, resumeUrl: r.resume_url, status: r.status as OrderStatus, telegramSent: r.telegram_sent === 1,
   };
 }
 

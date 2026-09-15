@@ -1,6 +1,8 @@
 import type {
   ApiCategory,
   ApiNews,
+  ApiVacancy,
+  EmploymentType,
   ApiProduct,
   ApiSettings,
   ApiSiteConfig,
@@ -539,6 +541,59 @@ export function parseConsultInput(body: unknown): ConsultInput {
     phone: phone.trim(),
     topics,
     note: typeof o.note === 'string' ? o.note.trim().slice(0, 500) : '',
+  };
+}
+
+const EMPLOYMENT: EmploymentType[] = ['full', 'part', 'intern'];
+
+export type VacancyInput = ApiVacancy;
+
+/** Vakansiya: lavozim nomi majburiy, bandlik turi enum, matnlar uzunligi cheklangan. */
+export function parseVacancyInput(body: unknown): VacancyInput {
+  const o = asRecord(body);
+  const title = reqString(o, 'title').slice(0, 100);
+  const str = (k: string, max: number) => (typeof o[k] === 'string' ? (o[k] as string).trim().slice(0, max) : '');
+  const employment = o.employment === undefined ? 'full' : o.employment;
+  if (!EMPLOYMENT.includes(employment as EmploymentType)) throw new ValidationError('employment_invalid');
+  return {
+    id: typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID(),
+    title, titleRu: str('titleRu', 100),
+    department: str('department', 60), departmentRu: str('departmentRu', 60),
+    employment: employment as EmploymentType,
+    salary: str('salary', 60), salaryRu: str('salaryRu', 60),
+    description: str('description', 4000), descriptionRu: str('descriptionRu', 4000),
+    sortOrder: typeof o.sortOrder === 'number' ? o.sortOrder : 0,
+    isActive: o.isActive === undefined ? true : Boolean(o.isActive),
+  };
+}
+
+export interface JobApplicationInput {
+  name: string;
+  phone: string;
+  message: string;
+  /** Bo'sh yoki `https://` havola (Telegram, Google Drive, hh.uz). */
+  resumeUrl: string;
+  /** Qaysi vakansiyaga; `null` — umumiy ariza. Lavozim nomi serverda shu id bo'yicha topiladi. */
+  vacancyId: string | null;
+}
+
+/** Nomzod arizasi — `parseConsultInput` naqshi; rezyume faqat `https://` havola (fayl yuklash yo'q). */
+export function parseJobApplicationInput(body: unknown): JobApplicationInput {
+  const o = asRecord(body);
+  const name = reqString(o, 'name');
+  const phone = reqString(o, 'phone');
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 7 || digits.length > 15) throw new ValidationError('phone_invalid');
+  const resumeUrl = typeof o.resumeUrl === 'string' ? o.resumeUrl.trim() : '';
+  if (resumeUrl !== '' && (resumeUrl.length > 500 || !/^https:\/\/\S+$/i.test(resumeUrl))) {
+    throw new ValidationError('resume_invalid');
+  }
+  return {
+    name: name.slice(0, 120),
+    phone: phone.trim(),
+    message: typeof o.message === 'string' ? o.message.trim().slice(0, 1000) : '',
+    resumeUrl,
+    vacancyId: typeof o.vacancyId === 'string' && o.vacancyId.trim() !== '' ? o.vacancyId.trim().slice(0, 100) : null,
   };
 }
 

@@ -1,5 +1,5 @@
 import {
-  FileText, Image, LayoutGrid, LogOut, Megaphone, Newspaper, Package, Receipt, Settings, Smartphone, Tag, type LucideIcon,
+  Briefcase, FileText, Image, LayoutGrid, LogOut, Megaphone, Newspaper, Package, Receipt, Settings, Smartphone, Tag, type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -18,8 +18,9 @@ import ProductList from './ProductList';
 import SettingsForm from './SettingsForm';
 import SiteConfigForm from './SiteConfigForm';
 import BillzPanel from './BillzPanel';
+import CareersAdmin from './CareersAdmin';
 
-type Tab = 'products' | 'orders' | 'models' | 'settings' | 'categories' | 'brands' | 'banners' | 'news' | 'posts' | 'pages';
+type Tab = 'products' | 'orders' | 'models' | 'settings' | 'categories' | 'brands' | 'banners' | 'news' | 'posts' | 'pages' | 'careers';
 
 type NavItem = { id: Tab; label: string; Icon: LucideIcon };
 
@@ -33,6 +34,7 @@ const NAV: NavItem[] = [
   { id: 'news', label: 'Yangiliklar', Icon: Megaphone },
   { id: 'posts', label: 'Blog', Icon: Newspaper },
   { id: 'pages', label: 'Sahifalar', Icon: FileText },
+  { id: 'careers', label: 'Vakansiyalar', Icon: Briefcase },
   { id: 'settings', label: 'Sozlamalar', Icon: Settings },
 ];
 
@@ -40,7 +42,7 @@ const DEFAULT_PW_KEY = 'admin-default-pw';
 
 // Tab <-> URL path: /admin = products, /admin/<id> = boshqa bo'limlar.
 // URL-bog'langan tab → deep-link, F5-bardosh, brauzer back/forward ishlaydi.
-const SECTION_TABS: Tab[] = ['orders', 'models', 'categories', 'brands', 'banners', 'news', 'posts', 'pages', 'settings'];
+const SECTION_TABS: Tab[] = ['orders', 'models', 'categories', 'brands', 'banners', 'news', 'posts', 'pages', 'careers', 'settings'];
 function pathToTab(pathname: string): Tab {
   const seg = pathname.split('/')[2] ?? '';
   return SECTION_TABS.includes(seg as Tab) ? (seg as Tab) : 'products';
@@ -173,6 +175,7 @@ export default function AdminApp() {
           {tab === 'news' && <NewsList />}
           {tab === 'posts' && <PostList />}
           {tab === 'pages' && <PageList />}
+          {tab === 'careers' && <CareersAdmin />}
         </div>
       </main>
     </div>

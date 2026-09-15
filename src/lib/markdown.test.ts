@@ -17,9 +17,30 @@ describe('renderMarkdown', () => {
     expect(blocks[0].type).toBe('p');
   });
 
+  it("raqamli qatorlar ('1.1.', '2.') alohida band — xat boshiga qo'shilib ketmaydi", () => {
+    const blocks = renderMarkdown('## 1. Umumiy\n1.1. Birinchi band.\n1.2. Ikkinchi **qalin** band.');
+    expect(blocks.map((b) => b.type)).toEqual(['h2', 'ol']);
+    const ol = blocks[1];
+    if (ol.type !== 'ol') throw new Error('expected ol');
+    expect(ol.items.map((it) => it.num)).toEqual(['1.1', '1.2']);
+    expect(ol.items[1].inlines.find((s) => s.bold)?.text).toBe('qalin');
+  });
+
+  it("qadamlar ro'yxati va undan keyingi oddiy matn alohida bloklar", () => {
+    const blocks = renderMarkdown('Kirish.\n1. Olib keling.\n2. Tekshiradi.\nOxirgi gap.');
+    expect(blocks.map((b) => b.type)).toEqual(['p', 'ol', 'p']);
+    const ol = blocks[1];
+    if (ol.type !== 'ol') throw new Error('expected ol');
+    expect(ol.items.map((it) => it.num)).toEqual(['1', '2']);
+  });
+
+  it("nuqtasiz raqam bilan boshlangan gap band emas ('12–24 oy')", () => {
+    expect(renderMarkdown('12–24 oy kafolat.\n2024 yilda ochildi.').map((b) => b.type)).toEqual(['p']);
+  });
+
   it('parses bold and link inlines', () => {
     const blocks = renderMarkdown('Oddiy **qalin** va [link](/katalog) matn');
-    if (blocks[0].type === 'ul') throw new Error('expected inline block');
+    if (blocks[0].type !== 'p') throw new Error('expected p');
     const inl = blocks[0].inlines;
     expect(inl.find((s) => s.bold)?.text).toBe('qalin');
     expect(inl.find((s) => s.href)?.href).toBe('/katalog');
@@ -33,13 +54,13 @@ describe('renderMarkdown', () => {
 
   it('never emits HTML — raw tags stay as plain text', () => {
     const blocks = renderMarkdown('<script>alert(1)</script>');
-    if (blocks[0].type === 'ul') throw new Error('expected p');
+    if (blocks[0].type !== 'p') throw new Error('expected p');
     expect(blocks[0].inlines[0].text).toBe('<script>alert(1)</script>');
   });
 
   it('drops unsafe URL schemes from links, keeping the link text', () => {
     const blocks = renderMarkdown('[bosish](javascript:alert(1))');
-    if (blocks[0].type === 'ul') throw new Error('expected p');
+    if (blocks[0].type !== 'p') throw new Error('expected p');
     const inl = blocks[0].inlines;
     expect(inl.some((s) => s.href)).toBe(false);
     expect(inl.map((s) => s.text).join('')).toContain('bosish');
@@ -47,22 +68,22 @@ describe('renderMarkdown', () => {
 
   it("drops protocol-relative '//' links (would leave the site styled as internal)", () => {
     const blocks = renderMarkdown('[evil](//evil.com)');
-    if (blocks[0].type === 'ul') throw new Error('expected p');
+    if (blocks[0].type !== 'p') throw new Error('expected p');
     expect(blocks[0].inlines.some((s) => s.href)).toBe(false);
     expect(blocks[0].inlines.map((s) => s.text).join('')).toContain('evil');
   });
 
   it('preserves links with allowlisted schemes', () => {
     const httpsBlocks = renderMarkdown('[ok](https://example.com)');
-    if (httpsBlocks[0].type === 'ul') throw new Error('expected p');
+    if (httpsBlocks[0].type !== 'p') throw new Error('expected p');
     expect(httpsBlocks[0].inlines.find((s) => s.href)?.href).toBe('https://example.com');
 
     const internalBlocks = renderMarkdown('[ichki](/katalog)');
-    if (internalBlocks[0].type === 'ul') throw new Error('expected p');
+    if (internalBlocks[0].type !== 'p') throw new Error('expected p');
     expect(internalBlocks[0].inlines.find((s) => s.href)?.href).toBe('/katalog');
 
     const telBlocks = renderMarkdown('[tel](tel:+998901234567)');
-    if (telBlocks[0].type === 'ul') throw new Error('expected p');
+    if (telBlocks[0].type !== 'p') throw new Error('expected p');
     expect(telBlocks[0].inlines.find((s) => s.href)?.href).toBe('tel:+998901234567');
   });
 });
@@ -76,5 +97,6 @@ describe('firstParagraph', () => {
   });
   it('falls back to the first list item when there is no paragraph', () => {
     expect(firstParagraph('- Birinchi **shart**\n- Ikkinchi')).toBe('Birinchi shart');
+    expect(firstParagraph('1. Birinchi **qadam**\n2. Ikkinchi')).toBe('Birinchi qadam');
   });
 });

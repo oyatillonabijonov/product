@@ -4,12 +4,11 @@ import { ChevronRight, MapPin, Newspaper, ShieldCheck, ShoppingBag, UserRound } 
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
 import LocaleLink from './LocaleLink';
-import { SECTION_HEADING } from './ui';
+import PageHero from './PageHero';
+import { LINK_MORE, SECTION_HEADING } from './ui';
 import { safeHref } from '../lib/safe-href';
 
 const CARD = 'flex flex-col overflow-hidden rounded-xl bg-surface';
-/** apple.com'dagi "Batafsil ›" havolasi — `link` tokeni, `cta` emas (qorong'i kartada kontrast yetmasdi). */
-const MORE = 'press inline-flex items-center gap-0.5 text-copy text-link hover:underline';
 
 const Chevron: FC = () => <ChevronRight aria-hidden className="mt-px h-4 w-4" strokeWidth={2} />;
 
@@ -30,8 +29,7 @@ const CardText: FC<{ icon: LucideIcon; title: string; text: string; className?: 
  * "Эксперты / Гарантии / Доступные покупки / Персональный подход / Всегда рядом / Новости"
  * bloklari, bento ko'rinishida).
  *
- * Hero — egasining `bg_us` gradienti (`public/about/hero.webp`); qorong'i mavzuda `dark-invert`
- * uni to'q moviyga aylantiradi, shuning uchun sarlavha oddiy tokenlar bilan ikkala mavzuda o'qiladi.
+ * Hero — umumiy `PageHero` (egasining `bg_us` gradienti; huquqiy hujjatlar ham shu hero'da).
  *
  * Bento (lg, 3 ustun): [Mutaxassislar 2×2 foto | Kafolat] [·· | Qulay xarid]
  * [Shaxsiy yondashuv | Doim yaqinda ×2] [Yangiliklar ×3]. md'da 2 ustun, mobilda bitta.
@@ -49,18 +47,7 @@ const AboutPage: FC<{ t: Translation; config: ApiSiteConfig; title: string }> = 
 
   return (
     <>
-      <section className="shell-box relative isolate mt-4 flex min-h-[360px] items-center justify-center overflow-hidden rounded-xl px-6 py-16 text-center md:min-h-[480px]">
-        <img
-          src="/about/hero.webp"
-          alt=""
-          fetchPriority="high"
-          className="dark-invert absolute inset-0 -z-10 h-full w-full object-cover object-[0%_50%] md:object-[35%_50%]"
-        />
-        <div className="max-w-[760px]">
-          <h1 className="text-heading font-semibold text-balance text-primary md:text-display">{title}</h1>
-          <p className="mt-4 text-copy text-balance text-body md:mt-5 md:text-lede">{t.aboutLede}</p>
-        </div>
-      </section>
+      <PageHero title={title} lede={t.aboutLede} />
 
       <section className="shell flex flex-col gap-8 pb-14 pt-16 md:gap-10 md:pb-20 md:pt-24">
         <h2 className={SECTION_HEADING}>
@@ -92,7 +79,7 @@ const AboutPage: FC<{ t: Translation; config: ApiSiteConfig; title: string }> = 
           <article className={CARD}>
             <CardText icon={ShoppingBag} title={t.aboutBuyTitle} text={t.aboutBuyText}>
               <div className="mt-auto pt-6">
-                <LocaleLink to="/page/trade-in" className={MORE}>{t.aboutTradeInLink}<Chevron /></LocaleLink>
+                <LocaleLink to="/page/trade-in" className={LINK_MORE}>{t.aboutTradeInLink}<Chevron /></LocaleLink>
               </div>
             </CardText>
           </article>
@@ -109,7 +96,7 @@ const AboutPage: FC<{ t: Translation; config: ApiSiteConfig; title: string }> = 
                 {t.footerTime}
               </p>
               <div className="mt-auto pt-6">
-                <a href={mapHref} target="_blank" rel="noopener noreferrer" className={MORE}>{t.mapLink}<Chevron /></a>
+                <a href={mapHref} target="_blank" rel="noopener noreferrer" className={LINK_MORE}>{t.mapLink}<Chevron /></a>
               </div>
             </CardText>
             <img
@@ -123,9 +110,9 @@ const AboutPage: FC<{ t: Translation; config: ApiSiteConfig; title: string }> = 
           <article className={`${CARD} md:col-span-2 lg:col-span-3 lg:grid lg:grid-cols-2 lg:items-center`}>
             <CardText icon={Newspaper} title={t.aboutNewsTitle} text={t.aboutNewsText} className="lg:py-14 lg:pl-14">
               <div className="mt-auto flex flex-wrap gap-x-6 gap-y-2 pt-6">
-                <LocaleLink to="/blog" className={MORE}>{t.aboutBlogLink}<Chevron /></LocaleLink>
-                {telegram && <a href={telegram} target="_blank" rel="noopener noreferrer" className={MORE}>Telegram<Chevron /></a>}
-                {instagram && <a href={instagram} target="_blank" rel="noopener noreferrer" className={MORE}>Instagram<Chevron /></a>}
+                <LocaleLink to="/blog" className={LINK_MORE}>{t.aboutBlogLink}<Chevron /></LocaleLink>
+                {telegram && <a href={telegram} target="_blank" rel="noopener noreferrer" className={LINK_MORE}>Telegram<Chevron /></a>}
+                {instagram && <a href={instagram} target="_blank" rel="noopener noreferrer" className={LINK_MORE}>Instagram<Chevron /></a>}
               </div>
             </CardText>
             {/* Rasm o'ng va pastki chetdan chiqib turadi (apple.com banneri) — karta `overflow-hidden` kesadi. */}

@@ -12,7 +12,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const [{ products }, categories, brands, pages, posts] = await Promise.all([
     loadStore(env), loadCategories(env), loadBrands(env), loadPages(env), loadPosts(env, 500),
   ]);
-  const paths = ['/', '/katalog', '/chegirmalar', '/blog',
+  const paths = ['/', '/katalog', '/chegirmalar', '/blog', '/vakansiyalar',
     ...categories.map((c) => `/category/${c.id}`),
     ...brands.map((b) => `/brand/${b.slug}`),
     ...products.map((p) => `/product/${p.id}`),
