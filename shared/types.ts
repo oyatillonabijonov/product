@@ -1,3 +1,5 @@
+import type { BillzSyncStatus } from './billz';
+
 export type Category = 'iphone' | 'mac' | 'ipad' | 'pc';
 export type Condition = 'yangi' | 'ishlatilgan';
 export type PaymentMode = 'both' | 'cash' | 'installment';
@@ -308,4 +310,15 @@ export interface ApiOrder extends OrderInput {
   createdAt: number;
   status: OrderStatus;
   telegramSent: boolean;
+}
+
+/** Admin bosh sahifasi — faqat harakat talab qiladigan sanoqlar (`GET /api/admin/dashboard`). */
+export interface ApiDashboard {
+  /** Billz tovarlari: qoldiq bor, rasm yo'q — saytda ko'rinmaydi. */
+  needsImage: number;
+  newOrders: number;
+  newApplications: number;
+  billz: BillzSyncStatus;
+  /** Do'kon kursi; `auto` — Markaziy bank + ustama bilan hisoblanadi. */
+  usd: { rate: number; auto: boolean };
 }

@@ -52,6 +52,7 @@ export default [
   route('api/admin/login-options', 'routes/api.admin.login-options.tsx'),
   route('api/admin/logout', 'routes/api.admin.logout.tsx'),
   route('api/admin/me', 'routes/api.admin.me.tsx'),
+  route('api/admin/dashboard', 'routes/api.admin.dashboard.tsx'),
   route('api/admin/account', 'routes/api.admin.account.tsx'),
   route('api/admin/products', 'routes/api.admin.products.tsx'),
   route('api/admin/products/:id', 'routes/api.admin.products.$id.tsx'),

@@ -2,6 +2,7 @@ import type {
   ApiBanner,
   ApiBrand,
   ApiCategory,
+  ApiDashboard,
   ApiDeviceModel,
   ApiNews,
   ApiOption,
@@ -372,4 +373,9 @@ export async function getBillzShops(): Promise<BillzShop[]> {
 /** Fon vazifasini boshlaydi (202); holatni `getBillzStatus` bilan so'rab turiladi. */
 export async function runBillzSync(): Promise<void> {
   await handle(await fetch('/api/admin/billz', { method: 'POST' }));
+}
+
+// ── Bosh sahifa ─────────────────────────────────────────────────────────────
+export async function getDashboard(): Promise<ApiDashboard> {
+  return handle(await fetch('/api/admin/dashboard'));
 }
