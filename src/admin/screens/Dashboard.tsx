@@ -16,7 +16,7 @@ const Stat: FC<{ label: string; value: number; Icon: LucideIcon; to: string; act
     <div className="flex items-center gap-2 text-label text-muted">
       <Icon aria-hidden className="size-4" strokeWidth={1.8} /> {label}
     </div>
-    <p className={`mt-2 text-heading font-semibold ${value > 0 ? 'text-primary' : 'text-muted-3'}`}>{value}</p>
+    <p className={`mt-2 text-heading font-semibold ${value > 0 ? 'text-primary' : 'text-muted-2'}`}>{value}</p>
     <div className="mt-3 -ml-3">
       <Button variant="quiet" to={to}>{action}</Button>
     </div>

@@ -22,7 +22,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
   return (
     <div className="min-h-screen bg-bg md:flex">
       <aside className="sticky top-0 hidden h-screen w-[240px] shrink-0 flex-col border-r border-line bg-surface md:flex">
-        <Link to="/admin" className="flex h-16 items-center gap-2 px-5">
+        <Link to="/admin" className="press flex h-16 items-center gap-2 px-5">
           <img src={logo} alt="ProDuct" className="logo-light h-6" />
           <img src={logoDark} alt="" aria-hidden className="logo-dark h-6" />
           <span className="text-label text-muted">Admin</span>
