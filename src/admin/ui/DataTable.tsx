@@ -28,7 +28,7 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
   empty?: ReactNode;
 }) {
   if (rows.length === 0) return <>{empty ?? null}</>;
-  const clickable = onRowClick ? 'press-surface cursor-pointer hover:bg-fill-2' : '';
+  const clickable = onRowClick ? 'press press-surface cursor-pointer hover:bg-fill-2' : '';
   const click = (row: T) => (onRowClick ? (e: React.SyntheticEvent<HTMLElement>) => { if (!fromControl(e)) onRowClick(row); } : undefined);
   const title = columns.find((c) => c.mobile === 'title');
   const rest = columns.filter((c) => c !== title && c.mobile !== 'hide');
