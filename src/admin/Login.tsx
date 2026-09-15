@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import { login, getLoginOptions } from './api';
 import logo from '../assets/logo.svg';
+import logoDark from '../assets/hero/wordmark.webp';
+import { Button, Field, Input } from './ui';
 
 const GoogleG = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
@@ -19,8 +21,6 @@ function oauthError(code: string | null): string {
   if (code === 'google') return 'Google kirishida xatolik yuz berdi.';
   return '';
 }
-
-const inputCls = 'rounded-sm w-full border border-line-2 px-3.5 py-2.5 text-[15px] text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition';
 
 export default function Login({ onSuccess }: { onSuccess: (defaultPassword: boolean) => void }) {
   const location = useLocation();
@@ -58,44 +58,34 @@ export default function Login({ onSuccess }: { onSuccess: (defaultPassword: bool
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg px-4">
+    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
       <div className="w-full max-w-sm">
-        <div className="flex flex-col items-center gap-2.5 mb-6">
-          <img src={logo} alt="" className="h-9 w-auto object-contain" />
-          <p className="text-[13px] font-medium text-muted-2 tracking-wide">ADMIN PANEL</p>
+        <div className="mb-6 flex flex-col items-center gap-2.5">
+          <img src={logo} alt="ProDuct" className="logo-light h-9 w-auto" />
+          <img src={logoDark} alt="" aria-hidden className="logo-dark h-9 w-auto" />
+          <p className="text-label text-muted-2">Admin panel</p>
         </div>
 
-        <form onSubmit={submit} className=" rounded-xl bg-white p-7 flex flex-col gap-3.5 border border-line-2">
-          <div>
-            <label className="block text-[12.5px] font-medium text-muted mb-1.5">Login</label>
-            <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" className={inputCls} />
-          </div>
-          <div>
-            <label className="block text-[12.5px] font-medium text-muted mb-1.5">Parol</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" className={inputCls} />
-          </div>
+        <form onSubmit={submit} className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-7">
+          <Field label="Login">
+            <Input value={username} onChange={setUsername} autoComplete="username" />
+          </Field>
+          <Field label="Parol" error={error || undefined}>
+            <Input type="password" value={password} onChange={setPassword} autoComplete="current-password" invalid={Boolean(error)} />
+          </Field>
 
-          {error && <p className="text-[13px] text-danger">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={busy}
-            className="press w-full py-3 bg-accent text-white font-semibold rounded-full hover:bg-accent-hover disabled:opacity-60"
-          >
+          <Button type="submit" size="lg" disabled={busy} className="w-full">
             {busy ? 'Kirilmoqda…' : 'Kirish'}
-          </button>
+          </Button>
 
           {googleAvailable && (
             <>
-              <div className="flex items-center gap-3 text-muted-2 text-[12px] my-0.5">
-                <span className="h-px flex-1 bg-line/70" />yoki<span className="h-px flex-1 bg-line/70" />
+              <div className="my-0.5 flex items-center gap-3 text-label text-muted-2">
+                <span className="h-px flex-1 bg-line" />yoki<span className="h-px flex-1 bg-line" />
               </div>
-              <a
-                href="/admin/auth/google"
-                className="w-full py-2.5 border border-line-2 rounded-full font-medium text-[15px] text-primary hover:bg-bg transition-colors flex items-center justify-center gap-3"
-              >
+              <Button variant="secondary" size="lg" href="/admin/auth/google" className="w-full">
                 <GoogleG /> Google bilan kirish
-              </a>
+              </Button>
             </>
           )}
         </form>
