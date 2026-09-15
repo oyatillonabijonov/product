@@ -97,6 +97,8 @@
   --color-verified: #0E7A36;
   --color-cta: #0071E3; /* Apple "Buy" CTA ko'k — faqat naqd xarid tugmasi */
   --color-cta-hover: #0077ED;
+  /* Tur ikonkasi ortidagi yorug'lik dog'i — faqat qorong'i mavzuda (qora qurilma fonga singmasin) */
+  --color-spotlight: transparent;
 }
 
 /*
@@ -138,6 +140,7 @@
   --color-verified: #3FD47A;
   --color-cta: #0071E3;
   --color-cta-hover: #0A84FF;
+  --color-spotlight: #34373B;
   background-color: var(--color-bg);
   color: var(--color-primary);
 }

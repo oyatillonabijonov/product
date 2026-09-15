@@ -14,7 +14,6 @@ import {
   rowToBanner, rowToNews, rowToPage, rowToPost, rowToSiteConfig, type BannerRow, type NewsRow, type PageRow, type PostRow, type SiteConfigRow,
 } from '../../functions/lib/db';
 import { applyFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
-import type { TileRow } from './tiles';
 import { siteConfig as staticSiteConfig } from './site.config';
 
 export interface ProductDetail extends Product {
@@ -243,26 +242,6 @@ export async function queryProducts(env: Env, f: CatalogFilters): Promise<Catalo
   } catch (err) {
     console.error('queryProducts fallback:', err);
     return applyFilters(fallbackProducts, f);
-  }
-}
-
-/**
- * Yo'nalish sahifasidagi tile qatori uchun xom qatorlar — uch ustunli yengil
- * so'rov, `categoryTiles` uni guruhlaydi.
- * ponytail: LIMIT 200 — 200 dan ko'p mahsulotli yo'nalishda quyruqdagi brend
- * tile'siz qolishi mumkin; kerak bo'lsa GROUP BY'li so'rovga almashtiriladi.
- */
-export async function loadTileRows(env: Env, categoryId: string): Promise<TileRow[]> {
-  try {
-    const { results } = await env.DB.prepare(
-      `SELECT type, image_url FROM products
-       WHERE is_active = 1 AND category_id = ? AND type IS NOT NULL AND image_url <> ''
-       ORDER BY sort_order ASC, created_at ASC LIMIT 200`,
-    ).bind(categoryId).all<{ type: string; image_url: string }>();
-    return results.map((r) => ({ type: r.type, imageUrl: r.image_url }));
-  } catch (err) {
-    console.error('loadTileRows fallback:', err);
-    return []; // tile qatori bezak — bazasiz sahifa katalogning o'zi bilan ochilaveradi
   }
 }
 
