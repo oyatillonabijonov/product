@@ -97,6 +97,10 @@
   --color-verified: #0E7A36;
   --color-cta: #0071E3; /* Apple "Buy" CTA ko'k — faqat naqd xarid tugmasi */
   --color-cta-hover: #0077ED;
+  /* Matnli havola va unga yondosh ikonka (apple.com'dagi "Batafsil ›") — `cta` tugma foni uchun,
+     havola uchun emas: qorong'i kartada #0071E3 matn 3.1:1 berardi. Apple qiymatlari: yorug'da #0066CC
+     (oq kartada 5.6:1), qorong'ida #2997FF (#27292B kartada 4.8:1). */
+  --color-link: #0066CC;
   /* Tur ikonkasi ortidagi yorug'lik dog'i — faqat qorong'i mavzuda (qora qurilma fonga singmasin) */
   --color-spotlight: transparent;
 }
@@ -140,6 +144,7 @@
   --color-verified: #3FD47A;
   --color-cta: #0071E3;
   --color-cta-hover: #0A84FF;
+  --color-link: #2997FF;
   --color-spotlight: #34373B;
   background-color: var(--color-bg);
   color: var(--color-primary);
@@ -176,6 +181,14 @@
 :root:not([data-theme="light"]) .theme-dark .logo-light,
 :root[data-theme="dark"] .logo-light {
   display: none;
+}
+
+/* Yorug' dekorativ fon ("Biz haqimizda" hero gradienti) qorong'i mavzuda teskari qilinadi:
+   invert yorug'likni aylantiradi, hue-rotate rangni qaytaradi — och moviy to'q moviyga
+   aylanadi, ustidagi `text-primary` ikkala mavzuda o'qiladi. Faqat rangli fotosiz fonlar uchun. */
+:root:not([data-theme="light"]) .theme-dark .dark-invert,
+:root[data-theme="dark"] .dark-invert {
+  filter: invert(1) hue-rotate(180deg);
 }
 
 :root:not([data-theme="light"]) .theme-dark ::selection,
