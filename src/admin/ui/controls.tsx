@@ -92,7 +92,7 @@ export const Toggle: FC<{ on: boolean; onChange: (v: boolean) => void; label: st
     aria-label={label}
     disabled={disabled}
     onClick={() => onChange(!on)}
-    className={`relative h-[31px] w-[51px] shrink-0 rounded-full transition-colors duration-200 ease-apple disabled:opacity-50 ${on ? 'bg-cta' : 'bg-disabled'}`}
+    className={`relative h-[31px] w-[51px] shrink-0 rounded-full press disabled:opacity-50 ${on ? 'bg-cta' : 'bg-disabled'}`}
   >
     <span
       aria-hidden
