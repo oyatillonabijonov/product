@@ -1,6 +1,7 @@
 import type {
   ApiBanner,
   ApiBrand,
+  ApiAdminBrand,
   ApiCategory,
   ApiDashboard,
   ApiDeviceModel,
@@ -172,7 +173,7 @@ export async function deleteCategory(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/categories/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
 
-export async function listBrands(): Promise<ApiBrand[]> {
+export async function listBrands(): Promise<ApiAdminBrand[]> {
   return handle(await fetch('/api/admin/brands'));
 }
 

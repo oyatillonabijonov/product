@@ -7,8 +7,10 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
-  const { results } = await env.DB.prepare('SELECT * FROM brands ORDER BY sort_order ASC').all<BrandRow>();
-  return json(results.map(rowToBrand));
+  const { results } = await env.DB.prepare(
+    'SELECT brands.*, (SELECT COUNT(*) FROM products WHERE products.brand_id = brands.id) AS product_count FROM brands ORDER BY sort_order ASC',
+  ).all<BrandRow & { product_count: number }>();
+  return json(results.map((r) => ({ ...rowToBrand(r), productCount: r.product_count })));
 }
 
 export async function action({ request, context }: Route.ActionArgs) {

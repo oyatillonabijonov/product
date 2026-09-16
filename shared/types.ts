@@ -98,6 +98,11 @@ export interface ApiBrand {
   sortOrder: number;
 }
 
+/** Admin ro'yxati — brenddagi mahsulot soni bilan (`GET /api/admin/brands`). */
+export interface ApiAdminBrand extends ApiBrand {
+  productCount: number;
+}
+
 export interface ApiOptionValue {
   id: string;
   value: string;
