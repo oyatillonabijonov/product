@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { rowToProductType, typesOf, matchBillzType, type ProductTypeRow } from './product-types';
 
@@ -42,5 +44,16 @@ describe('matchBillzType', () => {
     expect(matchBillzType(typesOf(ROWS, 'pc'), 'Glasspad Deluxe')).toBeNull();
     expect(matchBillzType(typesOf(ROWS, 'pc'), '  ')).toBeNull();
     expect(matchBillzType([], 'iPhone')).toBeNull();
+  });
+});
+
+describe('0035 seed ikonkalari', () => {
+  it('migratsiyadagi har bir /sections/ ikonkasi public/ ichida bor', () => {
+    const sql = readFileSync(join(process.cwd(), 'migrations', '0035_product_types.sql'), 'utf-8');
+    const matches = sql.match(/\/sections\/[^']+/g) ?? [];
+    expect(matches.length).toBeGreaterThanOrEqual(39);
+    for (const path of matches) {
+      expect(existsSync(join('public', path))).toBe(true);
+    }
   });
 });

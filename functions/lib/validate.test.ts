@@ -512,4 +512,8 @@ describe('parseTypeInput', () => {
     expect(() => parseTypeInput({ ...base, billzAliases: Array.from({ length: 21 }, (_, i) => `a${i}`) })).toThrow('aliases_limit');
     expect(() => parseTypeInput({ ...base, billzAliases: ['x'.repeat(41)] })).toThrow('aliases_limit');
   });
+  it('40 belgidan uzun nom rad etiladi', () => {
+    expect(() => parseTypeInput({ ...base, label: 'a'.repeat(41) })).toThrow('label_long');
+    expect(() => parseTypeInput({ ...base, labelRu: 'a'.repeat(41) })).toThrow('label_long');
+  });
 });

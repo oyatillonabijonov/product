@@ -66,6 +66,10 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
 
 /** Bo'lim sahifasi: sarlavha + (mobilda) tab segmenti + ekran. Desktopda tablar sidebar'da. */
 function SectionPage({ section, tab, route, clearDefaultPw, defaultPw }: { section: SectionDef; tab: TabDef; route: AdminRoute; clearDefaultPw: () => void; defaultPw: boolean }) {
+  // `key` — tab almashganda eski ekran holati (ochiq forma) qolib ketmasin.
+  const screen = <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw, defaultPw, route.id)}</div>;
+  // Id ekranlari o'z Page'ini (orqaga havola + nom) chizadi — sarlavha ikki marta chiqmasin.
+  if (route.id !== null && tab.detail) return screen;
   return (
     <Page title={tab.label}>
       {section.tabs.length > 1 && (
@@ -75,8 +79,7 @@ function SectionPage({ section, tab, route, clearDefaultPw, defaultPw }: { secti
           items={section.tabs.map((t) => ({ id: t.id, label: t.label, to: adminPath(section.id, t.segment) }))}
         />
       )}
-      {/* `key` — tab almashganda eski ekran holati (ochiq forma) qolib ketmasin. */}
-      <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw, defaultPw, route.id)}</div>
+      {screen}
     </Page>
   );
 }

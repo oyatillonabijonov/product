@@ -676,9 +676,10 @@ export function parseTypeInput(body: unknown): TypeInput {
   const o = asRecord(body);
   const label = reqString(o, 'label');
   const categoryId = reqString(o, 'categoryId');
+  const labelRu = typeof o.labelRu === 'string' ? o.labelRu.trim() : '';
+  if (label.length > 40 || labelRu.length > 40) throw new ValidationError('label_long');
   const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : slugify(label);
   if (!TYPE_ID.test(id)) throw new ValidationError('id_invalid');
-  const labelRu = typeof o.labelRu === 'string' ? o.labelRu.trim() : '';
   const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : '';
   if (!iconUrl) throw new ValidationError('icon_required');
   if (!iconUrl.startsWith('/images/products/') && !iconUrl.startsWith('/sections/')) throw new ValidationError('url_invalid');

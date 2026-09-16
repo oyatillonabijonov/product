@@ -23,6 +23,7 @@ const MESSAGES: Record<string, string> = {
   type_invalid: "Tanlangan tur bu kategoriyaga tegishli emas",
   category_invalid: "Kategoriya noto'g'ri",
   label_required: 'Nomi majburiy',
+  label_long: 'Nom 40 belgidan oshmasin',
   id_invalid: "ID faqat kichik lotin harflari, raqam va '-' (40 belgigacha)",
   icon_required: 'Ikonka majburiy',
   url_invalid: "Rasm yo'li noto'g'ri",

@@ -207,7 +207,7 @@ holat, sana; `/admin/orders/applications/:id`.
   katalog tavsif shabloni (`metaCatalogDesc`, izoh: `{title}` va `{store}` joyida qoladi).
 - **Akkaunt** — login/parol o'zgartirish, Google admin kirishi (bor `AccountForm` mantiqi).
 
-## 6. Ma'lumotlar — migratsiya `0035_admin_content.sql`
+## 6. Ma'lumotlar — migratsiya `0035_product_types.sql`
 
 ```sql
 CREATE TABLE site_texts (
@@ -320,11 +320,10 @@ ham yiqitadi (lint) — etim kalit qolmaydi.
   propslariga; `root.tsx` favicon'ni matches orqali o'qiydi (`storeConfigFrom` naqshi). `hero-columns.ts` →
   `heroColumns(t, assets)` funksiyasi (nomlar `t.hero*`, rasm/video `assets`, 4 ustun va id'lar o'zgarmaydi);
   `columnHref`/`columnForCategory` shu ro'yxat bilan ishlaydi.
-- **`BrandStrip`** — `brands` (logo bor, `sort_order`) home loader'idan; ikki qatorga galma-gal bo'linadi;
+- **`BrandStrip`** — `brands` (logo bor, `sort_order`) home loader'idan; ikki qatorga — birinchi yarmi yuqorida, qolgani pastda bo'linadi;
   `MIN_LANE_ITEMS`/takrorlash qoladi; 0 logo → bo'lim chiqmaydi. `brand-logo` klassi (oqqa keltirish) qoladi.
 - **Turlar:** `app/lib/tiles.ts` → `categoryTiles(types, categoryId, lang)` sof; `loadTypes(env)` (xato → `[]`)
-  category loader'ida. `shared/product-types.ts`da faqat `ProductTypeRow` tipi va sof `typeForBillzCategory(name,
-  typesOfCategory)` qoladi (mantiq o'sha: nom yoki alias, katta-kichik harfsiz); Billz runner run boshida
+  category loader'ida. `shared/product-types.ts`da faqat `ProductTypeRow` tipi va sof `matchBillzType(typesOf(types, categoryId), name)` qoladi (mantiq o'sha: nom yoki alias, katta-kichik harfsiz); Billz runner run boshida
   turlarni o'qiydi. `PcConfigurator` slot id'lari (`cpu`, `motherboard`, `ram`, `gpu`, `xotira`) kodda; o'sha id'li
   tur o'chirilsa slot chiqmaydi (loader mahsulot topmaydi).
 - **`TermsBento.tsx`** o'chiriladi (4 tilli matnlari bilan); `muddatli-tolov` sahifasi hamma rejimda huquqiy
@@ -348,7 +347,7 @@ SVG qabul qilinmaydi; video faqat `video/mp4`. Storefront proxy keshi tufayli ko
 
 ## 9. Test
 
-Sof mantiq (vitest): `mergeTexts`, `parseAdminPath`, `categoryTiles(types, …)`, `typeForBillzCategory(name, types)`
+Sof mantiq (vitest): `mergeTexts`, `parseAdminPath`, `categoryTiles(types, …)`, `matchBillzType(typesOf(types, categoryId), name)`
 (hozirgi testlar massiv bilan ko'chadi), `parseTextsInput`/`parseAssetsInput`/`parseTypeInput`
 (`validate.test.ts`), `phoneFromDisplay`, `quickFilter` (Rasm kerak / Yashirin / Qoldiq 0 / Qo'lda) —
 `product-filter.test.ts`ga. `bun run lint` — `Translation` parity, registr tiplari. Brauzerda har bosqich oxirida

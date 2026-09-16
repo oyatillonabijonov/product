@@ -68,25 +68,29 @@ CREATE TABLE site_assets (
 
 -- Landing brend tasmasi endi brands.logo_url dan (16 ta SVG public/brands/ ga ko'chdi).
 -- sort_order shu 16 tada tasmadagi hozirgi tartib (10..160); yo'q brendlar yaratiladi.
-UPDATE brands SET logo_url = '/brands/apple.svg',      sort_order = 10  WHERE id = 'apple';
-UPDATE brands SET logo_url = '/brands/sony.svg',       sort_order = 20  WHERE id = 'sony';
-UPDATE brands SET logo_url = '/brands/intel.svg',      sort_order = 30  WHERE id = 'intel';
-UPDATE brands SET logo_url = '/brands/nvidia.svg',     sort_order = 40  WHERE id = 'nvidia';
-UPDATE brands SET logo_url = '/brands/asus.svg',       sort_order = 50  WHERE id = 'asus';
+-- Mavjud logotip (admin yuklagan) tegilmaydi; faqat bo'sh logo_url to'ldiriladi (spec §6).
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/apple.svg' ELSE logo_url END,      sort_order = 10  WHERE id = 'apple';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/sony.svg' ELSE logo_url END,       sort_order = 20  WHERE id = 'sony';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/intel.svg' ELSE logo_url END,      sort_order = 30  WHERE id = 'intel';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/nvidia.svg' ELSE logo_url END,     sort_order = 40  WHERE id = 'nvidia';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/asus.svg' ELSE logo_url END,       sort_order = 50  WHERE id = 'asus';
 INSERT INTO brands (id, name, slug, logo_url, sort_order)
   SELECT 'asus-proart', 'ASUS ProArt', 'asus-proart', '/brands/proart.svg', 60
   WHERE NOT EXISTS (SELECT 1 FROM brands WHERE id = 'asus-proart' OR slug = 'asus-proart');
-UPDATE brands SET logo_url = '/brands/hp.svg',         sort_order = 70  WHERE id = 'hp';
-UPDATE brands SET logo_url = '/brands/amd.svg',        sort_order = 80  WHERE id = 'amd';
-UPDATE brands SET logo_url = '/brands/blackmagic.svg', sort_order = 90  WHERE id = 'blackmagic';
-UPDATE brands SET logo_url = '/brands/dji.svg',        sort_order = 100 WHERE id = 'dji';
+UPDATE brands SET logo_url = '/brands/proart.svg', sort_order = 60 WHERE id = 'asus-proart' AND logo_url = '';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/hp.svg' ELSE logo_url END,         sort_order = 70  WHERE id = 'hp';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/amd.svg' ELSE logo_url END,        sort_order = 80  WHERE id = 'amd';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/blackmagic.svg' ELSE logo_url END, sort_order = 90  WHERE id = 'blackmagic';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/dji.svg' ELSE logo_url END,        sort_order = 100 WHERE id = 'dji';
 INSERT INTO brands (id, name, slug, logo_url, sort_order)
   SELECT 'audio-technica', 'Audio-Technica', 'audio-technica', '/brands/audio-technica.svg', 110
   WHERE NOT EXISTS (SELECT 1 FROM brands WHERE id = 'audio-technica' OR slug = 'audio-technica');
+UPDATE brands SET logo_url = '/brands/audio-technica.svg', sort_order = 110 WHERE id = 'audio-technica' AND logo_url = '';
 INSERT INTO brands (id, name, slug, logo_url, sort_order)
   SELECT 'bang-olufsen', 'Bang & Olufsen', 'bang-olufsen', '/brands/bang-olufsen.svg', 120
   WHERE NOT EXISTS (SELECT 1 FROM brands WHERE id = 'bang-olufsen' OR slug = 'bang-olufsen');
-UPDATE brands SET logo_url = '/brands/logitech.svg',   sort_order = 130 WHERE id = 'logitech';
-UPDATE brands SET logo_url = '/brands/hollyland.svg',  sort_order = 140 WHERE id = 'hollyland';
-UPDATE brands SET logo_url = '/brands/2e-gaming.svg',  sort_order = 150 WHERE id = '2e';
-UPDATE brands SET logo_url = '/brands/whoop.svg',      sort_order = 160 WHERE id = 'whoop';
+UPDATE brands SET logo_url = '/brands/bang-olufsen.svg', sort_order = 120 WHERE id = 'bang-olufsen' AND logo_url = '';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/logitech.svg' ELSE logo_url END,   sort_order = 130 WHERE id = 'logitech';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/hollyland.svg' ELSE logo_url END,  sort_order = 140 WHERE id = 'hollyland';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/2e-gaming.svg' ELSE logo_url END,  sort_order = 150 WHERE id = '2e';
+UPDATE brands SET logo_url = CASE WHEN logo_url = '' THEN '/brands/whoop.svg' ELSE logo_url END,      sort_order = 160 WHERE id = 'whoop';

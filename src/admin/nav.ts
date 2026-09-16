@@ -6,7 +6,11 @@ import {
 import type { AdminRoute, SectionId } from './lib/admin-path';
 
 /** Tab — sidebar sub-bandi; `Icon` sub-bandda ham chiziladi (egasining talabi, 2026-09-16). */
-export interface TabDef { id: string; segment: string; label: string; Icon: LucideIcon }
+export interface TabDef {
+  id: string; segment: string; label: string; Icon: LucideIcon;
+  /** Tab'ning id-ekrani (masalan TypeEdit) o'z `Page`ini chizadi — qobiq tashqi sarlavha va tablarni chizmaydi. */
+  detail?: boolean;
+}
 export interface SectionDef { id: SectionId; label: string; short: string; Icon: LucideIcon; tabs: TabDef[] }
 
 /**
@@ -21,7 +25,7 @@ export const SECTIONS: SectionDef[] = [
     id: 'products', label: 'Mahsulotlar', short: 'Tovarlar', Icon: Package,
     tabs: [
       { id: 'list', segment: '', label: 'Mahsulotlar', Icon: Boxes },
-      { id: 'types', segment: 'types', label: 'Turlar', Icon: Shapes },
+      { id: 'types', segment: 'types', label: 'Turlar', Icon: Shapes, detail: true },
       { id: 'categories', segment: 'categories', label: 'Kategoriyalar', Icon: LayoutGrid },
       { id: 'brands', segment: 'brands', label: 'Brendlar', Icon: Tag },
       { id: 'models', segment: 'models', label: 'Modellar', Icon: Smartphone },

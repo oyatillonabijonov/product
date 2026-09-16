@@ -12,7 +12,8 @@ const ImageUploader: FC<{
   multiple?: boolean;
   reorderable?: boolean;
   normalize?: NormalizeOptions;
-}> = ({ label, images, onChange, multiple = false, reorderable = false, normalize }) => {
+  accept?: string;
+}> = ({ label, images, onChange, multiple = false, reorderable = false, normalize, accept = 'image/png,image/jpeg,image/webp' }) => {
   const [uploading, setUploading] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState('');
@@ -100,7 +101,7 @@ const ImageUploader: FC<{
         <span className="text-[13px]">Rasm tashlang yoki tanlang</span>
         <input
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept={accept}
           multiple={multiple}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => { handleFiles(e.target.files); e.target.value = ''; }}
           className="hidden"

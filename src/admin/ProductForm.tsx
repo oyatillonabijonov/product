@@ -74,7 +74,7 @@ const ProductForm: FC<{
   useEffect(() => { listCategories().then(setCategories).catch(() => setError('Kategoriyalar yuklanmadi')); }, []);
   useEffect(() => { listBrands().then(setBrands).catch(() => setError('Brendlar yuklanmadi')); }, []);
   useEffect(() => { listDeviceModels().then(setModels).catch(() => {}); }, []);
-  useEffect(() => { listTypes().then(setTypes).catch(() => {}); }, []);
+  useEffect(() => { listTypes().then(setTypes).catch(() => setError('Turlar yuklanmadi')); }, []);
 
   // Saqlanmagan o'zgarish bo'lsa sahifa yopilishi/yangilanishida ogohlantirish
   useEffect(() => {

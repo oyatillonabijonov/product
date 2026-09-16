@@ -56,7 +56,7 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
   function addAlias() {
     const a = alias.trim();
     setAlias('');
-    if (!a || form.billzAliases.includes(a)) return;
+    if (!a || form.billzAliases.some((x) => x.toLowerCase() === a.toLowerCase())) return;
     set('billzAliases', [...form.billzAliases, a]);
   }
 
@@ -143,6 +143,7 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
               images={form.iconUrl ? [form.iconUrl] : []}
               onChange={(next) => set('iconUrl', next[0] ?? '')}
               normalize={{ maxSize: 220, maxHeight: 136, quality: 0.8 }}
+              accept="image/png,image/webp"
             />
           </Card>
 
