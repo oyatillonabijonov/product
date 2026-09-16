@@ -14,6 +14,7 @@ import {
   rowToBanner, rowToNews, rowToPage, rowToPost, rowToSiteConfig, type BannerRow, type NewsRow, type PageRow, type PostRow, type SiteConfigRow,
   rowToVacancy, type VacancyRow,
 } from '../../functions/lib/db';
+import { rowToProductType, type ProductTypeDbRow, type ProductTypeRow } from '../../shared/product-types';
 import { applyFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 import { siteConfig as staticSiteConfig } from './site.config';
 
@@ -171,6 +172,17 @@ export async function loadBrands(env: Env): Promise<ApiBrand[]> {
   } catch (err) {
     console.error('loadBrands fallback:', err);
     return fallbackBrands;
+  }
+}
+
+/** Tovar turlari (`product_types`); xato → [] — tile qatori bo'sh chiqadi, sahifa yiqilmaydi. */
+export async function loadTypes(env: Env): Promise<ProductTypeRow[]> {
+  try {
+    const { results } = await env.DB.prepare('SELECT * FROM product_types ORDER BY sort_order ASC, id ASC').all<ProductTypeDbRow>();
+    return results.map(rowToProductType);
+  } catch (err) {
+    console.error('loadTypes fallback:', err);
+    return [];
   }
 }
 

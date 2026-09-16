@@ -4,7 +4,7 @@ import { resolveLocale, categoryLabel, localeToLang } from '../lib/i18n';
 import { pageTitle, catalogMeta, storeConfigFrom } from '../lib/seo';
 import { siteConfig } from '../lib/site.config';
 import { parseCatalogFilters } from '../lib/catalog';
-import { queryProducts, loadConfig, loadCategories, loadBrands, loadProductsBy } from '../lib/loaders';
+import { queryProducts, loadConfig, loadCategories, loadBrands, loadTypes, loadProductsBy } from '../lib/loaders';
 import { categoryTiles } from '../lib/tiles';
 import { translations } from '../../src/locales';
 import type { StoreContext } from '../../src/store/StoreLayout';
@@ -25,11 +25,11 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const categories = await loadCategories(env);
   const category = categories.find((c) => c.id === slug);
   if (!category) throw new Response('Not Found', { status: 404 }); // noma'lum slug 200 + soft-404 bo'lib indekslanmasin
-  const [result, config, brands] = await Promise.all([
-    queryProducts(env, filters), loadConfig(env), loadBrands(env),
+  const [result, config, brands, types] = await Promise.all([
+    queryProducts(env, filters), loadConfig(env), loadBrands(env), loadTypes(env),
   ]);
   const title = categoryLabel(category, locale);
-  const tiles = categoryTiles(slug, locale === 'ru' ? 'ru' : 'uz');
+  const tiles = categoryTiles(types, slug, locale === 'ru' ? 'ru' : 'uz');
   // PC konfiguratori — har bo'g'in uchun shu turdagi haqiqiy tovarlar (qoldiqli, rasmli).
   const parts: Record<string, Awaited<ReturnType<typeof loadProductsBy>>> = {};
   if (slug === 'pc') {
