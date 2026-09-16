@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import type { FC } from 'react';
 import { Upload, X } from 'lucide-react';
 import { uploadImage } from './api';
-import { normalizeImage } from './lib/image-normalize';
+import { normalizeImage, type NormalizeOptions } from './lib/image-normalize';
 import { moveItem } from './lib/reorder';
 
 const ImageUploader: FC<{
@@ -11,7 +11,8 @@ const ImageUploader: FC<{
   onChange: (next: string[]) => void;
   multiple?: boolean;
   reorderable?: boolean;
-}> = ({ label, images, onChange, multiple = false, reorderable = false }) => {
+  normalize?: NormalizeOptions;
+}> = ({ label, images, onChange, multiple = false, reorderable = false, normalize }) => {
   const [uploading, setUploading] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState('');
@@ -30,7 +31,7 @@ const ImageUploader: FC<{
     const results = await Promise.all(
       files.map(async (file) => {
         try {
-          const { imageUrl } = await uploadImage(await normalizeImage(file));
+          const { imageUrl } = await uploadImage(await normalizeImage(file, normalize));
           return imageUrl;
         } catch {
           setError('Rasm yuklanmadi');

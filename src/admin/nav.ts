@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   BookOpen, Boxes, Briefcase, FileText, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Plug,
-  Receipt, Settings, Smartphone, Store, Tag, UserRound, Users, Wallet,
+  Receipt, Settings, Shapes, Smartphone, Store, Tag, UserRound, Users, Wallet,
 } from 'lucide-react';
 import type { AdminRoute, SectionId } from './lib/admin-path';
 
@@ -21,6 +21,7 @@ export const SECTIONS: SectionDef[] = [
     id: 'products', label: 'Mahsulotlar', short: 'Tovarlar', Icon: Package,
     tabs: [
       { id: 'list', segment: '', label: 'Mahsulotlar', Icon: Boxes },
+      { id: 'types', segment: 'types', label: 'Turlar', Icon: Shapes },
       { id: 'categories', segment: 'categories', label: 'Kategoriyalar', Icon: LayoutGrid },
       { id: 'brands', segment: 'brands', label: 'Brendlar', Icon: Tag },
       { id: 'models', segment: 'models', label: 'Modellar', Icon: Smartphone },

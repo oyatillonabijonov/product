@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
-import type { ApiBrand, ApiCategory, ApiDeviceModel, ApiProduct, ApiSpec, Category, Condition } from '../../shared/types';
+import type { ApiBrand, ApiCategory, ApiDeviceModel, ApiProduct, ApiProductType, ApiSpec, Category, Condition } from '../../shared/types';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
-import { typesFor, findType } from '../../shared/product-types';
-import { createProduct, getProductDetail, listBrands, listCategories, listDeviceModels, updateProduct, uploadImage } from './api';
+import { createProduct, getProductDetail, listBrands, listCategories, listDeviceModels, listTypes, updateProduct, uploadImage } from './api';
 import type { AdminVariantInput } from './api';
 import ModelCombobox from './ModelCombobox';
 import PriceInput from './PriceInput';
@@ -60,6 +59,8 @@ const ProductForm: FC<{
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [brands, setBrands] = useState<ApiBrand[]>([]);
   const [models, setModels] = useState<ApiDeviceModel[]>([]);
+  const [rawTypes, setTypes] = useState([] as ApiProductType[]);
+  const types = rawTypes as ApiProductType[];
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [dirty, setDirty] = useState(false);
@@ -73,6 +74,7 @@ const ProductForm: FC<{
   useEffect(() => { listCategories().then(setCategories).catch(() => setError('Kategoriyalar yuklanmadi')); }, []);
   useEffect(() => { listBrands().then(setBrands).catch(() => setError('Brendlar yuklanmadi')); }, []);
   useEffect(() => { listDeviceModels().then(setModels).catch(() => {}); }, []);
+  useEffect(() => { listTypes().then(setTypes).catch(() => {}); }, []);
 
   // Saqlanmagan o'zgarish bo'lsa sahifa yopilishi/yangilanishida ogohlantirish
   useEffect(() => {
@@ -124,7 +126,7 @@ const ProductForm: FC<{
       brandId: m.brandId,
       categoryId: m.categoryId,
       category: m.legacyCategory,
-      type: f.type && findType(m.categoryId, f.type) ? f.type : null,
+      type: f.type && types.some((t) => t.categoryId === m.categoryId && t.id === f.type) ? f.type : null,
       specs: mergeSpecs(f.specs, modelToSpecs(m)),
     }));
   }
@@ -282,7 +284,7 @@ const ProductForm: FC<{
                 ...f,
                 categoryId,
                 category: deriveLegacyCategory(categoryId),
-                type: f.type && findType(categoryId, f.type) ? f.type : null,
+                type: f.type && types.some((t) => t.categoryId === categoryId && t.id === f.type) ? f.type : null,
               }));
             }}
           >
@@ -298,7 +300,7 @@ const ProductForm: FC<{
             onChange={(e) => set('type', e.target.value || null)}
           >
             <option value="">{form.categoryId === null ? '— avval kategoriya —' : '— tanlang —'}</option>
-            {typesFor(form.categoryId).map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+            {types.filter((t) => t.categoryId === form.categoryId).map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
           </select>
         </label>
         <label className="text-[13px] text-muted">Naqd narx (so'm) <span className="text-danger">*</span>

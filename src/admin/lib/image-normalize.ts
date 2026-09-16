@@ -87,6 +87,15 @@ export interface NormalizeOptions {
   quality?: number;
   tolerance?: number;
   maxTrimRatio?: number;
+  /** Balandlik chegarasi — tur ikonkasi 220×136 qutiga sig'sin (uzun tomon yetarli emas). */
+  maxHeight?: number;
+}
+
+/** Kontent qutisini `maxSize` (uzun tomon) va ixtiyoriy `maxHeight` ichiga sig'diradigan masshtab; hech qachon > 1. */
+export function fitScale(w: number, h: number, maxSize: number, maxHeight?: number): number {
+  const byLong = maxSize / Math.max(w, h);
+  const byHeight = maxHeight ? maxHeight / h : 1;
+  return Math.min(1, byLong, byHeight);
 }
 
 /**
@@ -113,7 +122,7 @@ export async function normalizeImage(file: File, opts: NormalizeOptions = {}): P
       { tolerance: opts.tolerance, maxTrimRatio: opts.maxTrimRatio },
     );
 
-    const scale = Math.min(1, maxSize / Math.max(b.width, b.height));
+    const scale = fitScale(b.width, b.height, maxSize, opts.maxHeight);
     const outW = Math.max(1, Math.round(b.width * scale));
     const outH = Math.max(1, Math.round(b.height * scale));
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { contentBounds, type PixelData } from './image-normalize';
+import { contentBounds, fitScale, type PixelData } from './image-normalize';
 
 // N×N RGBA grid quruvchi yordamchi: fill(x,y) → [r,g,b,a]
 function grid(w: number, h: number, fill: (x: number, y: number) => [number, number, number, number]): PixelData {
@@ -41,5 +41,16 @@ describe('contentBounds', () => {
     // 4×4: tashqi halqa to'liq shaffof, markaz 2×2 qizil (alpha 255)
     const img = grid(4, 4, (x, y) => (x >= 1 && x <= 2 && y >= 1 && y <= 2 ? RED : [0, 0, 0, 0]));
     expect(contentBounds(img)).toEqual({ x: 1, y: 1, width: 2, height: 2 });
+  });
+});
+
+describe('fitScale', () => {
+  it('uzun tomon maxSize dan katta bo\'lsa kichraytiradi, kattalashtirmaydi', () => {
+    expect(fitScale(1000, 500, 220)).toBeCloseTo(0.22);
+    expect(fitScale(100, 50, 220)).toBe(1);
+  });
+  it('maxHeight bo\'lsa balandlik ham chegaralanadi (220×136 quti)', () => {
+    expect(fitScale(300, 300, 220, 136)).toBeCloseTo(136 / 300);
+    expect(fitScale(1000, 100, 220, 136)).toBeCloseTo(0.22);
   });
 });

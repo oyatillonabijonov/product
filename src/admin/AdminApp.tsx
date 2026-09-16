@@ -12,6 +12,8 @@ import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm';
 // Eski ekranlar — bosqichma-bosqich almashtiriladi (2–5-bosqichlar), shu jadval orqali ulanadi.
 import ProductList from './ProductList';
+import TypesList from './screens/TypesList';
+import TypeEdit from './screens/TypeEdit';
 import CategoryList from './CategoryList';
 import BrandList from './BrandList';
 import ModelList from './ModelList';
@@ -30,9 +32,10 @@ import AccountForm from './AccountForm';
 const DEFAULT_PW_KEY = 'admin-default-pw';
 
 /** Bo'lim + tab → ekran. Kalit `${section}/${tab.id}`. */
-function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean) {
+function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, id: string | null) {
   switch (key) {
     case 'products/list': return <ProductList />;
+    case 'products/types': return id ? <TypeEdit key={id} id={id} /> : <TypesList />;
     case 'products/categories': return <CategoryList />;
     case 'products/brands': return <BrandList />;
     case 'products/models': return <ModelList />;
@@ -73,7 +76,7 @@ function SectionPage({ section, tab, route, clearDefaultPw, defaultPw }: { secti
         />
       )}
       {/* `key` — tab almashganda eski ekran holati (ochiq forma) qolib ketmasin. */}
-      <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw, defaultPw)}</div>
+      <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw, defaultPw, route.id)}</div>
     </Page>
   );
 }
