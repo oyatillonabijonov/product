@@ -61,10 +61,10 @@ const ImageUploader: FC<{
 
   return (
     <div>
-      <div className="text-[13px] text-muted mb-2">{label}</div>
+      <div className="mb-2 text-label font-medium text-muted">{label}</div>
 
       {(images.length > 0 || uploading > 0) && (
-        <div className="flex items-center gap-2 flex-wrap mb-2">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
           {images.map((img, i) => (
             <div
               key={img + i}
@@ -72,21 +72,21 @@ const ImageUploader: FC<{
               onDragStart={(e: React.DragEvent) => e.dataTransfer.setData('text/plain', String(i))}
               onDragOver={(e: React.DragEvent) => { if (reorderable) e.preventDefault(); }}
               onDrop={(e: React.DragEvent) => { if (reorderable) onTileDrop(e, i); }}
-              className={`rounded-sm relative w-16 h-16 overflow-hidden bg-bg group ${reorderable ? 'cursor-move' : ''}`}
+              className={`group relative size-16 overflow-hidden rounded-xs bg-fill-2 ${reorderable ? 'cursor-move' : ''}`}
             >
-              <img src={img} alt="" className="w-full h-full object-cover" />
+              <img src={img} alt="" className="size-full object-contain" />
               <button
                 type="button"
                 onClick={() => onChange(images.filter((_, j) => j !== i))}
                 aria-label="Rasmni o'chirish"
-                className="press absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-danger text-white flex items-center justify-center opacity-0 group-hover:opacity-100"
+                className="press absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-danger text-bg opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
               >
                 <X size={12} strokeWidth={2.5} />
               </button>
             </div>
           ))}
           {Array.from({ length: uploading }).map((_, i) => (
-            <div key={`u${i}`} className="rounded-sm w-16 h-16 bg-bg animate-pulse" />
+            <div key={`u${i}`} className="size-16 animate-pulse rounded-xs bg-fill-2" />
           ))}
         </div>
       )}
@@ -95,10 +95,10 @@ const ImageUploader: FC<{
         onDragOver={(e: React.DragEvent) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onZoneDrop}
-        className={`rounded-sm flex flex-col items-center justify-center gap-1 py-5 px-4 border-2 border-dashed cursor-pointer transition-colors ${dragOver ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted'}`}
+        className={`flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xs border-2 border-dashed px-4 py-5 ${dragOver ? 'border-cta bg-cta/5 text-cta' : 'border-line text-muted'}`}
       >
         <Upload size={20} />
-        <span className="text-[13px]">Rasm tashlang yoki tanlang</span>
+        <span className="text-label">Rasm tashlang yoki tanlang</span>
         <input
           type="file"
           accept={accept}
@@ -108,7 +108,7 @@ const ImageUploader: FC<{
         />
       </label>
 
-      {error ? <div className="text-[12px] text-danger mt-1">{error}</div> : null}
+      {error ? <p className="mt-1 text-label text-danger">{error}</p> : null}
     </div>
   );
 };

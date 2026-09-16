@@ -36,7 +36,7 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 12 }}
               transition={SPRING_UI}
-              className={`rounded-full px-5 py-2.5 text-para ${t.kind === 'error' ? 'bg-danger text-white' : 'bg-primary text-bg'}`}
+              className={`rounded-full px-5 py-2.5 text-para ${t.kind === 'error' ? 'bg-danger text-bg' : 'bg-primary text-bg'}`}
             >
               {t.text}
             </motion.div>

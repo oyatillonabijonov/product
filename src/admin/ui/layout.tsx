@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { Link } from 'react-router';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from './controls';
 
 /**
  * Sahifa: sarlavha chapda, amallar ("Saqlash") o'ngda; sarlavha yopishqoq — asosiy amal doim
@@ -87,3 +88,19 @@ export const Skeleton: FC<{ rows?: number }> = ({ rows = 5 }) => (
     ))}
   </div>
 );
+
+/** Sahifalash «‹ 3 / 80 ›» — raqam tugmalari o'rniga (80 ta tugma chizilardi). Bitta sahifa bo'lsa chizilmaydi. */
+export const Pagination: FC<{ page: number; pageCount: number; onChange: (page: number) => void }> = ({ page, pageCount, onChange }) => {
+  if (pageCount <= 1) return null;
+  return (
+    <nav aria-label="Sahifalash" className="flex items-center justify-center gap-1 text-para text-primary">
+      <Button variant="quiet" ariaLabel="Oldingi sahifa" disabled={page <= 1} onClick={() => onChange(page - 1)}>
+        <ChevronLeft aria-hidden className="size-4" />
+      </Button>
+      <span className="tabular-nums">{page} / {pageCount}</span>
+      <Button variant="quiet" ariaLabel="Keyingi sahifa" disabled={page >= pageCount} onClick={() => onChange(page + 1)}>
+        <ChevronRight aria-hidden className="size-4" />
+      </Button>
+    </nav>
+  );
+};

@@ -105,7 +105,7 @@ Sayt tokenlari va shkalalari aynan; yangi rang, o'lcham, radius yo'q.
   `text-copy` semibold · matn/jadval `text-para` · meta/badge `text-label` (pol) · input `text-control`.
   `text-[Npx]` taqiq.
 - **Rang semantikasi:** asosiy tugma/havola `cta`; ikkilamchi `fill-2`; o'chirish `danger` matn; holat nuqtalari —
-  `verified` (faol/bajarildi), `muted-3` (yashirin), `new` (e'tibor kerak: "Rasm kerak", yangi buyurtma), `danger` (xato).
+  `verified` (faol/bajarildi), `muted-3` (yashirin), `new` (e'tibor kerak: "Rasm kerak", yangi buyurtma), `danger` (xato); `danger` to'ldirmasi ustida matn `text-bg` (qorong'ida `danger` och qizil — oq matn 2.78:1, `bg` ikkala mavzuda ≥ 5:1).
 - **Boshqaruvlar:** sahifadagi amallar 36px (`BTN_SM` pog'onasi), sahifaning asosiy amali 44px pill; matn 400;
   `press` hammasida; harakat `src/lib/motion.ts`; varaq/dialog — saytdagi `Modal`/`Sheet` qayta ishlatiladi.
 - **Primitivlar (har biri kichik):** `Page` (sarlavha, orqaga, o'ngda amallar), `Tabs` (URL'ga bog'liq segment),

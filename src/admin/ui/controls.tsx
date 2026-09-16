@@ -13,7 +13,8 @@ export type ButtonSize = 'md' | 'lg';
 const VARIANT: Record<ButtonVariant, string> = {
   primary: 'bg-cta text-white hover:bg-cta-hover',
   secondary: 'bg-fill-2 text-primary hover:bg-segment',
-  destructive: 'bg-danger text-white hover:opacity-90',
+  // Qorong'ida `danger` och qizil — oq matn 2.78:1; `bg` (yorug'da oqish, qorong'ida qora) ikkala mavzuda ≥ 5:1.
+  destructive: 'bg-danger text-bg hover:opacity-90',
   quiet: 'text-cta hover:bg-fill-2',
 };
 const SIZE: Record<ButtonSize, string> = {
@@ -99,4 +100,34 @@ export const Toggle: FC<{ on: boolean; onChange: (v: boolean) => void; label: st
       className={`absolute left-[2px] top-[2px] size-[27px] rounded-full bg-white transition-transform duration-200 ease-apple ${on ? 'translate-x-[20px]' : ''}`}
     />
   </button>
+);
+
+/**
+ * Segment-kontrol (lokal holat; URL'ga bog'liq varianti — `Tabs`): tez filtrlar, Yangi/Ishlatilgan.
+ * Konteyner 12px, ichki 8px — `Tabs` bilan bir o'lchov; mobilda yonga suriladi.
+ */
+export const Segmented: FC<{
+  value: string;
+  onChange: (v: string) => void;
+  options: { id: string; label: string }[];
+  /** Guruh nomi (`aria-label`), masalan "Tez filtr". */
+  label: string;
+  className?: string;
+}> = ({ value, onChange, options, label, className = '' }) => (
+  <div role="radiogroup" aria-label={label} className={`no-scrollbar -mx-4 overflow-x-auto px-4 md:mx-0 md:px-0 ${className}`}>
+    <div className="inline-flex gap-1 rounded-sm bg-fill-2 p-1">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          role="radio"
+          aria-checked={o.id === value}
+          onClick={() => onChange(o.id)}
+          className={`press h-9 whitespace-nowrap rounded-xs px-3.5 text-para ${o.id === value ? 'bg-surface text-primary' : 'text-muted hover:text-primary'}`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  </div>
 );
