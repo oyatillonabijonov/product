@@ -369,7 +369,7 @@ Sof mantiq (vitest): `mergeTexts`, `parseAdminPath`, `categoryTiles(types, …)`
 ## 11. Fayl xaritasi
 
 - Yangi: `src/admin/ui/*`, `src/admin/lib/admin-path.ts` (+test), `src/admin/lib/phone.ts` (+test),
-  `src/admin/screens/*` (bo'lim ekranlari), `src/lib/site-content.ts`, `migrations/0035_admin_content.sql`,
+  `src/admin/screens/*` (bo'lim ekranlari), `src/lib/site-content.ts`, `migrations/0035_product_types.sql`,
   `app/routes/api.admin.texts.tsx`, `api.admin.assets.tsx`, `api.admin.types.tsx`, `api.admin.types.$catId.$id.tsx`,
   `api.admin.dashboard.tsx`, `public/brands/*.svg`.
 - O'zgaradi: `src/admin/AdminApp.tsx`, `api.ts`, `errText.ts`, `ImageUploader.tsx`, `app/lib/loaders.ts`,
