@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { ApiCategory } from '../../shared/types';
 import { deleteCategory, listCategories } from './api';
-import { categoryIcon } from '../lib/category-icons';
 import IconAction from './IconAction';
 import CategoryForm from './CategoryForm';
 
@@ -48,23 +47,19 @@ export default function CategoryList() {
         <button onClick={() => setCreating(true)} className="press mb-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-full">+ Yangi kategoriya</button>
       )}
       <div className="space-y-2">
-        {items.map((c) => {
-          const Icon = categoryIcon(c.icon);
-          return (
+        {items.map((c) => (
           <div key={c.id} className=" rounded-md bg-white p-3 flex items-center gap-3">
-            {c.iconUrl ? (
-              <img src={c.iconUrl} alt="" className="w-10 h-10 rounded-full object-cover bg-bg" />
+            {/* Avatar — cover eskizi, bo'lmasa bosh harf (ikonka kaliti saytda ishlatilmaydi). */}
+            {c.coverUrl ? (
+              <img src={c.coverUrl} alt="" className="w-10 h-10 rounded-full object-cover bg-bg" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-bg flex items-center justify-center text-primary">
-                <Icon className="w-5 h-5" strokeWidth={1.7} />
-              </div>
+              <div className="w-10 h-10 rounded-full bg-bg flex items-center justify-center text-primary font-semibold">{c.name.slice(0, 1)}</div>
             )}
             <div className="flex-1 font-semibold">{c.name}</div>
             <IconAction Icon={Pencil} label="Tahrir" onClick={() => setEditing(c)} />
             <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(c)} danger />
           </div>
-          );
-        })}
+        ))}
       </div>
     </div>
   );

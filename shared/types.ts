@@ -66,7 +66,7 @@ export interface ApiCategory {
   /** Ruscha nom; bo'sh bo'lsa UI o'zbekcha `name`ga tushadi. */
   nameRu: string;
   iconUrl: string;
-  /** Preset icon key (see src/lib/category-icons); falls back to a generic icon when empty/unknown. */
+  /** Preset icon key (saytda ishlatilmaydi, ustun qoldi); falls back to a generic icon when empty/unknown. */
   icon: string;
   /** Kategoriya sahifasidagi cover rasmi (R2 yo'li); bo'sh bo'lsa cover ko'rsatilmaydi. */
   coverUrl: string;
