@@ -46,8 +46,11 @@ o'nlab `text-[12.5px]` o'lchamlar, bosh sahifa yo'q.
 
 ## 3. Tuzilma va navigatsiya
 
-5 ta asosiy bo'lim, ichida segment-tablar. Desktop: chapda sidebar — 5 bo'lim, sub-bandlari doim ochiq
-(akkordeon yo'q), "Buyurtmalar" yonida yangi buyurtma + ariza soni; pastda "Saytni ochish" va "Chiqish".
+5 ta asosiy bo'lim, ichida segment-tablar. Desktop: chapda sidebar — 5 bo'lim, har biri **ochiladigan-yopiladigan
+guruh** (2026-09-16, egasining talabi; avval "doim ochiq" edi): sukut bo'yicha faqat joriy bo'lim ochiq, chevron
+mustaqil ochadi/yopadi, bo'lim nomi bo'limga o'tadi va uni ochadi; ochiq guruh bitta yaxlit blok (`bg-fill-2/40`),
+joriy sub-band `bg-surface` pill + chap chetida `cta` chizig'i; yopiq holat eslab qolinmaydi. "Buyurtmalar" yonida
+yangi buyurtma + ariza soni; pastda "Saytni ochish" va "Chiqish".
 Telefon: iOS pastki 5-tab bar; sub-bandlar sahifa tepasida segment-kontrol.
 
 ```
