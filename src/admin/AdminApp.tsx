@@ -17,7 +17,8 @@ import TypeEdit from './screens/TypeEdit';
 import ProductEdit from './screens/ProductEdit';
 import CategoriesList from './screens/CategoriesList';
 import CategoryEdit from './screens/CategoryEdit';
-import BrandList from './BrandList';
+import BrandsList from './screens/BrandsList';
+import BrandEdit from './screens/BrandEdit';
 import ModelList from './ModelList';
 import OrdersPage from './OrdersPage';
 import JobApplicationsList from './JobApplicationsList';
@@ -39,7 +40,7 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
     case 'products/list': return id ? <ProductEdit key={id} id={id} /> : <ProductsList />;
     case 'products/types': return id ? <TypeEdit key={id} id={id} /> : <TypesList />;
     case 'products/categories': return id ? <CategoryEdit key={id} id={id} /> : <CategoriesList />;
-    case 'products/brands': return <BrandList />;
+    case 'products/brands': return id ? <BrandEdit key={id} id={id} /> : <BrandsList />;
     case 'products/models': return <ModelList />;
     case 'orders/list': return <OrdersPage />;
     case 'orders/applications': return <JobApplicationsList />;

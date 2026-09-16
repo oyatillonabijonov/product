@@ -27,7 +27,7 @@ export const SECTIONS: SectionDef[] = [
       { id: 'list', segment: '', label: 'Mahsulotlar', Icon: Boxes, detail: true },
       { id: 'types', segment: 'types', label: 'Turlar', Icon: Shapes, detail: true },
       { id: 'categories', segment: 'categories', label: 'Kategoriyalar', Icon: LayoutGrid, detail: true },
-      { id: 'brands', segment: 'brands', label: 'Brendlar', Icon: Tag },
+      { id: 'brands', segment: 'brands', label: 'Brendlar', Icon: Tag, detail: true },
       { id: 'models', segment: 'models', label: 'Modellar', Icon: Smartphone },
     ],
   },
