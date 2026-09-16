@@ -63,7 +63,7 @@ const ModelEdit: FC<{ id: string }> = ({ id }) => {
         await createDeviceModel(body);
         setDirty(false);
         toast("Model qo'shildi");
-        navigate(LIST);
+        navigate(LIST, { state: { leave: true } });
       } else {
         await updateDeviceModel(id, body);
         setDirty(false);
@@ -88,7 +88,7 @@ const ModelEdit: FC<{ id: string }> = ({ id }) => {
       await deleteDeviceModel(id);
       setDirty(false);
       toast("Model o'chirildi");
-      navigate(LIST);
+      navigate(LIST, { state: { leave: true } });
     } catch (e) {
       toast(errText(e), 'error');
     }

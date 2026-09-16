@@ -160,7 +160,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
         await createProduct(formToPayload(form));
         setDirty(false);
         toast("Mahsulot qo'shildi");
-        navigate(backTo);
+        navigate(backTo, { state: { leave: true } });
       } else {
         await updateProduct(id, formToPayload(form));
         setDirty(false);
@@ -184,7 +184,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
       await deleteProduct(id);
       setDirty(false);
       toast("Mahsulot o'chirildi");
-      navigate(backTo);
+      navigate(backTo, { state: { leave: true } });
     } catch (err) {
       toast(errText(err), 'error');
     }

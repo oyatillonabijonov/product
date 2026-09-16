@@ -19,7 +19,12 @@ export const Page: FC<{
   children: ReactNode;
 }> = ({ title, back, description, actions, dirty, children }) => {
   const confirm = useConfirm();
-  const blocker = useBlocker(Boolean(dirty));
+  // Saqlash/o'chirishdan keyingi dasturiy o'tish `state.leave` bilan belgilanadi — u bloklanmaydi
+  // (predicate effect'da ro'yxatga olinadi, shu sababli sinxron `navigate` hali `dirty=true`ni ko'radi).
+  const blocker = useBlocker(({ nextLocation }) => {
+    const st = nextLocation.state as { leave?: boolean } | null;
+    return Boolean(dirty) && !st?.leave;
+  });
   useEffect(() => {
     if (blocker.state !== 'blocked') return;
     confirm({ title: "Saqlanmagan o'zgarishlar bor", message: "Chiqilsa o'zgarishlar yo'qoladi.", confirmLabel: 'Chiqish', destructive: true })

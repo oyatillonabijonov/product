@@ -50,7 +50,7 @@ const BrandEdit: FC<{ id: string }> = ({ id }) => {
         await createBrand(body);
         setDirty(false);
         toast("Brend qo'shildi");
-        navigate(LIST);
+        navigate(LIST, { state: { leave: true } });
       } else {
         await updateBrand(id, body);
         setDirty(false);
@@ -75,7 +75,7 @@ const BrandEdit: FC<{ id: string }> = ({ id }) => {
       await deleteBrand(id);
       setDirty(false);
       toast("Brend o'chirildi");
-      navigate(LIST);
+      navigate(LIST, { state: { leave: true } });
     } catch (e) {
       toast(errText(e), 'error');
     }

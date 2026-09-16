@@ -57,7 +57,7 @@ const CategoryEdit: FC<{ id: string }> = ({ id }) => {
         await createCategory(body);
         setDirty(false);
         toast("Kategoriya qo'shildi");
-        navigate(LIST);
+        navigate(LIST, { state: { leave: true } });
       } else {
         await updateCategory(id, body);
         setDirty(false);
@@ -82,7 +82,7 @@ const CategoryEdit: FC<{ id: string }> = ({ id }) => {
       await deleteCategory(id);
       setDirty(false);
       toast("Kategoriya o'chirildi");
-      navigate(LIST);
+      navigate(LIST, { state: { leave: true } });
     } catch (e) {
       toast(errText(e), 'error');
     }

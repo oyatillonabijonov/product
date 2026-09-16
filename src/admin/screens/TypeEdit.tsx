@@ -71,7 +71,7 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
         const created = await createType(body);
         setDirty(false);
         toast('Tur qo\'shildi');
-        navigate(`${LIST}/${created.categoryId}/${created.id}`, { replace: true });
+        navigate(`${LIST}/${created.categoryId}/${created.id}`, { replace: true, state: { leave: true } });
       } else {
         const saved = await updateType(catParam, typeParam, body);
         setCurrent(saved);
@@ -98,7 +98,7 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
       await deleteType(catParam, typeParam);
       setDirty(false);
       toast('Tur o\'chirildi');
-      navigate(LIST);
+      navigate(LIST, { state: { leave: true } });
     } catch (e) {
       toast(errText(e), 'error');
     }
