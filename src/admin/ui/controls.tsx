@@ -104,7 +104,7 @@ export const Toggle: FC<{ on: boolean; onChange: (v: boolean) => void; label: st
 
 /**
  * Segment-kontrol (lokal holat; URL'ga bog'liq varianti — `Tabs`): tez filtrlar, Yangi/Ishlatilgan.
- * Konteyner 12px, ichki 8px — `Tabs` bilan bir o'lchov; mobilda yonga suriladi.
+ * Konteyner 12px, ichki 8px — `Tabs` bilan bir o'lchov; mobilda yonga suriladi. Tugma mobilda 44px, `md`dan 36px.
  */
 export const Segmented: FC<{
   value: string;
@@ -123,7 +123,7 @@ export const Segmented: FC<{
           role="radio"
           aria-checked={o.id === value}
           onClick={() => { if (o.id !== value) onChange(o.id); }}
-          className={`press h-9 whitespace-nowrap rounded-xs px-3.5 text-para ${o.id === value ? 'bg-surface text-primary' : 'text-muted hover:text-primary'}`}
+          className={`press h-11 whitespace-nowrap rounded-xs px-3.5 text-para md:h-9 ${o.id === value ? 'bg-surface text-primary' : 'text-muted hover:text-primary'}`}
         >
           {o.label}
         </button>

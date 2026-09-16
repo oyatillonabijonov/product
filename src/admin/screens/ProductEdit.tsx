@@ -20,24 +20,12 @@ import {
   COLOR_VALUES, EMPTY_FORM, STORAGE_VALUES, addAxisValue, detailToForm, formToPayload, toggleAxisValue, validateForm, variantLabel,
   type ProductFormState,
 } from '../lib/product-form';
-import { Button, Card, EmptyState, Field, INPUT_CLS, Input, Page, Segmented, Select, Skeleton, SwitchRow, Textarea } from '../ui';
+import { Button, Card, EmptyState, Field, INPUT_CLS, Input, Page, Rows, Segmented, Select, Skeleton, SwitchRow, Textarea } from '../ui';
 import { useConfirm } from '../ui/confirm';
 import { useToast } from '../ui/toast';
 
 const LIST = '/admin/products';
 type LoadState = 'loading' | 'ready' | 'error';
-
-/** Billz tovarida sinxron ustunlar faqat o'qiladi — kalit/qiymat ro'yxati. */
-const Rows: FC<{ rows: { k: string; v: ReactNode }[] }> = ({ rows }) => (
-  <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-para">
-    {rows.map((r, i) => (
-      <div key={`${i}-${r.k}`} className="contents">
-        <dt className="text-muted">{r.k}</dt>
-        <dd className="min-w-0 break-words text-primary">{r.v}</dd>
-      </div>
-    ))}
-  </dl>
-);
 
 /** Variant chipi (Xotira/Rang qiymati) — tanlangani `cta`. */
 const Chip: FC<{ on: boolean; onClick: () => void; children: ReactNode }> = ({ on, onClick, children }) => (

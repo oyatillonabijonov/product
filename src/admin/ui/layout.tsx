@@ -73,7 +73,19 @@ export const Card: FC<{ title?: string; description?: string; actions?: ReactNod
   );
 };
 
-/** Segment-kontrol (URL'ga bog'liq): konteyner 12px, ichki 8px — konsentrik. Mobilda yonga suriladi. */
+/** Faqat o'qiladigan kalit/qiymat ro'yxati (Billz'dan kelgan maydonlar, buyurtma tafsiloti). */
+export const Rows: FC<{ rows: { k: string; v: ReactNode }[] }> = ({ rows }) => (
+  <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-para">
+    {rows.map((r, i) => (
+      <div key={`${i}-${r.k}`} className="contents">
+        <dt className="text-muted">{r.k}</dt>
+        <dd className="min-w-0 break-words text-primary">{r.v}</dd>
+      </div>
+    ))}
+  </dl>
+);
+
+/** Segment-kontrol (URL'ga bog'liq): konteyner 12px, ichki 8px — konsentrik. Mobilda yonga suriladi, tugma 44px (tegish maydoni), `md`dan 36px. */
 export const Tabs: FC<{ items: { id: string; label: string; to: string }[]; active: string; className?: string }> = ({ items, active, className = '' }) => (
   <nav aria-label="Tablar" className={`no-scrollbar -mx-4 overflow-x-auto px-4 md:mx-0 md:px-0 ${className}`}>
     <ul className="inline-flex gap-1 rounded-sm bg-fill-2 p-1">
@@ -82,7 +94,7 @@ export const Tabs: FC<{ items: { id: string; label: string; to: string }[]; acti
           <Link
             to={it.to}
             aria-current={it.id === active ? 'page' : undefined}
-            className={`press block h-9 whitespace-nowrap rounded-xs px-3.5 text-para leading-9 ${
+            className={`press flex h-11 items-center whitespace-nowrap rounded-xs px-3.5 text-para md:h-9 ${
               it.id === active ? 'bg-surface text-primary' : 'text-muted hover:text-primary'
             }`}
           >

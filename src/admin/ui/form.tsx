@@ -1,5 +1,6 @@
+import { useEffect, useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Search } from 'lucide-react';
 import { Toggle } from './controls';
 
 /** Input ko'rinishi bitta joyda; `text-control` (16px) — iOS Safari kichik inputni fokusda zoom qiladi. */
@@ -46,6 +47,43 @@ export const Input: FC<{
   />
 );
 
+/**
+ * Ro'yxat qidiruvi: matn lokal holatda, `onChange` (URL'ga yozish) 250 ms kechikib chaqiriladi — har harfda
+ * navigatsiya bo'lmaydi. Tashqaridan kelgan qiymat ("Filtrni tozalash", orqaga) maydonni yangilaydi; o'zimiz
+ * yuborgan qiymat qaytib kelganda esa yangilamaydi — aks holda shu orada yozilgan harf yo'qolardi.
+ */
+export const SearchInput: FC<{ value: string; onChange: (v: string) => void; placeholder: string }> = ({ value, onChange, placeholder }) => {
+  const [raw, setText] = useState(value);
+  const text = raw as string;
+  const sent = useRef(value) as { current: string };
+  // Taymer eng oxirgi `onChange`ni chaqirsin: eskisi eski URL parametrlarini yozib, shu orada tanlangan filtrni bekor qilardi.
+  const latest = useRef(onChange) as { current: (v: string) => void };
+  useEffect(() => { latest.current = onChange; });
+  useEffect(() => {
+    if (value === sent.current) return;
+    sent.current = value;
+    setText(value);
+  }, [value]);
+  useEffect(() => {
+    if (text === sent.current) return;
+    const t = setTimeout(() => { sent.current = text; latest.current(text); }, 250);
+    return () => clearTimeout(t);
+  }, [text]);
+  return (
+    <span className="relative block">
+      <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-2" />
+      <input
+        type="search"
+        value={text}
+        placeholder={placeholder}
+        aria-label={placeholder}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
+        className={`${INPUT_CLS} appearance-none pl-9`}
+      />
+    </span>
+  );
+};
+
 export const Textarea: FC<{ value: string; onChange: (v: string) => void; rows?: number; placeholder?: string; invalid?: boolean; mono?: boolean }> = ({
   value, onChange, rows = 4, placeholder, invalid, mono,
 }) => (
@@ -59,12 +97,15 @@ export const Textarea: FC<{ value: string; onChange: (v: string) => void; rows?:
   />
 );
 
-/** Native select — o'z chevroni bilan (brauzer ko'rsatkichi har OS'da har xil). */
-export const Select: FC<{ value: string; onChange: (v: string) => void; disabled?: boolean; children: ReactNode }> = ({ value, onChange, disabled, children }) => (
+/** Native select — o'z chevroni bilan (brauzer ko'rsatkichi har OS'da har xil). `ariaLabel` — `Field`siz (jadval qatorida) ishlatilganda. */
+export const Select: FC<{ value: string; onChange: (v: string) => void; disabled?: boolean; ariaLabel?: string; children: ReactNode }> = ({
+  value, onChange, disabled, ariaLabel, children,
+}) => (
   <span className="relative block">
     <select
       value={value}
       disabled={disabled}
+      aria-label={ariaLabel}
       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
       className={`${INPUT_CLS} appearance-none pr-9`}
     >

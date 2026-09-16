@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel } from '../../../shared/types';
 import { listBrands, listCategories, listDeviceModels } from '../api';
 import { filterModels } from '../lib/models';
-import { Button, Card, DataTable, EmptyState, Input, Pagination, Select, Skeleton, type Column } from '../ui';
+import { Button, Card, DataTable, EmptyState, Pagination, SearchInput, Select, Skeleton, type Column } from '../ui';
 
 const PAGE_SIZE = 20;
 const LIST = '/admin/products/models';
@@ -65,7 +65,7 @@ const ModelsList: FC = () => {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <div className="w-full sm:w-64">
-          <Input value={q} onChange={(v) => update('q', v)} placeholder="Qidirish (masalan: 16 pro)" />
+          <SearchInput value={q} onChange={(v) => update('q', v)} placeholder="Qidirish (masalan: 16 pro)" />
         </div>
         <div className="w-full sm:w-44">
           <Select value={brand} onChange={(v) => update('brand', v)}>

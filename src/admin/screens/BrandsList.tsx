@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import type { ApiAdminBrand } from '../../../shared/types';
 import { listBrands } from '../api';
-import { Button, Card, DataTable, EmptyState, Input, Skeleton, type Column } from '../ui';
+import { Button, Card, DataTable, EmptyState, SearchInput, Skeleton, type Column } from '../ui';
 
 const LIST = '/admin/products/brands';
 
@@ -61,7 +61,7 @@ const BrandsList: FC = () => {
       <p className="text-para text-muted">Billz sinxronizatsiyasi yangi brendni o'zi yaratadi; logotip shu yerda yuklanadi.</p>
       <div className="flex flex-wrap items-center gap-2">
         <div className="w-full sm:w-64">
-          <Input value={q} onChange={updateQ} placeholder="Nom bo'yicha qidirish…" />
+          <SearchInput value={q} onChange={updateQ} placeholder="Nom bo'yicha qidirish…" />
         </div>
         <div className="sm:ml-auto">
           <Button to={`${LIST}/new`}>Yangi brend</Button>

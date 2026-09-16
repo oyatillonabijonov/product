@@ -6,7 +6,7 @@ import { listBrands, listCategories, listProducts, listTypes, setProductActive }
 import { errText } from '../errText';
 import { formatThousands } from '../lib/format';
 import { QUICK_FILTERS, filterProducts, type QuickFilter } from '../lib/product-filter';
-import { Badge, Button, Card, DataTable, EmptyState, Input, Pagination, Segmented, Select, Skeleton, Toggle, type Column } from '../ui';
+import { Badge, Button, Card, DataTable, EmptyState, Pagination, SearchInput, Segmented, Select, Skeleton, Toggle, type Column } from '../ui';
 import { useToast } from '../ui/toast';
 
 const PAGE_SIZE = 20;
@@ -112,7 +112,7 @@ const ProductsList: FC = () => {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <div className="w-full sm:w-64">
-          <Input value={q} onChange={(v) => update('q', v)} placeholder="Nom bo'yicha qidirish…" />
+          <SearchInput value={q} onChange={(v) => update('q', v)} placeholder="Nom bo'yicha qidirish…" />
         </div>
         <div className="w-full sm:w-44">
           <Select value={cat} onChange={(v) => update('cat', v)}>
