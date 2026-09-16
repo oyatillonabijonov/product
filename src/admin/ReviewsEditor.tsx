@@ -5,8 +5,9 @@ import type { ApiReview } from '../../shared/types';
 import { createReview, deleteReview, listReviews } from './api';
 import { errText } from './errText';
 import IconAction from './IconAction';
+import { Button, Field, Input, Select, Textarea } from './ui';
+import { useConfirm } from './ui/confirm';
 
-const input = 'rounded-sm w-full border border-line-2 px-3 py-2 text-[14px]';
 const today = () => new Date().toISOString().slice(0, 10);
 
 /**
@@ -15,7 +16,9 @@ const today = () => new Date().toISOString().slice(0, 10);
  * qayta hisoblaydi; `onChanged` forma maydonlarini (reyting, soni) yangilaydi.
  */
 const ReviewsEditor: FC<{ productId: string; onChanged: (avg: number, count: number) => void }> = ({ productId, onChanged }) => {
-  const [items, setItems] = useState<ApiReview[]>([]);
+  const confirm = useConfirm();
+  const [rawItems, setItems] = useState([] as ApiReview[]);
+  const items = rawItems as ApiReview[];
   const [author, setAuthor] = useState('');
   const [rating, setRating] = useState(5);
   const [body, setBody] = useState('');
@@ -43,35 +46,45 @@ const ReviewsEditor: FC<{ productId: string; onChanged: (avg: number, count: num
     finally { setBusy(false); }
   }
   async function remove(r: ApiReview) {
-    if (!window.confirm("Sharh o'chirilsinmi?")) return;
+    const ok = await confirm({ title: "Sharhni o'chirish", message: `${r.author} · ${'★'.repeat(r.rating)}`, confirmLabel: "O'chirish", destructive: true });
+    if (!ok) return;
     try { await deleteReview(r.id); publish(items.filter((x) => x.id !== r.id)); }
     catch (e) { setError(errText(e)); }
   }
 
   return (
-    <div className="mt-4">
-      <div className="text-[13px] text-muted mb-2">Sharhlar ({items.length})</div>
-      <div className="space-y-2">
-        {items.map((r) => (
-          <div key={r.id} className="rounded-sm border border-line-2 p-3 flex items-start gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="text-[13px]"><span className="font-semibold">{r.author}</span> · {'★'.repeat(r.rating)} · {new Date(r.createdAt * 1000).toISOString().slice(0, 10)}</div>
-              <div className="text-[13px] text-body whitespace-pre-line">{r.body}</div>
-            </div>
-            <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(r)} danger />
-          </div>
-        ))}
+    <div className="mt-6 border-t border-line pt-5">
+      <p className="mb-3 text-label font-medium text-muted">Sharhlar ({items.length})</p>
+      {items.length > 0 && (
+        <ul className="mb-4 flex flex-col gap-2">
+          {items.map((r) => (
+            <li key={r.id} className="flex items-start gap-3 rounded-xs border border-line p-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-para text-primary">
+                  <span className="font-medium">{r.author}</span> · {'★'.repeat(r.rating)} ·{' '}
+                  <span className="text-muted">{new Date(r.createdAt * 1000).toISOString().slice(0, 10)}</span>
+                </p>
+                <p className="whitespace-pre-line text-para text-body">{r.body}</p>
+              </div>
+              <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(r)} danger />
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="grid gap-3 md:grid-cols-[1fr_120px_170px]">
+        <Field label="Muallif"><Input value={author} onChange={setAuthor} /></Field>
+        <Field label="Baho">
+          <Select value={String(rating)} onChange={(v) => setRating(Number(v))}>
+            {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n} ★</option>)}
+          </Select>
+        </Field>
+        <Field label="Sana"><Input type="date" value={date} onChange={setDate} /></Field>
       </div>
-      <div className="mt-3 grid grid-cols-1 md:grid-cols-[1fr_110px_150px] gap-2">
-        <input placeholder="Muallif" className={input} value={author} onChange={(e) => setAuthor(e.target.value)} />
-        <select className={input} value={rating} onChange={(e) => setRating(Number(e.target.value))}>
-          {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n} ★</option>)}
-        </select>
-        <input type="date" className={input} value={date} onChange={(e) => setDate(e.target.value)} />
+      <div className="mt-3"><Field label="Sharh matni"><Textarea value={body} onChange={setBody} rows={3} /></Field></div>
+      {error && <p className="mt-2 text-label text-danger">{error}</p>}
+      <div className="mt-3">
+        <Button variant="secondary" onClick={add} disabled={busy || !author.trim() || !body.trim()}>+ Sharh qo'shish</Button>
       </div>
-      <textarea placeholder="Sharh matni" className={`${input} mt-2 min-h-[80px]`} value={body} onChange={(e) => setBody(e.target.value)} />
-      {error && <p className="text-[13px] text-danger mt-1">{error}</p>}
-      <button type="button" onClick={add} disabled={busy || !author.trim() || !body.trim()} className="press text-[13px] text-accent font-semibold mt-2 disabled:opacity-50">+ sharh qo'shish</button>
     </div>
   );
 };

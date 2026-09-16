@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import type { ApiDeviceModel } from '../../shared/types';
 import { filterModels } from './lib/models';
 
+/** Nom maydoni + model registri takliflari (↑/↓, Enter, Esc). `className` — kit `INPUT_CLS`. */
 const ModelCombobox: FC<{
   models: ApiDeviceModel[];
   value: string;
@@ -50,18 +51,18 @@ const ModelCombobox: FC<{
       />
       {showDropdown && (
         <div
-          className=" rounded-sm absolute z-10 mt-1 w-full max-h-64 overflow-auto bg-white border border-line"
+          className="absolute z-10 mt-1 max-h-64 w-full overflow-auto rounded-xs border border-line bg-surface"
           onMouseDown={(e) => e.preventDefault()}
         >
           {suggestions.map((m, i) => (
             <button
               key={m.id}
               type="button"
-              className={`press w-full text-left px-3 py-2 hover:bg-bg ${i === highlight ? 'bg-bg' : ''}`}
+              className={`press block w-full px-3 py-2 text-left hover:bg-fill-2 ${i === highlight ? 'bg-fill-2' : ''}`}
               onClick={() => pick(m)}
             >
-              <span className="text-[14px] font-semibold text-primary">{m.name}</span>
-              <span className="ml-2 text-[12px] text-muted">{m.brandId} · {m.categoryId}</span>
+              <span className="text-para font-medium text-primary">{m.name}</span>
+              <span className="ml-2 text-label text-muted">{m.brandId} · {m.categoryId}</span>
             </button>
           ))}
         </div>

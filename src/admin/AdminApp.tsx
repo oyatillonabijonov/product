@@ -14,6 +14,7 @@ import { ConfirmProvider } from './ui/confirm';
 import ProductList from './ProductList';
 import TypesList from './screens/TypesList';
 import TypeEdit from './screens/TypeEdit';
+import ProductEdit from './screens/ProductEdit';
 import CategoryList from './CategoryList';
 import BrandList from './BrandList';
 import ModelList from './ModelList';
@@ -34,7 +35,7 @@ const DEFAULT_PW_KEY = 'admin-default-pw';
 /** Bo'lim + tab → ekran. Kalit `${section}/${tab.id}`. */
 function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, id: string | null) {
   switch (key) {
-    case 'products/list': return <ProductList />;
+    case 'products/list': return id ? <ProductEdit key={id} id={id} /> : <ProductList />;
     case 'products/types': return id ? <TypeEdit key={id} id={id} /> : <TypesList />;
     case 'products/categories': return <CategoryList />;
     case 'products/brands': return <BrandList />;
