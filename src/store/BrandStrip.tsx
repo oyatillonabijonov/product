@@ -1,21 +1,6 @@
 import type { CSSProperties, FC } from 'react';
 import { SECTION_HEADING } from './ui';
-import amd from '../assets/images/logos/amd.svg';
-import apple from '../assets/images/logos/apple.svg';
-import asus from '../assets/images/logos/asus.svg';
-import audioTechnica from '../assets/images/logos/audio-technica.svg';
-import bangOlufsen from '../assets/images/logos/bang-olufsen.svg';
-import blackmagic from '../assets/images/logos/blackmagic.svg';
-import dji from '../assets/images/logos/dji.svg';
-import gaming2e from '../assets/images/logos/2e-gaming.svg';
-import hollyland from '../assets/images/logos/hollyland.svg';
-import hp from '../assets/images/logos/hp.svg';
-import intel from '../assets/images/logos/intel.svg';
-import logitech from '../assets/images/logos/logitech.svg';
-import nvidia from '../assets/images/logos/nvidia.svg';
-import proart from '../assets/images/logos/proart.svg';
-import sony from '../assets/images/logos/sony.svg';
-import whoop from '../assets/images/logos/whoop.svg';
+import type { ApiBrand } from '../../shared/types';
 
 const GAP_PX = 64;
 /** Kam logotipda bitta nusxa ekranni to'ldirmaydi — lenta shu songacha takrorlanadi. */
@@ -24,28 +9,6 @@ const MIN_LANE_ITEMS = 8;
 const SECONDS_PER_ITEM = 3.5;
 
 interface Logo { src: string; name: string }
-
-// Ikki qator: yuqorigisi chapga, pastkisi o'ngga suriladi.
-const ROW_TOP: Logo[] = [
-  { src: apple, name: 'Apple' },
-  { src: sony, name: 'Sony' },
-  { src: intel, name: 'Intel' },
-  { src: nvidia, name: 'NVIDIA' },
-  { src: asus, name: 'ASUS' },
-  { src: proart, name: 'ASUS ProArt' },
-  { src: hp, name: 'HP' },
-  { src: amd, name: 'AMD' },
-];
-const ROW_BOTTOM: Logo[] = [
-  { src: blackmagic, name: 'Blackmagic Design' },
-  { src: dji, name: 'DJI' },
-  { src: audioTechnica, name: 'Audio-Technica' },
-  { src: bangOlufsen, name: 'Bang & Olufsen' },
-  { src: logitech, name: 'Logitech' },
-  { src: hollyland, name: 'Hollyland' },
-  { src: gaming2e, name: '2E Gaming' },
-  { src: whoop, name: 'WHOOP' },
-];
 
 /**
  * Ramkasiz logotip. Barchasi bir xil o'lchamli qutiga `object-contain` bilan
@@ -89,14 +52,25 @@ const Row: FC<{ logos: Logo[]; reverse?: boolean }> = ({ logos, reverse = false 
   );
 };
 
-const BrandStrip: FC<{ title: string }> = ({ title }) => (
-  <section className="flex flex-col gap-8 md:gap-10">
-    <h2 className={SECTION_HEADING}>{title}</h2>
-    <div className="flex flex-col gap-14">
-      <Row logos={ROW_TOP} />
-      <Row logos={ROW_BOTTOM} reverse />
-    </div>
-  </section>
-);
+/**
+ * Brendlar tasmasi — `brands.logo_url` dan (admin → Brendlar). Ikki qator qarama-qarshi yo'nalishda:
+ * birinchi yarmi yuqorida, qolgani pastda; kam bo'lsa `Row` o'zi to'ldiradi. Logotiplar `brand-logo`
+ * klassi bilan bir tonga (yorug'da qora, qorong'ida oq) keltiriladi — rangli PNG ham silhouette bo'ladi.
+ */
+const BrandStrip: FC<{ title: string; brands: ApiBrand[] }> = ({ title, brands }) => {
+  const logos: Logo[] = brands.map((b) => ({ src: b.logoUrl, name: b.name }));
+  const half = Math.ceil(logos.length / 2);
+  const top = logos.slice(0, half);
+  const bottom = logos.slice(half);
+  return (
+    <section className="flex flex-col gap-8 md:gap-10">
+      <h2 className={SECTION_HEADING}>{title}</h2>
+      <div className="flex flex-col gap-14">
+        <Row logos={top} />
+        {bottom.length > 0 && <Row logos={bottom} reverse />}
+      </div>
+    </section>
+  );
+};
 
 export default BrandStrip;

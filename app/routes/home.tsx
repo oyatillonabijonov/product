@@ -3,7 +3,7 @@ import type { Route } from './+types/home';
 import { resolveLocale } from '../lib/i18n';
 import { pageTitle, storeConfigFrom, ogMeta } from '../lib/seo';
 import { siteConfig } from '../lib/site.config';
-import { loadCategories, loadNews, loadBanners } from '../lib/loaders';
+import { loadCategories, loadNews, loadBanners, loadBrands } from '../lib/loaders';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import HomePage from '../../src/store/HomePage';
 
@@ -12,8 +12,10 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.env;
   // Landing sotmaydi — mahsulot so'rovlari yo'q; bannerlar va yangiliklar admin'dan, bo'sh bo'lsa chiqmaydi.
-  const [categories, news, banners] = await Promise.all([loadCategories(env), loadNews(env), loadBanners(env)]);
-  return { categories, news, banners, locale, origin: new URL(request.url).origin };
+  const [categories, news, banners, allBrands] = await Promise.all([loadCategories(env), loadNews(env), loadBanners(env), loadBrands(env)]);
+  // Tasmada faqat logotipi bor brendlar (admin → Brendlar'da yuklanadi); tartib sort_order.
+  const brands = allBrands.filter((b) => b.logoUrl !== '');
+  return { categories, news, banners, brands, locale, origin: new URL(request.url).origin };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
@@ -35,12 +37,12 @@ export function meta({ data, matches }: Route.MetaArgs) {
 }
 
 export default function HomeRoute() {
-  const { categories, news, banners, locale } = useLoaderData<typeof loader>();
+  const { categories, news, banners, brands, locale } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
   return (
     <HomePage
       t={ctx.t} categories={categories} locale={locale}
-      site={ctx.config} news={news} banners={banners}
+      site={ctx.config} news={news} banners={banners} brands={brands}
     />
   );
 }

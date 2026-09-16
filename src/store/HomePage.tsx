@@ -1,4 +1,4 @@
-import type { ApiBanner, ApiCategory, ApiNews, ApiSiteConfig } from '../../shared/types';
+import type { ApiBanner, ApiBrand, ApiCategory, ApiNews, ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import HeroColumns from './HeroColumns';
@@ -15,10 +15,10 @@ import BannerSlider from './BannerSlider';
  * katalog/mahsulot sahifalarida qoladi.
  */
 export default function HomePage({
-  t, categories, locale, site, news, banners,
+  t, categories, locale, site, news, banners, brands,
 }: {
   t: Translation; categories: ApiCategory[]; locale: Locale;
-  site: ApiSiteConfig; news: ApiNews[]; banners: ApiBanner[];
+  site: ApiSiteConfig; news: ApiNews[]; banners: ApiBanner[]; brands: ApiBrand[];
 }) {
   return (
     <>
@@ -31,7 +31,7 @@ export default function HomePage({
         {banners.length > 0 && <BannerSlider banners={banners} locale={locale} t={t} />}
         <ServiceCards t={t} />
         <NewsSection t={t} news={news} locale={locale} />
-        <BrandStrip title={t.homeBrands} />
+        {brands.length > 0 && <BrandStrip title={t.homeBrands} brands={brands} />}
         <ConsultForm t={t} config={site} />
       </div>
     </>
