@@ -34,7 +34,7 @@ export const SECTIONS: SectionDef[] = [
   {
     id: 'orders', label: 'Buyurtmalar', short: 'Buyurtma', Icon: Receipt,
     tabs: [
-      { id: 'list', segment: '', label: 'Buyurtmalar', Icon: Inbox },
+      { id: 'list', segment: '', label: 'Buyurtmalar', Icon: Inbox, detail: true },
       { id: 'applications', segment: 'applications', label: 'Ish arizalari', Icon: Users },
     ],
   },

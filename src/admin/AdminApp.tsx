@@ -21,7 +21,8 @@ import BrandsList from './screens/BrandsList';
 import BrandEdit from './screens/BrandEdit';
 import ModelsList from './screens/ModelsList';
 import ModelEdit from './screens/ModelEdit';
-import OrdersPage from './OrdersPage';
+import OrdersList from './screens/OrdersList';
+import OrderDetail from './screens/OrderDetail';
 import JobApplicationsList from './JobApplicationsList';
 import BannerList from './BannerList';
 import NewsList from './NewsList';
@@ -35,15 +36,15 @@ import AccountForm from './AccountForm';
 
 const DEFAULT_PW_KEY = 'admin-default-pw';
 
-/** Bo'lim + tab → ekran. Kalit `${section}/${tab.id}`. */
-function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, id: string | null) {
+/** Bo'lim + tab → ekran. Kalit `${section}/${tab.id}`; `refreshCounts` — holat o'zgarganda sidebar sanog'ini yangilaydi. */
+function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, id: string | null, refreshCounts: () => void) {
   switch (key) {
     case 'products/list': return id ? <ProductEdit key={id} id={id} /> : <ProductsList />;
     case 'products/types': return id ? <TypeEdit key={id} id={id} /> : <TypesList />;
     case 'products/categories': return id ? <CategoryEdit key={id} id={id} /> : <CategoriesList />;
     case 'products/brands': return id ? <BrandEdit key={id} id={id} /> : <BrandsList />;
     case 'products/models': return id ? <ModelEdit key={id} id={id} /> : <ModelsList />;
-    case 'orders/list': return <OrdersPage />;
+    case 'orders/list': return id ? <OrderDetail key={id} id={id} onCountsChange={refreshCounts} /> : <OrdersList onCountsChange={refreshCounts} />;
     case 'orders/applications': return <JobApplicationsList />;
     case 'content/banners': return <BannerList />;
     case 'content/news': return <NewsList />;
@@ -69,9 +70,9 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
 }
 
 /** Bo'lim sahifasi: sarlavha + (mobilda) tab segmenti + ekran. Desktopda tablar sidebar'da. */
-function SectionPage({ section, tab, route, clearDefaultPw, defaultPw }: { section: SectionDef; tab: TabDef; route: AdminRoute; clearDefaultPw: () => void; defaultPw: boolean }) {
+function SectionPage({ section, tab, route, clearDefaultPw, defaultPw, refreshCounts }: { section: SectionDef; tab: TabDef; route: AdminRoute; clearDefaultPw: () => void; defaultPw: boolean; refreshCounts: () => void }) {
   // `key` — tab almashganda eski ekran holati (ochiq forma) qolib ketmasin.
-  const screen = <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw, defaultPw, route.id)}</div>;
+  const screen = <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw, defaultPw, route.id, refreshCounts)}</div>;
   // Id ekranlari o'z Page'ini (orqaga havola + nom) chizadi — sarlavha ikki marta chiqmasin.
   if (route.id !== null && tab.detail) return screen;
   return (
@@ -137,7 +138,7 @@ export default function AdminApp() {
         <AdminShell route={route} badge={badge} onLogout={handleLogout}>
           {tab === null
             ? <Dashboard data={dash} onRefresh={refreshDash} defaultPw={defaultPw as boolean} error={dashError as boolean} />
-            : <SectionPage section={section} tab={tab} route={route} clearDefaultPw={clearDefaultPw} defaultPw={defaultPw as boolean} />}
+            : <SectionPage section={section} tab={tab} route={route} clearDefaultPw={clearDefaultPw} defaultPw={defaultPw as boolean} refreshCounts={refreshDash} />}
         </AdminShell>
       </ConfirmProvider>
     </ToastProvider>
