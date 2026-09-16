@@ -1351,3 +1351,32 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - §7 kategoriya ikonka registri va admin maydonlari o'chadi — T8 ✔. Brendlar/Kategoriyalar/Modellar ekranlarini kit bilan qayta chizish — **2b**.
 - Yo'nalish o'chirilsa turlari ham (§6) — T5 ✔.
 - Cheklovlar: hech bir task'da eski registr ishlatuvchi kod yashirin qolmaydi — T9 grep tekshiradi.
+
+## Natija va qoldiqlar (bajarilgandan keyin, 2026-09-16)
+
+Bajarildi: `feat/admin-2a` branch'ida 14 commit (`56ac005..HEAD`), har task alohida review, yakuniy butun-branch review
+bitta tuzatish to'lqini bilan toza (lint 0, 27 fayl / 300 test). Brauzerda egasi kirgan holda tekshirildi: Turlar
+ro'yxati (4 karta, ikonkalar) → tahrir → Tartib saqlash → `/category/pc` tile tartibi; yangi tur (ID placeholder, ikonkasiz
+saqlanmaydi) → POST 201 → alias chipi → o'chirish tasdig'i; mahsulot formasida "Turi" select API'dan; landing brend tasmasi
+2 qator × 16; kategoriya formasi; 375px.
+
+Reja matnidan farqlar (ledger ruling'lari): tur ikonkasi 440×272 emas **220×136** (mavjud ikonkalar bilan bir o'lcham);
+0035 brend `UPDATE`lari faqat bo'sh `logo_url`ni to'ldiradi (spec §6) va uchta `INSERT`dan keyin himoyali `UPDATE`;
+`TabDef.detail` — id-ekranlar (`TypeEdit`) o'z `Page`ini chizadi, qobiq tashqi sarlavha/tablarni chizmaydi; BrandForm
+izohi fayl qatorining ostida; `label_long` tekshiruvi id yasashdan oldin (aks holda `slugify` → `id_invalid`).
+
+Qoldiqlar:
+
+- **2b:** Mahsulotlar/Kategoriyalar/Brendlar/Modellar ekranlari kit bilan (eski `bg-white`/`text-[13px]` shu ekranlarda
+  qoladi); mahsulot tahriri `detail: true` bilan; `ProductList` `?f=needs_image`; brend `sort_order` to'qnashuvi (0035
+  10..160 vs mavjud qiymatlar — faqat admin ro'yxati tartibiga ta'sir qiladi, tasma logotipi borlarni oladi).
+- **Kichik (istalgan bosqichda):** turlar POST check-then-insert (parallel dublikat → 500; admin bitta foydalanuvchi);
+  yo'nalish o'chirilganda `products.type` qoladi (avvalgi xatti-harakat); `TypeEdit` `slugId` placeholder'i lotin-only
+  (server kirillni ham slug qiladi); `loadTypes` SQL `ORDER BY` + `typesOf` saralashi ikki marta; `MapContext.types`
+  `Readonly` emas; faqat `action`li `$id` route'larga kirishsiz GET RR'ning 400 xabarini beradi (sir oqmaydi) — umumiy
+  `loader → 405` mumkin.
+- **Deploy kuni tekshiruv:** `/category/pc` 12 tile + konfigurator bo'g'inlari; landing 2 qator × 16 logotip; admin →
+  Turlar 4 karta; Billz run'idan keyin `SELECT count(*) FROM products WHERE type IS NULL AND category_id IS NOT NULL`
+  avvalgi darajada. Prod'da 0035 `product_types`ni seed qiladi, `site_texts`/`site_assets` bo'sh (4-bosqich), mavjud
+  `logo_url`ga tegmaydi.
+- **6-bosqich:** `docs/egasi-qollanmasi.md`ga Turlar bo'limi (alias qo'shish jumlasi yozildi, to'liq bo'lim keyin).
