@@ -55,6 +55,7 @@ const CategoryEdit: FC<{ id: string }> = ({ id }) => {
     try {
       if (isNew) {
         await createCategory(body);
+        setDirty(false);
         toast("Kategoriya qo'shildi");
         navigate(LIST);
       } else {
@@ -79,6 +80,7 @@ const CategoryEdit: FC<{ id: string }> = ({ id }) => {
     if (!ok) return;
     try {
       await deleteCategory(id);
+      setDirty(false);
       toast("Kategoriya o'chirildi");
       navigate(LIST);
     } catch (e) {
@@ -90,8 +92,9 @@ const CategoryEdit: FC<{ id: string }> = ({ id }) => {
 
   return (
     <Page
-      title={isNew ? 'Yangi kategoriya' : initial?.name ?? 'Kategoriya'}
+      title={isNew ? 'Yangi kategoriya' : form.name || initial?.name || 'Kategoriya'}
       back={LIST}
+      dirty={dirty}
       actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
     >
       {!loaded && !error ? <Skeleton rows={4} /> : (

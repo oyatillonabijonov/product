@@ -84,3 +84,28 @@ describe('setAxisValues / toggleAxisValue / addAxisValue', () => {
     expect(toggleAxisValue(toggleAxisValue(f, 'Xotira', '128GB'), 'Xotira', '256GB').options).toEqual([{ name: 'Rang', values: ['Qora'] }]);
   });
 });
+
+describe('aylanma (detail → forma → payload)', () => {
+  it("tegilmagan mahsulotni saqlash: barcha maydon (slug, reyting, variant sku/eski narx/rasm/qoldiq) o'zgarishsiz qaytadi", () => {
+    const d = detail({
+      conditionNote: 'Batafsil', oldPriceUzs: 1200, description: 'Tavsif', ratingAvg: 4.5, reviewCount: 3, sortOrder: 7, isActive: false,
+      variants: [
+        { id: 'var1', sku: 'A1', cashPriceUzs: 900, oldPriceUzs: 950, imageUrl: '/images/products/v.webp', inStock: false, sortOrder: 0, optionValueIds: ['v1'] },
+        { id: 'var2', sku: null, cashPriceUzs: 1100, oldPriceUzs: null, imageUrl: null, inStock: true, sortOrder: 1, optionValueIds: ['v2', 'missing'] },
+      ],
+    });
+    const p = formToPayload(detailToForm(d));
+    expect(p).toEqual({
+      name: d.name, category: d.category, categoryId: d.categoryId, type: d.type, condition: d.condition,
+      conditionNote: 'Batafsil', cashPriceUzs: d.cashPriceUzs,
+      oldPriceUzs: 1200, description: 'Tavsif', imageUrl: d.imageUrl, images: ['/images/products/g1.webp'],
+      specs: d.specs, sortOrder: 7, isActive: false, brandId: d.brandId, slug: d.slug,
+      ratingAvg: 4.5, reviewCount: 3,
+      options: [{ name: 'Xotira', values: ['128GB', '256GB'] }],
+      variants: [
+        { sku: 'A1', cashPriceUzs: 900, oldPriceUzs: 950, imageUrl: '/images/products/v.webp', inStock: false, optionValues: [{ optionName: 'Xotira', value: '128GB' }] },
+        { sku: null, cashPriceUzs: 1100, oldPriceUzs: null, imageUrl: null, inStock: true, optionValues: [{ optionName: 'Xotira', value: '256GB' }] },
+      ],
+    });
+  });
+});

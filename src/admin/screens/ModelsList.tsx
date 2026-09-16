@@ -48,6 +48,11 @@ const ModelsList: FC = () => {
   const rows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   const brandName = (id: string) => brands.find((b) => b.id === id)?.name ?? id;
   const catName = (id: string) => cats.find((c) => c.id === id)?.name ?? id;
+  // Registrdagi eskirgan `categoryId`lar (0025'gacha) `cats`da yo'q — bo'lmasa ular bilan filtrlab bo'lmasdi.
+  const catOptions = [
+    ...cats.map((c) => ({ id: c.id, name: c.name })),
+    ...[...new Set((items ?? []).map((m) => m.categoryId))].filter((id) => !cats.some((c) => c.id === id)).map((id) => ({ id, name: id })),
+  ];
 
   const columns: Column<ApiDeviceModel>[] = [
     { id: 'name', label: 'Nomi', mobile: 'title', cell: (m) => <span className="text-primary">{m.name}</span> },
@@ -71,7 +76,7 @@ const ModelsList: FC = () => {
         <div className="w-full sm:w-44">
           <Select value={cat} onChange={(v) => update('cat', v)}>
             <option value="">Barcha kategoriya</option>
-            {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {catOptions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </Select>
         </div>
         <div className="sm:ml-auto">

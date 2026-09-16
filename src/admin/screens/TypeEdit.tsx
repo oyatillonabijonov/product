@@ -69,6 +69,7 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
     try {
       if (isNew) {
         const created = await createType(body);
+        setDirty(false);
         toast('Tur qo\'shildi');
         navigate(`${LIST}/${created.categoryId}/${created.id}`, { replace: true });
       } else {
@@ -95,6 +96,7 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
     if (!ok) return;
     try {
       await deleteType(catParam, typeParam);
+      setDirty(false);
       toast('Tur o\'chirildi');
       navigate(LIST);
     } catch (e) {
@@ -109,6 +111,7 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
     <Page
       title={title}
       back={LIST}
+      dirty={dirty}
       actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
     >
       {!loaded && !error ? <Skeleton rows={4} /> : (

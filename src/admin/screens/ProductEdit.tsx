@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { X } from 'lucide-react';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel, ApiProductType } from '../../../shared/types';
 import { deriveLegacyCategory } from '../../../shared/legacy-category';
@@ -45,7 +45,7 @@ const Chip: FC<{ on: boolean; onClick: () => void; children: ReactNode }> = ({ o
     type="button"
     aria-pressed={on}
     onClick={onClick}
-    className={`press h-9 rounded-full border px-3.5 text-para ${on ? 'border-cta bg-cta text-white' : 'border-line text-primary hover:border-cta'}`}
+    className={`press h-11 md:h-9 rounded-full border px-3.5 text-para ${on ? 'border-cta bg-cta text-white' : 'border-line text-primary hover:border-cta'}`}
   >
     {children}
   </button>
@@ -60,6 +60,9 @@ const Chip: FC<{ on: boolean; onClick: () => void; children: ReactNode }> = ({ o
 const ProductEdit: FC<{ id: string }> = ({ id }) => {
   const isNew = id === 'new';
   const navigate = useNavigate();
+  const location = useLocation();
+  const search = (location.state as { search?: string } | null)?.search;
+  const backTo = search ? `${LIST}?${search}` : LIST;
   const toast = useToast();
   const confirm = useConfirm();
   const [rawForm, setForm] = useState(EMPTY_FORM as ProductFormState);
@@ -114,10 +117,14 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
     type && types.some((t) => t.categoryId === categoryId && t.id === type) ? type : null;
 
   function pickModel(m: ApiDeviceModel) {
-    patch((f) => ({
-      ...f, name: m.name, brandId: m.brandId, categoryId: m.categoryId, category: m.legacyCategory,
-      type: typeOf(m.categoryId, f.type), specs: mergeSpecs(f.specs, modelToSpecs(m)),
-    }));
+    patch((f) => {
+      // Registrdagi eskirgan yo'nalish id'si (0025'gacha: telefonlar/planshetlar/noutbuklar) mahsulotga o'tmasin.
+      const categoryId = cats.some((c) => c.id === m.categoryId) ? m.categoryId : f.categoryId;
+      return {
+        ...f, name: m.name, brandId: m.brandId, categoryId, category: m.legacyCategory,
+        type: typeOf(categoryId, f.type), specs: mergeSpecs(f.specs, modelToSpecs(m)),
+      };
+    });
   }
   function setCategory(categoryId: string | null) {
     patch((f) => ({ ...f, categoryId, category: deriveLegacyCategory(categoryId), type: typeOf(categoryId, f.type) }));
@@ -146,21 +153,21 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
 
   async function save() {
     const problem = validateForm(form);
-    if (problem) { setError(problem); return; }
+    if (problem) { setError(problem); toast(problem, 'error'); return; }
     setBusy(true); setError('');
     try {
       if (isNew) {
         await createProduct(formToPayload(form));
         setDirty(false);
         toast("Mahsulot qo'shildi");
-        navigate(LIST);
+        navigate(backTo);
       } else {
         await updateProduct(id, formToPayload(form));
         setDirty(false);
         toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
       }
     } catch (err) {
-      setError(errText(err));
+      const msg = errText(err); setError(msg); toast(msg, 'error');
     } finally {
       setBusy(false);
     }
@@ -175,8 +182,9 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
     if (!ok) return;
     try {
       await deleteProduct(id);
+      setDirty(false);
       toast("Mahsulot o'chirildi");
-      navigate(LIST);
+      navigate(backTo);
     } catch (err) {
       toast(errText(err), 'error');
     }
@@ -193,7 +201,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
 
   if (loadState !== 'ready') {
     return (
-      <Page title="Mahsulot" back={LIST}>
+      <Page title="Mahsulot" back={backTo}>
         {loadState === 'loading' ? (
           <Skeleton rows={6} />
         ) : (
@@ -210,10 +218,11 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
   return (
     <Page
       title={title}
-      back={LIST}
+      back={backTo}
+      dirty={dirty}
       actions={
         <>
-          {!isNew && <Button variant="quiet" href={`/product/${id}`} external>Saytda ko'rish</Button>}
+          {!isNew && form.isActive && <Button variant="quiet" href={`/product/${id}`} external>Saytda ko'rish</Button>}
           <Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>
         </>
       }
@@ -339,7 +348,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
               <div className="mt-4 flex flex-col gap-2">
                 <p className="text-label font-medium text-muted">Har variant narxi va rasmi</p>
                 {form.variants.map((v, i) => (
-                  <div key={variantLabel(v) || String(i)} className="flex flex-wrap items-center gap-3 rounded-xs border border-line p-2.5">
+                  <div key={`${variantLabel(v)}-${i}`} className="flex flex-wrap items-center gap-3 rounded-xs border border-line p-2.5">
                     <span className="min-w-28 text-para font-medium text-primary">{variantLabel(v)}</span>
                     <div className="w-40">
                       <PriceInput placeholder="Narx" className={INPUT_CLS} value={v.cashPriceUzs} onChange={(n) => updateVariant(i, { cashPriceUzs: n })} />

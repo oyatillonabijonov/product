@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import type { ApiAdminBrand } from '../../../shared/types';
 import { listBrands } from '../api';
-import { Button, Card, DataTable, EmptyState, Skeleton, type Column } from '../ui';
+import { Button, Card, DataTable, EmptyState, Input, Skeleton, type Column } from '../ui';
 
 const LIST = '/admin/products/brands';
 
-/** Brendlar — logotipi borlari bosh sahifadagi tasmada chiqadi; qator bosilsa tahrir. */
+/** Brendlar — logotipi borlari bosh sahifadagi tasmada chiqadi; qator bosilsa tahrir. Qidiruv URL'da (`q`), sahifalash yo'q. */
 const BrandsList: FC = () => {
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const q = params.get('q') ?? '';
   const [rawItems, setItems] = useState(null as ApiAdminBrand[] | null);
   const items = rawItems as ApiAdminBrand[] | null;
   const [error, setError] = useState('');
@@ -17,6 +19,18 @@ const BrandsList: FC = () => {
   useEffect(() => {
     listBrands().then(setItems).catch(() => setError('Yuklashda xatolik'));
   }, []);
+
+  function updateQ(value: string) {
+    const next = new URLSearchParams(params);
+    if (value) next.set('q', value); else next.delete('q');
+    setParams(next, { replace: true });
+  }
+
+  const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return items ?? [];
+    return (items ?? []).filter((b) => b.name.toLowerCase().includes(needle) || b.slug.includes(needle));
+  }, [items, q]);
 
   const columns: Column<ApiAdminBrand>[] = [
     {
@@ -44,18 +58,26 @@ const BrandsList: FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-para text-muted">Billz sinxronizatsiyasi yangi brendni o'zi yaratadi; logotip shu yerda yuklanadi.</p>
-        <Button to={`${LIST}/new`}>Yangi brend</Button>
+      <p className="text-para text-muted">Billz sinxronizatsiyasi yangi brendni o'zi yaratadi; logotip shu yerda yuklanadi.</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="w-full sm:w-64">
+          <Input value={q} onChange={updateQ} placeholder="Nom bo'yicha qidirish…" />
+        </div>
+        <div className="sm:ml-auto">
+          <Button to={`${LIST}/new`}>Yangi brend</Button>
+        </div>
       </div>
+      <p className="text-label text-muted">{filtered.length} ta brend</p>
       <Card padded={false}>
         <div className="px-2 py-1">
           <DataTable
             columns={columns}
-            rows={items}
+            rows={filtered}
             rowKey={(b) => b.id}
             onRowClick={(b) => navigate(`${LIST}/${b.id}`)}
-            empty={<EmptyState title="Brend yo'q" action={<Button to={`${LIST}/new`}>Yangi brend</Button>} />}
+            empty={q
+              ? <EmptyState title="Brend topilmadi" action={<Button variant="secondary" onClick={() => setParams({}, { replace: true })}>Filtrni tozalash</Button>} />
+              : <EmptyState title="Brend yo'q" action={<Button to={`${LIST}/new`}>Yangi brend</Button>} />}
           />
         </div>
       </Card>

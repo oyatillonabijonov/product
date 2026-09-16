@@ -122,7 +122,7 @@ export const Segmented: FC<{
           type="button"
           role="radio"
           aria-checked={o.id === value}
-          onClick={() => onChange(o.id)}
+          onClick={() => { if (o.id !== value) onChange(o.id); }}
           className={`press h-9 whitespace-nowrap rounded-xs px-3.5 text-para ${o.id === value ? 'bg-surface text-primary' : 'text-muted hover:text-primary'}`}
         >
           {o.label}

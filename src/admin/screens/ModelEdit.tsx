@@ -61,6 +61,7 @@ const ModelEdit: FC<{ id: string }> = ({ id }) => {
     try {
       if (isNew) {
         await createDeviceModel(body);
+        setDirty(false);
         toast("Model qo'shildi");
         navigate(LIST);
       } else {
@@ -85,6 +86,7 @@ const ModelEdit: FC<{ id: string }> = ({ id }) => {
     if (!ok) return;
     try {
       await deleteDeviceModel(id);
+      setDirty(false);
       toast("Model o'chirildi");
       navigate(LIST);
     } catch (e) {
@@ -96,8 +98,9 @@ const ModelEdit: FC<{ id: string }> = ({ id }) => {
 
   return (
     <Page
-      title={isNew ? 'Yangi model' : initial?.name ?? 'Model'}
+      title={isNew ? 'Yangi model' : form.name || initial?.name || 'Model'}
       back={LIST}
+      dirty={dirty}
       actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
     >
       {!loaded && !error ? <Skeleton rows={5} /> : (
@@ -115,6 +118,7 @@ const ModelEdit: FC<{ id: string }> = ({ id }) => {
               </Field>
               <Field label="Kategoriya" required>
                 <Select value={form.categoryId} onChange={(v) => set('categoryId', v)}>
+                  {form.categoryId && !cats.some((c) => c.id === form.categoryId) && <option value={form.categoryId}>{form.categoryId} (eskirgan)</option>}
                   {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </Select>
               </Field>

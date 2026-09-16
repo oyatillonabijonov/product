@@ -89,9 +89,9 @@ const ProductsList: FC = () => {
         : <span className="block size-11 rounded-xs bg-fill-2" />),
     },
     {
-      id: 'name', label: 'Nomi', mobile: 'title', className: 'max-w-[360px]',
+      id: 'name', label: 'Nomi', mobile: 'title',
       cell: (p) => (
-        <span className="flex min-w-0 flex-col gap-1">
+        <span className="flex min-w-0 max-w-sm flex-col gap-1">
           <span className={`truncate ${p.isActive ? 'text-primary' : 'text-muted'}`}>{p.name}</span>
           <span className="flex flex-wrap items-center gap-1.5 text-label text-muted-2">
             {p.billzId && <Badge>Billz</Badge>}
@@ -152,7 +152,7 @@ const ProductsList: FC = () => {
                 columns={columns}
                 rows={rows}
                 rowKey={(p) => p.id}
-                onRowClick={(p) => navigate(`${LIST}/${p.id}`)}
+                onRowClick={(p) => navigate(`${LIST}/${p.id}`, { state: { search: params.toString() } })}
                 empty={
                   <EmptyState
                     title="Mahsulot topilmadi"

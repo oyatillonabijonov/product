@@ -1,33 +1,51 @@
+import { useEffect } from 'react';
 import type { FC, ReactNode } from 'react';
-import { Link } from 'react-router';
+import { Link, useBlocker } from 'react-router';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './controls';
+import { useConfirm } from './confirm';
 
 /**
  * Sahifa: sarlavha chapda, amallar ("Saqlash") o'ngda; sarlavha yopishqoq — asosiy amal doim
  * ko'rinadi. Manfiy margin kontent maydonining padding'ini qoplaydi (fon uzilmasin).
  */
-export const Page: FC<{ title: string; back?: string; description?: string; actions?: ReactNode; children: ReactNode }> = ({
-  title, back, description, actions, children,
-}) => (
-  <div>
-    <header className="sticky top-0 z-30 -mx-4 mb-6 bg-bg px-4 pb-4 pt-5 md:-mx-8 md:px-8 md:pt-8">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          {back && (
-            <Link to={back} className="press mb-1 inline-flex items-center gap-0.5 text-label text-cta">
-              <ChevronLeft aria-hidden className="size-4" /> Orqaga
-            </Link>
-          )}
-          <h1 className="truncate text-subhead font-semibold text-primary md:text-heading">{title}</h1>
-          {description && <p className="mt-1 text-para text-muted">{description}</p>}
+export const Page: FC<{
+  title: string;
+  back?: string;
+  description?: string;
+  actions?: ReactNode;
+  /** Saqlanmagan o'zgarish — ilova ichidagi navigatsiya tasdiq so'raydi (beforeunload faqat yopish/yangilashni qamraydi). */
+  dirty?: boolean;
+  children: ReactNode;
+}> = ({ title, back, description, actions, dirty, children }) => {
+  const confirm = useConfirm();
+  const blocker = useBlocker(Boolean(dirty));
+  useEffect(() => {
+    if (blocker.state !== 'blocked') return;
+    confirm({ title: "Saqlanmagan o'zgarishlar bor", message: "Chiqilsa o'zgarishlar yo'qoladi.", confirmLabel: 'Chiqish', destructive: true })
+      .then((ok) => { if (ok) blocker.proceed(); else blocker.reset(); });
+  }, [blocker.state]);
+
+  return (
+    <div>
+      <header className="sticky top-0 z-30 -mx-4 mb-6 bg-bg px-4 pb-4 pt-5 md:-mx-8 md:px-8 md:pt-8">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            {back && (
+              <Link to={back} className="press mb-1 inline-flex items-center gap-0.5 text-label text-cta">
+                <ChevronLeft aria-hidden className="size-4" /> Orqaga
+              </Link>
+            )}
+            <h1 className="truncate text-subhead font-semibold text-primary md:text-heading">{title}</h1>
+            {description && <p className="mt-1 text-para text-muted">{description}</p>}
+          </div>
+          {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </div>
-        {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
-      </div>
-    </header>
-    {children}
-  </div>
-);
+      </header>
+      {children}
+    </div>
+  );
+};
 
 /** Karta — yagona yuza: `surface` + hairline, soya yo'q. `padded={false}` — jadval/qatorlar chetgacha. */
 export const Card: FC<{ title?: string; description?: string; actions?: ReactNode; padded?: boolean; className?: string; children: ReactNode }> = ({

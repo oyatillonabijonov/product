@@ -48,6 +48,7 @@ const BrandEdit: FC<{ id: string }> = ({ id }) => {
     try {
       if (isNew) {
         await createBrand(body);
+        setDirty(false);
         toast("Brend qo'shildi");
         navigate(LIST);
       } else {
@@ -72,6 +73,7 @@ const BrandEdit: FC<{ id: string }> = ({ id }) => {
     if (!ok) return;
     try {
       await deleteBrand(id);
+      setDirty(false);
       toast("Brend o'chirildi");
       navigate(LIST);
     } catch (e) {
@@ -83,8 +85,9 @@ const BrandEdit: FC<{ id: string }> = ({ id }) => {
 
   return (
     <Page
-      title={isNew ? 'Yangi brend' : initial?.name ?? 'Brend'}
+      title={isNew ? 'Yangi brend' : form.name || initial?.name || 'Brend'}
       back={LIST}
+      dirty={dirty}
       actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
     >
       {!loaded && !error ? <Skeleton rows={4} /> : (
