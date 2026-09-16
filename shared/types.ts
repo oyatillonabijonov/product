@@ -1,4 +1,5 @@
 import type { BillzSyncStatus } from './billz';
+import type { ProductTypeRow } from './product-types';
 
 export type Category = 'iphone' | 'mac' | 'ipad' | 'pc';
 export type Condition = 'yangi' | 'ishlatilgan';
@@ -321,4 +322,10 @@ export interface ApiDashboard {
   billz: BillzSyncStatus;
   /** Do'kon kursi; `auto` — Markaziy bank + ustama bilan hisoblanadi. */
   usd: { rate: number; auto: boolean };
+}
+
+/** Tovar turi (`product_types`) — admin CRUD; `id` yo'nalish ichida noyob, `products.type` shunga bog'lanadi. */
+export interface ApiProductType extends ProductTypeRow {
+  /** Shu turdagi mahsulotlar soni (ro'yxatda ko'rinadi, o'chirish tasdig'ida aytiladi). */
+  productCount: number;
 }

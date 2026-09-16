@@ -25,6 +25,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   if (request.method === 'DELETE') {
     await env.DB.batch([
       env.DB.prepare('UPDATE products SET category_id = NULL WHERE category_id = ?').bind(id),
+      env.DB.prepare('DELETE FROM product_types WHERE category_id = ?').bind(id),
       env.DB.prepare('DELETE FROM categories WHERE id = ?').bind(id),
     ]);
     return json({ ok: true });

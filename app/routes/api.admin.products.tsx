@@ -5,6 +5,7 @@ import {
   imagesAndSpecsStatements,
   optionsAndVariantsStatements,
   ensureUniqueSlug,
+  typeExists,
   PRODUCT_COLS,
   type ProductRow,
 } from '../../functions/lib/db';
@@ -28,6 +29,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 
   const input = parseBody(await request.json().catch(() => null), parseProductInput);
   if (input instanceof Response) return input;
+  if (!(await typeExists(env, input.categoryId, input.type))) return json({ error: 'type_invalid' }, { status: 400 });
   if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
   const insert = env.DB.prepare(
     `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, type, old_price_uzs, description, brand_id, slug, rating_avg, review_count, created_at)

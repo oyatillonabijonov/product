@@ -11,6 +11,7 @@ import type {
   ApiPost,
   ApiReview,
   ApiProduct,
+  ApiProductType,
   ApiSettings,
   ApiSiteConfig,
   ApiSpec,
@@ -378,4 +379,31 @@ export async function runBillzSync(): Promise<void> {
 // ── Bosh sahifa ─────────────────────────────────────────────────────────────
 export async function getDashboard(): Promise<ApiDashboard> {
   return handle(await fetch('/api/admin/dashboard'));
+}
+
+// ── Tovar turlari ───────────────────────────────────────────────────────────
+export interface AdminTypeInput {
+  id?: string;
+  categoryId: string;
+  label: string;
+  labelRu: string;
+  iconUrl: string;
+  billzAliases: string[];
+  sortOrder: number;
+}
+export async function listTypes(): Promise<ApiProductType[]> {
+  return handle(await fetch('/api/admin/types'));
+}
+export async function createType(t: AdminTypeInput): Promise<ApiProductType> {
+  return handle(await fetch('/api/admin/types', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(t),
+  }));
+}
+export async function updateType(categoryId: string, id: string, t: AdminTypeInput): Promise<ApiProductType> {
+  return handle(await fetch(`/api/admin/types/${encodeURIComponent(categoryId)}/${encodeURIComponent(id)}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(t),
+  }));
+}
+export async function deleteType(categoryId: string, id: string): Promise<{ ok: true; cleared: number }> {
+  return handle(await fetch(`/api/admin/types/${encodeURIComponent(categoryId)}/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }

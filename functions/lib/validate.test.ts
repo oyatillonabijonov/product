@@ -14,6 +14,7 @@ import {
   parsePasswordInput,
   parseVacancyInput,
   parseJobApplicationInput,
+  parseTypeInput,
   ValidationError,
 } from './validate';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
@@ -41,7 +42,9 @@ describe('parseProductInput hardening', () => {
     expect(parseProductInput({ ...base, categoryId: 'pc', type: 'gpu' }).type).toBe('gpu');
     expect(parseProductInput({ ...base, categoryId: 'pc', type: '' }).type).toBeNull();
     expect(parseProductInput({ ...base, categoryId: 'pc' }).type).toBeNull();
-    expect(() => parseProductInput({ ...base, categoryId: 'pc', type: 'iphone' })).toThrow('type_invalid');
+    // Yo'nalishga tegishlilik endi route'da (bazadan); parser faqat shaklni tekshiradi.
+    expect(parseProductInput({ ...base, categoryId: 'pc', type: 'iphone' }).type).toBe('iphone');
+    expect(() => parseProductInput({ ...base, categoryId: 'pc', type: 'Bad Type!' })).toThrow('type_invalid');
   });
   it('bir xil kombinatsiyali dublikat variantni rad etadi', () => {
     const dup = {
@@ -483,5 +486,30 @@ describe('parseJobApplicationInput', () => {
     const a = parseJobApplicationInput({ ...base, message: 'a'.repeat(1500), vacancyId: ' v1 ' });
     expect(a.message).toHaveLength(1000);
     expect(a.vacancyId).toBe('v1');
+  });
+});
+
+describe('parseTypeInput', () => {
+  const base = { categoryId: 'pc', label: 'GPU', labelRu: 'GPU', iconUrl: '/sections/gpu.webp', billzAliases: ['Videokarta'], sortOrder: 40 };
+  it("to'liq kirish", () => {
+    expect(parseTypeInput({ ...base, id: 'gpu' })).toEqual({ id: 'gpu', categoryId: 'pc', label: 'GPU', labelRu: 'GPU', iconUrl: '/sections/gpu.webp', billzAliases: ['Videokarta'], sortOrder: 40 });
+  });
+  it("id bo'lmasa nomdan slug; lotin bo'lmasa id_invalid", () => {
+    expect(parseTypeInput({ ...base, label: 'Quvvat bloki' }).id).toBe('quvvat-bloki');
+    expect(() => parseTypeInput({ ...base, label: 'Свет' })).toThrow('id_invalid');
+    expect(() => parseTypeInput({ ...base, id: 'Bad Id' })).toThrow('id_invalid');
+  });
+  it('majburiy maydonlar va ikonka', () => {
+    expect(() => parseTypeInput({ ...base, label: '' })).toThrow('label_required');
+    expect(() => parseTypeInput({ ...base, categoryId: '' })).toThrow('categoryId_required');
+    expect(() => parseTypeInput({ ...base, iconUrl: '' })).toThrow('icon_required');
+    expect(() => parseTypeInput({ ...base, iconUrl: 'https://evil/x.png' })).toThrow('url_invalid');
+    expect(parseTypeInput({ ...base, iconUrl: '/images/products/abc.webp' }).iconUrl).toBe('/images/products/abc.webp');
+  });
+  it('aliaslar tozalanadi va chegaralanadi', () => {
+    expect(parseTypeInput({ ...base, billzAliases: [' DDR4 ', '', 5, 'DDR5'] }).billzAliases).toEqual(['DDR4', 'DDR5']);
+    expect(parseTypeInput({ ...base, billzAliases: undefined }).billzAliases).toEqual([]);
+    expect(() => parseTypeInput({ ...base, billzAliases: Array.from({ length: 21 }, (_, i) => `a${i}`) })).toThrow('aliases_limit');
+    expect(() => parseTypeInput({ ...base, billzAliases: ['x'.repeat(41)] })).toThrow('aliases_limit');
   });
 });

@@ -11,6 +11,7 @@ import type {
   ApiPost,
   ApiProductDetail,
   ApiProduct,
+  ApiProductType,
   ApiSiteConfig,
   ApiSpec,
   ApiSettings,
@@ -29,6 +30,7 @@ import type {
   PaymentMode,
   Term,
 } from '../../shared/types';
+import { rowToProductType, type ProductTypeDbRow } from '../../shared/product-types';
 import type { Env } from '../env';
 
 export const PRODUCT_COLS =
@@ -699,4 +701,24 @@ export async function recomputeRating(env: Env, productId: string): Promise<void
        review_count = (SELECT COUNT(*) FROM product_reviews WHERE product_id = ?)
      WHERE id = ?`,
   ).bind(productId, productId, productId).run();
+}
+
+// ── Tovar turlari (`product_types`) ────────────────────────────────────────
+export type TypeListRow = ProductTypeDbRow & { product_count: number };
+
+/** Ro'yxat: har turda mahsulot soni (o'chirish tasdig'i va admin jadvali uchun). */
+export const TYPE_LIST_SQL =
+  `SELECT t.*, (SELECT COUNT(*) FROM products p WHERE p.category_id = t.category_id AND p.type = t.id) AS product_count
+   FROM product_types t`;
+
+export function rowToApiType(r: TypeListRow): ApiProductType {
+  return { ...rowToProductType(r), productCount: r.product_count };
+}
+
+/** Tur shu yo'nalishda bormi — mahsulot yozishda `type_invalid` (registr bazaga ko'chgan, parser faqat shaklni biladi). */
+export async function typeExists(env: { DB: SqlDatabase }, categoryId: string | null, type: string | null): Promise<boolean> {
+  if (type === null) return true;
+  if (categoryId === null) return false;
+  const row = await env.DB.prepare('SELECT 1 AS ok FROM product_types WHERE category_id = ? AND id = ?').bind(categoryId, type).first<{ ok: number }>();
+  return row !== null;
 }

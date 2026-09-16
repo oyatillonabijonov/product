@@ -16,7 +16,6 @@ import type {
   Term,
 } from '../../shared/types';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
-import { findType } from '../../shared/product-types';
 
 export class ValidationError extends Error {}
 
@@ -28,6 +27,10 @@ const MAX_OPTIONS = 4;
 const MAX_OPTION_VALUES = 30;
 const MAX_VARIANTS = 300;
 const CONDITIONS: Condition[] = ['yangi', 'ishlatilgan'];
+/** Tur id'si: kichik lotin, raqam, `-`; 40 belgigacha — URL `?tur=` va `products.type` uchun. */
+const TYPE_ID = /^[a-z0-9-]{1,40}$/;
+const MAX_ALIASES = 20;
+const MAX_ALIAS_LEN = 40;
 
 // `billzId`/`billzStock` — sinxronizatsiya mulki, admin PUT'ida yozilmaydi (UPDATE ustunlar ro'yxati aniq).
 export type ProductInput = Omit<ApiProduct, 'id' | 'minPriceUzs' | 'billzId' | 'billzStock'> & {
@@ -71,9 +74,9 @@ export function parseProductInput(body: unknown): ProductInput {
     typeof o.category === 'string' && o.category.trim() !== '' ? (o.category.trim() as Category) : null;
   if (rawCategory !== null && !CATEGORIES.includes(rawCategory)) throw new ValidationError('category_invalid');
   const category = rawCategory ?? deriveLegacyCategory(categoryId);
-  // Tovar turi yo'nalishga tegishli bo'lishi kerak: `pc` yo'nalishida `iphone` turi yo'q.
+  // Tur faqat shakl bo'yicha; yo'nalishga tegishliligi route'da bazadan (`typeExists`).
   const type = typeof o.type === 'string' && o.type.trim() !== '' ? o.type.trim() : null;
-  if (type !== null && !findType(categoryId, type)) throw new ValidationError('type_invalid');
+  if (type !== null && !TYPE_ID.test(type)) throw new ValidationError('type_invalid');
   const condition = reqString(o, 'condition') as Condition;
   if (!CONDITIONS.includes(condition)) throw new ValidationError('condition_invalid');
   const cashPriceUzs = reqNumber(o, 'cashPriceUzs');
@@ -656,4 +659,32 @@ export function parseReviewInput(body: unknown): ReviewInput {
   const date = typeof o.createdAt === 'string' && ISO_DATE_RE.test(o.createdAt) ? Date.parse(`${o.createdAt}T00:00:00Z`) : NaN;
   const createdAt = Number.isFinite(date) ? Math.floor(date / 1000) : Math.floor(Date.now() / 1000);
   return { id: crypto.randomUUID(), productId, author, rating, body: text, createdAt };
+}
+
+export interface TypeInput {
+  id: string;
+  categoryId: string;
+  label: string;
+  labelRu: string;
+  iconUrl: string;
+  billzAliases: string[];
+  sortOrder: number;
+}
+
+/** Tovar turi (admin CRUD). Ikonka majburiy — ikonkasiz tur qatorda bo'sh joy bo'lardi. */
+export function parseTypeInput(body: unknown): TypeInput {
+  const o = asRecord(body);
+  const label = reqString(o, 'label');
+  const categoryId = reqString(o, 'categoryId');
+  const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : slugify(label);
+  if (!TYPE_ID.test(id)) throw new ValidationError('id_invalid');
+  const labelRu = typeof o.labelRu === 'string' ? o.labelRu.trim() : '';
+  const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : '';
+  if (!iconUrl) throw new ValidationError('icon_required');
+  if (!iconUrl.startsWith('/images/products/') && !iconUrl.startsWith('/sections/')) throw new ValidationError('url_invalid');
+  const rawAliases: unknown[] = Array.isArray(o.billzAliases) ? o.billzAliases : [];
+  const billzAliases = rawAliases.filter((a): a is string => typeof a === 'string').map((a) => a.trim()).filter(Boolean);
+  if (billzAliases.length > MAX_ALIASES || billzAliases.some((a) => a.length > MAX_ALIAS_LEN)) throw new ValidationError('aliases_limit');
+  const sortOrder = typeof o.sortOrder === 'number' && Number.isFinite(o.sortOrder) ? o.sortOrder : 0;
+  return { id, categoryId, label, labelRu, iconUrl, billzAliases, sortOrder };
 }

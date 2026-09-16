@@ -60,6 +60,8 @@ export default [
   route('api/admin/categories/:id', 'routes/api.admin.categories.$id.tsx'),
   route('api/admin/brands', 'routes/api.admin.brands.tsx'),
   route('api/admin/brands/:id', 'routes/api.admin.brands.$id.tsx'),
+  route('api/admin/types', 'routes/api.admin.types.tsx'),
+  route('api/admin/types/:catId/:id', 'routes/api.admin.types.$catId.$id.tsx'),
   route('api/admin/models', 'routes/api.admin.models.tsx'),
   route('api/admin/models/:id', 'routes/api.admin.models.$id.tsx'),
   route('api/admin/settings', 'routes/api.admin.settings.tsx'),
