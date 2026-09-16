@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatThousands, parseDigits } from './format';
+import { formatDateTime, formatSum, formatThousands, parseDigits } from './format';
 
 describe('formatThousands', () => {
   it('groups digits by thousands with spaces', () => {
@@ -33,5 +33,24 @@ describe('round-trip', () => {
     for (const n of [1, 42, 1234, 12000000, 999999999]) {
       expect(parseDigits(formatThousands(n))).toBe(n);
     }
+  });
+});
+
+describe('formatDateTime', () => {
+  it('Toshkent vaqtida (UTC+5)', () => {
+    expect(formatDateTime(Date.UTC(2026, 8, 17, 9, 5) / 1000)).toBe('17.09.2026 14:05');
+  });
+  it("yarim tundan o'tganda sana ham o'tadi", () => {
+    expect(formatDateTime(Date.UTC(2026, 11, 31, 20, 30) / 1000)).toBe('01.01.2027 01:30');
+  });
+});
+
+describe('formatSum', () => {
+  it("ming bo'lib, so'm bilan", () => {
+    expect(formatSum(12_500_000)).toBe("12 500 000 so'm");
+  });
+  it("null — tire, 0 — «0 so'm»", () => {
+    expect(formatSum(null)).toBe('—');
+    expect(formatSum(0)).toBe("0 so'm");
   });
 });
