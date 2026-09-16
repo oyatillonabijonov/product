@@ -62,8 +62,8 @@ Telefon: iOS pastki 5-tab bar; sub-bandlar sahifa tepasida segment-kontrol.
 /admin/products/categories[/new|/:id]              Kategoriyalar (4 yo'nalish)
 /admin/products/brands[/new|/:id]                  Brendlar
 /admin/products/models[/new|/:id]                  Modellar (avto-to'ldirish registri)
-/admin/orders[?status=] · /admin/orders/:id        Buyurtmalar (+ konsultatsiya arizalari)
-/admin/orders/applications[/:id]                   Ish arizalari
+/admin/orders[?status=&q=&page=] · /admin/orders/:id        Buyurtmalar (+ konsultatsiya arizalari)
+/admin/orders/applications[?status=&q=&page=][/:id]                   Ish arizalari
 /admin/content/home                                Kontent → Bosh sahifa (landing muharriri)
 /admin/content/(banners|news|posts|pages|vacancies)[/new|/:id]
 /admin/settings/(store|contact|payment|integrations|seo|account)
@@ -175,6 +175,12 @@ ism/telefon qidiruvi (client'da). Qator: ism + telefon (`tel:`) · manba (Naqd /
 birinchi tovar + "yana N" · summa · sana · **holat select qatorda**. `/admin/orders/:id` — to'liq tarkib,
 muddatli tafsilot, izoh, "TG yuborilmadi". Arizalar: ism, telefon, lavozim, rezyume havolasi (`safeHref`),
 holat, sana; `/admin/orders/applications/:id`.
+
+3-bosqich qarorlari: sukut filtri **Yangi** (`status` URL'da bo'lmasa — kiruvchi quti; dashboard havolasi shu); arizada
+«Bajarildi» o'rniga **Yopildi**; qatorda manba belgisi faqat Muddatli/Konsultatsiya (naqd — sukut), tarkib va rezyume
+ustunlari `xl`dan (1024px'da jadval sig'sin; mobil kartada doim); summa Telegram xabaridagi bilan bir xil (muddatlida
+`totalUzs`, naqdda tovarlar yig'indisi); raqamli qidiruv telefon raqamlari bo'yicha, harfli — ism bo'yicha; tafsilot ro'yxat
+API'sidan (oxirgi 200 ta) id bo'yicha — alohida GET yo'q; holat o'zgarsa sidebar sanog'i yangilanadi.
 
 ### Kontent
 - **Bosh sahifa** (`/admin/content/home`) — kartalar landing tartibida: **Yo'nalish kartalari** (4 ta:
