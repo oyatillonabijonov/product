@@ -17,8 +17,6 @@ export interface ProductFilter {
   brandId?: string;
   condition?: string; // '' | 'yangi' | 'ishlatilgan'
   quick?: QuickFilter;
-  /** Eski `ProductList` uchun; 2b oxirida (Task 6) o'chadi. */
-  status?: string; // '' | 'active' | 'hidden' | 'needs_image'
 }
 
 /** Bitta mahsulot tez filtrga mos keladimi. `billzId` bo'sh — qo'lda kiritilgan. */
@@ -44,9 +42,6 @@ export function filterProducts(items: ApiProduct[], f: ProductFilter): ApiProduc
     if (f.brandId && p.brandId !== f.brandId) return false;
     if (f.condition && p.condition !== f.condition) return false;
     if (f.quick && !quickFilter(p, f.quick)) return false;
-    if (f.status === 'active' && !p.isActive) return false;
-    if (f.status === 'hidden' && p.isActive) return false;
-    if (f.status === 'needs_image' && !(p.billzId && !p.imageUrl)) return false;
     return true;
   });
 }

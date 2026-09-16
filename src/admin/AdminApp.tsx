@@ -11,7 +11,7 @@ import { Page, Tabs } from './ui';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm';
 // Eski ekranlar — bosqichma-bosqich almashtiriladi (2–5-bosqichlar), shu jadval orqali ulanadi.
-import ProductList from './ProductList';
+import ProductsList from './screens/ProductsList';
 import TypesList from './screens/TypesList';
 import TypeEdit from './screens/TypeEdit';
 import ProductEdit from './screens/ProductEdit';
@@ -35,7 +35,7 @@ const DEFAULT_PW_KEY = 'admin-default-pw';
 /** Bo'lim + tab → ekran. Kalit `${section}/${tab.id}`. */
 function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, id: string | null) {
   switch (key) {
-    case 'products/list': return id ? <ProductEdit key={id} id={id} /> : <ProductList />;
+    case 'products/list': return id ? <ProductEdit key={id} id={id} /> : <ProductsList />;
     case 'products/types': return id ? <TypeEdit key={id} id={id} /> : <TypesList />;
     case 'products/categories': return <CategoryList />;
     case 'products/brands': return <BrandList />;
