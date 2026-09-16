@@ -11,7 +11,7 @@ import { SECTION_HEADING, BTN_LG } from './ui';
 
 interface Slot { key: string; type: string; icon: LucideIcon; label: (t: Translation) => string }
 
-/** Bo'g'in → tovar turi (`shared/product-types.ts`, `pc` yo'nalishi). Loader shu turlardagi tovarlarni yuklaydi. */
+/** Bo'g'in → tovar turi (`product_types` jadvali, admin → Turlar, `pc` yo'nalishi). Loader shu turlardagi tovarlarni yuklaydi. */
 export const PC_SLOTS: Slot[] = [
   { key: 'cpu', type: 'cpu', icon: Cpu, label: (t) => t.cfgCpu },
   { key: 'mb', type: 'motherboard', icon: CircuitBoard, label: (t) => t.cfgMb },

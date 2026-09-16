@@ -159,7 +159,7 @@ Sarlavha: nom, "Saytda ko'rish", **Saqlash**.
 ### Turlar
 Ro'yxat 4 yo'nalish bo'yicha guruhlangan: ikonka · nom uz/ru · Billz aliaslari (chiplar) · tovar soni · tartib.
 Forma: yo'nalish, nom uz/ru, id (nomdan avtomatik slug, yaratilgandan keyin o'zgarmaydi), ikonka (shaffof PNG,
-`maxSide` bilan 440×272 qutiga — 2× o'lcham; sayt `[zoom:0.5]` bilan chizadi), Billz aliaslari (yozib Enter),
+`maxSize`/`maxHeight` bilan 220×136 qutiga (mavjud ikonkalar bilan bir o'lcham; sayt `[zoom:0.5]` bilan chizadi), Billz aliaslari (yozib Enter),
 tartib. O'chirish tasdig'i: "N ta mahsulot shu turda — ular tursiz qoladi (katalogda qoladi, tur qatorida
 chiqmaydi)". Yangi tur ikonkasiz saqlanmaydi (`icon_required`).
 

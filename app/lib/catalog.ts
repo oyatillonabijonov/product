@@ -13,7 +13,7 @@ export interface CatalogFilters {
   priceMin: number | null;
   priceMax: number | null;
   condition: 'yangi' | 'ishlatilgan' | null;
-  /** Tovar turi (`shared/product-types.ts` id'si) — yo'nalish sahifasidagi tile qatori. */
+  /** Tovar turi (`product_types` jadvali id'si, admin → Turlar) — yo'nalish sahifasidagi tile qatori. */
   type: string | null;
   q: string | null;
   sort: SortKey;

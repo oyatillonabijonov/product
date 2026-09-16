@@ -24,7 +24,7 @@ interface FormState {
   name: string;
   category: Category;
   categoryId: string | null;
-  /** Tovar turi (`shared/product-types.ts`) — yo'nalish sahifasidagi tile qatorini boshqaradi. */
+  /** Tovar turi (`product_types` jadvali, admin → Turlar) — yo'nalish sahifasidagi tile qatorini boshqaradi. */
   type: string | null;
   condition: Condition;
   conditionNote: string;
