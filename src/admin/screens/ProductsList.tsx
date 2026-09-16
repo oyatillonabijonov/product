@@ -111,7 +111,7 @@ const ProductsList: FC = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="w-full sm:max-w-xs sm:flex-1">
+        <div className="w-full sm:w-64">
           <Input value={q} onChange={(v) => update('q', v)} placeholder="Nom bo'yicha qidirish…" />
         </div>
         <div className="w-full sm:w-44">
