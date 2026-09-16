@@ -2243,3 +2243,37 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - 2a qoldiqlari: brend `sort_order` to'qnashuvi — BrandsList "Tartib" ustuni ko'rsatadi, egasi tahrirda tuzatadi (kod yo'q); "ikki sarlavha" — `TabDef.detail` hamma id-ekranda ✔.
 - Tip mosligi: `ApiAdminBrand` (T4) → T5/T6/T8/T9 `listBrands`; `QuickFilter`/`QUICK_FILTERS` (T2) → T6; `ProductFormState`/`EMPTY_FORM`/`detailToForm`/`formToPayload`/`validateForm`/`toggleAxisValue`/`addAxisValue`/`variantLabel`/`STORAGE_VALUES`/`COLOR_VALUES` (T3) → T5; `Segmented`/`Pagination` (T1) → T5/T6/T9; `ImageUploader.accept` (2a) → T8.
 - Qoldiq (keyingi bosqichlar): Buyurtmalar (3), Kontent (4), Sozlamalar (5), `IconAction`/`CareersAdmin` tozalash va `docs/egasi-qollanmasi.md` (6).
+
+## Natija va qoldiqlar (bajarilgandan keyin, 2026-09-17)
+
+Bajarildi: `feat/admin-2b` branch'ida 14 commit (`36f0db1..HEAD`), har task alohida review (T6 — bitta fix-round: 1024px'da qidiruv
+maydoni siqilardi), yakuniy butun-branch review (fable) → 4 muhim + 9 mayda tuzatish bitta to'lqinda; to'lqinning o'zi bitta
+regressiya kiritdi (dirty-guard saqlash/o'chirishdan keyingi o'tishda ham so'rardi) → maqsadli 2-tur (`state.leave`), qayta review
+toza. Lint 0, 28 fayl / 310 test. Brauzerda egasi kirgan holda tekshirildi: mahsulotlar ro'yxati (URL filtrlari, `?f=needs_image`,
+qatordagi toggle, sahifalash, 1024/375px), tahrir (yangi / Billz / qo'lda kiritilgan, saqlash → qayta yuklash → qaytarish, model
+tanlash qulfi, xato toast'i, dirty-guard dialogi), kategoriya/brend/model ro'yxatlari va tahrirlari, brend qidiruvi, brend
+yaratish/o'chirish oqimi.
+
+Reja matnidan farqlar (ledger ruling'lari): ro'yxat qidiruv maydoni `w-full sm:w-64` (`flex-1` 1024px'da 53px'ga siqilardi);
+yakuniy review tuzatishlari — `pickModel` registrdagi eskirgan kategoriya id'sini mahsulotga ko'chirmaydi; saqlash xatosi toast
+bilan ham; `Page.dirty` + `useBlocker` + `useConfirm` (dasturiy o'tish `navigate(…, { state: { leave: true } })` bilan bloklanmaydi —
+predicate effect'da ro'yxatga olinadi, sinxron `navigate` hali eski `dirty`ni ko'radi); `BrandsList` qidiruv + son; nom katagi
+`max-w-sm` ichki span'da; "Orqaga" ro'yxat filtrini saqlaydi (`location.state.search`); `ModelEdit`/`ModelsList` eskirgan
+kategoriya id'sini "(eskirgan)" bilan ko'rsatadi; variant `key` indeks bilan; "Saytda ko'rish" faqat faol mahsulotda; `Chip`
+`h-11 md:h-9`; `Segmented` bir xil qiymatda jim; tahrir sarlavhalari `form.name`; `product-form` aylanma testi.
+
+Qoldiqlar:
+
+- **Ma'lumot (egasining qarori kerak):** 117 `device_models` yozuvi 0025'gacha kategoriya id'lari bilan (telefonlar 67 /
+  planshetlar 26 / noutbuklar 24). UI qulfi bor (model tanlansa kategoriya qo'lda tanlanadi, Modellar ro'yxatida "(eskirgan)");
+  to'g'ri yechim — `0036` migratsiya: Apple brendi → `apple`, noutbuklar → `pc`, boshqa telefon/planshetlar (do'kon sotmaydi) —
+  o'chirish yoki `pc`.
+- **3-bosqich naqshi:** ro'yxat qidiruvi lokal `useState` + URL'ga debounce bilan yozish (hozir `Input` to'g'ridan-to'g'ri
+  `useSearchParams`ga bog'langan — 1 600 qatorda ishlaydi, lekin React transition'dagi boshqariladigan input ogohlantirishi va
+  debounce yo'q); bitta kit naqshi `ProductsList`/`ModelsList`/`BrandsList` uchun.
+- **Mavjud, 2b regressiyasi emas:** `deriveLegacyCategory('apple')` → `pc` (legacy `category` ustuni; storefront o'qimaydi);
+  `setAxisValues` tahrirlangan o'qni oxiriga qo'yadi (mahsulot sahifasida chip bo'limlari tartibi oxirgi tegilgan o'qqa qarab);
+  `formatThousands(0)` bo'sh matn; `Segmented`/`Tabs` tugmalari mobilda `h-9`.
+- **Hujjat:** `docs/egasi-qollanmasi.md` mahsulot bo'limi (6-bosqich); CLAUDE.md `0027` bandidagi `ProductForm` — tarixiy.
+- **Deploy kuni tekshiruv:** `/admin/products?f=needs_image` ro'yxati va qatordagi toggle; Billz tovar tahririda faqat-o'qish
+  kartalar; yangi mahsulot (model tanlash → kategoriya qo'lda → tur) va o'chirish; brendlar/kategoriyalar/modellar ro'yxatlari.
