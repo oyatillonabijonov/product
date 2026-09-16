@@ -13,7 +13,7 @@ export interface Column<T> {
 
 /** Qator ichidagi boshqaruv (toggle, select, havola) bosilganda qator navigatsiyasi ishlamasin. */
 function fromControl(e: React.SyntheticEvent<HTMLElement>): boolean {
-  return Boolean(e.target.closest('button, a, select, input, label'));
+  return Boolean(e.target.closest('button, a, select, input, textarea, label'));
 }
 
 /**
@@ -28,8 +28,15 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
   empty?: ReactNode;
 }) {
   if (rows.length === 0) return <>{empty ?? null}</>;
-  const clickable = onRowClick ? 'press press-surface cursor-pointer hover:bg-fill-2' : '';
+  const clickable = onRowClick ? 'press press-surface cursor-pointer hover:bg-fill-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta' : '';
   const click = (row: T) => (onRowClick ? (e: React.SyntheticEvent<HTMLElement>) => { if (!fromControl(e)) onRowClick(row); } : undefined);
+  // Klaviatura: Enter/Space qatorni ochadi (Tab bilan yetiladi); ichki boshqaruvda bosilsa emas.
+  const keydown = (row: T) =>
+    onRowClick
+      ? (e: React.KeyboardEvent<HTMLElement>) => {
+          if ((e.key === 'Enter' || e.key === ' ') && !fromControl(e)) { e.preventDefault(); onRowClick(row); }
+        }
+      : undefined;
   const title = columns.find((c) => c.mobile === 'title');
   const rest = columns.filter((c) => c !== title && c.mobile !== 'hide');
   const align = (c: Column<T>) => (c.align === 'right' ? 'text-right' : '');
@@ -46,7 +53,7 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={rowKey(r)} onClick={click(r)} className={`border-b border-line-3 last:border-0 ${clickable}`}>
+              <tr key={rowKey(r)} onClick={click(r)} onKeyDown={keydown(r)} tabIndex={onRowClick ? 0 : undefined} className={`border-b border-line-3 last:border-0 ${clickable}`}>
                 {columns.map((c) => (
                   <td key={c.id} className={`px-3 py-3 ${align(c)} ${c.className ?? ''}`}>{c.cell(r)}</td>
                 ))}
@@ -57,7 +64,7 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
       </div>
       <ul className="flex flex-col gap-2 md:hidden">
         {rows.map((r) => (
-          <li key={rowKey(r)} onClick={click(r)} className={`rounded-sm border border-line bg-surface p-4 ${clickable}`}>
+          <li key={rowKey(r)} onClick={click(r)} onKeyDown={keydown(r)} tabIndex={onRowClick ? 0 : undefined} className={`rounded-sm border border-line bg-surface p-4 ${clickable}`}>
             {title && <div className="mb-2 text-para font-medium text-primary">{title.cell(r)}</div>}
             <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-label">
               {rest.map((c) => (

@@ -7,7 +7,7 @@ import type { BillzSyncStatus } from '../../../shared/billz';
 import { runBillzSync } from '../api';
 import { errText } from '../errText';
 import { formatThousands } from '../lib/format';
-import { Button, Card, Page, Skeleton } from '../ui';
+import { Button, Card, EmptyState, Page, Skeleton } from '../ui';
 import { useToast } from '../ui/toast';
 
 /** Sanoq kartasi: yorliq, katta raqam, ostida amal. 0 bo'lsa raqam och — e'tibor talab qilmaydi. */
@@ -34,7 +34,7 @@ function billzSummary(s: BillzSyncStatus): ReactNode {
   return `${when} · ko'rildi ${last.seen}/${last.count} · yangi ${last.inserted} · yangilandi ${last.updated} · yashirildi ${last.hidden}`;
 }
 
-const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultPw: boolean }> = ({ data, onRefresh, defaultPw }) => {
+const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultPw: boolean; error: boolean }> = ({ data, onRefresh, defaultPw, error }) => {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
 
@@ -68,7 +68,15 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
         </div>
       )}
       {!data ? (
-        <Skeleton rows={3} />
+        error ? (
+          <EmptyState
+            title="Ma'lumot yuklanmadi"
+            text="Tarmoq yoki server xatosi — qayta urinib ko'ring."
+            action={<Button variant="secondary" onClick={onRefresh}>Qayta urinish</Button>}
+          />
+        ) : (
+          <Skeleton rows={3} />
+        )
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Stat label="Rasm kerak" value={data.needsImage} Icon={ImageOff} to="/admin/products?f=needs_image" action="Ro'yxatni ochish" />
@@ -88,7 +96,7 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
             <div className="flex items-center gap-2 text-label text-muted">
               <DollarSign aria-hidden className="size-4" strokeWidth={1.8} /> Dollar kursi
             </div>
-            <p className="mt-2 text-heading font-semibold text-primary">{formatThousands(data.usd.rate)}</p>
+            <p className="mt-2 text-heading font-semibold text-primary">{formatThousands(data.usd.rate) || '—'}</p>
             <p className="text-label text-muted-2">{data.usd.auto ? 'Markaziy bank + ustama, avtomatik' : "Qo'lda kiritilgan"}</p>
             <div className="mt-3 -ml-3">
               <Button variant="quiet" to="/admin/settings/payment">O'zgartirish</Button>

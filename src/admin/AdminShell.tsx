@@ -13,7 +13,7 @@ import { SECTIONS, activeTab } from './nav';
  * tanlagan bo'lsa tokenlar orqali o'zi qorong'i bo'ladi — shuning uchun `bg-white` yo'q.
  */
 const ITEM = 'press flex h-9 items-center gap-3 rounded-xs px-3 text-para';
-const BADGE = 'rounded-full bg-new px-1.5 text-label leading-5 text-white';
+const BADGE = 'rounded-full bg-new px-1.5 text-label leading-5 text-bg';
 
 const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; children: ReactNode }> = ({ route, badge, onLogout, children }) => {
   const current = SECTIONS.find((s) => s.id === route.section) ?? SECTIONS[0];

@@ -32,10 +32,10 @@ export const Page: FC<{ title: string; back?: string; description?: string; acti
 export const Card: FC<{ title?: string; description?: string; actions?: ReactNode; padded?: boolean; className?: string; children: ReactNode }> = ({
   title, description, actions, padded = true, className = '', children,
 }) => {
-  const body = padded ? (title ? 'px-5 pb-5 pt-4' : 'p-5') : '';
+  const body = padded ? (title || description ? 'px-5 pb-5 pt-4' : 'p-5') : '';
   return (
     <section className={`rounded-sm border border-line bg-surface ${className}`}>
-      {(title || actions) && (
+      {(title || description || actions) && (
         <div className="flex items-start justify-between gap-4 px-5 pt-5">
           <div className="min-w-0">
             {title && <h2 className="text-copy font-semibold text-primary">{title}</h2>}

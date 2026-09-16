@@ -30,7 +30,7 @@ import AccountForm from './AccountForm';
 const DEFAULT_PW_KEY = 'admin-default-pw';
 
 /** Bo'lim + tab → ekran. Kalit `${section}/${tab.id}`. */
-function screenFor(key: string, clearDefaultPw: () => void) {
+function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean) {
   switch (key) {
     case 'products/list': return <ProductList />;
     case 'products/categories': return <CategoryList />;
@@ -46,15 +46,25 @@ function screenFor(key: string, clearDefaultPw: () => void) {
     case 'settings/store': return <SiteConfigForm />;
     case 'settings/payment': return <SettingsForm />;
     case 'settings/integrations': return <BillzPanel />;
-    case 'settings/account': return <AccountForm onPasswordChanged={clearDefaultPw} />;
+    case 'settings/account':
+      return (
+        <>
+          {defaultPw && (
+            <p className="mb-6 rounded-sm border border-danger/30 bg-danger/5 px-4 py-3 text-para text-danger">
+              <b>Diqqat:</b> standart «admin» paroli ishlatilmoqda — quyida yangi parol qo'ying.
+            </p>
+          )}
+          <AccountForm onPasswordChanged={clearDefaultPw} />
+        </>
+      );
     default: return null;
   }
 }
 
 /** Bo'lim sahifasi: sarlavha + (mobilda) tab segmenti + ekran. Desktopda tablar sidebar'da. */
-function SectionPage({ section, tab, route, clearDefaultPw }: { section: SectionDef; tab: TabDef; route: AdminRoute; clearDefaultPw: () => void }) {
+function SectionPage({ section, tab, route, clearDefaultPw, defaultPw }: { section: SectionDef; tab: TabDef; route: AdminRoute; clearDefaultPw: () => void; defaultPw: boolean }) {
   return (
-    <Page title={section.label}>
+    <Page title={tab.label}>
       {section.tabs.length > 1 && (
         <Tabs
           className="mb-6 md:hidden"
@@ -63,7 +73,7 @@ function SectionPage({ section, tab, route, clearDefaultPw }: { section: Section
         />
       )}
       {/* `key` — tab almashganda eski ekran holati (ochiq forma) qolib ketmasin. */}
-      <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw)}</div>
+      <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw, defaultPw)}</div>
     </Page>
   );
 }
@@ -75,6 +85,7 @@ export default function AdminApp() {
   );
   const [rawDash, setDash] = useState(null as ApiDashboard | null);
   const dash = rawDash as ApiDashboard | null;
+  const [dashError, setDashError] = useState(false);
   const location = useLocation();
   const route = parseAdminPath(location.pathname, SEGMENTS);
 
@@ -83,7 +94,11 @@ export default function AdminApp() {
   }, []);
 
   // ponytail: sanoqlar har navigatsiyada qayta so'raladi (3 ta COUNT — arzon); real-time kerak emas.
-  const refreshDash = useCallback(() => { getDashboard().then(setDash).catch(() => {}); }, []);
+  const refreshDash = useCallback(() => {
+    getDashboard()
+      .then((d) => { setDash(d); setDashError(false); })
+      .catch(() => setDashError(true));
+  }, []);
   useEffect(() => { if (authed) refreshDash(); }, [authed, location.pathname, refreshDash]);
 
   if (authed === null) return <div className="p-8 text-para text-muted">Yuklanmoqda…</div>;
@@ -111,8 +126,8 @@ export default function AdminApp() {
       <ConfirmProvider>
         <AdminShell route={route} badge={badge} onLogout={handleLogout}>
           {tab === null
-            ? <Dashboard data={dash} onRefresh={refreshDash} defaultPw={defaultPw as boolean} />
-            : <SectionPage section={section} tab={tab} route={route} clearDefaultPw={clearDefaultPw} />}
+            ? <Dashboard data={dash} onRefresh={refreshDash} defaultPw={defaultPw as boolean} error={dashError as boolean} />
+            : <SectionPage section={section} tab={tab} route={route} clearDefaultPw={clearDefaultPw} defaultPw={defaultPw as boolean} />}
         </AdminShell>
       </ConfirmProvider>
     </ToastProvider>
