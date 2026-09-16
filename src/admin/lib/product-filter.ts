@@ -1,16 +1,40 @@
 import type { ApiProduct } from '../../../shared/types';
 
+/** Tez filtr segmentlari (URL `f`); `''` — hammasi. */
+export type QuickFilter = '' | 'needs_image' | 'hidden' | 'stock0' | 'manual';
+
+export const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
+  { id: '', label: 'Hammasi' },
+  { id: 'needs_image', label: 'Rasm kerak' },
+  { id: 'hidden', label: 'Yashirin' },
+  { id: 'stock0', label: 'Qoldiq 0' },
+  { id: 'manual', label: "Qo'lda kiritilgan" },
+];
+
 export interface ProductFilter {
   q?: string;
   categoryId?: string;
   brandId?: string;
   condition?: string; // '' | 'yangi' | 'ishlatilgan'
-  status?: string; // '' | 'active' | 'hidden' | 'needs_image' (Billz'dan kelgan, rasmsiz)
+  quick?: QuickFilter;
+  /** Eski `ProductList` uchun; 2b oxirida (Task 6) o'chadi. */
+  status?: string; // '' | 'active' | 'hidden' | 'needs_image'
+}
+
+/** Bitta mahsulot tez filtrga mos keladimi. `billzId` bo'sh — qo'lda kiritilgan. */
+export function quickFilter(p: ApiProduct, f: QuickFilter): boolean {
+  switch (f) {
+    case 'needs_image': return Boolean(p.billzId) && !p.imageUrl;
+    case 'hidden': return !p.isActive;
+    case 'stock0': return p.billzStock === 0;
+    case 'manual': return !p.billzId;
+    default: return true;
+  }
 }
 
 /**
  * Admin mahsulotlar ro'yxatini client tomonda filtrlaydi (nom qidiruv +
- * kategoriya/brend/holat/status). Bo'sh filtr maydonlari e'tiborsiz qoldiriladi.
+ * kategoriya/brend/holat/tez filtr). Bo'sh filtr maydonlari e'tiborsiz qoldiriladi.
  */
 export function filterProducts(items: ApiProduct[], f: ProductFilter): ApiProduct[] {
   const q = (f.q ?? '').trim().toLowerCase();
@@ -19,6 +43,7 @@ export function filterProducts(items: ApiProduct[], f: ProductFilter): ApiProduc
     if (f.categoryId && p.categoryId !== f.categoryId) return false;
     if (f.brandId && p.brandId !== f.brandId) return false;
     if (f.condition && p.condition !== f.condition) return false;
+    if (f.quick && !quickFilter(p, f.quick)) return false;
     if (f.status === 'active' && !p.isActive) return false;
     if (f.status === 'hidden' && p.isActive) return false;
     if (f.status === 'needs_image' && !(p.billzId && !p.imageUrl)) return false;
