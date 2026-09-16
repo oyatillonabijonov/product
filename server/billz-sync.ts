@@ -3,6 +3,7 @@ import {
   BILLZ_BASE, productsUrl, hiddenIds, mapBillzProduct, mergeDuplicates, nameKey,
   type BillzProduct, type BillzProductsPage, type BillzShop, type BillzSyncResult, type BillzSyncStatus, type MapContext, type MappedProduct,
 } from '../shared/billz.ts';
+import { rowToProductType, type ProductTypeDbRow } from '../shared/product-types.ts';
 import { imagesStatements, specsStatements } from '../shared/product-statements.ts';
 
 /**
@@ -160,6 +161,9 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     const brands = await env.DB.prepare('SELECT id, name FROM brands').all<{ id: string; name: string }>();
     const brandsByName = new Map(brands.results.map((b) => [b.name.toLowerCase(), b.id]));
     const brandIds = new Set(brands.results.map((b) => b.id));
+    // Turlar bazadan (registr yo'q) — run boshida bir marta; Billz kategoriya nomi shulardan biriga tushadi.
+    const typeRows = await env.DB.prepare('SELECT * FROM product_types').all<ProductTypeDbRow>();
+    const types = typeRows.results.map(rowToProductType);
     // Mavjud Billz qatorlari — nom bo'yicha (bir nomga bir nechta qator bo'lsa eng eskisi
     // vakil, qolganlari run oxirida yashiriladi) va billz_id bo'yicha (nom o'zgargan holat).
     const existingRows = await env.DB.prepare(
@@ -190,7 +194,7 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     const mapped: MappedProduct[] = [];
     for (const raw of raws.values()) {
       const ctx: MapContext = {
-        shopId: cfg.shopId, usdToUzs: cfg.usdToUzs, categoryIds, brandsByName,
+        shopId: cfg.shopId, usdToUzs: cfg.usdToUzs, categoryIds, brandsByName, types,
         existingImage: findRow(raw.id, raw.name ?? '')?.image_url || null,
       };
       const m = mapBillzProduct(raw, ctx);

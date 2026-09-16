@@ -1,15 +1,22 @@
 import { describe, it, expect } from 'vitest';
+import type { ProductTypeRow } from './product-types';
 import {
   toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct, nameKey, mergeDuplicates,
   type BillzProduct, type MapContext,
 } from './billz';
 
 const SHOP = 'shop-1';
+const TYPES: ProductTypeRow[] = [
+  { id: 'iphone', categoryId: 'apple', label: 'iPhone', labelRu: 'iPhone', iconUrl: '', billzAliases: [], sortOrder: 10 },
+  { id: 'ipad', categoryId: 'apple', label: 'iPad', labelRu: 'iPad', iconUrl: '', billzAliases: ['iPad Pro'], sortOrder: 20 },
+  { id: 'ram', categoryId: 'pc', label: 'RAM', labelRu: 'RAM', iconUrl: '', billzAliases: ['DDR4', 'DDR5'], sortOrder: 60 },
+];
 const ctx: MapContext = {
   shopId: SHOP,
   usdToUzs: 12600,
   categoryIds: new Set(['apple', 'pc', 'audio', 'video']),
   brandsByName: new Map([['apple', 'apple'], ['asus', 'asus']]),
+  types: TYPES,
   existingImage: null,
 };
 const raw = (over: Partial<BillzProduct> = {}): BillzProduct => ({

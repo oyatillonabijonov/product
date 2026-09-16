@@ -1,5 +1,5 @@
 // `.ts` kengaytmasi — Node (server/) type-stripping rejimida kengaytmasiz import ishlamaydi.
-import { typeForBillzCategory } from './product-types.ts';
+import { matchBillzType, typesOf, type ProductTypeRow } from './product-types.ts';
 
 /**
  * Billz (billz.io) — faqat o'qish. Bu fayl sof: tarmoq ham, baza ham yo'q,
@@ -131,6 +131,8 @@ export interface MapContext {
   categoryIds: ReadonlySet<string>;
   /** kichik harfli brend nomi → brand id */
   brandsByName: ReadonlyMap<string, string>;
+  /** Bazadagi turlar (hamma yo'nalish) — Billz kategoriya nomi shulardan biriga tushadi. */
+  types: ProductTypeRow[];
   /** Saytdagi joriy rasm (admin yuklagan bo'lishi mumkin) — Billz'da rasm bo'lmasa saqlanadi. */
   existingImage: string | null;
 }
@@ -181,7 +183,7 @@ export function mapBillzProduct(raw: BillzProduct, ctx: MapContext): MappedProdu
   const field = (n: string) => fields.find((f) => f.custom_field_name === n)?.custom_field_value ?? '';
   const dir = field('Nad Kategoriya').trim().toLowerCase();
   const categoryId = ctx.categoryIds.has(dir) ? dir : null;
-  const type = categoryId ? typeForBillzCategory(categoryId, raw.categories?.[0]?.name ?? '') : null;
+  const type = categoryId ? matchBillzType(typesOf(ctx.types, categoryId), raw.categories?.[0]?.name ?? '') : null;
   const legacyCategory: MappedProduct['legacyCategory'] =
     categoryId === 'apple' ? (type === 'iphone' ? 'iphone' : type === 'ipad' ? 'ipad' : 'mac') : 'pc';
 
