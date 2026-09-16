@@ -1289,3 +1289,37 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - **2b qoldiqlari:** kechikkan qidiruv naqshi (T1, uchala mavjud ro'yxat + ikki yangi); `Segmented`/`Tabs` mobilda 44px (T1). 1-bosqich qoldig'i `CareersAdmin` (T4).
 - **Tiplar izchilligi:** `StatusFilter`/`OrderStatus` (T2) ↔ `Segmented value`/`StatusSelect` (T3/T4); `onCountsChange` (ekran propi) ↔ `refreshCounts` (`screenFor` argumenti, `SectionPage` propi); `formatSum(number | null)` ↔ `orderTotal(): number | null`, `downPaymentUzs: number | null`; `Rows` props `{ k, v }` — `ProductEdit` chaqiruvlari o'zgarmaydi.
 - **Placeholder:** yo'q — har kod qadami to'liq kod yoki aniq eski → yangi matn bilan.
+
+## Natija va qoldiqlar (bajarilgandan keyin, 2026-09-17)
+
+Bajarildi: `feat/admin-3` branch'ida 7 commit (`513b213..d7911a6`) — 4 task, har biri alohida review (T3 — bitta tuzatish
+raundi: mobilda mijozning to'liq ismi), yakuniy butun-branch review (fable) — "merge'ga tayyor", 0 jiddiy, 6 mayda izoh;
+ikkitasi bitta to'lqinda tuzatildi (mobil kartada ism cheklovi, spec §3 qatorlari), qayta review toza. Lint 0, 29 fayl /
+329 test. Brauzerda egasi kirgan holda tekshirildi (lokal bazaga `SINOV` sinov yozuvlari, oxirida o'chirildi): buyurtmalar —
+sukut «Yangi N», ism va telefon raqami bo'yicha qidiruv, qatordagi va tafsilotdagi holat o'zgarishi (toast, sidebar sanog'i
+kamayadi), xato holatida qiymat qaytishi, savat / muddatli / konsultatsiya tafsilotlari, topilmagan id, "Orqaga" filtrni
+saqlaydi; arizalar — «Yopildi», rezyume havolasi (`rel`), qator tashlanishli xabar; 1440 / 1024 / 375px (1024'da jadval
+aynan sig'adi); mahsulotlar / modellar / brendlar qidiruvi yangi `SearchInput` bilan (tez yozish, 250 ms ichida filtr,
+tozalash, orqaga).
+
+Reja matnidan farqlar (ledger ruling'lari): ikkala tafsilot kartasida birinchi qator «Ism» (kit `Page` sarlavhasi 375px'da
+"Qo'ng'iroq" yonida qisqaradi); ro'yxat kartasida ism cheklovi faqat `md`dan (`md:max-w-48`); spec §3 buyurtma yo'llari
+to'rt qatorga bo'lindi; `CareersAdmin` 6-bosqich o'rniga shu bosqichda o'chirildi (o'chirilgan `JobApplicationsList`ni
+import qilardi); yakuniy tuzatish commit'ining trailer'i controller tomonidan tuzatildi (kod o'zgarmagan).
+
+Qoldiqlar:
+
+- **6-bosqich (tozalash):** umumiy `useListParams`/`useUrlParam` hook — URL yozuvchi `update()` endi 4 ro'yxatda takror;
+  tez ketma-ket holat o'zgarishida in-flight himoyasi (birinchi PATCH yiqilsa UI eski holatga qaytadi);
+  `api.admin.orders.$id` va `api.admin.job-applications.$id`ga GET `loader` (hozir tafsilot ro'yxat API'sidan — oxirgi
+  200 ta; hajm oshsa); `docs/egasi-qollanmasi.md` Buyurtmalar bo'limi (yorliq «Bajarildi», Ish arizalari endi Buyurtmalar
+  ostida).
+- **Mavjud, 3-bosqich regressiyasi emas:** `errText` noma'lum kodda xom kodni ko'rsatadi; server muddatli buyurtmada
+  `totalUzs`ni talab qilmaydi (admin ro'yxatida naqd yig'indi, tafsilotda «Naqd narxi» + «Jami: —»); `SearchInput`ga
+  komponent testi yo'q (loyihada komponent test muhiti yo'q); `type=search` native ×; `<html data-theme>` gidratatsiya
+  ogohlantirishi; Browser panelida 1440px emulyatsiya ref-bosishlarini siljitadi, yashirin panelda taymerlar sekinlashadi.
+- **Ma'lumot (2b'dan, egasining qarori kerak):** 117 `device_models` yozuvi eski kategoriya id'lari bilan — `0036`
+  migratsiya.
+- **Deploy kuni tekshiruv:** `/admin/orders` (sukut «Yangi», qatordagi holat va sidebar sanog'i), buyurtma tafsiloti
+  (muddatli / konsultatsiya), `/admin/orders/applications` (rezyume havolasi), mobil ko'rinish; dashboard'dagi «Yangi
+  buyurtmalar» va «Yangi arizalar» havolalari.
