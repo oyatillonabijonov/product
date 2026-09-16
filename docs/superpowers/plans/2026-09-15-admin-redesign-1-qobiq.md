@@ -1459,3 +1459,28 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - §4 forma qoidalari (Saqlash o'ngda, xato maydon ostida, toast, toggle darhol, tasdiq varag'i, bo'sh holat, skelet, sahifalash, ru ixtiyoriy) — primitivlar tayyor (`Page.actions`, `Field.error`, `useToast`, `Toggle`, `useConfirm`, `EmptyState`, `Skeleton`, `LangPair`); ekranlarga qo'llash 2–5-bosqich.
 - §5 Login — Task 6. §6 dashboard API — Task 4 (SQL spec'dagidek). §10.1 — to'liq.
 - Cheklov: mobilda "Chiqish" 1-bosqichda yo'q (desktop sidebar'da bor) — Task 5 tekshiruvida egasiga aytiladi, 5-bosqich (Akkaunt tabi) yopadi.
+
+---
+
+## Natija va qoldiqlar (bajarilgandan keyin, 2026-09-16)
+
+Bajarildi: `feat/admin-redesign` branch'ida 12 commit (`7017bf4..c49a9b2`), har task alohida review, yakuniy butun-branch
+review bitta tuzatish to'lqini bilan toza. Brauzerda tekshirildi (desktop/375px, egasi kirgan holda; qorong'i mavzu
+hisoblangan tokenlar bilan). Keyingi bosqichlar uchun qoldiqlar:
+
+- **2-bosqich:** dashboard'dagi "Rasm kerak" havolasi `?f=needs_image` beradi — eski `ProductList` uni o'qimaydi (yangi ro'yxat
+  filtrlarni URL'dan oladi). Qorong'i mavzuda `bg-danger` + oq matn 2.78:1 — `destructive` tugma va xato toast uchun
+  `--color-on-danger` tokeni yoki qorong'i `--color-danger`ni to'qlashtirish (spec §4 rang semantikasiga yozilsin). Kitning hali
+  ishlatilmagan primitivlari (`DataTable`, `confirm`, `EmptyState`, `Badge`, `Dot`, `SwitchRow`, `LangPair`, `Select`, `Textarea`)
+  birinchi haqiqiy ishlatishda tekshirilsin; `confirm()` — parallel chaqiruv va chiqish animatsiyasi paytida qayta `ask`
+  holati. "O'chirish" uchun matnli (to'ldirilmagan) tugma varianti kerak bo'lsa kitga qo'shiladi (`quiet` faqat `cta` rangida).
+- **5-bosqich:** mobilda "Chiqish" (Akkaunt tabida).
+- **6-bosqich (tozalash):** `src/admin/CareersAdmin.tsx` o'chirish; `Button` `disabled` `to`/`href` shoxobchalarida e'tiborsiz;
+  `secondary` hover qorong'ida teskari yo'nalish (`fill-2` → `segment` to'qlashadi); toast `setTimeout` unmount'da tozalanmaydi;
+  bo'lim qidiruvi `AdminApp` + `AdminShell`da takror; `DataTable` fokus halqasi `ring-cta` vs formadagi `ring-cta/20`;
+  `/admin/content` va `/admin/content/banners` bir xil ekran (kanonizatsiya yo'q); CLAUDE.md'ning eski admin navigatsiya tavsifi
+  eskirgan (yangi xatboshi buni aytadi) — yakuniy hujjat 6-bosqichda.
+- **Egasiga aytilgan:** `/admin` endi bosh sahifa (ilgari mahsulotlar ro'yxati); eski havolalar (`/admin/models`, `/admin/careers`)
+  bosh sahifaga tushadi; eski ekranlar yangi qobiq ichida ikkilangan sarlavha bilan turadi (3–5-bosqichlarda yo'qoladi).
+- **Rejadan tashqari kuzatuv:** `root.tsx` mavzu skripti `<html data-theme>`ni gidratatsiyadan oldin qo'yadi — React har sahifada
+  `data-theme` attribut nomuvofiqligi ogohlantirishini beradi (avvaldan bor, admin'ga aloqasi yo'q).
