@@ -89,6 +89,7 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
         <Card title="Mijoz">
           <Rows
             rows={[
+              { k: 'Ism', v: order.name },
               { k: 'Telefon', v: <a href={telHref(order.phone)} className="press text-cta">{order.phone}</a> },
               { k: 'Manba', v: orderSource(order) },
               ...(order.note ? [{ k: 'Izoh', v: <span className="whitespace-pre-line">{order.note}</span> }] : []),
