@@ -96,16 +96,19 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                         <ul className="flex flex-col gap-0.5 px-1 pb-1.5">
                           {s.tabs.map((t) => {
                             const on = active && tab?.id === t.id;
+                            const TabIcon = t.Icon;
                             return (
                               <li key={t.id}>
+                                {/* Ikonka ota qatordagi ikonka ustunida (px-1 + pl-2 = 12px). */}
                                 <Link
                                   to={adminPath(s.id, t.segment)}
                                   aria-current={on ? 'page' : undefined}
-                                  className={`press relative flex h-8 items-center rounded-xs pl-9 pr-3 text-label ${
+                                  className={`press relative flex h-8 items-center gap-3 rounded-xs pl-2 pr-3 text-label ${
                                     on ? 'bg-surface text-primary' : 'text-muted hover:text-primary'
                                   }`}
                                 >
-                                  {on && <span aria-hidden className="absolute left-1.5 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-cta" />}
+                                  {on && <span aria-hidden className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-cta" />}
+                                  <TabIcon aria-hidden className={`size-4 shrink-0 ${on ? 'text-primary' : 'text-muted-2'}`} strokeWidth={1.8} />
                                   {t.label}
                                 </Link>
                               </li>

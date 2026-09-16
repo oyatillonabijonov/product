@@ -1,8 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
-import { FileText, LayoutDashboard, Package, Receipt, Settings } from 'lucide-react';
+import {
+  BookOpen, Boxes, Briefcase, FileText, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Plug,
+  Receipt, Settings, Smartphone, Store, Tag, UserRound, Users, Wallet,
+} from 'lucide-react';
 import type { AdminRoute, SectionId } from './lib/admin-path';
 
-export interface TabDef { id: string; segment: string; label: string }
+/** Tab — sidebar sub-bandi; `Icon` sub-bandda ham chiziladi (egasining talabi, 2026-09-16). */
+export interface TabDef { id: string; segment: string; label: string; Icon: LucideIcon }
 export interface SectionDef { id: SectionId; label: string; short: string; Icon: LucideIcon; tabs: TabDef[] }
 
 /**
@@ -16,36 +20,36 @@ export const SECTIONS: SectionDef[] = [
   {
     id: 'products', label: 'Mahsulotlar', short: 'Tovarlar', Icon: Package,
     tabs: [
-      { id: 'list', segment: '', label: 'Mahsulotlar' },
-      { id: 'categories', segment: 'categories', label: 'Kategoriyalar' },
-      { id: 'brands', segment: 'brands', label: 'Brendlar' },
-      { id: 'models', segment: 'models', label: 'Modellar' },
+      { id: 'list', segment: '', label: 'Mahsulotlar', Icon: Boxes },
+      { id: 'categories', segment: 'categories', label: 'Kategoriyalar', Icon: LayoutGrid },
+      { id: 'brands', segment: 'brands', label: 'Brendlar', Icon: Tag },
+      { id: 'models', segment: 'models', label: 'Modellar', Icon: Smartphone },
     ],
   },
   {
     id: 'orders', label: 'Buyurtmalar', short: 'Buyurtma', Icon: Receipt,
     tabs: [
-      { id: 'list', segment: '', label: 'Buyurtmalar' },
-      { id: 'applications', segment: 'applications', label: 'Ish arizalari' },
+      { id: 'list', segment: '', label: 'Buyurtmalar', Icon: Inbox },
+      { id: 'applications', segment: 'applications', label: 'Ish arizalari', Icon: Users },
     ],
   },
   {
     id: 'content', label: 'Kontent', short: 'Kontent', Icon: FileText,
     tabs: [
-      { id: 'banners', segment: 'banners', label: 'Bannerlar' },
-      { id: 'news', segment: 'news', label: 'Yangiliklar' },
-      { id: 'posts', segment: 'posts', label: 'Blog' },
-      { id: 'pages', segment: 'pages', label: 'Sahifalar' },
-      { id: 'vacancies', segment: 'vacancies', label: 'Vakansiyalar' },
+      { id: 'banners', segment: 'banners', label: 'Bannerlar', Icon: Image },
+      { id: 'news', segment: 'news', label: 'Yangiliklar', Icon: Megaphone },
+      { id: 'posts', segment: 'posts', label: 'Blog', Icon: Newspaper },
+      { id: 'pages', segment: 'pages', label: 'Sahifalar', Icon: BookOpen },
+      { id: 'vacancies', segment: 'vacancies', label: 'Vakansiyalar', Icon: Briefcase },
     ],
   },
   {
     id: 'settings', label: 'Sozlamalar', short: 'Sozlash', Icon: Settings,
     tabs: [
-      { id: 'store', segment: 'store', label: "Do'kon" },
-      { id: 'payment', segment: 'payment', label: "To'lov va kurs" },
-      { id: 'integrations', segment: 'integrations', label: 'Integratsiyalar' },
-      { id: 'account', segment: 'account', label: 'Akkaunt' },
+      { id: 'store', segment: 'store', label: "Do'kon", Icon: Store },
+      { id: 'payment', segment: 'payment', label: "To'lov va kurs", Icon: Wallet },
+      { id: 'integrations', segment: 'integrations', label: 'Integratsiyalar', Icon: Plug },
+      { id: 'account', segment: 'account', label: 'Akkaunt', Icon: UserRound },
     ],
   },
 ];
