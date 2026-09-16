@@ -72,7 +72,7 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
       id: 'who', label: 'Nomzod', mobile: 'title',
       cell: (a) => (
         <span className="flex min-w-0 flex-col gap-1">
-          <span className="max-w-48 truncate text-primary">{a.name}</span>
+          <span className="truncate text-primary md:max-w-48">{a.name}</span>
           <span className="flex flex-wrap items-center gap-1.5">
             <a href={telHref(a.phone)} className="press whitespace-nowrap text-label text-cta">{a.phone}</a>
             {!a.telegramSent && <Badge tone="danger">TG yuborilmadi</Badge>}

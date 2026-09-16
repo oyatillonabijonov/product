@@ -62,8 +62,10 @@ Telefon: iOS pastki 5-tab bar; sub-bandlar sahifa tepasida segment-kontrol.
 /admin/products/categories[/new|/:id]              Kategoriyalar (4 yo'nalish)
 /admin/products/brands[/new|/:id]                  Brendlar
 /admin/products/models[/new|/:id]                  Modellar (avto-to'ldirish registri)
-/admin/orders[?status=&q=&page=] · /admin/orders/:id        Buyurtmalar (+ konsultatsiya arizalari)
-/admin/orders/applications[?status=&q=&page=][/:id]                   Ish arizalari
+/admin/orders[?status=&q=&page=]                   Buyurtmalar (+ konsultatsiya arizalari)
+/admin/orders/:id                                  buyurtma tafsiloti
+/admin/orders/applications[?status=&q=&page=]      Ish arizalari
+/admin/orders/applications/:id                     ariza tafsiloti
 /admin/content/home                                Kontent → Bosh sahifa (landing muharriri)
 /admin/content/(banners|news|posts|pages|vacancies)[/new|/:id]
 /admin/settings/(store|contact|payment|integrations|seo|account)

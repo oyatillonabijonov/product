@@ -71,7 +71,7 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
       id: 'who', label: 'Mijoz', mobile: 'title',
       cell: (o) => (
         <span className="flex min-w-0 flex-col gap-1">
-          <span className="max-w-48 truncate text-primary">{o.name}</span>
+          <span className="truncate text-primary md:max-w-48">{o.name}</span>
           <span className="flex flex-wrap items-center gap-1.5">
             <a href={telHref(o.phone)} className="press whitespace-nowrap text-label text-cta">{o.phone}</a>
             {o.source === 'consult' && <Badge>Konsultatsiya</Badge>}
