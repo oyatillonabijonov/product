@@ -22,6 +22,7 @@ import type {
   OrderStatus,
 } from '../../shared/types';
 import type { BillzShop, BillzSyncStatus } from '../../shared/billz';
+import type { AssetsResponse, SiteAssets, SiteTexts, TextsResponse } from '../lib/site-content';
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -407,4 +408,24 @@ export async function updateType(categoryId: string, id: string, t: AdminTypeInp
 }
 export async function deleteType(categoryId: string, id: string): Promise<{ ok: true; cleared: number }> {
   return handle(await fetch(`/api/admin/types/${encodeURIComponent(categoryId)}/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+// ── Sayt matnlari va rasmlari ───────────────────────────────────────────────
+export async function getTexts(): Promise<TextsResponse> {
+  return handle(await fetch('/api/admin/texts'));
+}
+/** Faqat yuborilgan kalitlar yoziladi; javobda hamma saqlangan qiymatlar. */
+export async function saveTexts(body: SiteTexts): Promise<{ values: SiteTexts }> {
+  return handle(await fetch('/api/admin/texts', {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+  }));
+}
+export async function getAssets(): Promise<AssetsResponse> {
+  return handle(await fetch('/api/admin/assets'));
+}
+/** `''` — kalit standartga qaytadi. */
+export async function saveAssets(body: SiteAssets): Promise<{ values: SiteAssets }> {
+  return handle(await fetch('/api/admin/assets', {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+  }));
 }

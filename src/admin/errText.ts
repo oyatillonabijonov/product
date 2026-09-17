@@ -26,7 +26,7 @@ const MESSAGES: Record<string, string> = {
   label_long: 'Nom 40 belgidan oshmasin',
   id_invalid: "ID faqat kichik lotin harflari, raqam va '-' (40 belgigacha)",
   icon_required: 'Ikonka majburiy',
-  url_invalid: "Rasm yo'li noto'g'ri",
+  url_invalid: "Fayl yo'li noto'g'ri",
   aliases_limit: 'Billz aliaslari: 20 tagacha, har biri 40 belgigacha',
   categoryId_invalid: "Yo'nalish topilmadi",
   current_password_required: 'Joriy parolni kiriting',

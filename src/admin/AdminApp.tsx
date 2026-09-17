@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import type { ApiDashboard } from '../../shared/types';
 import { getDashboard, getMe, logout } from './api';
-import { adminPath, parseAdminPath, type AdminRoute } from './lib/admin-path';
+import { parseAdminPath, type AdminRoute } from './lib/admin-path';
 import { SECTIONS, SEGMENTS, activeTab, type SectionDef, type TabDef } from './nav';
 import AdminShell from './AdminShell';
 import Login from './Login';
+import SectionTabs from './SectionTabs';
 import Dashboard from './screens/Dashboard';
-import { Page, Tabs } from './ui';
+import ContentHome from './screens/ContentHome';
+import { Page } from './ui';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm';
 // Eski ekranlar — bosqichma-bosqich almashtiriladi (2–5-bosqichlar), shu jadval orqali ulanadi.
@@ -47,6 +49,7 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
     case 'products/models': return id ? <ModelEdit key={id} id={id} /> : <ModelsList />;
     case 'orders/list': return id ? <OrderDetail key={id} id={id} onCountsChange={refreshCounts} /> : <OrdersList onCountsChange={refreshCounts} />;
     case 'orders/applications': return id ? <ApplicationDetail key={id} id={id} onCountsChange={refreshCounts} /> : <ApplicationsList onCountsChange={refreshCounts} />;
+    case 'content/home': return <ContentHome />;
     case 'content/banners': return <BannerList />;
     case 'content/news': return <NewsList />;
     case 'content/posts': return <PostList />;
@@ -74,17 +77,11 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
 function SectionPage({ section, tab, route, clearDefaultPw, defaultPw, refreshCounts }: { section: SectionDef; tab: TabDef; route: AdminRoute; clearDefaultPw: () => void; defaultPw: boolean; refreshCounts: () => void }) {
   // `key` — tab almashganda eski ekran holati (ochiq forma) qolib ketmasin.
   const screen = <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw, defaultPw, route.id, refreshCounts)}</div>;
-  // Id ekranlari o'z Page'ini (orqaga havola + nom) chizadi — sarlavha ikki marta chiqmasin.
-  if (route.id !== null && tab.detail) return screen;
+  // Id ekranlari va forma-tablar (landing muharriri) o'z Page'ini chizadi — sarlavha ikki marta chiqmasin.
+  if ((route.id !== null && tab.detail) || (route.id === null && tab.ownPage)) return screen;
   return (
     <Page title={tab.label}>
-      {section.tabs.length > 1 && (
-        <Tabs
-          className="mb-6 md:hidden"
-          active={tab.id}
-          items={section.tabs.map((t) => ({ id: t.id, label: t.label, to: adminPath(section.id, t.segment) }))}
-        />
-      )}
+      <SectionTabs section={section.id} active={tab.id} />
       {screen}
     </Page>
   );

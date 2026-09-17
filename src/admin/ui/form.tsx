@@ -138,15 +138,19 @@ export const LangPair: FC<{
   kind?: 'text' | 'textarea';
   rows?: number;
   hint?: string;
+  /** Ruscha maydon izohi — sayt matnlarida bo'sh ruscha koddagi ruscha standartga tushadi. */
+  ruHint?: string;
+  /** Markdown maydonlari uchun monospace. */
+  mono?: boolean;
   required?: boolean;
   error?: string;
-}> = ({ label, uz, ru, onUz, onRu, kind = 'text', rows, hint, required, error }) => (
+}> = ({ label, uz, ru, onUz, onRu, kind = 'text', rows, hint, ruHint = "Bo'sh qolsa o'zbekchasi chiqadi", mono, required, error }) => (
   <div className="grid gap-3 md:grid-cols-2">
     <Field label={label} hint={hint} error={error} required={required}>
-      {kind === 'textarea' ? <Textarea value={uz} onChange={onUz} rows={rows} invalid={Boolean(error)} /> : <Input value={uz} onChange={onUz} invalid={Boolean(error)} />}
+      {kind === 'textarea' ? <Textarea value={uz} onChange={onUz} rows={rows} mono={mono} invalid={Boolean(error)} /> : <Input value={uz} onChange={onUz} invalid={Boolean(error)} />}
     </Field>
-    <Field label={`${label} (ru)`} hint="Bo'sh qolsa o'zbekchasi chiqadi">
-      {kind === 'textarea' ? <Textarea value={ru} onChange={onRu} rows={rows} /> : <Input value={ru} onChange={onRu} />}
+    <Field label={`${label} (ru)`} hint={ruHint}>
+      {kind === 'textarea' ? <Textarea value={ru} onChange={onRu} rows={rows} mono={mono} /> : <Input value={ru} onChange={onRu} />}
     </Field>
   </div>
 );

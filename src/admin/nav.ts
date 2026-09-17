@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  BookOpen, Boxes, Briefcase, FileText, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Plug,
+  BookOpen, Boxes, Briefcase, FileText, House, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Plug,
   Receipt, Settings, Shapes, Smartphone, Store, Tag, UserRound, Users, Wallet,
 } from 'lucide-react';
 import type { AdminRoute, SectionId } from './lib/admin-path';
@@ -10,12 +10,14 @@ export interface TabDef {
   id: string; segment: string; label: string; Icon: LucideIcon;
   /** Tab'ning id-ekrani (masalan TypeEdit) o'z `Page`ini chizadi — qobiq tashqi sarlavha va tablarni chizmaydi. */
   detail?: boolean;
+  /** Tab'ning asosiy ekrani forma (landing muharriri) — o'z `Page`ini (Saqlash bilan) va mobil tablarni (`SectionTabs`) chizadi. */
+  ownPage?: boolean;
 }
 export interface SectionDef { id: SectionId; label: string; short: string; Icon: LucideIcon; tabs: TabDef[] }
 
 /**
  * Navigatsiya registri — bo'limlar va tablar bitta joyda; keyingi bosqichlar shu yerga tab
- * qo'shadi (Turlar, Kontent → Bosh sahifa, Sozlamalar → Aloqa/SEO). `segment: ''` — bo'limning
+ * qo'shadi (Sozlamalar → Aloqa/SEO). `segment: ''` — bo'limning
  * asosiy tabi (URL'da segment yo'q: `/admin/products`). `short` — mobil tab bar yozuvi (5 ta
  * 375px'ga sig'ishi uchun qisqa).
  */
@@ -41,6 +43,7 @@ export const SECTIONS: SectionDef[] = [
   {
     id: 'content', label: 'Kontent', short: 'Kontent', Icon: FileText,
     tabs: [
+      { id: 'home', segment: 'home', label: 'Bosh sahifa', Icon: House, ownPage: true },
       { id: 'banners', segment: 'banners', label: 'Bannerlar', Icon: Image },
       { id: 'news', segment: 'news', label: 'Yangiliklar', Icon: Megaphone },
       { id: 'posts', segment: 'posts', label: 'Blog', Icon: Newspaper },
