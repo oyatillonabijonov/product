@@ -11,6 +11,10 @@ import AboutPage from '../../src/store/AboutPage';
 import LegalPage from '../../src/store/LegalPage';
 import type { StoreContext } from '../../src/store/StoreLayout';
 
+/**
+ * Huquqiy hujjatlar va "Shartlar" (`muddatli-tolov`) `LegalPage` shablonida — matn bazadan, hero izohi va meta
+ * description sayt matnlaridan. "Shartlar" to'lov rejimidan qat'i nazar shu shablonda (2026-09-17: `TermsBento` olib tashlandi).
+ */
 function legalLede(t: Translation, slug: string): string | undefined {
   const key = LEGAL_LEDE_KEYS[slug];
   return key ? t[key] : undefined;
