@@ -31,9 +31,12 @@ import BannersList from './screens/BannersList';
 import BannerEdit from './screens/BannerEdit';
 import NewsList from './screens/NewsList';
 import NewsEdit from './screens/NewsEdit';
-import PostList from './PostList';
+import PostsList from './screens/PostsList';
+import PostEdit from './screens/PostEdit';
 import PageList from './PageList';
-import VacancyList from './VacancyList';
+import VacanciesList from './screens/VacanciesList';
+import VacancyEdit from './screens/VacancyEdit';
+import VacanciesText, { VACANCIES_TEXT_ID } from './screens/VacanciesText';
 import SiteConfigForm from './SiteConfigForm';
 import SettingsForm from './SettingsForm';
 import BillzPanel from './BillzPanel';
@@ -54,9 +57,11 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
     case 'content/home': return <ContentHome />;
     case 'content/banners': return id ? <BannerEdit key={id} id={id} /> : <BannersList />;
     case 'content/news': return id ? <NewsEdit key={id} id={id} /> : <NewsList />;
-    case 'content/posts': return <PostList />;
+    case 'content/posts': return id ? <PostEdit key={id} id={id} /> : <PostsList />;
     case 'content/pages': return <PageList />;
-    case 'content/vacancies': return <VacancyList />;
+    case 'content/vacancies':
+      if (id === VACANCIES_TEXT_ID) return <VacanciesText />;
+      return id ? <VacancyEdit key={id} id={id} /> : <VacanciesList />;
     case 'settings/store': return <SiteConfigForm />;
     case 'settings/payment': return <SettingsForm />;
     case 'settings/integrations': return <BillzPanel />;

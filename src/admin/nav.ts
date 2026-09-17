@@ -46,9 +46,9 @@ export const SECTIONS: SectionDef[] = [
       { id: 'home', segment: 'home', label: 'Bosh sahifa', Icon: House, ownPage: true },
       { id: 'banners', segment: 'banners', label: 'Bannerlar', Icon: Image, detail: true },
       { id: 'news', segment: 'news', label: 'Yangiliklar', Icon: Megaphone, detail: true },
-      { id: 'posts', segment: 'posts', label: 'Blog', Icon: Newspaper },
+      { id: 'posts', segment: 'posts', label: 'Blog', Icon: Newspaper, detail: true },
       { id: 'pages', segment: 'pages', label: 'Sahifalar', Icon: BookOpen },
-      { id: 'vacancies', segment: 'vacancies', label: 'Vakansiyalar', Icon: Briefcase },
+      { id: 'vacancies', segment: 'vacancies', label: 'Vakansiyalar', Icon: Briefcase, detail: true },
     ],
   },
   {
