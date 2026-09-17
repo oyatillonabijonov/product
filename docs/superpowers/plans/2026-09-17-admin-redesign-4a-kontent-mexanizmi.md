@@ -1710,3 +1710,38 @@ Kutiladi: 201; Range — 206, `bytes 0-99/760821`, `video/mp4`, 100 bayt; SVG �
 - **Tiplar izchilligi:** `SiteTexts`/`SiteAssets`/`TextOverrides` (T1) ↔ loader'lar (T2) ↔ store loader va `StoreLayout` (T3/T4); `AssetKey` ↔ `ASSET_DEFAULTS: Record<AssetKey, string>` (kalit yetishmasa lint yiqiladi) ↔ `heroColumns` shablon kalitlari; `OrgContact` (T3) ↔ `root.tsx`; `parseAssetsInput(fields)` ↔ `ASSET_FIELDS` (`key: AssetKey`, `kind`).
 - **Test sonlari:** T1 +8 (30 fayl / 337), T2 +9 (346), T3 o'zgarmaydi (seo testi almashtirildi), T4 +4 (31 fayl / 350), T5 o'zgarmaydi.
 - **Placeholder:** yo'q — har kod qadami to'liq kod yoki aniq eski → yangi matn bilan.
+
+## Natija va qoldiqlar (bajarilgandan keyin, 2026-09-17)
+
+Bajarildi: `feat/admin-4a` branch'ida 7 commit (`5ded7b3..d8ddc74`) — 5 task, har biri alohida review va brauzer tekshiruvi
+(tuzatish raundlarisiz); yakuniy butun-branch review (fable) — "merge'ga tayyor", 0 jiddiy, 8 mayda izoh; to'rttasi bitta
+to'lqinda tuzatildi (JSON-LD ko'cha manzili, video tavsiyasi, CLAUDE.md va spec aniqlashtirishlari), qayta review toza. Lint 0,
+31 fayl / 350 test. Brauzerda egasi kirgan holda tekshirildi: admin API (94 matn va 26 rasm maydoni; noto'g'ri kalit va begona
+URL rad etiladi; standartga teng matn saqlanmaydi; kirmagan so'rov 401); sinov matnlari bilan kategoriya, katalog, chegirma va
+brend tavsiflari, "Biz haqimizda" va "Shartlar" hero izohlari, footer va JSON-LD manzili, rus sahifalari standartda; sinov rasmi
+bilan favicon, yorug' logo, landing PC kartasi va cover'i; mobil WhatsApp tugmasi; MP4 yuklash, Range 206, SVG rad etilishi,
+PC cover'ida video o'ynashi. Sinov yozuvlari va yuklangan fayllar oxirida o'chirildi.
+
+Reja matnidan farqlar (ledger ruling'lari): grep kutilmalari izohlarni hisobga olmagan — `page.tsx` va `PageHero.tsx`
+izohlaridagi eslatmalar qoldirildi; JSON-LD `streetAddress` faqat manzilning 2-qatori (spec §7 formulasi davlat va shaharni
+takrorlardi — spec yangilandi); `VIDEO_HINT`ga hajm va davomiylik tavsiyasi qo'shildi; CLAUDE.md'ga yuklash chegaralari va
+Traefik eslatmasi.
+
+Qoldiqlar:
+
+- **4b rejasiga (admin kontent ekranlari):** landing muharriri, Sahifalar ("Biz haqimizda" strukturali forma, huquqiy
+  izohlar), bannerlar/yangiliklar/blog/vakansiyalar kit bilan va "Sahifa matni" kartasi; `api.ts`da
+  `getTexts`/`saveTexts`/`getAssets`/`saveAssets`; favicon yuklashda WebP'ga o'girmaslik (Safari WebP favicon'ni
+  ko'rsatmaydi); `kind: video` uploader (normalizatsiyasiz, hajm tavsiyasi ko'rinadi); `site_assets` kaliti almashganda eski
+  faylni diskdan o'chirish (40 MB'lik videolar yig'ilmasin); `url_invalid` xabarini "Fayl yo'li noto'g'ri"ga umumlashtirish.
+- **5-bosqich (Sozlamalar):** registrning `store`, `contact`, `seo` guruhlari va logo/favicon; `SiteConfigForm`dan
+  `mapLabel` maydoni olib tashlanadi.
+- **6-bosqich (tozalash):** bare-metal `deploy/nginx.conf`ga proxy keshisiz `location /images/`; registrdan chiqarilgan
+  `site_texts` qatorlarini tozalash (API ularni o'chira olmaydi); yuklash route'ida `content-length`siz (chunked) so'rov 42 MB
+  oldindan tekshiruvdan o'tib ketadi (faqat admin).
+- **Mayda (qoldirildi):** `locales.ts` ru blokidagi takroriy izoh; layout va olti route'da `site_texts` ikki marta o'qiladi
+  (`loadT` ponytail izohi); `method_not_allowed` xabarsiz.
+- **Deploy kuni tekshiruv:** push'dan keyin `site_texts`/`site_assets` bo'sh holda sayt avvalgidek (landing, yo'nalish
+  cover'lari, Apple videosi, "Biz haqimizda", vakansiyalar, favicon); `/page/muddatli-tolov` endi mundarijali shablonda;
+  mobil aloqa tugmasida WhatsApp; admin orqali 35–40 MB'lik haqiqiy MP4'ni Coolify/Traefik zanjiri bilan bir marta yuklab
+  ko'rish (lokal 760 KB bilan sinalgan).
