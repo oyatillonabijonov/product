@@ -107,13 +107,17 @@ describe('catalogMeta description', () => {
 });
 
 describe('organizationJsonLd manzil', () => {
-  it('manzil, ish vaqti va sayt URL\'i kiradi', () => {
-    const ld = organizationJsonLd({ name: 'ProDuct', phone: '+998', telegram: 't', instagram: 'i', mapLl: '69.27,41.33', mapLabel: 'Tong Yulduzi MFY, 30-uy, Toshkent' } as never, 'https://product.uz') as {
+  it("manzil va ish vaqti sayt matnlaridan, sayt URL'i kiradi", () => {
+    const ld = organizationJsonLd(
+      { name: 'ProDuct', phone: '+998', telegram: 't', instagram: 'i', mapLl: '69.27,41.33', mapLabel: 'eski yozuv' } as never,
+      'https://product.uz',
+      { address: "O'zbekiston, Toshkent shahar, Tong Yulduzi MFY, 30-uy", openingHours: 'Mo-Sa 09:00-20:00' },
+    ) as {
       address: { streetAddress: string; addressLocality: string }; openingHours: string; url: string; geo: { latitude: number; longitude: number };
     };
-    expect(ld.address.streetAddress).toBe('Tong Yulduzi MFY, 30-uy, Toshkent');
+    expect(ld.address.streetAddress).toBe("O'zbekiston, Toshkent shahar, Tong Yulduzi MFY, 30-uy");
     expect(ld.address.addressLocality).toBe('Toshkent');
-    expect(ld.openingHours).toBe('Mo-Su 10:00-21:00');
+    expect(ld.openingHours).toBe('Mo-Sa 09:00-20:00');
     expect(ld.url).toBe('https://product.uz');
     expect(ld.geo).toMatchObject({ latitude: 41.33, longitude: 69.27 });
   });

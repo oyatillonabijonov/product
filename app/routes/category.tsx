@@ -1,12 +1,11 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/category';
-import { resolveLocale, categoryLabel, localeToLang } from '../lib/i18n';
+import { resolveLocale, categoryLabel } from '../lib/i18n';
 import { pageTitle, catalogMeta, storeConfigFrom } from '../lib/seo';
 import { siteConfig } from '../lib/site.config';
 import { parseCatalogFilters } from '../lib/catalog';
-import { queryProducts, loadConfig, loadCategories, loadBrands, loadTypes, loadProductsBy } from '../lib/loaders';
+import { queryProducts, loadConfig, loadCategories, loadBrands, loadTypes, loadProductsBy, loadT } from '../lib/loaders';
 import { categoryTiles } from '../lib/tiles';
-import { translations } from '../../src/locales';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import CatalogView from '../../src/store/CatalogView';
 import CategoryCover from '../../src/store/CategoryCover';
@@ -25,8 +24,8 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const categories = await loadCategories(env);
   const category = categories.find((c) => c.id === slug);
   if (!category) throw new Response('Not Found', { status: 404 }); // noma'lum slug 200 + soft-404 bo'lib indekslanmasin
-  const [result, config, brands, types] = await Promise.all([
-    queryProducts(env, filters), loadConfig(env), loadBrands(env), loadTypes(env),
+  const [result, config, brands, types, t] = await Promise.all([
+    queryProducts(env, filters), loadConfig(env), loadBrands(env), loadTypes(env), loadT(env, locale),
   ]);
   const title = categoryLabel(category, locale);
   const tiles = categoryTiles(types, slug, locale === 'ru' ? 'ru' : 'uz');
@@ -35,14 +34,13 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   if (slug === 'pc') {
     await Promise.all(PC_SLOTS.map(async (s) => { parts[s.key] = await loadProductsBy(env, { category: 'pc', type: s.type, limit: 12 }); }));
   }
-  return { result, config, title, brands, filters, requestUrl: request.url, category, tiles, locale, parts };
+  return { result, config, title, brands, filters, requestUrl: request.url, category, tiles, parts, metaDesc: t.metaCatalogDesc };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
   const sfx = storeConfigFrom(matches)?.seoTitleSuffix;
   if (!data) return [{ title: pageTitle(undefined, sfx) }];
-  const t = translations[localeToLang(data.locale)];
-  const desc = t.metaCatalogDesc.replace('{title}', data.title).replace('{store}', storeConfigFrom(matches)?.name ?? siteConfig.name);
+  const desc = data.metaDesc.replace('{title}', data.title).replace('{store}', storeConfigFrom(matches)?.name ?? siteConfig.name);
   return catalogMeta(pageTitle(data.title, sfx), data.requestUrl, desc);
 }
 

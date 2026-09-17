@@ -1,12 +1,14 @@
 import { Outlet, isRouteErrorResponse, redirect, useLoaderData, useLocation, useRouteError } from 'react-router';
 import type { Route } from './+types/store';
 import { resolveLocale, localeToLang, localizedPath, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
-import { loadSiteConfig, loadPages, loadCategories, loadConfig, hasDeals, publicSiteConfig, type PageLink } from '../lib/loaders';
+import { loadSiteConfig, loadPages, loadCategories, loadConfig, hasDeals, publicSiteConfig, loadSiteTexts, type PageLink } from '../lib/loaders';
+import type { OrgContact } from '../lib/seo';
 import { CURRENCY_COOKIE, parseCurrency } from '../../src/lib/currency';
+import { textOverrides } from '../../src/lib/site-content';
 import { loadCustomer } from '../../functions/lib/db';
 import { getCookie, verifySession } from '../../functions/lib/auth';
 import type { ApiCustomer } from '../../shared/types';
-import { translations } from '../../src/locales';
+import { translations, type Translation } from '../../src/locales';
 import StoreLayout from '../../src/store/StoreLayout';
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
@@ -22,7 +24,9 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const env = context.env;
   // Kategoriyalar ham shu yerda — Header dropdown'i SSR HTMLda chiqadi
   // (crawler ichki linklarni ko'radi) va klientdagi qo'shimcha /api/categories so'rovi yo'qoladi.
-  const [siteConfig, pages, categories, deals, settings] = await Promise.all([loadSiteConfig(env), loadPages(env), loadCategories(env), hasDeals(env), loadConfig(env)]);
+  const [siteConfig, pages, categories, deals, settings, siteTexts] = await Promise.all([
+    loadSiteConfig(env), loadPages(env), loadCategories(env), hasDeals(env), loadConfig(env), loadSiteTexts(env),
+  ]);
   const pageLinks: PageLink[] = pages.map((p) => ({ slug: p.slug, title: p.title }));
   // Kirgan mijoz — sessiya sirini allaqachon yuklangan siteConfig'dan olamiz (qo'shimcha D1 o'qishsiz).
   const token = getCookie(request, 'customer_session');
@@ -35,13 +39,21 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   // publicSiteConfig — sirlar (bot token, OAuth secret, sessiya siri) klientga (HTML) chiqmasin.
   // Valyuta tanlovi cookie'da (USD bo'lsa server/index.ts javobni umumiy keshdan chiqaradi).
   const currency = parseCurrency(getCookie(request, CURRENCY_COOKIE));
-  return { locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, deals, currency, usdRate: settings.usdToUzs, origin: new URL(request.url).origin };
+  // Admin'da o'zgartirilgan matnlar — faqat joriy til va registr kalitlari; komponent ularni `locales.ts` ustiga qo'yadi.
+  const texts = textOverrides(siteTexts, locale === 'ru' ? 'ru' : 'uz');
+  const tt: Translation = { ...translations[localeToLang(locale)], ...texts };
+  // Organization JSON-LD (root.tsx) manzili va ish vaqti — sayt matnlaridan.
+  const orgContact: OrgContact = { address: `${tt.footerAddressText1} ${tt.footerAddressText2}`, openingHours: tt.seoOpeningHours };
+  return {
+    locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, deals, currency, usdRate: settings.usdToUzs,
+    origin: new URL(request.url).origin, texts, orgContact,
+  };
 }
 
 export default function StoreRoot() {
-  const { locale, siteConfig, pageLinks, categories, customer, deals, currency, usdRate } = useLoaderData<typeof loader>();
+  const { locale, siteConfig, pageLinks, categories, customer, deals, currency, usdRate, texts } = useLoaderData<typeof loader>();
   const lang = localeToLang(locale);
-  const t = translations[lang];
+  const t: Translation = { ...translations[lang], ...texts };
   return (
     <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories} hasDeals={deals} currency={currency} usdRate={usdRate}>
       <Outlet context={{ t, lang, locale, config: siteConfig, customer, pageLinks }} />

@@ -1,55 +1,48 @@
 import { useLoaderData, useOutletContext } from 'react-router';
 import type { Route } from './+types/page';
-import { loadPage } from '../lib/loaders';
-import { resolveLocale, localeToTextKey, localeToLang } from '../lib/i18n';
+import { loadPage, loadT } from '../lib/loaders';
+import { resolveLocale, localeToTextKey } from '../lib/i18n';
 import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { firstParagraph } from '../../src/lib/markdown';
-import { translations, type Translation } from '../../src/locales';
+import type { Translation } from '../../src/locales';
 import Markdown from '../../src/store/Markdown';
-import TermsBento from '../../src/store/TermsBento';
 import AboutPage from '../../src/store/AboutPage';
 import LegalPage from '../../src/store/LegalPage';
 import type { StoreContext } from '../../src/store/StoreLayout';
 
-/** "Biz haqimizda" — markdown o'rniga maxsus sahifa (matn `locales.ts`da); sarlavha va footer havolasi bazadagi yozuvdan. */
+/** "Biz haqimizda" — markdown o'rniga maxsus sahifa (matn sayt matnlarida); sarlavha va footer havolasi bazadagi yozuvdan. */
 const ABOUT_SLUG = 'biz-haqimizda';
 
-/** Huquqiy hujjatlar `LegalPage` shablonida (matn bazadan); hero izohi va meta description shu yerdan. */
+/**
+ * Huquqiy hujjatlar va "Shartlar" (`muddatli-tolov`) `LegalPage` shablonida — matn bazadan, hero izohi va meta
+ * description sayt matnlaridan. "Shartlar" to'lov rejimidan qat'i nazar shu shablonda (2026-09-17: `TermsBento` olib tashlandi).
+ */
 function legalLede(t: Translation, slug: string): string | undefined {
   const ledes: Record<string, string | undefined> = {
     oferta: t.legalLedeOferta,
     maxfiylik: t.legalLedePrivacy,
     qaytarish: t.legalLedeReturns,
+    'muddatli-tolov': t.termsLede,
   };
   return ledes[slug];
 }
 
-/** Slug rendered with the bespoke bento layout instead of generic markdown — faqat muddatli to'lov yoqilganda;
- *  naqd rejimda (`payment_mode='cash'`) sahifa bazadagi matnni ko'rsatadi, muddatli shartlar yolg'on bo'lardi. */
-const TERMS_SLUG = 'muddatli-tolov';
-const TERMS_LEAD: Record<string, string> = {
-  uz: "Muddatli to'lovni rasmiylashtirish juda oddiy — quyidagi shartlar bilan tanishing.",
-  ru: 'Оформить рассрочку очень просто — ознакомьтесь с условиями ниже.',
-  en: 'Getting installment is simple — here are the conditions.',
-  uzCyrl: 'Муддатли тўловни расмийлаштириш жуда оддий — қуйидаги шартлар билан танишинг.',
-};
-
 export async function loader({ params, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
   if (!locale) throw new Response('Not Found', { status: 404 });
-  const page = await loadPage(context.env, String(params.slug));
+  const slug = String(params.slug);
+  const [page, t] = await Promise.all([loadPage(context.env, slug), loadT(context.env, locale)]);
   if (!page) throw new Response('Not Found', { status: 404 });
-  return { page, locale };
+  // `meta()` bazaga kira olmaydi — admin'da tahrirlangan izoh shu yerda olinadi.
+  const lede = slug === ABOUT_SLUG ? t.aboutLede : legalLede(t, slug) ?? null;
+  return { page, locale, lede };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
   const sfx = storeConfigFrom(matches)?.seoTitleSuffix;
   if (!data) return [{ title: pageTitle(undefined, sfx) }];
   const key = localeToTextKey(data.locale);
-  const t = translations[localeToLang(data.locale)];
-  const desc = data.page.slug === ABOUT_SLUG
-    ? t.aboutLede
-    : legalLede(t, data.page.slug) ?? firstParagraph(data.page.content[key]);
+  const desc = data.lede ?? firstParagraph(data.page.content[key]);
   return [
     { title: pageTitle(data.page.title[key], sfx) },
     ...(desc ? [{ name: 'description', content: desc }] : []),
@@ -65,10 +58,6 @@ export default function ContentPage() {
 
   const lede = legalLede(t, page.slug);
   if (lede) return <LegalPage t={t} title={page.title[key]} lede={lede} source={page.content[key]} />;
-
-  if (page.slug === TERMS_SLUG && config.paymentMode !== 'cash') {
-    return <TermsBento locale={locale} heading={page.title[key]} lead={TERMS_LEAD[key]} />;
-  }
 
   return (
     <div className="max-w-[760px] mx-auto px-4 py-10 md:py-14">

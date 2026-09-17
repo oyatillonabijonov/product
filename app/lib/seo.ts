@@ -44,7 +44,13 @@ export function productDescriptionFallback(locale: 'uz' | 'ru', name: string, br
     : `${name} — ${b}original, rasmiy kafolat bilan. Narxi ${price}. ${store}, Toshkent.`;
 }
 
-export function organizationJsonLd(config?: ApiSiteConfig, origin?: string) {
+/** JSON-LD uchun manzil va ish vaqti — sayt matnlaridan (store loader `orgContact`), admin'da tahrirlanadi. */
+export interface OrgContact {
+  address: string;
+  openingHours: string;
+}
+
+export function organizationJsonLd(config: ApiSiteConfig | undefined, origin: string | undefined, contact: OrgContact) {
   // Yandex `ll` = "lon,lat"; schema.org geo lat/lon alohida.
   const [lon, lat] = (config?.mapLl ?? siteConfig.map.ll).split(',').map(Number);
   return {
@@ -56,13 +62,12 @@ export function organizationJsonLd(config?: ApiSiteConfig, origin?: string) {
     ...(origin ? { url: origin } : {}),
     address: {
       '@type': 'PostalAddress',
-      streetAddress: config?.mapLabel ?? siteConfig.map.label,
+      streetAddress: contact.address,
       addressLocality: 'Toshkent',
       addressCountry: 'UZ',
     },
     ...(Number.isFinite(lat) && Number.isFinite(lon) ? { geo: { '@type': 'GeoCoordinates', latitude: lat, longitude: lon } } : {}),
-    // Ish vaqti footer'dagi `footerTime` bilan bir xil (Du-Yak 10:00-21:00).
-    openingHours: 'Mo-Su 10:00-21:00',
+    openingHours: contact.openingHours,
   };
 }
 

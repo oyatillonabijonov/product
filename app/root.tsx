@@ -1,6 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation, useRouteLoaderData } from 'react-router';
 import { htmlLang, DEFAULT_LOCALE, type Locale } from './lib/i18n';
-import { hreflangLinks, organizationJsonLd } from './lib/seo';
+import { hreflangLinks, organizationJsonLd, type OrgContact } from './lib/seo';
 import type { ApiSiteConfig } from '../shared/types';
 import './styles.css';
 
@@ -12,10 +12,13 @@ import './styles.css';
 // it ever reaches <Meta />. Rendering them here in the root Layout (which always wraps
 // every page) guarantees they appear on every page regardless of leaf meta overrides.
 export function Layout({ children }: { children: React.ReactNode }) {
-  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig; origin?: string } | undefined;
+  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig; origin?: string; orgContact?: OrgContact } | undefined;
   const lang = htmlLang(storeData?.locale ?? DEFAULT_LOCALE);
   const location = useLocation();
-  const jsonLd = JSON.stringify(organizationJsonLd(storeData?.siteConfig, storeData?.origin)).replace(/</g, '\\u003c');
+  const orgContact = storeData?.orgContact;
+  const jsonLd = storeData && orgContact
+    ? JSON.stringify(organizationJsonLd(storeData.siteConfig, storeData.origin, orgContact)).replace(/</g, '\\u003c')
+    : '';
   // Yandex Metrica — faqat hisoblagich sozlanganda (admin "Sayt ma'lumotlari") va
   // faqat storefront'da (storeData admin/resource routelarda yo'q). Id raqamligini
   // parseSiteConfigInput kafolatlaydi — baribir Number() bilan qo'shamiz (XSS himoyasi).
@@ -36,8 +39,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
               // React `hrefLang` propini HTMLga `hreflang=` qilib chiqaradi (kichik harfli prop ogohlantirish berardi).
               <link key={link.hrefLang} rel={link.rel} hrefLang={link.hrefLang} href={link.href} />
             ))}
-            {/* eslint-disable-next-line react/no-danger */}
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+            {jsonLd && (
+              <>
+                {/* eslint-disable-next-line react/no-danger */}
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+              </>
+            )}
           </>
         )}
         <Meta />
