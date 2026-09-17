@@ -6,6 +6,7 @@ import type { LangKey, Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import type { ApiCategory, ApiCustomer, ApiSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
+import type { SiteAssets } from '../lib/site-content';
 import Header from './Header';
 import Footer from './Footer';
 import ContactFab from './ContactFab';
@@ -15,6 +16,7 @@ import { loginEnabled } from './LoginPanel';
 import { CartProvider } from './CartContext';
 import { FavoritesProvider } from './FavoritesContext';
 import { CurrencyProvider } from './CurrencyContext';
+import { SiteAssetsProvider } from './SiteAssets';
 import type { Currency } from '../lib/currency';
 
 export interface StoreContext {
@@ -30,8 +32,8 @@ export interface StoreContext {
 }
 
 export default function StoreLayout({
-  locale, lang, t, config, customer, pageLinks, categories, hasDeals, currency, usdRate, children,
-}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; customer: ApiCustomer | null; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean; currency: Currency; usdRate: number; children: ReactNode }) {
+  locale, lang, t, config, customer, pageLinks, categories, hasDeals, currency, usdRate, assets, children,
+}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; customer: ApiCustomer | null; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean; currency: Currency; usdRate: number; assets: SiteAssets; children: ReactNode }) {
   // SSR navigatsiyasi (filtr/sort/sahifa) sekin tarmoqda feedback'siz edi — indeterminate progress-bar.
   const navigation = useNavigation();
   const pending = navigation.state !== 'idle';
@@ -49,6 +51,7 @@ export default function StoreLayout({
     ymHit(config.yandexMetricaId, location.pathname + location.search);
   }, [location.pathname, location.search, config.yandexMetricaId]);
   return (
+    <SiteAssetsProvider assets={assets}>
     <CartProvider>
      <FavoritesProvider>
      <CurrencyProvider initial={currency} rate={usdRate} sum={t.sum}>
@@ -75,5 +78,6 @@ export default function StoreLayout({
      </CurrencyProvider>
      </FavoritesProvider>
     </CartProvider>
+    </SiteAssetsProvider>
   );
 }

@@ -5,6 +5,7 @@ import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
 import LocaleLink from './LocaleLink';
 import PageHero from './PageHero';
+import { useAssets } from './SiteAssets';
 import { LINK_MORE, SECTION_HEADING } from './ui';
 import { safeHref } from '../lib/safe-href';
 
@@ -41,6 +42,7 @@ const CardText: FC<{ icon: LucideIcon; title: string; text: string; className?: 
  * yetkazish muddatlari. Fotolar GPT'da yaratilgan (egasi), manba PNG'lar `public/`da qolmaydi.
  */
 const AboutPage: FC<{ t: Translation; config: ApiSiteConfig; title: string }> = ({ t, config, title }) => {
+  const asset = useAssets();
   const mapHref = `https://yandex.com/maps/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm`;
   const telegram = safeHref(config.telegram);
   const instagram = safeHref(config.instagram);
@@ -65,7 +67,7 @@ const AboutPage: FC<{ t: Translation; config: ApiSiteConfig; title: string }> = 
               <p className="mt-4 text-copy text-pretty text-body md:text-white/80">{t.aboutExpertsText}</p>
             </div>
             <img
-              src="/about/experts.webp"
+              src={asset('about.experts')}
               alt=""
               loading="lazy"
               className="aspect-[4/3] w-full object-cover object-[70%_50%] md:absolute md:inset-0 md:-z-10 md:aspect-auto md:h-full"
@@ -100,7 +102,7 @@ const AboutPage: FC<{ t: Translation; config: ApiSiteConfig; title: string }> = 
               </div>
             </CardText>
             <img
-              src="/about/delivery.webp"
+              src={asset('about.delivery')}
               alt=""
               loading="lazy"
               className="aspect-[3/2] w-full object-cover object-[55%_50%] lg:aspect-auto lg:h-full"
@@ -117,7 +119,7 @@ const AboutPage: FC<{ t: Translation; config: ApiSiteConfig; title: string }> = 
             </CardText>
             {/* Rasm o'ng va pastki chetdan chiqib turadi (apple.com banneri) — karta `overflow-hidden` kesadi. */}
             <img
-              src="/about/news.webp"
+              src={asset('about.news')}
               alt=""
               loading="lazy"
               className="w-full px-8 pb-8 md:px-10 md:pb-10 lg:translate-x-[6%] lg:translate-y-[6%] lg:self-end lg:p-0"

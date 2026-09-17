@@ -1,7 +1,7 @@
 import { Outlet, isRouteErrorResponse, redirect, useLoaderData, useLocation, useRouteError } from 'react-router';
 import type { Route } from './+types/store';
 import { resolveLocale, localeToLang, localizedPath, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
-import { loadSiteConfig, loadPages, loadCategories, loadConfig, hasDeals, publicSiteConfig, loadSiteTexts, type PageLink } from '../lib/loaders';
+import { loadSiteConfig, loadPages, loadCategories, loadConfig, hasDeals, publicSiteConfig, loadSiteTexts, loadSiteAssets, type PageLink } from '../lib/loaders';
 import type { OrgContact } from '../lib/seo';
 import { CURRENCY_COOKIE, parseCurrency } from '../../src/lib/currency';
 import { textOverrides } from '../../src/lib/site-content';
@@ -24,8 +24,8 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const env = context.env;
   // Kategoriyalar ham shu yerda — Header dropdown'i SSR HTMLda chiqadi
   // (crawler ichki linklarni ko'radi) va klientdagi qo'shimcha /api/categories so'rovi yo'qoladi.
-  const [siteConfig, pages, categories, deals, settings, siteTexts] = await Promise.all([
-    loadSiteConfig(env), loadPages(env), loadCategories(env), hasDeals(env), loadConfig(env), loadSiteTexts(env),
+  const [siteConfig, pages, categories, deals, settings, siteTexts, assets] = await Promise.all([
+    loadSiteConfig(env), loadPages(env), loadCategories(env), hasDeals(env), loadConfig(env), loadSiteTexts(env), loadSiteAssets(env),
   ]);
   const pageLinks: PageLink[] = pages.map((p) => ({ slug: p.slug, title: p.title }));
   // Kirgan mijoz — sessiya sirini allaqachon yuklangan siteConfig'dan olamiz (qo'shimcha D1 o'qishsiz).
@@ -46,16 +46,16 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const orgContact: OrgContact = { address: `${tt.footerAddressText1} ${tt.footerAddressText2}`, openingHours: tt.seoOpeningHours };
   return {
     locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, deals, currency, usdRate: settings.usdToUzs,
-    origin: new URL(request.url).origin, texts, orgContact,
+    origin: new URL(request.url).origin, texts, orgContact, assets,
   };
 }
 
 export default function StoreRoot() {
-  const { locale, siteConfig, pageLinks, categories, customer, deals, currency, usdRate, texts } = useLoaderData<typeof loader>();
+  const { locale, siteConfig, pageLinks, categories, customer, deals, currency, usdRate, texts, assets } = useLoaderData<typeof loader>();
   const lang = localeToLang(locale);
   const t: Translation = { ...translations[lang], ...texts };
   return (
-    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories} hasDeals={deals} currency={currency} usdRate={usdRate}>
+    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories} hasDeals={deals} currency={currency} usdRate={usdRate} assets={assets}>
       <Outlet context={{ t, lang, locale, config: siteConfig, customer, pageLinks }} />
     </StoreLayout>
   );

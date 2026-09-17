@@ -11,7 +11,8 @@ import CatalogView from '../../src/store/CatalogView';
 import CategoryCover from '../../src/store/CategoryCover';
 import CategoryTiles from '../../src/store/CategoryTiles';
 import PcConfigurator, { PC_SLOTS } from '../../src/store/PcConfigurator';
-import { columnForCategory } from '../../src/store/hero-columns';
+import { columnForCategory, heroColumns } from '../../src/store/hero-columns';
+import { useAssets } from '../../src/store/SiteAssets';
 
 export async function loader({ params, request, context }: Route.LoaderArgs) {
   const locale = resolveLocale(params.lang);
@@ -47,23 +48,23 @@ export function meta({ data, matches }: Route.MetaArgs) {
 export default function CategoryRoute() {
   const { result, config, title, brands, filters, category, tiles, parts } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
-  // Cover — avval kategoriyaning o'z rasmi (admin yuklaydi). Bo'lmasa landing
-  // ustuni, lekin faqat o'zinikida: HERO_COLUMNS landing uchun yasalgan, boshqa
-  // kategoriyada uning rasmi ham, matni ham yolg'on gapiradi.
-  const col = columnForCategory(category);
+  const asset = useAssets();
+  // Cover — avval kategoriyaning o'z rasmi (admin → Kategoriyalar). Bo'lmasa landing ustuni, lekin faqat
+  // o'zinikida: landing kartalari yo'nalishlar uchun, boshqa kategoriyada ularning rasmi yolg'on gapiradi.
+  const col = columnForCategory(heroColumns(ctx.t, asset), category);
   const isOwnColumn = col !== null && col.primary === category.id;
   const own = category.coverUrl ? { img: category.coverUrl } : null;
   const base = own ?? (isOwnColumn ? { img: col.img } : null);
-  // Video — yo'nalishning o'z san'ati, shuning uchun admin rasmi bo'lsa ham u
-  // poster bo'lib qoladi, harakat esa videodan keladi.
-  const cover = base && isOwnColumn && col.videos
-    ? { ...base, videos: col.videos, poster: col.poster }
+  // Video — yo'nalishning o'z san'ati (admin → Kontent → Bosh sahifa), shuning uchun kategoriya rasmi bo'lsa ham
+  // u poster bo'lib qoladi, harakat esa videodan keladi.
+  const cover = base && isOwnColumn && col.videos.length > 0
+    ? { ...base, videos: col.videos, poster: col.poster || undefined }
     : base;
   return (
     <>
       {cover && <CategoryCover {...cover} t={ctx.t} />}
       {/* Sarlavha davomi har bir yo'nalishda bir xil — bu do'konning va'dasi,
-          yo'nalishning ta'rifi emas; shuning uchun `HERO_COLUMNS`da emas,
+          yo'nalishning ta'rifi emas; shuning uchun landing kartalarida emas,
           `locales.ts`da turadi (ru tarjimasi bilan). */}
       <CatalogView
         t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters}

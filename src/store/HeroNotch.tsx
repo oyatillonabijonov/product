@@ -7,7 +7,7 @@ import { categoryLabel, type Locale } from '../../app/lib/i18n';
 import { Link } from 'react-router';
 import LocaleLink from './LocaleLink';
 import ThemeToggle from './ThemeToggle';
-import wordmark from '../assets/hero/wordmark.webp';
+import { useAssets } from './SiteAssets';
 import { SPRING_UI as SPRING } from '../lib/motion';
 
 
@@ -26,6 +26,7 @@ const ICON_BTN =
 export default function HeroNotch({ t, locale, categories }: {
   t: Translation; locale: Locale; categories: ApiCategory[];
 }) {
+  const asset = useAssets();
   const [hover, setHover] = useState(false);
   const [menu, setMenu] = useState(false);
   const [pinned, setPinned] = useState(false);
@@ -73,7 +74,7 @@ export default function HeroNotch({ t, locale, categories }: {
       className="rounded-b-xl fixed -top-[14px] left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center bg-black pt-5"
     >
       <LocaleLink to="/" className="block flex-none">
-        <img src={wordmark} alt="" aria-hidden className="block h-[25px] w-auto" />
+        <img src={asset('logoDark')} alt="" aria-hidden className="block h-[25px] w-auto" />
       </LocaleLink>
 
       <motion.div

@@ -2,8 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { FC } from 'react';
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
-import logo from '../assets/logo.svg';
-import logoDark from '../assets/hero/wordmark.webp';
+import { useAssets } from './SiteAssets';
 
 const GoogleG: FC = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
@@ -26,6 +25,7 @@ export function loginEnabled(config: ApiSiteConfig): boolean {
 const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; active?: boolean }> = ({
   t, config, error, active = true,
 }) => {
+  const asset = useAssets();
   const tgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,8 +45,8 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
 
   return (
     <div className="flex flex-col items-center gap-5">
-      <img src={logo} alt={config.name} className="logo-light h-9 w-auto object-contain" />
-      <img src={logoDark} alt="" aria-hidden className="logo-dark h-9 w-auto object-contain" />
+      <img src={asset('logo')} alt={config.name} className="logo-light h-9 w-auto object-contain" />
+      <img src={asset('logoDark')} alt="" aria-hidden className="logo-dark h-9 w-auto object-contain" />
       <h2 className="text-lede font-semibold text-primary">{t.loginTitle}</h2>
 
       {error && <p className="text-sale text-label">{t.loginError}</p>}

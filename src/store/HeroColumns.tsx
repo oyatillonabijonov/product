@@ -4,7 +4,8 @@ import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } f
 import { localizedPath } from '../../app/lib/i18n';
 import type { ApiCategory } from '../../shared/types';
 import type { StoreContext } from './StoreLayout';
-import { HERO_COLUMNS, columnHref, type HeroColumn } from './hero-columns';
+import { columnHref, heroColumns, type HeroColumn } from './hero-columns';
+import { useAssets } from './SiteAssets';
 import proMark from '../assets/hero/pro.svg';
 import { EASE_GLIDE as GLIDE } from '../lib/motion';
 
@@ -78,7 +79,9 @@ function HeroCard({ col, href, index, hovered, onHover, proY }: {
 }
 
 export default function HeroColumns({ categories }: { categories: ApiCategory[] }) {
-  const { locale } = useOutletContext<StoreContext>();
+  const { locale, t } = useOutletContext<StoreContext>();
+  const asset = useAssets();
+  const columns = heroColumns(t, asset);
   const heroRef = useRef<HTMLDivElement | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   const reduced = useReducedMotion();
@@ -102,7 +105,7 @@ export default function HeroColumns({ categories }: { categories: ApiCategory[] 
         style={{ y: gridY }}
         className="absolute inset-[14px] grid grid-cols-2 md:grid-cols-4 gap-2"
       >
-        {HERO_COLUMNS.map((col, i) => (
+        {columns.map((col, i) => (
           <motion.div
             key={col.key}
             initial={reduced ? false : { opacity: 0, y: 46, scale: 0.985 }}

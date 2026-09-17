@@ -7,7 +7,7 @@ import type { ApiSiteConfig } from '../../shared/types';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
 import { ymGoal } from '../lib/metrica';
 import { SPRING_UI } from '../lib/motion';
-import consultArt from '../assets/consult.webp';
+import { useAssets } from './SiteAssets';
 
 
 /** Chip — bosilganda ichidagi doira to'ladi. Ko'p tanlash mumkin. */
@@ -43,6 +43,7 @@ const Chip: FC<{ label: string; on: boolean; onToggle: () => void }> = ({ label,
  * joyida qoladi, bo'lim balandligi sakramaydi.
  */
 const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config }) => {
+  const asset = useAssets();
   const topics = [
     t.consultTopicApple, t.consultTopicPc, t.consultTopicAudio,
     t.consultTopicVideo, t.consultTopicService, t.consultTopicOther,
@@ -100,7 +101,7 @@ const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config 
             pin va otvertka doim kadrda). Aks holda rasm o'z tabiiy balandligini
             tortib, kartani cho'zib yuborardi. */}
         <div aria-hidden className="relative h-72 md:h-96 lg:h-auto">
-          <img src={consultArt} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+          <img src={asset('consult.image')} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
         </div>
 
         <div className="flex flex-col justify-center px-6 py-10 md:px-12 md:py-14 lg:px-16 lg:py-20">

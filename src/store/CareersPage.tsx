@@ -9,7 +9,7 @@ import { renderMarkdown } from '../lib/markdown';
 import { MdBlockView } from './Markdown';
 import JobApplyForm from './JobApplyForm';
 import { BTN_LG, BTN_MD, LINK_MORE, SECTION_HEADING } from './ui';
-import wordmark from '../assets/hero/wordmark.webp';
+import { useAssets } from './SiteAssets';
 
 const EMPLOYMENT_KEY: Record<EmploymentType, 'employmentFull' | 'employmentPart' | 'employmentIntern'> = {
   full: 'employmentFull', part: 'employmentPart', intern: 'employmentIntern',
@@ -57,6 +57,7 @@ const VacancyItem: FC<{ t: Translation; locale: Locale; vacancy: ApiVacancy; onA
 const CareersPage: FC<{ t: Translation; locale: Locale; vacancies: ApiVacancy[] }> = ({ t, locale, vacancies }) => {
   const [applyingRaw, setApplying] = useState<Applying>(null);
   const applying = applyingRaw as Applying;
+  const asset = useAssets();
   const why: { icon: LucideIcon; title: string; text: string }[] = [
     { icon: Cpu, title: t.careersWhyTechTitle, text: t.careersWhyTechText },
     { icon: MessagesSquare, title: t.careersWhyClientTitle, text: t.careersWhyClientText },
@@ -68,7 +69,7 @@ const CareersPage: FC<{ t: Translation; locale: Locale; vacancies: ApiVacancy[] 
     <>
       {/* Hero ikkala mavzuda qora — apple.com/careers kabi; logo Apple'dagi belgining o'rnida. */}
       <section className="shell-box mt-4 flex min-h-[420px] flex-col items-center justify-center rounded-xl bg-black px-6 py-20 text-center md:min-h-[560px]">
-        <img src={wordmark} alt="" className="h-9 w-auto md:h-12" />
+        <img src={asset('logoDark')} alt="" className="h-9 w-auto md:h-12" />
         <h1 className="mt-8 text-balance text-heading font-semibold text-white md:text-display">{t.careersHeroTitle}</h1>
         <a href="#vakansiyalar" className={`${BTN_LG} mt-8 bg-white text-black hover:bg-white/90`}>{t.careersHeroCta}</a>
       </section>
@@ -86,7 +87,7 @@ const CareersPage: FC<{ t: Translation; locale: Locale; vacancies: ApiVacancy[] 
         </div>
         {/* Matn md'dan fotoning chap-yuqori qorong'i qismida; mobilda foto ostida (tor kadrda yuzlarga tushardi). */}
         <figure className="relative isolate overflow-hidden rounded-xl bg-black lg:col-span-7">
-          <img src="/careers/work.webp" alt="" loading="lazy" className="aspect-[3/2] w-full object-cover" />
+          <img src={asset('careers.work')} alt="" loading="lazy" className="aspect-[3/2] w-full object-cover" />
           <figcaption className="p-6 md:absolute md:inset-x-0 md:top-0 md:w-[55%] md:p-10">
             <blockquote className="text-subhead font-semibold text-balance text-white md:text-heading">“{t.careersWorkQuote}”</blockquote>
             <p className="mt-3 text-copy text-white/70">{t.careersQuoteBy}</p>
@@ -102,7 +103,7 @@ const CareersPage: FC<{ t: Translation; locale: Locale; vacancies: ApiVacancy[] 
         </div>
         {/* Egasining yashil gradienti — "Biz haqimizda" hero'si oilasidan; qorong'ida `dark-invert`. */}
         <figure className="relative isolate flex min-h-[260px] items-center overflow-hidden rounded-xl p-8 md:min-h-[380px] md:p-12 lg:order-1 lg:col-span-7">
-          <img src="/careers/life.webp" alt="" loading="lazy" className="dark-invert absolute inset-0 -z-10 h-full w-full object-cover" />
+          <img src={asset('careers.life')} alt="" loading="lazy" className="dark-invert absolute inset-0 -z-10 h-full w-full object-cover" />
           <p className="max-w-[520px] text-heading font-semibold text-balance text-primary md:text-title">{t.careersLifeCard}</p>
         </figure>
       </section>

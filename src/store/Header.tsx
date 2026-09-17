@@ -8,11 +8,10 @@ import { localizedPath, langToLocale, stripLocale, categoryLabel, type Locale } 
 import { formatUzs } from '../lib/installment';
 import { parseCurrency } from '../lib/currency';
 import { SPRING_SNAPPY, SPRING_UI } from '../lib/motion';
-import logo from '../assets/logo.svg';
-import logoDark from '../assets/hero/wordmark.webp';
 import { useCart } from './CartContext';
 import { useFavorites } from './FavoritesContext';
 import { useCurrency } from './CurrencyContext';
+import { useAssets } from './SiteAssets';
 import ThemeToggle from './ThemeToggle';
 import { PILL } from './ui';
 
@@ -66,6 +65,7 @@ export default function Header({
   /** Chegirma bormi — bo'lmasa menyuda "Chegirmalar" havolasi chiqmaydi (footer bilan bir qoida). */
   hasDeals: boolean;
 }) {
+  const asset = useAssets();
   const [q, setQ] = useState('');
   const [catOpen, setCatOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -276,9 +276,9 @@ export default function Header({
     >
       <div className="shell h-14 lg:h-16 flex items-center gap-2 lg:gap-4">
         <Link to={localizedPath(locale, '/')} className="shrink-0 mr-auto lg:mr-0">
-          <img src={logo} alt={brandName} className="logo-light h-8 lg:h-9" />
+          <img src={asset('logo')} alt={brandName} className="logo-light h-8 lg:h-9" />
           {/* Qorong'i fonda logo.svg'ning to'q pillasi yo'qolib ketadi — o'rniga och wordmark. */}
-          <img src={logoDark} alt="" aria-hidden className="logo-dark h-8 lg:h-9" />
+          <img src={asset('logoDark')} alt="" aria-hidden className="logo-dark h-8 lg:h-9" />
         </Link>
 
         {/* Kompaniya havolasi logo yonida; `lg`gacha 1-qatorga sig'maydi — Katalog menyusida. */}
