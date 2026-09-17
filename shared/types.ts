@@ -318,6 +318,12 @@ export interface ApiOrder extends OrderInput {
   telegramSent: boolean;
 }
 
+/** Admin'da tahrirlangan sayt matni (`site_texts`); bo'sh til — `locales.ts`dagi standart. */
+export interface ApiSiteText {
+  uz: string;
+  ru: string;
+}
+
 /** Admin bosh sahifasi — faqat harakat talab qiladigan sanoqlar (`GET /api/admin/dashboard`). */
 export interface ApiDashboard {
   /** Billz tovarlari: qoldiq bor, rasm yo'q — saytda ko'rinmaydi. */
