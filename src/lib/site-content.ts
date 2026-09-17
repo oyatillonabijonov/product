@@ -177,7 +177,7 @@ export interface AssetField {
   hint?: string;
 }
 
-const VIDEO_HINT = "Landing kartasida emas — yo'nalish sahifasining cover'ida aylanadi; bo'lmasa cover'da rasm turadi. MP4, 40 MB gacha";
+const VIDEO_HINT = "Landing kartasida emas — yo'nalish sahifasining cover'ida aylanadi; bo'lmasa cover'da rasm turadi. MP4, 40 MB gacha; tavsiya — 10 soniyagacha, 1080p, iloji boricha 8 MB dan kichik (sahifa mobilda ham videoni to'liq yuklaydi)";
 
 function heroAssetFields(id: 'apple' | 'pc' | 'audio' | 'video', name: string): AssetField[] {
   const section = "Yo'nalish kartalari";

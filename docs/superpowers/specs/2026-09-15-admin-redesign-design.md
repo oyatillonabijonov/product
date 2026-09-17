@@ -259,7 +259,7 @@ CREATE TABLE product_types (
   `aboutExpertsText`, `aboutWarrantyTitle`, `aboutWarrantyText`, `aboutBuyTitle`, `aboutBuyText`,
   `aboutTradeInLink`, `aboutPersonalTitle`, `aboutPersonalText`, `aboutNearTitle`, `aboutNearText`,
   `aboutNewsTitle`, `aboutNewsText`, `aboutBlogLink`.
-- `careers` (26): `careersMetaDesc`, `careersHeroTitle`, `careersHeroCta`, `careersIntro`, `careersWorkEyebrow`,
+- `careers` (27): `careersMetaDesc`, `careersHeroTitle`, `careersHeroCta`, `careersIntro`, `careersWorkEyebrow`,
   `careersWorkTitle`, `careersWorkText`, `careersWorkQuote`, `careersQuoteBy`, `careersLifeEyebrow`,
   `careersLifeTitle`, `careersLifeText`, `careersLifeCard`, `careersWhyTitle`, `careersWhyMuted`,
   `careersWhyTechTitle`, `careersWhyTechText`, `careersWhyClientTitle`, `careersWhyClientText`,
@@ -338,7 +338,7 @@ ham yiqitadi (lint) — etim kalit qolmaydi.
   sahifalar kabi **`LegalPage` shablonida** (mundarija + hero izohi) bazadagi markdown bilan chiziladi;
   `page.tsx`dagi `legalLede` xaritasiga `muddatli-tolov: t.termsLede` qo'shiladi, `TERMS_LEAD` o'chadi.
 - **`ContactFab`** — `config.whatsapp` bo'lsa WhatsApp tugmasi (brend rangi `#25D366` ruxsat etilgan literal).
-- **`seo.ts`** — JSON-LD manzil `t.footerAddressText1 + ' ' + footerAddressText2`, `openingHours` `t.seoOpeningHours`;
+- **`seo.ts`** — JSON-LD `streetAddress` `t.footerAddressText2` (1-qatordagi davlat va shahar `addressLocality`/`addressCountry`da; 4a yakuniy review), `openingHours` `t.seoOpeningHours`;
   `mapLabel` ishlatilmaydi.
 - **`/images/*` Range:** `server/index.ts`da `app.use('/images/products', express.static(join(IMAGES_DIR,'products'),
   { immutable: true, maxAge: '1y', index: false, redirect: false }))` — Range/ETag Express'dan (Safari `<video>`

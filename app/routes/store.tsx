@@ -42,8 +42,8 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   // Admin'da o'zgartirilgan matnlar — faqat joriy til va registr kalitlari; komponent ularni `locales.ts` ustiga qo'yadi.
   const texts = textOverrides(siteTexts, locale === 'ru' ? 'ru' : 'uz');
   const tt: Translation = { ...translations[localeToLang(locale)], ...texts };
-  // Organization JSON-LD (root.tsx) manzili va ish vaqti — sayt matnlaridan.
-  const orgContact: OrgContact = { address: `${tt.footerAddressText1} ${tt.footerAddressText2}`, openingHours: tt.seoOpeningHours };
+  // Organization JSON-LD (root.tsx) — ko'cha manzili (2-qator; 1-qatordagi davlat va shahar JSON-LD'da alohida maydonlarda) va ish vaqti sayt matnlaridan.
+  const orgContact: OrgContact = { address: tt.footerAddressText2, openingHours: tt.seoOpeningHours };
   return {
     locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, deals, currency, usdRate: settings.usdToUzs,
     origin: new URL(request.url).origin, texts, orgContact, assets,
