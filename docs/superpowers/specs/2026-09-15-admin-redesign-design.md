@@ -243,7 +243,7 @@ CREATE TABLE product_types (
 ```
 
 ### Matn registri — `src/lib/site-content.ts` (`TEXT_FIELDS`, `Translation` kalitlariga tiplangan)
-`{ key, group, label, kind: 'text' | 'textarea', hint? }`. Guruhlar va kalitlar:
+`{ key, group, section, label, kind: 'text' | 'textarea', hint? }` (`section` — admin kartasining sarlavhasi). Guruhlar va kalitlar:
 
 - `home`: yangi `heroApple`, `heroPc`, `heroAudio`, `heroVideo` (textarea, `\n` qatorga bo'ladi — hozirgi
   `HERO_COLUMNS.label`); `proTitle`; `svcTitle`, `svcWarrantyCard`, `svcWarrantyDesc`, `svcDeliveryCard`,
@@ -346,6 +346,13 @@ ham yiqitadi (lint) — etim kalit qolmaydi.
 - **O'chiriladi:** `src/lib/category-icons.tsx`, `CategoryList`/`CategoryForm`dagi ikonka va cover izohi
   maydonlari, `HeroColumns`dagi `HERO_COLUMNS` importi (funksiyaga), eski admin komponentlari (6-bosqichda).
 - `locales.ts`: `hero*` (4), `seoOpeningHours`, `termsLede` qo'shiladi; `svcServiceTitle` yo'q edi — kerak emas.
+
+4a qarorlari (2026-09-17): `loadT` ishlatadigan route'lar — `catalog`, `deals`, `brand`, `category`, `vakansiyalar`, `page`
+(`home`, `product`, `blog` `meta()`da registr kalitini o'qimaydi); rasm/videolar store layout'da React context bilan
+(`SiteAssetsProvider` / `useAssets`, standartlar `ASSET_DEFAULTS`); JSON-LD manzili va ish vaqti store loader'ida
+(`orgContact`), root bundle'iga `locales.ts` qo'shilmaydi; `termsLede` standarti neytral («Buyurtma, to'lov va yetkazib
+berish shartlari.») — sahifa har rejimda chiqadi; konsultatsiya mavzularini yashirish yo'q (§2 «chip soni qat'iy» va §6
+«bo'sh = standart» ustun); `PUT /api/admin/texts` standartga teng tilni bo'sh saqlaydi.
 
 ## 8. Xavfsizlik va kesh
 
