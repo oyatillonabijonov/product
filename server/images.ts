@@ -1,5 +1,5 @@
 import { createReadStream, existsSync, mkdirSync, statSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { dirname, join, normalize } from 'node:path';
 import { Readable } from 'node:stream';
@@ -8,9 +8,10 @@ import type { ImageStore } from '../shared/runtime';
 /**
  * Disk ustidan R2 API'si — rasm va video ombori.
  *
- * Faqat `get`/`put` kerak: admin rasm yuklaydi (`api.admin.upload`), storefront
- * uni `/images/*` orqali beradi. Kalitlar `products/<uuid>.<ext>` ko'rinishida,
- * shu sabab papkadan tashqariga chiqishga yo'l qo'yilmaydi.
+ * `get`/`put`: admin rasm yuklaydi (`api.admin.upload`), storefront uni `/images/*`
+ * orqali beradi; `delete` — admin almashtirgan video fayli (`api.admin.assets`).
+ * Kalitlar `products/<uuid>.<ext>` ko'rinishida, shu sabab papkadan tashqariga
+ * chiqishga yo'l qo'yilmaydi.
  */
 const MIME: Record<string, string> = {
   webp: 'image/webp',
@@ -57,6 +58,10 @@ export function openImageStore(dir: string): ImageStore {
       mkdirSync(dirname(file), { recursive: true });
       await writeFile(file, Buffer.from(data));
       void options; // contentType kengaytmadan aniqlanadi — alohida saqlash shart emas
+    },
+    async delete(key) {
+      const file = pathFor(dir, key);
+      if (file) await rm(file, { force: true });
     },
   };
 }

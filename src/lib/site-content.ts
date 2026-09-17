@@ -26,7 +26,8 @@ const NEW_LINE = 'Enter — yangi qator';
 const TOPIC = 'Konsultatsiya formasidagi mavzu tugmasi';
 const MUTED = 'Och rangda chiqadi';
 
-const heroCards = inSection('home', "Yo'nalish kartalari");
+/** Landing'dagi har yo'nalish kartasi admin'da alohida karta: nom, rasm, poster, 2 video. */
+const heroCard = (name: string) => inSection('home', `${name} kartasi`);
 const services = inSection('home', "Xizmat va'dalari");
 const consult = inSection('home', 'Konsultatsiya');
 const homeTitles = inSection('home', 'Sarlavhalar');
@@ -46,14 +47,14 @@ const careersWork = inSection('careers', "ProDuct'da ishlash");
 const careersLife = inSection('careers', 'Jamoadagi hayot');
 const careersWhy = inSection('careers', 'Bizda ish qanday');
 const careersRoles = inSection('careers', 'Vakansiyalar va ariza');
-const legal = inSection('legal', 'Hero izohi');
+const legal = inSection('legal', 'Sarlavha ostidagi izoh');
 const seo = inSection('seo', 'Katalog sahifalari');
 
 export const TEXT_FIELDS: TextField[] = [
-  heroCards('heroApple', 'Apple kartasi', 'textarea', NEW_LINE),
-  heroCards('heroPc', 'PC kartasi', 'textarea', NEW_LINE),
-  heroCards('heroAudio', 'Audio kartasi', 'textarea', NEW_LINE),
-  heroCards('heroVideo', 'Video kartasi', 'textarea', NEW_LINE),
+  heroCard('Apple')('heroApple', 'Nomi', 'textarea', NEW_LINE),
+  heroCard('PC')('heroPc', 'Nomi', 'textarea', NEW_LINE),
+  heroCard('Audio')('heroAudio', 'Nomi', 'textarea', NEW_LINE),
+  heroCard('Video')('heroVideo', 'Nomi', 'textarea', NEW_LINE),
 
   services('svcTitle', "Bo'lim sarlavhasi"),
   services('heroCtaPrimary', 'Katalog tugmasi', 'text', 'Sarlavha yonidagi tugma'),
@@ -180,12 +181,12 @@ export interface AssetField {
 const VIDEO_HINT = "Landing kartasida emas — yo'nalish sahifasining cover'ida aylanadi; bo'lmasa cover'da rasm turadi. MP4, 40 MB gacha; tavsiya — 10 soniyagacha, 1080p, iloji boricha 8 MB dan kichik (sahifa mobilda ham videoni to'liq yuklaydi)";
 
 function heroAssetFields(id: 'apple' | 'pc' | 'audio' | 'video', name: string): AssetField[] {
-  const section = "Yo'nalish kartalari";
+  const section = `${name} kartasi`;
   return [
-    { key: `hero.${id}.image`, group: 'home', section, label: `${name} — rasm`, kind: 'image', hint: "Landing kartasi va yo'nalish sahifasining cover'i" },
-    { key: `hero.${id}.poster`, group: 'home', section, label: `${name} — video posteri`, kind: 'image', hint: 'Video yuklanguncha turadigan kadr' },
-    { key: `hero.${id}.video1`, group: 'home', section, label: `${name} — 1-video`, kind: 'video', hint: VIDEO_HINT },
-    { key: `hero.${id}.video2`, group: 'home', section, label: `${name} — 2-video`, kind: 'video', hint: VIDEO_HINT },
+    { key: `hero.${id}.image`, group: 'home', section, label: 'Rasm', kind: 'image', hint: "Landing kartasi va yo'nalish sahifasining cover'i" },
+    { key: `hero.${id}.poster`, group: 'home', section, label: 'Video posteri', kind: 'image', hint: 'Video yuklanguncha turadigan kadr' },
+    { key: `hero.${id}.video1`, group: 'home', section, label: '1-video', kind: 'video', hint: VIDEO_HINT },
+    { key: `hero.${id}.video2`, group: 'home', section, label: '2-video', kind: 'video', hint: VIDEO_HINT },
   ];
 }
 
@@ -252,4 +253,20 @@ export function planTextWrites(input: SiteTexts, uzBase: Translation, ruBase: Tr
     const v = input[f.key];
     return { key: f.key, uz: v.uz === uzBase[f.key] ? '' : v.uz, ru: v.ru === ruBase[f.key] ? '' : v.ru };
   });
+}
+
+/**
+ * `PUT /api/admin/assets`dan keyin diskdan o'chiriladigan fayllar (ombor kaliti, `products/…`): video kalitining
+ * almashtirilgan yoki olib tashlangan eski fayli, agar u boshqa kalitda ishlatilmasa. Rasmlar o'chirilmaydi — kichik,
+ * proxy keshidagi sahifa (1–5 daqiqa) eski rasmni so'rab singan rasm ko'rsatardi; video yo'qolsa cover posterida qoladi.
+ */
+export function staleVideoFiles(before: SiteAssets, after: SiteAssets): string[] {
+  const inUse = new Set(Object.values(after));
+  const out = new Set<string>();
+  for (const f of ASSET_FIELDS) {
+    const old = before[f.key];
+    if (f.kind !== 'video' || !old || old === after[f.key] || inUse.has(old) || !old.startsWith('/images/products/')) continue;
+    out.add(old.slice('/images/'.length));
+  }
+  return [...out];
 }

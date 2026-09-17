@@ -4,27 +4,16 @@ import { loadPage, loadT } from '../lib/loaders';
 import { resolveLocale, localeToTextKey } from '../lib/i18n';
 import { pageTitle, storeConfigFrom } from '../lib/seo';
 import { firstParagraph } from '../../src/lib/markdown';
+import { ABOUT_SLUG, LEGAL_LEDE_KEYS } from '../../src/lib/page-slugs';
 import type { Translation } from '../../src/locales';
 import Markdown from '../../src/store/Markdown';
 import AboutPage from '../../src/store/AboutPage';
 import LegalPage from '../../src/store/LegalPage';
 import type { StoreContext } from '../../src/store/StoreLayout';
 
-/** "Biz haqimizda" — markdown o'rniga maxsus sahifa (matn sayt matnlarida); sarlavha va footer havolasi bazadagi yozuvdan. */
-const ABOUT_SLUG = 'biz-haqimizda';
-
-/**
- * Huquqiy hujjatlar va "Shartlar" (`muddatli-tolov`) `LegalPage` shablonida — matn bazadan, hero izohi va meta
- * description sayt matnlaridan. "Shartlar" to'lov rejimidan qat'i nazar shu shablonda (2026-09-17: `TermsBento` olib tashlandi).
- */
 function legalLede(t: Translation, slug: string): string | undefined {
-  const ledes: Record<string, string | undefined> = {
-    oferta: t.legalLedeOferta,
-    maxfiylik: t.legalLedePrivacy,
-    qaytarish: t.legalLedeReturns,
-    'muddatli-tolov': t.termsLede,
-  };
-  return ledes[slug];
+  const key = LEGAL_LEDE_KEYS[slug];
+  return key ? t[key] : undefined;
 }
 
 export async function loader({ params, context }: Route.LoaderArgs) {

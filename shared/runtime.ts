@@ -36,6 +36,8 @@ export interface ImageStore {
   /** Fayl bormi — sinxronizatsiya rasmni qayta yuklamaslik uchun (oqim ochmasdan). */
   has(key: string): Promise<boolean>;
   put(key: string, data: ArrayBuffer, options?: { httpMetadata?: { contentType?: string } }): Promise<void>;
+  /** Faylni o'chiradi; yo'q bo'lsa jim (admin almashtirgan video — `api.admin.assets`). */
+  delete(key: string): Promise<void>;
 }
 
 export interface Env {

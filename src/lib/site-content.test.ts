@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { translations } from '../locales';
-import { ASSET_FIELDS, ASSET_KEYS, TEXT_FIELDS, isAssetKey, mergeTexts, planTextWrites, textOverrides } from './site-content';
+import { ASSET_FIELDS, ASSET_KEYS, TEXT_FIELDS, isAssetKey, mergeTexts, planTextWrites, staleVideoFiles, textOverrides } from './site-content';
+import { LEGAL_LEDE_KEYS } from './page-slugs';
 
 const uz = translations["O'zbek tili"];
 const ru = translations['Rus tili'];
@@ -47,5 +48,26 @@ describe('registr', () => {
   it('isAssetKey', () => {
     expect(isAssetKey('hero.pc.video1')).toBe(true);
     expect(isAssetKey('hero.tv.image')).toBe(false);
+  });
+});
+
+describe('staleVideoFiles', () => {
+  it("almashtirilgan va olib tashlangan video fayllari o'chiriladi", () => {
+    expect(staleVideoFiles(
+      { 'hero.pc.video1': '/images/products/a.mp4', 'hero.pc.video2': '/images/products/b.mp4' },
+      { 'hero.pc.video1': '/images/products/c.mp4' },
+    )).toEqual(['products/a.mp4', 'products/b.mp4']);
+  });
+  it("o'zgarmagan, boshqa kalitda qolgan video va rasmlar o'chirilmaydi", () => {
+    expect(staleVideoFiles(
+      { 'hero.pc.video1': '/images/products/a.mp4', 'hero.pc.video2': '/images/products/b.mp4', logo: '/images/products/l.webp' },
+      { 'hero.pc.video1': '/images/products/a.mp4', 'hero.audio.video1': '/images/products/b.mp4' },
+    )).toEqual([]);
+  });
+});
+
+describe('LEGAL_LEDE_KEYS', () => {
+  it('izoh kalitlari legal guruhida', () => {
+    for (const key of Object.values(LEGAL_LEDE_KEYS)) expect(TEXT_FIELDS.find((f) => f.key === key)?.group).toBe('legal');
   });
 });
