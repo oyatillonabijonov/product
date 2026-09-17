@@ -5,6 +5,7 @@ import type { ApiCategory } from '../../../shared/types';
 import { createCategory, deleteCategory, listCategories, listTypes, updateCategory } from '../api';
 import { errText } from '../errText';
 import ImageUploader from '../ImageUploader';
+import { PHOTO_UPLOAD } from '../lib/content-form';
 import { Button, Card, Field, Input, LangPair, Page, Skeleton } from '../ui';
 import { useConfirm } from '../ui/confirm';
 import { useToast } from '../ui/toast';
@@ -109,7 +110,7 @@ const CategoryEdit: FC<{ id: string }> = ({ id }) => {
             </div>
           </Card>
           <Card title="Cover rasmi" description="Yo'nalish sahifasi tepasidagi keng (landshaft) rasm; bo'sh qolsa sahifa oddiy sarlavha bilan ochiladi.">
-            <ImageUploader label="Cover" images={form.coverUrl ? [form.coverUrl] : []} onChange={(next) => set('coverUrl', next[0] ?? '')} />
+            <ImageUploader label="Cover" images={form.coverUrl ? [form.coverUrl] : []} onChange={(next) => set('coverUrl', next[0] ?? '')} normalize={PHOTO_UPLOAD} />
           </Card>
           {!isNew && initial && (
             <Card title="Xavfli zona" description="Yo'nalish bilan birga uning turlari o'chadi; mahsulotlar kategoriyasiz qoladi.">

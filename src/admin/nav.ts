@@ -44,8 +44,8 @@ export const SECTIONS: SectionDef[] = [
     id: 'content', label: 'Kontent', short: 'Kontent', Icon: FileText,
     tabs: [
       { id: 'home', segment: 'home', label: 'Bosh sahifa', Icon: House, ownPage: true },
-      { id: 'banners', segment: 'banners', label: 'Bannerlar', Icon: Image },
-      { id: 'news', segment: 'news', label: 'Yangiliklar', Icon: Megaphone },
+      { id: 'banners', segment: 'banners', label: 'Bannerlar', Icon: Image, detail: true },
+      { id: 'news', segment: 'news', label: 'Yangiliklar', Icon: Megaphone, detail: true },
       { id: 'posts', segment: 'posts', label: 'Blog', Icon: Newspaper },
       { id: 'pages', segment: 'pages', label: 'Sahifalar', Icon: BookOpen },
       { id: 'vacancies', segment: 'vacancies', label: 'Vakansiyalar', Icon: Briefcase },
