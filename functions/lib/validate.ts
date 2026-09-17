@@ -1,6 +1,7 @@
 import type {
   ApiCategory,
   ApiNews,
+  ApiSiteText,
   ApiVacancy,
   EmploymentType,
   ApiProduct,
@@ -688,4 +689,45 @@ export function parseTypeInput(body: unknown): TypeInput {
   if (billzAliases.length > MAX_ALIASES || billzAliases.some((a) => a.length > MAX_ALIAS_LEN)) throw new ValidationError('aliases_limit');
   const sortOrder = typeof o.sortOrder === 'number' && Number.isFinite(o.sortOrder) ? o.sortOrder : 0;
   return { id, categoryId, label, labelRu, iconUrl, billzAliases, sortOrder };
+}
+
+const MAX_SITE_TEXT = 2000;
+// Faqat admin yuklagan fayl: `products/<uuid>.<ext>` (upload route kalitlari), so'rov qatori va `..` yo'q.
+const SITE_ASSET_URL = /^\/images\/products\/[A-Za-z0-9-]+\.(webp|png|jpg|mp4)$/;
+
+/**
+ * Sayt matnlari (`PUT /api/admin/texts`): kalit registrda (`keys` — route `TEXT_FIELDS`dan beradi, `functions/`
+ * `src/`ni ko'rmaydi), har til trim qilinadi va ≤ 2000 belgi; bo'sh til — standart matn.
+ */
+export function parseTextsInput(body: unknown, keys: readonly string[]): Record<string, ApiSiteText> {
+  const o = asRecord(body);
+  const out: Record<string, ApiSiteText> = {};
+  for (const [key, raw] of Object.entries(o)) {
+    if (!keys.includes(key)) throw new ValidationError('key_invalid');
+    const v = asRecord(raw);
+    const uz = typeof v.uz === 'string' ? v.uz.trim() : '';
+    const ru = typeof v.ru === 'string' ? v.ru.trim() : '';
+    if (uz.length > MAX_SITE_TEXT || ru.length > MAX_SITE_TEXT) throw new ValidationError('text_too_long');
+    out[key] = { uz, ru };
+  }
+  return out;
+}
+
+/**
+ * Sayt rasm/videolari (`PUT /api/admin/assets`): kalit registrda, yo'l faqat yuklangan fayl, video kalitiga faqat
+ * `.mp4`, rasm kalitiga `.mp4` emas; bo'sh — standartga qaytish (qator o'chiriladi).
+ */
+export function parseAssetsInput(body: unknown, fields: readonly { key: string; kind: 'image' | 'video' }[]): Record<string, string> {
+  const o = asRecord(body);
+  const out: Record<string, string> = {};
+  for (const [key, raw] of Object.entries(o)) {
+    const field = fields.find((f) => f.key === key);
+    if (!field) throw new ValidationError('key_invalid');
+    const url = typeof raw === 'string' ? raw.trim() : '';
+    if (url !== '' && (!SITE_ASSET_URL.test(url) || url.endsWith('.mp4') !== (field.kind === 'video'))) {
+      throw new ValidationError('url_invalid');
+    }
+    out[key] = url;
+  }
+  return out;
 }

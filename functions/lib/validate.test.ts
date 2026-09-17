@@ -15,6 +15,8 @@ import {
   parseVacancyInput,
   parseJobApplicationInput,
   parseTypeInput,
+  parseTextsInput,
+  parseAssetsInput,
   ValidationError,
 } from './validate';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
@@ -515,5 +517,57 @@ describe('parseTypeInput', () => {
   it('40 belgidan uzun nom rad etiladi', () => {
     expect(() => parseTypeInput({ ...base, label: 'a'.repeat(41) })).toThrow('label_long');
     expect(() => parseTypeInput({ ...base, labelRu: 'a'.repeat(41) })).toThrow('label_long');
+  });
+});
+
+describe('parseTextsInput', () => {
+  const keys = ['proTitle', 'newsTitle'];
+  it('ikkala til trim qilinadi', () => {
+    expect(parseTextsInput({ proTitle: { uz: '  Shior ', ru: ' Слоган ' } }, keys)).toEqual({ proTitle: { uz: 'Shior', ru: 'Слоган' } });
+  });
+  it("yo'q til bo'sh satr bo'ladi", () => {
+    expect(parseTextsInput({ newsTitle: { uz: 'Yangiliklar' } }, keys)).toEqual({ newsTitle: { uz: 'Yangiliklar', ru: '' } });
+  });
+  it("registrda yo'q kalit — key_invalid", () => {
+    expect(() => parseTextsInput({ adminPassword: { uz: 'x', ru: '' } }, keys)).toThrow('key_invalid');
+  });
+  it('2000 belgidan uzun — text_too_long', () => {
+    expect(() => parseTextsInput({ proTitle: { uz: 'a'.repeat(2001), ru: '' } }, keys)).toThrow('text_too_long');
+    expect(parseTextsInput({ proTitle: { uz: 'a'.repeat(2000), ru: '' } }, keys).proTitle.uz).toHaveLength(2000);
+  });
+  it("obyekt bo'lmagan body va qiymat — body_not_object", () => {
+    expect(() => parseTextsInput(null, keys)).toThrow('body_not_object');
+    expect(() => parseTextsInput({ proTitle: 'matn' }, keys)).toThrow('body_not_object');
+  });
+});
+
+describe('parseAssetsInput', () => {
+  const fields = [
+    { key: 'logo', kind: 'image' as const },
+    { key: 'hero.apple.video1', kind: 'video' as const },
+  ];
+  it("yuklangan rasm va video yo'li qabul qilinadi, bo'sh — standartga qaytish", () => {
+    expect(parseAssetsInput({ logo: ' /images/products/9f1c-2a.webp ', 'hero.apple.video1': '' }, fields))
+      .toEqual({ logo: '/images/products/9f1c-2a.webp', 'hero.apple.video1': '' });
+    expect(parseAssetsInput({ 'hero.apple.video1': '/images/products/abc.mp4' }, fields))
+      .toEqual({ 'hero.apple.video1': '/images/products/abc.mp4' });
+  });
+  it("registrda yo'q kalit — key_invalid", () => {
+    expect(() => parseAssetsInput({ 'hero.tv.image': '/images/products/a.webp' }, fields)).toThrow('key_invalid');
+  });
+  it("begona yoki yolg'on yo'l — url_invalid", () => {
+    for (const url of [
+      'https://evil.example/a.webp',
+      '/images/products/../secret.webp',
+      '/images/other/a.webp',
+      '/images/products/a.svg',
+      '/images/products/a.webp?x=1',
+    ]) {
+      expect(() => parseAssetsInput({ logo: url }, fields)).toThrow('url_invalid');
+    }
+  });
+  it('rasm kalitiga video va aksincha — url_invalid', () => {
+    expect(() => parseAssetsInput({ logo: '/images/products/a.mp4' }, fields)).toThrow('url_invalid');
+    expect(() => parseAssetsInput({ 'hero.apple.video1': '/images/products/a.webp' }, fields)).toThrow('url_invalid');
   });
 });

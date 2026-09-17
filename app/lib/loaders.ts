@@ -17,6 +17,9 @@ import {
 import { rowToProductType, type ProductTypeDbRow, type ProductTypeRow } from '../../shared/product-types';
 import { applyFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 import { siteConfig as staticSiteConfig } from './site.config';
+import { translations, type Translation } from '../../src/locales';
+import { isAssetKey, mergeTexts, type SiteAssets, type SiteTexts } from '../../src/lib/site-content';
+import { localeToLang, type Locale } from './i18n';
 
 export interface ProductDetail extends Product {
   oldPriceUzs: number | null;
@@ -409,4 +412,47 @@ export async function loadRail(env: Env, kind: 'deals' | 'latest', limit = 8): P
       : fallbackProducts;
     return all.slice(0, limit);
   }
+}
+
+/** `site_texts` → kalit bo'yicha xarita. Xato yuqoriga uzatiladi — admin API shuni ishlatadi. */
+export async function readSiteTexts(env: Env): Promise<SiteTexts> {
+  const { results } = await env.DB.prepare('SELECT key, uz, ru FROM site_texts').all<{ key: string; uz: string; ru: string }>();
+  return Object.fromEntries(results.map((r) => [r.key, { uz: r.uz, ru: r.ru }]));
+}
+
+/** Sayt uchun: xato bo'lsa bo'sh — sayt `locales.ts` matnlari bilan ishlayveradi. */
+export async function loadSiteTexts(env: Env): Promise<SiteTexts> {
+  try {
+    return await readSiteTexts(env);
+  } catch (err) {
+    console.error('loadSiteTexts fallback:', err);
+    return {};
+  }
+}
+
+/** `site_assets` → registr kalitlari bo'yicha xarita (registrdan tashqari qatorlar tashlanadi). */
+export async function readSiteAssets(env: Env): Promise<SiteAssets> {
+  const { results } = await env.DB.prepare('SELECT key, url FROM site_assets').all<{ key: string; url: string }>();
+  const out: SiteAssets = {};
+  for (const r of results) if (isAssetKey(r.key)) out[r.key] = r.url;
+  return out;
+}
+
+/** Sayt uchun: xato bo'lsa bo'sh — koddagi standart rasm/videolar chiqadi. */
+export async function loadSiteAssets(env: Env): Promise<SiteAssets> {
+  try {
+    return await readSiteAssets(env);
+  } catch (err) {
+    console.error('loadSiteAssets fallback:', err);
+    return {};
+  }
+}
+
+/**
+ * Joriy til matnlari admin o'zgarishlari bilan — `meta()` bazaga kira olmagani uchun registr kalitlarini meta'da
+ * ishlatadigan route'lar matnni loader'da shu bilan oladi (spec §7).
+ * ponytail: store layout ham `site_texts`ni o'qiydi — bir so'rovda ikki kichik SELECT; sekinlashsa so'rov darajasida kesh.
+ */
+export async function loadT(env: Env, locale: Locale): Promise<Translation> {
+  return mergeTexts(translations[localeToLang(locale)], await loadSiteTexts(env), locale === 'ru' ? 'ru' : 'uz');
 }

@@ -65,6 +65,8 @@ const MESSAGES: Record<string, string> = {
   content_uz_required: "Matn (o'zbek) majburiy",
   too_many_requests: "Juda ko'p urinish — birozdan so'ng qayta urining",
   employment_invalid: "Bandlik turi noto'g'ri",
+  key_invalid: "Noma'lum maydon",
+  text_too_long: 'Matn 2000 belgidan oshmasin',
 };
 
 export function errText(e: unknown): string {

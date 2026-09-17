@@ -66,6 +66,8 @@ export default [
   route('api/admin/models/:id', 'routes/api.admin.models.$id.tsx'),
   route('api/admin/settings', 'routes/api.admin.settings.tsx'),
   route('api/admin/upload', 'routes/api.admin.upload.tsx'),
+  route('api/admin/texts', 'routes/api.admin.texts.tsx'),
+  route('api/admin/assets', 'routes/api.admin.assets.tsx'),
   route('api/admin/banners', 'routes/api.admin.banners.tsx'),
   route('api/admin/banners/:id', 'routes/api.admin.banners.$id.tsx'),
   route('api/admin/news', 'routes/api.admin.news.tsx'),
