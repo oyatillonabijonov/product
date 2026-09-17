@@ -6,7 +6,7 @@ import { Readable } from 'node:stream';
 import type { ImageStore } from '../shared/runtime';
 
 /**
- * Disk ustidan R2 API'si — rasm ombori.
+ * Disk ustidan R2 API'si — rasm va video ombori.
  *
  * Faqat `get`/`put` kerak: admin rasm yuklaydi (`api.admin.upload`), storefront
  * uni `/images/*` orqali beradi. Kalitlar `products/<uuid>.<ext>` ko'rinishida,
@@ -19,6 +19,7 @@ const MIME: Record<string, string> = {
   jpeg: 'image/jpeg',
   avif: 'image/avif',
   svg: 'image/svg+xml',
+  mp4: 'video/mp4',
 };
 
 function pathFor(dir: string, key: string): string | null {

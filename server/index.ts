@@ -1,8 +1,9 @@
+import { join } from 'node:path';
 import express from 'express';
 import compression from 'compression';
 import { createRequestHandler } from '@react-router/express';
 import type { ServerBuild } from 'react-router';
-import { createEnv } from './env.ts';
+import { createEnv, IMAGES_DIR } from './env.ts';
 import { createBillzSync } from './billz-sync.ts';
 import { createUsdRate } from './usd-rate.ts';
 
@@ -56,6 +57,10 @@ app.use((req, res, next) => {
   if (!skip) res.setHeader('Cache-Control', usd ? 'private, no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=240');
   next();
 });
+
+// Yuklangan rasm va videolar diskdan to'g'ridan-to'g'ri: Range va ETag Express'dan (Safari `<video>` Range'siz
+// o'ynamaydi). Fayl bo'lmasa keyingi qatlamga o'tadi — `images.$` route'i 404 beradi.
+app.use('/images/products', express.static(join(IMAGES_DIR, 'products'), { immutable: true, maxAge: '1y', index: false, redirect: false }));
 
 if (isProd) {
   // Hashlangan assetlar — uzoq muddatli kesh; qolgan statik fayllar qisqa.

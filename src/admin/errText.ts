@@ -67,6 +67,9 @@ const MESSAGES: Record<string, string> = {
   employment_invalid: "Bandlik turi noto'g'ri",
   key_invalid: "Noma'lum maydon",
   text_too_long: 'Matn 2000 belgidan oshmasin',
+  file_required: 'Fayl tanlanmagan',
+  unsupported_type: 'Faqat JPG, PNG, WebP rasm yoki MP4 video',
+  file_too_large: 'Fayl juda katta: rasm 5 MB, video 40 MB gacha',
 };
 
 export function errText(e: unknown): string {
