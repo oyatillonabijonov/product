@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { ChevronDown, User, Globe } from 'lucide-react';
+import { ChevronDown, Globe } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import { categoryLabel, type Locale } from '../../app/lib/i18n';
@@ -61,6 +61,9 @@ export default function HeroNotch({ t, locale, categories }: {
 
   const open = hover || menu || pinned;
 
+  // Chekkasidagi hairline (`border-white/[0.12]`): notch ham, hero ham qora — usiz
+  // qutining qayerda tugashi ko'rinmaydi. Tepasi ekrandan yuqorida (`-top-[14px]`),
+  // shuning uchun faqat yon va pastki chetlari ko'zga tashlanadi.
   return (
     <motion.div
       onMouseEnter={() => setHover(true)}
@@ -71,7 +74,7 @@ export default function HeroNotch({ t, locale, categories }: {
         : { height: 80.53, paddingLeft: 0, paddingRight: 0, gap: 0 }}
       transition={reduced ? { duration: 0 } : SPRING}
       style={{ overflow: open ? 'visible' : 'hidden' }}
-      className="rounded-b-xl fixed -top-[14px] left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center bg-black pt-5"
+      className="rounded-b-xl fixed -top-[14px] left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center border border-white/[0.12] bg-black pt-5"
     >
       <LocaleLink to="/" className="block flex-none">
         <img src={asset('logoDark')} alt="" aria-hidden className="block h-[25px] w-auto" />
@@ -139,15 +142,13 @@ export default function HeroNotch({ t, locale, categories }: {
         <div aria-hidden className="h-[22px] w-px bg-white/[0.34]" />
 
         <div className="flex items-center gap-4">
-          {/* Kirish va kabinet doim ko'rinadi (Header'dagi Profil bilan bir qoida). */}
+          {/* "Kirish" doim ko'rinadi; profil ikonkasi 2026-09-18'da olib tashlandi (egasining
+              talabi — notch'da bitta kirish nuqtasi yetarli, kabinetga o'sha yerdan o'tiladi). */}
           <LocaleLink
             to="/kirish"
             className="press flex h-9 items-center rounded-full bg-[#0071E3] px-5 text-label font-medium text-white hover:bg-[#0A84FF]"
           >
             {t.loginTitle}
-          </LocaleLink>
-          <LocaleLink to="/kabinet" aria-label={t.accountTitle} title={t.accountTitle} className={ICON_BTN}>
-            <User aria-hidden className="h-[18px] w-[18px]" strokeWidth={1.8} />
           </LocaleLink>
           <Link
             to={locale === 'ru' ? '/' : '/ru'}
