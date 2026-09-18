@@ -2,7 +2,7 @@ import type { Route } from './+types/admin.auth.google.callback';
 import { redirect } from 'react-router';
 import { loadSiteConfig } from '../lib/loaders';
 import { loadAdminAuth } from '../../functions/lib/db';
-import { getCookie, createSession, sessionCookie } from '../../functions/lib/auth';
+import { getCookie, createSession, isSecureRequest, sessionCookie } from '../../functions/lib/auth';
 
 const TTL = 60 * 60 * 24 * 7; // 7 kun
 
@@ -50,7 +50,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const now = Math.floor(Date.now() / 1000);
   const token = await createSession(auth.username, auth.sessionSecret, TTL, now);
   const headers = new Headers();
-  headers.append('set-cookie', sessionCookie(token, TTL));
+  headers.append('set-cookie', sessionCookie(token, TTL, isSecureRequest(request)));
   headers.append('set-cookie', 'admin_oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0');
   return redirect('/admin', { headers });
 }

@@ -3,6 +3,7 @@ import { redirect } from 'react-router';
 import { loadSiteConfig } from '../lib/loaders';
 import { upsertCustomerByGoogle } from '../../functions/lib/db';
 import { customerCookie } from '../../functions/lib/customer-auth';
+import { isSecureRequest } from '../../functions/lib/auth';
 import { getCookie } from '../../functions/lib/auth';
 
 function decodeJwtPayload(jwt: string): { sub?: string; email?: string; name?: string } {
@@ -45,7 +46,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const id = await upsertCustomerByGoogle(env, payload.sub, payload.email ?? '', payload.name ?? '');
 
   const headers = new Headers();
-  headers.append('set-cookie', await customerCookie(env, id));
+  headers.append('set-cookie', await customerCookie(env, id, isSecureRequest(request)));
   headers.append('set-cookie', 'oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0');
   return redirect('/kabinet', { headers });
 }

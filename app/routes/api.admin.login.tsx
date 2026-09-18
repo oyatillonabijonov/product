@@ -1,6 +1,6 @@
 import type { Route } from './+types/api.admin.login';
 import { json, loadAdminAuth, updateLoginThrottle } from '../../functions/lib/db';
-import { createSession, lockDelaySeconds, sessionCookie, verifyPassword } from '../../functions/lib/auth';
+import { createSession, isSecureRequest, lockDelaySeconds, sessionCookie, verifyPassword } from '../../functions/lib/auth';
 
 const TTL = 60 * 60 * 24 * 7; // 7 kun
 
@@ -39,6 +39,6 @@ export async function action({ request, context }: Route.ActionArgs) {
   const token = await createSession(auth.username, auth.sessionSecret, TTL, now);
   return json(
     { ok: true, defaultPassword: body.password === 'admin' },
-    { headers: { 'set-cookie': sessionCookie(token, TTL) } },
+    { headers: { 'set-cookie': sessionCookie(token, TTL, isSecureRequest(request)) } },
   );
 }

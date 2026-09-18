@@ -3,6 +3,7 @@ import { redirect } from 'react-router';
 import { loadSiteConfig } from '../lib/loaders';
 import { upsertCustomerByTelegram } from '../../functions/lib/db';
 import { customerCookie } from '../../functions/lib/customer-auth';
+import { isSecureRequest } from '../../functions/lib/auth';
 
 // Telegram Login Widget callback — imzo bot-token bilan tekshiriladi (Telegram spetsifikatsiyasi).
 export async function loader({ request, context }: Route.LoaderArgs) {
@@ -35,5 +36,5 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     params.get('username') ||
     'Telegram';
   const id = await upsertCustomerByTelegram(env, tgId, name);
-  return redirect('/kabinet', { headers: { 'set-cookie': await customerCookie(env, id) } });
+  return redirect('/kabinet', { headers: { 'set-cookie': await customerCookie(env, id, isSecureRequest(request)) } });
 }
