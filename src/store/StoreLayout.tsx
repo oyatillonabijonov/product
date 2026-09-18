@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { useLocation, useNavigation } from 'react-router';
 import { stripLocale } from '../../app/lib/i18n';
 import { ymHit } from '../lib/metrica';
@@ -11,8 +11,6 @@ import Header from './Header';
 import Footer from './Footer';
 import ContactFab from './ContactFab';
 import CookieBanner from './CookieBanner';
-import LoginModal from './LoginModal';
-import { loginEnabled } from './LoginPanel';
 import { CartProvider } from './CartContext';
 import { FavoritesProvider } from './FavoritesContext';
 import { CurrencyProvider } from './CurrencyContext';
@@ -37,13 +35,11 @@ export default function StoreLayout({
   // SSR navigatsiyasi (filtr/sort/sahifa) sekin tarmoqda feedback'siz edi — indeterminate progress-bar.
   const navigation = useNavigation();
   const pending = navigation.state !== 'idle';
-  const [loginOpen, setLoginOpen] = useState(false);
   // Metrica SPA hit — birinchi renderni tashlab (uni 'init' o'zi qayd etadi), keyingi navigatsiyalarni yuboramiz.
   const location = useLocation();
   const isHome = stripLocale(location.pathname) === '/';
-  const canLogin = loginEnabled(config);
   const header = (
-    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} loginEnabled={canLogin} onLoginClick={() => setLoginOpen(true)} hasDeals={hasDeals} />
+    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} hasDeals={hasDeals} />
   );
   const firstHit = useRef(true);
   useEffect(() => {
@@ -73,7 +69,6 @@ export default function StoreLayout({
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} categories={categories} hasDeals={hasDeals} />
         <ContactFab t={t} config={config} />
         <CookieBanner t={t} />
-        {canLogin && <LoginModal t={t} config={config} open={loginOpen} onClose={() => setLoginOpen(false)} />}
       </div>
      </CurrencyProvider>
      </FavoritesProvider>
