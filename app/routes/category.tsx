@@ -4,13 +4,13 @@ import { resolveLocale, categoryLabel } from '../lib/i18n';
 import { pageTitle, catalogMeta, storeConfigFrom } from '../lib/seo';
 import { siteConfig } from '../lib/site.config';
 import { parseCatalogFilters } from '../lib/catalog';
-import { queryProducts, loadConfig, loadCategories, loadBrands, loadTypes, loadProductsBy, loadT } from '../lib/loaders';
+import { queryProducts, loadConfig, loadCategories, loadBrands, loadTypes, loadConfiguratorParts, loadT } from '../lib/loaders';
 import { categoryTiles } from '../lib/tiles';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import CatalogView from '../../src/store/CatalogView';
 import CategoryCover from '../../src/store/CategoryCover';
 import CategoryTiles from '../../src/store/CategoryTiles';
-import PcConfigurator, { PC_SLOTS } from '../../src/store/PcConfigurator';
+import PcConfigurator from '../../src/store/PcConfigurator';
 import { columnForCategory, heroColumns } from '../../src/store/hero-columns';
 import { useAssets } from '../../src/store/SiteAssets';
 
@@ -30,11 +30,8 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   ]);
   const title = categoryLabel(category, locale);
   const tiles = categoryTiles(types, slug, locale === 'ru' ? 'ru' : 'uz');
-  // PC konfiguratori — har bo'g'in uchun shu turdagi haqiqiy tovarlar (qoldiqli, rasmli).
-  const parts: Record<string, Awaited<ReturnType<typeof loadProductsBy>>> = {};
-  if (slug === 'pc') {
-    await Promise.all(PC_SLOTS.map(async (s) => { parts[s.key] = await loadProductsBy(env, { category: 'pc', type: s.type, limit: 12 }); }));
-  }
+  // PC konfiguratori — hamma Billz PC qismlari (omborda va buyurtma asosida), moslik atributlari bilan.
+  const parts = slug === 'pc' ? await loadConfiguratorParts(env) : {};
   return { result, config, title, brands, filters, requestUrl: request.url, category, tiles, parts, metaDesc: t.metaCatalogDesc };
 }
 
