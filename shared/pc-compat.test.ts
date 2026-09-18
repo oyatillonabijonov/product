@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { partAttrs, slotForType } from './pc-compat';
+import { hasMatch, issueFor, needsVerify, partAttrs, recommendedWatts, slotForType, summaryIssues, toConfigParts, type ConfigPartRow } from './pc-compat';
 
 const a = (slot: Parameters<typeof partAttrs>[0], name: string) => partAttrs(slot, name);
 
@@ -78,5 +78,88 @@ describe('slotForType', () => {
     expect(slotForType('korpus')).toBe('case');
     expect(slotForType('noutbuk')).toBeNull();
     expect(slotForType(null)).toBeNull();
+  });
+});
+
+const cpu1700 = partAttrs('cpu', 'Intel Core i5 13600KF');
+const cpu1851 = partAttrs('cpu', 'Intel Core Ultra 7 265F');
+const b760ddr4 = partAttrs('mb', 'MaxSun Challenger B760M-F DDR4');
+const z890 = partAttrs('mb', 'ASUS Z890 AYW Gaming WiFi');
+const ddr5 = partAttrs('ram', 'DDR5 Corsair Vengeance 16GB 6000Mhz');
+const rtx4090 = partAttrs('gpu', 'NVIDIA GeForce RTX 4090');
+const psu650 = partAttrs('psu', 'SAMA K650W 80Plus Bronze');
+const psu1250 = partAttrs('psu', 'PSU Cooler Master MWE 1250W V2 80Plus Gold / Black');
+
+describe('issueFor', () => {
+  it('soket mos emas → block, ikki tomonga', () => {
+    expect(issueFor('mb', b760ddr4, { cpu: cpu1851 })).toEqual({ slot: 'mb', level: 'block', code: 'socket', need: 'LGA1851' });
+    expect(issueFor('cpu', cpu1700, { mb: z890 })).toEqual({ slot: 'cpu', level: 'block', code: 'socket', need: 'LGA1851' });
+    expect(issueFor('mb', z890, { cpu: cpu1851 })).toBeNull();
+  });
+  it('xotira: plata yoki (plata yo\'q bo\'lsa) CPU bo\'yicha', () => {
+    expect(issueFor('ram', ddr5, { mb: b760ddr4 })).toEqual({ slot: 'ram', level: 'block', code: 'memory', need: 'DDR4' });
+    expect(issueFor('mb', b760ddr4, { ram: ddr5 })).toEqual({ slot: 'mb', level: 'block', code: 'memory', need: 'DDR5' });
+    expect(issueFor('ram', ddr5, { cpu: cpu1700 })).toBeNull();
+    expect(issueFor('ram', partAttrs('ram', 'Apacer 8GB 3200Mhz'), { cpu: cpu1851 })?.need).toBe('DDR5');
+  });
+  it('noma\'lum atribut → muammo yo\'q', () => {
+    expect(issueFor('mb', partAttrs('mb', 'Noma\'lum plata'), { cpu: cpu1851 })).toBeNull();
+  });
+  it('blok quvvati → warn', () => {
+    expect(recommendedWatts({ cpu: cpu1700, gpu: rtx4090 })).toBe(900);
+    expect(issueFor('psu', psu650, { cpu: cpu1700, gpu: rtx4090 })).toEqual({ slot: 'psu', level: 'warn', code: 'power', need: '900' });
+    expect(issueFor('psu', psu1250, { cpu: cpu1700, gpu: rtx4090 })).toBeNull();
+    expect(issueFor('gpu', rtx4090, { cpu: cpu1700, psu: psu650 })?.level).toBe('warn');
+    expect(recommendedWatts({})).toBeNull();
+  });
+});
+
+describe('summaryIssues / needsVerify / hasMatch', () => {
+  it('yig\'madagi hamma muammo', () => {
+    const list = summaryIssues({ cpu: cpu1851, mb: b760ddr4, ram: ddr5, gpu: rtx4090, psu: psu650 });
+    expect(list.map((i) => i.code).sort()).toEqual(['memory', 'power', 'socket']);
+    expect(summaryIssues({ cpu: cpu1851, mb: z890, ram: ddr5 })).toEqual([]);
+  });
+  it('tegishli atribut null → operator tasdiqlaydi', () => {
+    expect(needsVerify('mb', partAttrs('mb', 'Noma\'lum'))).toBe(true);
+    expect(needsVerify('ram', ddr5)).toBe(false);
+    expect(needsVerify('case', partAttrs('case', 'Korpus'))).toBe(false);
+  });
+  it('CPU uchun mos plata bormi', () => {
+    expect(hasMatch(cpu1851, [b760ddr4])).toBe(false);
+    expect(hasMatch(cpu1851, [b760ddr4, z890])).toBe(true);
+    expect(hasMatch(partAttrs('cpu', 'Noma\'lum'), [b760ddr4])).toBe(true);
+  });
+});
+
+describe('toConfigParts', () => {
+  const row = (o: Partial<ConfigPartRow>): ConfigPartRow => ({
+    id: 'x', name: 'Intel Core i5 12400F', image_url: '', type: 'cpu', price: 1000, billz_id: 'b', billz_stock: 1,
+    is_active: 1, pc_socket: null, pc_memory: null, pc_watts: null, ...o,
+  });
+  it('guruhlaydi, omborda bori oldin, keyin narx', () => {
+    const out = toConfigParts([
+      row({ id: 'a', name: 'Intel Core i7 14700F', price: 5000, billz_stock: 0, is_active: 0 }),
+      row({ id: 'b', name: 'Intel Core i5 12400F', price: 3000, billz_stock: 2 }),
+      row({ id: 'c', name: 'Intel Core i5 13400F', price: 1000, billz_stock: 0, is_active: 0 }),
+      row({ id: 'm', name: 'MSI Z790 Gaming Pro WiFi', type: 'motherboard', price: 4000 }),
+      row({ id: 'n', name: 'Lenovo noutbuk', type: 'noutbuk' }),
+    ]);
+    expect(out.cpu?.map((p) => [p.id, p.inStock])).toEqual([['b', true], ['c', false], ['a', false]]);
+    expect(out.mb?.[0].attrs.socket).toBe('LGA1700');
+    expect(Object.keys(out).sort()).toEqual(['cpu', 'mb']);
+  });
+  it('nom bo\'yicha dublikat — omborda bori qoladi; qo\'lda kiritilgan qism faol bo\'lsa omborda', () => {
+    const out = toConfigParts([
+      row({ id: 'old', name: 'Intel Core i5 12400F ', billz_stock: 0, is_active: 0 }),
+      row({ id: 'new', name: 'intel core i5 12400f', billz_stock: 3 }),
+      row({ id: 'man', name: 'AMD Ryzen 5 5600X', billz_id: null, billz_stock: null, is_active: 1 }),
+    ]);
+    expect(out.cpu?.map((p) => p.id)).toEqual(['new', 'man']);
+    expect(out.cpu?.[1].inStock).toBe(true);
+  });
+  it('admin tuzatishi atributga o\'tadi', () => {
+    const out = toConfigParts([row({ name: 'Noma\'lum', pc_socket: 'AM5' })]);
+    expect(out.cpu?.[0].attrs.socket).toBe('AM5');
   });
 });

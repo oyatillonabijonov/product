@@ -5,6 +5,8 @@
  * Spec: docs/superpowers/specs/2026-09-18-pc-konfigurator-moslik-design.md
  */
 
+import { nameKey } from './billz.ts';
+
 export type SlotKey = 'cpu' | 'mb' | 'ram' | 'gpu' | 'psu' | 'ssd' | 'case';
 
 /** Bo'g'in → tovar turi (`product_types`, `pc` yo'nalishi). Tartib — UI'dagi qadamlar tartibi. */
@@ -149,4 +151,110 @@ export function partAttrs(slot: SlotKey, name: string, override?: PartOverride):
   if (slot === 'gpu') return { socket: null, memory: null, watts: oWatts ?? gpuWatts(n) };
   if (slot === 'psu') return { socket: null, memory: null, watts: oWatts ?? psuWatts(n) };
   return { socket: null, memory: null, watts: null };
+}
+
+export interface Issue { slot: SlotKey; level: 'block' | 'warn'; code: 'socket' | 'memory' | 'power'; need: string }
+export type Picked = Partial<Record<SlotKey, PartAttrs>>;
+
+/** Buyurtma uchun majburiy bo'g'inlar (GPU — integrallashgan grafika bo'lishi mumkin; qolgani mijozda bo'lishi mumkin). */
+export const REQUIRED_SLOTS: readonly SlotKey[] = ['cpu', 'mb', 'ram'];
+
+/** Tavsiya etilgan blok quvvati: (CPU + GPU + 100) × 1.2, 50 ga yaxlitlab. CPU ham GPU ham noma'lum → null. */
+export function recommendedWatts(picked: Picked): number | null {
+  const cpu = picked.cpu?.watts ?? null;
+  const gpu = picked.gpu?.watts ?? null;
+  if (cpu === null && gpu === null) return null;
+  return Math.ceil(((cpu ?? 0) + (gpu ?? 0) + 100) * 1.2 / 50) * 50;
+}
+
+/** Xotira talabi: plata tanlangan bo'lsa plata, aks holda CPU (LGA1700 → null). */
+const memoryNeed = (picked: Picked): PcMemory | null => (picked.mb ? picked.mb.memory : picked.cpu?.memory ?? null);
+
+/** `cand` — `slot` bo'g'inining nomzodi; `picked` — boshqa bo'g'inlardagi tanlovlar (`slot`ning o'zi e'tiborsiz). */
+export function issueFor(slot: SlotKey, cand: PartAttrs, picked: Picked): Issue | null {
+  const others: Picked = { ...picked, [slot]: undefined };
+  if (slot === 'cpu' || slot === 'mb') {
+    const other = slot === 'cpu' ? others.mb : others.cpu;
+    if (cand.socket && other?.socket && cand.socket !== other.socket) return { slot, level: 'block', code: 'socket', need: other.socket };
+  }
+  if (slot === 'ram') {
+    const need = memoryNeed(others);
+    if (cand.memory && need && cand.memory !== need) return { slot, level: 'block', code: 'memory', need };
+  }
+  if (slot === 'mb' || slot === 'cpu') {
+    const ram = others.ram?.memory ?? null;
+    const own = cand.memory;
+    // CPU faqat plata yo'q bo'lsa RAM bilan solishtiriladi — plata bo'lsa talabni plata belgilaydi.
+    if (ram && own && own !== ram && (slot === 'mb' || !others.mb)) return { slot, level: 'block', code: 'memory', need: ram };
+  }
+  if (slot === 'psu' || slot === 'cpu' || slot === 'gpu') {
+    const next: Picked = { ...others, [slot]: cand };
+    const need = recommendedWatts(next);
+    const psu = next.psu?.watts ?? null;
+    if (need !== null && psu !== null && psu < need) return { slot, level: 'warn', code: 'power', need: String(need) };
+  }
+  return null;
+}
+
+/** Yig'madagi barcha muammolar (har juft bir marta: soket — plata, xotira — RAM, quvvat — blok). */
+export function summaryIssues(picked: Picked): Issue[] {
+  const out: Issue[] = [];
+  for (const slot of ['mb', 'ram', 'psu'] as const) {
+    const cand = picked[slot];
+    if (!cand) continue;
+    const i = issueFor(slot, cand, picked);
+    if (i) out.push(i);
+  }
+  // RAM bor, plata yo'q: CPU ↔ RAM xotirasi RAM tomonida allaqachon tekshirildi.
+  return out;
+}
+
+/** Qismning moslikka kerakli atributi aniqlanmagan → operator tasdiqlaydi. */
+export function needsVerify(slot: SlotKey, attrs: PartAttrs): boolean {
+  if (slot === 'cpu' || slot === 'mb') return attrs.socket === null;
+  if (slot === 'ram') return attrs.memory === null;
+  if (slot === 'psu') return attrs.watts === null;
+  return false;
+}
+
+/** CPU uchun ro'yxatda mos plata bormi (soketi noma'lum CPU yoki plata — mos deb hisoblanadi). */
+export function hasMatch(cpu: PartAttrs, boards: PartAttrs[]): boolean {
+  if (!cpu.socket) return true;
+  return boards.some((b) => b.socket === null || b.socket === cpu.socket);
+}
+
+export interface ConfigPartRow {
+  id: string; name: string; image_url: string; type: string | null; price: number;
+  billz_id: string | null; billz_stock: number | null; is_active: number;
+  pc_socket: string | null; pc_memory: string | null; pc_watts: number | null;
+}
+export interface ConfigPart { id: string; name: string; image: string; priceUzs: number; inStock: boolean; attrs: PartAttrs }
+
+/**
+ * Loader qatorlari → bo'g'in bo'yicha qismlar. Omborda: Billz qoldig'i > 0 yoki qo'lda kiritilgan faol tovar.
+ * Nom bo'yicha dublikat (sinxronizatsiya eski dublikatni `is_active=0, billz_stock=0` qilib qoldiradi) —
+ * omborda bori, keyin faoli saqlanadi. Tartib: omborda bori oldin, keyin arzonroq.
+ */
+export function toConfigParts(rows: ConfigPartRow[]): Partial<Record<SlotKey, ConfigPart[]>> {
+  const best = new Map<string, { row: ConfigPartRow; inStock: boolean; slot: SlotKey }>();
+  const rank = (x: { row: ConfigPartRow; inStock: boolean }) => (x.inStock ? 2 : 0) + (x.row.is_active === 1 ? 1 : 0);
+  for (const row of rows) {
+    const slot = slotForType(row.type);
+    if (!slot) continue;
+    const inStock = (row.billz_stock ?? 0) > 0 || (row.billz_id === null && row.is_active === 1);
+    const key = `${slot}|${nameKey(row.name)}`;
+    const cur = best.get(key);
+    const cand = { row, inStock, slot };
+    if (!cur || rank(cand) > rank(cur)) best.set(key, cand);
+  }
+  const out: Partial<Record<SlotKey, ConfigPart[]>> = {};
+  for (const { row, inStock, slot } of best.values()) {
+    const part: ConfigPart = {
+      id: row.id, name: row.name.trim(), image: row.image_url, priceUzs: row.price, inStock,
+      attrs: partAttrs(slot, row.name, { socket: row.pc_socket, memory: row.pc_memory, watts: row.pc_watts }),
+    };
+    (out[slot] ??= []).push(part);
+  }
+  for (const list of Object.values(out)) list?.sort((a, b) => Number(b.inStock) - Number(a.inStock) || a.priceUzs - b.priceUzs);
+  return out;
 }
