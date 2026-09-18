@@ -10,7 +10,7 @@ import Modal from './Modal';
 const LoginModal: FC<{ t: Translation; config: ApiSiteConfig; open: boolean; onClose: () => void }> = ({
   t, config, open, onClose,
 }) => (
-  <Modal open={open} label={t.loginTitle} onClose={onClose}>
+  <Modal open={open} label={t.loginTitle} onClose={onClose} panelClass="max-w-[360px]">
     <div className="p-7">
       <button
         onClick={onClose}
