@@ -33,11 +33,11 @@ const SEG = 'press h-9 flex-1 rounded-xs text-label';
 /*
  * Katalog menyusi — apple.com global navigatsiyasining ochiladigan paneli naqshida: sarlavha ostidan
  * to'liq enli panel, ikonka va karta yo'q, ierarxiyani faqat tipografiya beradi — kulrang kichik
- * ustun sarlavhasi, katta qalin yo'nalish havolalari, yonida kichik qalin "Do'kon" havolalari.
+ * ustun sarlavhasi, yo'nalishlar 20px qalin, "Do'kon" havolalari 17px oddiy (tizim shkalasi).
  */
 const MENU_HEADING = 'mb-3 text-label text-muted-2';
-const MENU_BIG = 'text-subhead font-semibold text-primary transition-colors hover:text-muted-2';
-const MENU_SMALL = 'text-para font-semibold text-primary transition-colors hover:text-muted-2';
+const MENU_BIG = 'text-lede font-semibold text-primary transition-colors hover:text-muted-2';
+const MENU_SMALL = 'text-copy text-body transition-colors hover:text-primary';
 
 export default function Header({
   t,
@@ -233,7 +233,7 @@ export default function Header({
           <div className="shell flex max-h-[calc(100dvh-7rem)] flex-col gap-8 overflow-y-auto pb-8 pt-4 lg:max-h-[calc(100dvh-4rem)] lg:flex-row lg:gap-24 lg:pb-14 lg:pt-8">
             <div>
               <motion.p variants={itemVariants} className={MENU_HEADING}>{t.homeCategories}</motion.p>
-              <ul className="flex flex-col gap-2">
+              <ul className="flex flex-col gap-2.5">
                 {cats.map((c) => (
                   <motion.li key={c.id} variants={itemVariants}>
                     <Link to={localizedPath(locale, `/category/${c.id}`)} onClick={closeMenu} className={MENU_BIG}>
@@ -245,7 +245,7 @@ export default function Header({
             </div>
             <div>
               <motion.p variants={itemVariants} className={MENU_HEADING}>{t.footerShop}</motion.p>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-2.5">
                 {shopLinks.map((l) => (
                   <motion.li key={l.to} variants={itemVariants}>
                     <Link to={localizedPath(locale, l.to)} onClick={closeMenu} className={MENU_SMALL}>
@@ -253,7 +253,7 @@ export default function Header({
                     </Link>
                   </motion.li>
                 ))}
-                <motion.li variants={itemVariants} className="lg:hidden">
+                <motion.li variants={itemVariants}>
                   <Link to={localizedPath(locale, '/page/biz-haqimizda')} onClick={closeMenu} className={MENU_SMALL}>
                     {t.navAbout}
                   </Link>
@@ -281,11 +281,6 @@ export default function Header({
           <img src={asset('logoDark')} alt="" aria-hidden className="logo-dark h-8 lg:h-9" />
         </Link>
 
-        {/* Kompaniya havolasi logo yonida; `lg`gacha 1-qatorga sig'maydi — Katalog menyusida. */}
-        <Link to={localizedPath(locale, '/page/biz-haqimizda')} className="press hidden lg:block shrink-0 whitespace-nowrap text-label text-muted hover:text-primary">
-          {t.navAbout}
-        </Link>
-
         {/* Katalog + qidiruv — bitta "mahsulot topish" guruhi, logo va ikonkalar orasidagi bo'sh joy
             markazida. Qidiruv `max-w-xl`dan uzaymaydi: keng ekranda chetdan-chetga cho'zilgan maydon
             ko'zni ikonkalardan uzoqqa olib ketardi. Faqat desktop; torroq ekranda 2-qatorda. */}
@@ -293,7 +288,7 @@ export default function Header({
           {/* Tizimdagi asosiy tugma (`PILL`, 44px) — qidiruv bilan bir balandlikda; chap tomondagi
               ikonka qutisining ichki bo'shlig'i `-ml-1` bilan optik tekislanadi. */}
           <button type="button" onClick={() => setCatOpen((v) => !v)} aria-expanded={catOpen} className={`${PILL} shrink-0`}>
-            {toggleIcon('-ml-1 size-4.5')} {t.navCatalog}
+            {toggleIcon('-ml-1 size-4.5')} {t.navAll}
           </button>
           <div className="w-full max-w-xl">{searchForm}</div>
         </div>
