@@ -36,7 +36,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
     if (!(await typeExists(env, input.categoryId, input.type))) return json({ error: 'type_invalid' }, { status: 400 });
     if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
     const update = env.DB.prepare(
-      `UPDATE products SET name=?, category=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, type=?, old_price_uzs=?, description=?, brand_id=?, slug=?, rating_avg=?, review_count=? WHERE id=?`,
+      `UPDATE products SET name=?, category=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, type=?, old_price_uzs=?, description=?, brand_id=?, slug=?, rating_avg=?, review_count=?, preorder=? WHERE id=?`,
     ).bind(
       input.name,
       input.category,
@@ -54,6 +54,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       input.slug,
       input.ratingAvg,
       input.reviewCount,
+      input.preorder ? 1 : 0,
       id,
     );
     // Bitta atomik tranzaksiya: yozuv o'rtada uzilsa yarim yozilgan mahsulot qolmaydi.

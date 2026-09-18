@@ -57,6 +57,7 @@ export interface ProductRow {
   slug: string | null;
   rating_avg: number | null;
   review_count: number;
+  preorder: number;
   min_variant_price?: number | null;
 }
 
@@ -90,6 +91,7 @@ export function rowToProduct(row: ProductRow): ApiProduct {
     minPriceUzs: row.min_variant_price ?? row.cash_price_uzs,
     ratingAvg: row.rating_avg,
     reviewCount: row.review_count ?? 0,
+    preorder: row.preorder === 1,
     billzId: row.billz_id ?? null,
     billzStock: row.billz_stock ?? null,
   };

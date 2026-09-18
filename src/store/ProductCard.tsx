@@ -75,6 +75,9 @@ const ProductCard: FC<{
               {t.badgeUsed}
             </span>
           )}
+          {product.preorder && (
+            <span className="text-label font-semibold px-2.5 py-1 rounded-full backdrop-blur bg-surface/90 text-new">{t.badgePreorder}</span>
+          )}
           {disc !== null && (
             <span className="text-label font-bold px-2 py-1 rounded-full bg-sale text-white">-{disc}%</span>
           )}

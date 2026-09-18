@@ -121,6 +121,7 @@ export function parseProductInput(body: unknown): ProductInput {
     typeof o.reviewCount === 'number' && Number.isFinite(o.reviewCount) && o.reviewCount > 0
       ? Math.floor(o.reviewCount)
       : 0;
+  const preorder = o.preorder === true;
 
   const slug =
     typeof o.slug === 'string' && o.slug.trim() !== '' ? slugify(o.slug) : (slugify(name) || null);
@@ -197,6 +198,7 @@ export function parseProductInput(body: unknown): ProductInput {
     slug,
     ratingAvg,
     reviewCount,
+    preorder,
     options,
     variants,
   };

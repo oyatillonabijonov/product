@@ -21,7 +21,7 @@ const Gallery: FC<{ images: string[]; name: string }> = ({ images, name }) => {
 
   return (
     <div className="relative">
-      <div className="rounded-xl relative flex aspect-square items-center justify-center overflow-hidden bg-white">
+      <div className="rounded-xl relative flex aspect-square lg:aspect-[4/3] items-center justify-center overflow-hidden bg-white">
         {main
           ? <img src={main} alt={name} className="h-full w-full object-contain p-6 md:p-10" fetchPriority="high" />
           : <span className="text-muted-2">{name}</span>}

@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import type { FC } from 'react';
-import { ShieldCheck, ChevronRight, Truck, ShoppingCart, MessageCircle, Wallet } from 'lucide-react';
+import { ShieldCheck, ChevronRight, Truck, ShoppingCart, Wallet } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
 import type { ApiReview, ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import { calcInstallment, discountPercent } from '../lib/installment';
+import { SWATCHES } from '../lib/swatches';
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, valuePrice, type VariantSelection } from '../lib/variants';
 import { safeHref } from '../lib/safe-href';
 import { useCart } from './CartContext';
@@ -134,7 +135,7 @@ const ProductPage: FC<{
           mahsulotda ham xuddi shu joyda topadi. */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-7">
-          <Gallery key={variant?.id ?? 'base'} images={galleryImages} name={product.name} />
+          <Gallery key={galleryImages[0] ?? 'base'} images={galleryImages} name={product.name} />
         </div>
 
         <div className="flex flex-col gap-8 lg:col-span-5">
@@ -142,11 +143,11 @@ const ProductPage: FC<{
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 {/* Apple uslubidagi matn-yorliq: pill emas, sarlavha ustidagi
-                    kichik qalin yozuv. Yangi — to'q sariq, ishlatilgan — neytral. */}
+                    kichik qalin yozuv. Yangi va pre-order — to'q sariq, ishlatilgan — neytral. */}
                 <div className={`text-label font-semibold ${isNew ? 'text-new' : 'text-trust'}`}>
-                  {isNew ? t.badgeNew : t.badgeUsed}
+                  {product.preorder ? t.badgePreorder : isNew ? t.badgeNew : t.badgeUsed}
                 </div>
-                <h1 className="mt-1.5 text-heading md:text-title font-semibold text-balance text-primary">{product.name}</h1>
+                <h1 className="mt-1.5 text-subhead md:text-heading font-normal text-balance text-primary">{product.name}</h1>
                 {(product.reviewCount ?? 0) > 0 && <Stars t={t} rating={product.ratingAvg} count={product.reviewCount ?? 0} />}
               </div>
               <FavoriteButton
@@ -165,7 +166,7 @@ const ProductPage: FC<{
             </div>
 
             <div className="mt-1.5 flex flex-wrap items-baseline gap-2.5">
-              <span className="text-subhead md:text-heading font-semibold tabular-nums text-primary">{price(displayCash)}</span>
+              <span className="text-heading md:text-title font-semibold tabular-nums text-primary">{price(displayCash)}</span>
               {displayOld && disc !== null && (
                 <>
                   <span className="text-control md:text-copy tabular-nums text-disabled-2 line-through">{price(displayOld)}</span>
@@ -173,51 +174,83 @@ const ProductPage: FC<{
                 </>
               )}
             </div>
-            {variant && (
+            {/* Qoldiq yozuvi faqat istisnoda — "Sotuvda bor" axborot bermaydi. */}
+            {(outOfStock || product.preorder) && (
               <div className={`mt-1.5 text-label font-semibold ${outOfStock ? 'text-sale' : 'text-trust'}`}>
-                {outOfStock ? t.outOfStock : t.inStock}
+                {outOfStock ? t.outOfStock : t.preorderStock}
               </div>
             )}
           </div>
 
-          {/* Versiyalar (xotira, rang, …) — har bir qiymat o'z narxi bilan. */}
-          {product.options.length > 0 && selection && product.options.map((o) => (
-            <section key={o.id} className="flex flex-col gap-3">
-              <SectionTitle name={o.name} prompt={t.optionPrompt} />
-              {o.values.map((v) => {
-                const active = selection[o.name] === v.value;
-                const available = isValueAvailable(product.options, product.variants, selection, o.name, v.value);
-                const cash = valuePrice(product.options, product.variants, selection, o.name, v.value);
-                return (
-                  <button
-                    key={v.id}
-                    disabled={!available}
-                    onClick={() => setSelection({ ...selection, [o.name]: v.value })}
-                    aria-pressed={active}
-                    className={`press flex w-full items-center justify-between gap-4 rounded-sm border-2 px-5 py-4 text-left ${
-                      active
-                        ? 'border-accent bg-surface'
-                        : available
-                          ? 'border-line bg-surface hover:border-muted-3'
-                          : 'cursor-not-allowed border-divider bg-row-alt opacity-50'
-                    }`}
-                  >
-                    <span className={`text-lede font-medium ${available ? 'text-primary' : 'text-disabled line-through'}`}>
-                      {v.value}
-                    </span>
-                    {cash !== null && (
-                      <span className="shrink-0 text-right text-label leading-snug text-muted-2 tabular-nums">
-                        <span className="block">{price(cash)}</span>
-                        {showInstallment && (
-                          <span className="mt-1 block">{price(monthlyOf(cash))} × {months} {t.calcMonths}</span>
-                        )}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </section>
-          ))}
+          {/* Versiyalar (xotira, rang, …). Rang — Apple nomi bilan doiralar, qolgani ixcham kartalar
+              (qiymat + narx); tanlangani ko'k (`cta`) chiziq bilan, qalinligi doim `border-2` — siljimasin. */}
+          {product.options.length > 0 && selection && product.options.map((o) => {
+            const swatches = o.values.every((v) => SWATCHES[v.value]);
+            return (
+              <section key={o.id} className="flex flex-col gap-3">
+                <SectionTitle name={o.name} prompt={t.optionPrompt} />
+                {swatches ? (
+                  <div>
+                    <div className="flex flex-wrap gap-2">
+                      {o.values.map((v) => {
+                        const active = selection[o.name] === v.value;
+                        const available = isValueAvailable(product.options, product.variants, selection, o.name, v.value);
+                        return (
+                          <button
+                            key={v.id}
+                            disabled={!available}
+                            onClick={() => setSelection({ ...selection, [o.name]: v.value })}
+                            aria-pressed={active}
+                            aria-label={v.value}
+                            title={v.value}
+                            className={`press grid h-11 w-11 place-items-center rounded-full border-2 ${
+                              active ? 'border-cta' : 'border-transparent hover:border-muted-3'
+                            } disabled:cursor-not-allowed disabled:opacity-40`}
+                          >
+                            <span className="h-8 w-8 rounded-full border border-line" style={{ backgroundColor: SWATCHES[v.value] }} />
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-2 text-para text-body">{selection[o.name]}</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {o.values.map((v) => {
+                      const active = selection[o.name] === v.value;
+                      const available = isValueAvailable(product.options, product.variants, selection, o.name, v.value);
+                      const cash = valuePrice(product.options, product.variants, selection, o.name, v.value);
+                      return (
+                        <button
+                          key={v.id}
+                          disabled={!available}
+                          onClick={() => setSelection({ ...selection, [o.name]: v.value })}
+                          aria-pressed={active}
+                          className={`press flex flex-col items-start gap-0.5 rounded-sm border-[1.5px] bg-surface px-4 py-3 text-left ${
+                            active
+                              ? 'border-cta'
+                              : available
+                                ? 'border-transparent hover:border-cta'
+                                : 'cursor-not-allowed border-transparent opacity-50'
+                          }`}
+                        >
+                          <span className={`text-copy font-semibold ${available ? 'text-primary' : 'text-disabled line-through'}`}>
+                            {v.value}
+                          </span>
+                          {cash !== null && (
+                            <span className="text-label text-muted-2 tabular-nums">
+                              {price(cash)}
+                              {showInstallment && <span className="block">{price(monthlyOf(cash))} × {months} {t.calcMonths}</span>}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            );
+          })}
 
           {showInstallment && (
             <section className="flex flex-col gap-3">
@@ -262,83 +295,83 @@ const ProductPage: FC<{
             </section>
           )}
 
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <InfoRow icon={Truck} label={t.svcDeliveryTitle} value={`${t.svcDeliveryFact} · ${t.feature3}`} />
             <InfoRow icon={ShieldCheck} label={t.svcWarrantyTitle} value={`${t.svcWarrantyFact} · ${t.feature2}`} />
             {showInstallment && <InfoRow icon={Wallet} label={t.orderPaymentInstallment} value={t.trustShort} />}
           </div>
 
-          <div className="flex flex-col gap-3">
+          {/* sm'dan tugmalar yonma-yon; muddatli to'lov tugmasi (bo'lsa) tepada, to'liq enda. */}
+          <div className="grid gap-3 sm:grid-cols-2">
             {site.paymentMode !== 'installment' && (
               <button onClick={() => openOrder('cash')} disabled={outOfStock}
                 className="press h-[52px] w-full rounded-full bg-cta text-copy font-normal text-white hover:bg-cta-hover disabled:cursor-not-allowed disabled:opacity-50">
-                {t.orderBuyCash}
+                {product.preorder ? t.orderPreorder : t.orderBuyCash}
               </button>
             )}
             {showInstallment && (
               <button onClick={() => openOrder('installment')} disabled={outOfStock}
-                className="press h-[52px] w-full rounded-full bg-accent text-copy font-normal text-bg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50">
+                className="press h-[52px] w-full rounded-full bg-accent text-copy font-normal sm:order-first sm:col-span-2 text-bg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50">
                 {t.orderBuyInstallment}
               </button>
             )}
             <button onClick={addToCart} disabled={outOfStock}
-              className={`press flex h-[52px] w-full items-center justify-center gap-2 rounded-full border text-copy font-normal disabled:cursor-not-allowed disabled:opacity-50 ${
-                added ? 'border-trust text-trust' : 'border-line text-primary hover:border-primary'
+              className={`press flex h-[52px] w-full items-center justify-center gap-2 rounded-full text-copy font-normal text-bg disabled:cursor-not-allowed disabled:opacity-50 ${
+                added ? 'bg-trust' : 'bg-primary hover:bg-body'
               }`}>
               <ShoppingCart className="h-5 w-5" /> {added ? t.cartAdded : t.cartAdd}
             </button>
           </div>
 
-          {helpHref && (
-            <div className="flex items-center gap-2 border-t border-divider pt-6 text-para">
-              <MessageCircle className="h-5 w-5 shrink-0 text-primary" />
-              <span className="font-semibold text-primary">{t.helpTitle}</span>
-              <a href={helpHref} target="_blank" rel="noopener noreferrer" className="press text-cta hover:underline">
-                {t.helpContact}
-              </a>
-            </div>
-          )}
         </div>
       </div>
 
       {draft && <OrderForm t={t} draft={draft} onClose={() => setDraft(null)} />}
 
       {/* Rasmdan pastda — xarid qarori qabul qilingandan keyin o'qiladigan qism:
-          xususiyatlar → tavsif → sharhlar → o'xshashlar → sozlash bo'limi. */}
-      {product.specs.length > 0 && (
-        <section className="mt-14 border-t border-divider pt-10">
-          <h2 className="text-subhead font-semibold text-primary">{t.specsTitle}</h2>
-          <dl className="mt-6 max-w-[860px]">
-            {product.specs.map((s, i) => (
-              <div key={i} className="flex flex-wrap gap-x-4 gap-y-1 border-t border-divider py-3.5 first:border-t-0 sm:flex-nowrap">
-                <dt className="w-full shrink-0 text-para text-muted sm:w-[280px]">{s.label}</dt>
-                <dd className="min-w-0 text-para font-medium text-primary">{s.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
+          xususiyatlar | tavsif (lg'da yonma-yon) → sharhlar → sozlash bo'limi → o'xshashlar. */}
+      {(product.specs.length > 0 || product.description || product.conditionNote) && (
+        <section className={`mt-14 grid gap-14 border-t border-divider pt-10 ${
+          product.specs.length > 0 && (product.description || product.conditionNote) ? 'lg:grid-cols-2 lg:gap-16' : ''
+        }`}>
+          {product.specs.length > 0 && (
+            <div>
+              <h2 className="text-subhead font-semibold text-primary">{t.specsTitle}</h2>
+              <dl className="mt-6 max-w-[860px]">
+                {product.specs.map((s, i) => (
+                  <div key={i} className="flex flex-wrap gap-x-4 gap-y-1 border-t border-divider py-3.5 first:border-t-0 sm:flex-nowrap">
+                    <dt className="w-full shrink-0 text-para text-muted sm:w-[200px]">{s.label}</dt>
+                    <dd className="min-w-0 text-para font-medium text-primary">{s.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
 
-      {(product.description || product.conditionNote) && (
-        <section className="mt-14 border-t border-divider pt-10">
-          <h2 className="text-subhead font-semibold text-primary">{t.descTitle}</h2>
-          <div className="mt-6 max-w-[760px]">
-            <Expandable moreLabel={t.showMore} lessLabel={t.showLess}>
-              {product.description && (
-                <p className="whitespace-pre-line text-copy text-body">{product.description}</p>
-              )}
-              {product.conditionNote && (
-                <>
-                  <h3 className={`text-copy font-semibold text-primary ${product.description ? 'mt-6' : ''}`}>{t.noteTitle}</h3>
-                  <p className="mt-2 whitespace-pre-line text-copy text-body">{product.conditionNote}</p>
-                </>
-              )}
-            </Expandable>
-          </div>
+          {(product.description || product.conditionNote) && (
+            <div>
+              <h2 className="text-subhead font-semibold text-primary">{t.descTitle}</h2>
+              <div className="mt-6 max-w-[760px]">
+                <Expandable moreLabel={t.showMore} lessLabel={t.showLess}>
+                  {product.description && (
+                    <p className="whitespace-pre-line text-copy text-body">{product.description}</p>
+                  )}
+                  {product.conditionNote && (
+                    <>
+                      <h3 className={`text-copy font-semibold text-primary ${product.description ? 'mt-6' : ''}`}>{t.noteTitle}</h3>
+                      <p className="mt-2 whitespace-pre-line text-copy text-body">{product.conditionNote}</p>
+                    </>
+                  )}
+                </Expandable>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
       <Reviews t={t} reviews={reviews} ratingAvg={product.ratingAvg} reviewCount={product.reviewCount ?? 0} />
+
+      <SetupBand t={t} contactHref={helpHref} />
 
       {similar.length > 0 && (
         <section className="mt-14 border-t border-divider pt-10">
@@ -347,9 +380,6 @@ const ProductPage: FC<{
         </section>
       )}
 
-      {/* Faqat Apple yo'nalishida: bepul sozlash — shu yo'nalishning o'ziga xos
-          xizmati, boshqa bo'limlarda (PC, Audio, Video) bunday va'da yo'q. */}
-      {product.categoryId === 'apple' && <SetupBand t={t} contactHref={helpHref} />}
     </div>
   );
 };
