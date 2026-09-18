@@ -98,13 +98,15 @@ const GPU_WATTS: Record<string, number> = {
   'rtx 4090': 450, 'rtx 4080': 320, 'rtx 4070 ti': 285, 'rtx 4070': 200, 'rtx 4060 ti': 165, 'rtx 4060': 115,
   'rtx 3090': 350, 'rtx 3080': 320, 'rtx 3070 ti': 290, 'rtx 3070': 220, 'rtx 3060 ti': 200, 'rtx 3060': 170, 'rtx 3050': 130,
   'rtx 2080': 215, 'rtx 2070': 175, 'rtx 2060': 160, 'rtx 2060 ti': 175,
-  'rx 9070 xt': 304, 'rx 9070': 220, 'rx 7900 xtx': 355, 'rx 7900 xt': 315, 'rx 7800 xt': 263, 'rx 7700 xt': 245, 'rx 7600': 165,
+  'rx 9070 xt': 304, 'rx 9070': 220, 'rx 9060 xt': 160, 'rx 9060': 150, 'rx 7900 xtx': 355, 'rx 7900 xt': 315, 'rx 7800 xt': 263, 'rx 7700 xt': 245, 'rx 7600': 165,
   'arc b580': 190, 'arc a770': 225,
 };
 
 function gpuWatts(n: string): number | null {
   const nv = n.match(/(?:rtx|gtx)?\s*([2345]0[5-9]0)\s*(ti|super)?/);
-  if (nv && /rtx|gtx|geforce|\b[2345]0[5-9]0\b|rtx\d/.test(n)) {
+  // Model raqami ko'pincha nomga "yopishib" keladi ("5060Ti", "2060Super") — bo'sh joysiz
+  // qo'shimcha ham chegara ichida hisoblanadi, aks holda \b raqam bilan harf orasida to'xtamaydi.
+  if (nv && /rtx|gtx|geforce|\b[2345]0[5-9]0(?:ti|super)?\b|rtx\d/.test(n)) {
     const base = `rtx ${nv[1]}`;
     const withTi = nv[2] ? `${base} ti` : base;
     return GPU_WATTS[withTi] ?? GPU_WATTS[base] ?? null;

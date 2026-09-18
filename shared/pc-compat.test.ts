@@ -55,6 +55,13 @@ describe('partAttrs — RAM, GPU, blok', () => {
     expect(a('gpu', 'Sapphire RX 7800 XT').watts).toBe(263);
     expect(a('gpu', 'GPU Intel Arc Pro B70 Graphics Black').watts).toBeNull();
   });
+  it('modelga yopishgan Ti/Super ham tanib olinadi', () => {
+    expect(a('gpu', 'MSI Ventus 5060Ti 8GB / Black').watts).toBe(180);
+    expect(a('gpu', 'Gigabyte 5060Ti 8GB / Black').watts).toBe(180);
+    expect(a('gpu', 'Galax 2060Super 8GB / Black').watts).toBe(175);
+    expect(a('gpu', 'Hellhound AMD Radeon™ RX 9060 XT 8GB GDDR6').watts).toBe(160);
+    expect(a('gpu', 'MSI Shadow Geforce RTX 5060Ti 16GB / Black').watts).toBe(180);
+  });
   it('Blok: W yoki nomdagi son', () => {
     expect(a('psu', 'SAMA  B850W Bronze').watts).toBe(850);
     expect(a('psu', 'SAMA K650W 80Plus Bronze, ATX 2.52 Black').watts).toBe(650);
