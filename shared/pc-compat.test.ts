@@ -40,6 +40,10 @@ describe('partAttrs — plata', () => {
     expect(a('mb', 'Asus TUF B550-Plus')).toEqual({ socket: 'AM4', memory: 'DDR4', watts: null });
     expect(a('mb', 'Asus Prime H610 M-F / Black').socket).toBe('LGA1700');
   });
+  it("H610'da DDR belgisiz — DDR5 taxmin qilinmaydi, operator tasdiqlaydi", () => {
+    expect(a('mb', 'Asus Prime H610 M-F / Black').memory).toBeNull();
+    expect(a('mb', 'Gigabyte H610M D4').memory).toBe('DDR4');
+  });
   it('chipset yo\'q → null', () => {
     expect(a('mb', 'Noma\'lum plata')).toEqual({ socket: null, memory: null, watts: null });
   });

@@ -72,12 +72,16 @@ function cpuWatts(n: string): number | null {
   return null;
 }
 
-function boardSocket(n: string): PcSocket | null {
+function boardChipsetCode(n: string): string | null {
   for (const m of n.matchAll(/[abhxz]\d{3}/g)) {
-    const s = CHIPSETS[m[0]];
-    if (s) return s;
+    if (CHIPSETS[m[0]]) return m[0];
   }
   return null;
+}
+
+function boardSocket(n: string): PcSocket | null {
+  const code = boardChipsetCode(n);
+  return code ? CHIPSETS[code] : null;
 }
 
 function nameMemory(n: string): PcMemory | null {
@@ -152,7 +156,9 @@ export function partAttrs(slot: SlotKey, name: string, override?: PartOverride):
   if (slot === 'mb') {
     const socket = asSocket(o.socket) ?? boardSocket(n);
     // LGA1700 platalar ikkala turda chiqadi; DDR4 versiyasi nomda "D4"/"DDR4" bilan belgilanadi.
-    const fallback = socket === 'LGA1700' ? 'DDR5' : socketMemory(socket);
+    // H610 arzon segment — asosan DDR4, lekin noaniq holatda DDR5 deb taxmin qilish RAM
+    // xaridini butunlay bloklardi; operator o'zi tasdiqlasin. Boshqa LGA1700 chipsetlar DDR5'ga qaytadi.
+    const fallback = boardChipsetCode(n) === 'h610' ? null : socket === 'LGA1700' ? 'DDR5' : socketMemory(socket);
     return { socket, memory: asMemory(o.memory) ?? nameMemory(n) ?? fallback, watts: null };
   }
   if (slot === 'ram') return { socket: null, memory: asMemory(o.memory) ?? ramMemory(n), watts: null };
