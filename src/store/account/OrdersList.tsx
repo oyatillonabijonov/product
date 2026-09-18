@@ -31,7 +31,7 @@ const OrdersList: FC<{ t: Translation; orders: ApiOrder[] }> = ({ t, orders }) =
         const itemsTotal = o.items.reduce((s, it) => s + it.priceUzs * it.qty, 0);
         const installment = o.paymentKind === 'installment';
         return (
-          <div key={o.id} className="rounded-sm border border-line-2 overflow-hidden">
+          <div key={o.id} className="rounded-sm bg-bg overflow-hidden">
             <div className="flex items-center justify-between gap-3 px-4 py-3 bg-bg/50 border-b border-line/60">
               <div className="flex items-baseline gap-2.5">
                 <span className="text-label font-semibold text-primary tabular-nums">#{o.id}</span>

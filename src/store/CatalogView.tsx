@@ -107,7 +107,7 @@ const CatalogView: FC<{
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr]">
         {/* Karta — yonidagi mahsulot kartalari bilan bir xil yuza. `self-start`: aks holda
             grid uni butun mahsulot to'ri balandligiga cho'zardi. */}
-        <aside className="hidden self-start rounded-lg border border-divider bg-surface px-6 pb-3 pt-5 lg:block">{panel}</aside>
+        <aside className="hidden self-start rounded-lg bg-surface px-6 pb-3 pt-5 lg:block">{panel}</aside>
         <div className="min-w-0">
           <ProductGrid t={t} items={result.items} config={config} eagerCount={4} />
           {result.total === 0 &&

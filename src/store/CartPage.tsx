@@ -61,7 +61,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
         <div className="flex flex-col gap-3">
           {items.map((it) => (
-            <div key={`${it.productId}-${it.variantId ?? ''}`} className=" rounded-lg bg-surface border border-divider p-4 flex flex-wrap items-center gap-x-4 gap-y-3">
+            <div key={`${it.productId}-${it.variantId ?? ''}`} className=" rounded-lg bg-surface p-4 flex flex-wrap items-center gap-x-4 gap-y-3">
               <div className="rounded-sm w-16 h-16 bg-bg flex items-center justify-center overflow-hidden shrink-0">
                 {it.image ? <img src={it.image} alt="" className="w-full h-full object-contain p-1.5" /> : null}
               </div>
@@ -83,7 +83,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
           </button>
         </div>
 
-        <div className=" rounded-xl bg-surface border border-line-3 p-5 lg:sticky lg:top-24">
+        <div className=" rounded-xl bg-surface p-5 lg:sticky lg:top-24">
           {showInstallment && (
             <>
               <div className="text-label font-semibold text-muted mb-3">{t.calcTerm}</div>
