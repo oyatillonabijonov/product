@@ -12,7 +12,7 @@ import ContentHome from './screens/ContentHome';
 import { Page } from './ui';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm';
-// Eski ekranlar — bosqichma-bosqich almashtiriladi (2–5-bosqichlar), shu jadval orqali ulanadi.
+// Ekranlar shu jadval orqali ulanadi; Sozlamalar hali eski komponentlar (5-bosqich).
 import ProductsList from './screens/ProductsList';
 import TypesList from './screens/TypesList';
 import TypeEdit from './screens/TypeEdit';
@@ -33,7 +33,8 @@ import NewsList from './screens/NewsList';
 import NewsEdit from './screens/NewsEdit';
 import PostsList from './screens/PostsList';
 import PostEdit from './screens/PostEdit';
-import PageList from './PageList';
+import PagesList from './screens/PagesList';
+import PageEdit from './screens/PageEdit';
 import VacanciesList from './screens/VacanciesList';
 import VacancyEdit from './screens/VacancyEdit';
 import VacanciesText, { VACANCIES_TEXT_ID } from './screens/VacanciesText';
@@ -58,7 +59,7 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
     case 'content/banners': return id ? <BannerEdit key={id} id={id} /> : <BannersList />;
     case 'content/news': return id ? <NewsEdit key={id} id={id} /> : <NewsList />;
     case 'content/posts': return id ? <PostEdit key={id} id={id} /> : <PostsList />;
-    case 'content/pages': return <PageList />;
+    case 'content/pages': return id ? <PageEdit key={id} id={id} /> : <PagesList />;
     case 'content/vacancies':
       if (id === VACANCIES_TEXT_ID) return <VacanciesText />;
       return id ? <VacancyEdit key={id} id={id} /> : <VacanciesList />;

@@ -354,6 +354,14 @@ ham yiqitadi (lint) — etim kalit qolmaydi.
 berish shartlari.») — sahifa har rejimda chiqadi; konsultatsiya mavzularini yashirish yo'q (§2 «chip soni qat'iy» va §6
 «bo'sh = standart» ustun); `PUT /api/admin/texts` standartga teng tilni bo'sh saqlaydi.
 
+4b qarorlari (2026-09-17): landing muharririda har yo'nalish alohida karta (registrda bo'lim nomi yo'nalish bo'yicha);
+vakansiyalar sahifasi matni ro'yxat tepasidagi kartadan ochiladigan alohida ekranda (`/admin/content/vacancies/matn`);
+`legal` bo'limi admin'da "Sarlavha ostidagi izoh"; diskdan faqat almashtirilgan **video** fayli o'chiriladi (rasm — kichik,
+keshdagi sahifa uni so'rashi mumkin); yuklash ishlovi kalit bo'yicha (favicon — PNG o'zgarishsiz, logolar kesiladi, fotolar
+kesilmaydi, 2400 px); forma maydonlari joriy matn bilan to'ldiriladi, bo'shatilsa standart qaytadi; sahifaning ruscha
+sarlavhasi bo'sh qolsa o'zbekchasi yoziladi; maxsus sahifalarda (`biz-haqimizda`, huquqiy) slug o'zgarmaydi va o'chirish
+yo'q; ro'yxatdagi faol toggle to'liq yozuvni `PUT` qiladi (yangi endpoint yo'q); kontent ro'yxatlarida qidiruv faqat Blog'da.
+
 ## 8. Xavfsizlik va kesh
 
 Yangi route'lar `requireAdmin` + `parseBody`; sirlar `publicSiteConfig`da avvalgidek bo'shatiladi; matnlar
