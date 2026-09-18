@@ -33,6 +33,12 @@ export interface ApiProduct {
   reviewCount: number;
   /** Oldindan buyurtma (pre-order): sahifada "Yangi" o'rniga "Pre-order", tugma matni boshqa. */
   preorder: boolean;
+  /** PC konfiguratorida ko'rsatilmasin (egasi eskirgan modelni chiqaradi). */
+  pcHidden: boolean;
+  /** Konfigurator atributlarining admin tuzatishi; null — nomdan avtomatik (shared/pc-compat.ts). */
+  pcSocket: string | null;
+  pcMemory: string | null;
+  pcWatts: number | null;
   /** Billz tovar UUID'si — sinxronizatsiya bog'lanishi; qo'lda kiritilgan mahsulotda `null`. */
   billzId: string | null;
   /** Billz'dagi qoldiq (tanlangan do'kon); qo'lda kiritilganda `null`. */

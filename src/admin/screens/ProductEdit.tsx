@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { X } from 'lucide-react';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel, ApiProductType } from '../../../shared/types';
 import { deriveLegacyCategory } from '../../../shared/legacy-category';
+import { PC_SOCKETS, partAttrs, slotForType } from '../../../shared/pc-compat';
 import {
   createProduct, deleteProduct, getProductDetail, listBrands, listCategories, listDeviceModels, listTypes, updateProduct, uploadImage,
 } from '../api';
@@ -171,6 +172,9 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
   }
 
   const billz = form.billzId !== null;
+  // PC bo'g'in turlarida — konfigurator kartasi; "Avtomatik" qiymatlar tuzatishsiz, faqat nomdan.
+  const pcSlot = form.categoryId === 'pc' ? slotForType(form.type) : null;
+  const autoAttrs = pcSlot ? partAttrs(pcSlot, form.name) : { socket: null, memory: null, watts: null };
   const title = isNew ? 'Yangi mahsulot' : form.name || 'Mahsulot';
   const canSave = dirty && !busy && loadState === 'ready';
   const storage = form.options.find((o) => o.name === 'Xotira')?.values ?? [];
@@ -384,6 +388,47 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
             </div>
           )}
         </Card>
+
+        {pcSlot && (
+          <Card title="Konfigurator" description="Kompyuter konfiguratoridagi moslik. «Avtomatik» — tovar nomidan aniqlangan qiymat.">
+            <div className="divide-y divide-line">
+              <SwitchRow
+                label="Konfiguratorda ko'rsatilmasin"
+                hint="Eskirgan yoki keltirib bo'lmaydigan model uchun."
+                on={form.pcHidden}
+                onChange={(v) => set('pcHidden', v)}
+              />
+              <div className="grid gap-4 py-3 sm:grid-cols-3">
+                {(pcSlot === 'cpu' || pcSlot === 'mb') && (
+                  <Field label="Soket">
+                    <Select value={form.pcSocket ?? ''} onChange={(v) => set('pcSocket', v || null)}>
+                      <option value="">Avtomatik ({autoAttrs.socket ?? 'aniqlanmadi'})</option>
+                      {PC_SOCKETS.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </Select>
+                  </Field>
+                )}
+                {(pcSlot === 'mb' || pcSlot === 'ram') && (
+                  <Field label="Xotira turi">
+                    <Select value={form.pcMemory ?? ''} onChange={(v) => set('pcMemory', v || null)}>
+                      <option value="">Avtomatik ({autoAttrs.memory ?? 'aniqlanmadi'})</option>
+                      <option value="DDR4">DDR4</option>
+                      <option value="DDR5">DDR5</option>
+                    </Select>
+                  </Field>
+                )}
+                {(pcSlot === 'cpu' || pcSlot === 'gpu' || pcSlot === 'psu') && (
+                  <Field label={pcSlot === 'psu' ? 'Quvvat, W' : "Iste'mol, W"}>
+                    <Input
+                      value={form.pcWatts ? String(form.pcWatts) : ''}
+                      onChange={(v) => { const n = Number(v.replace(/\D/g, '')); set('pcWatts', n > 0 ? n : null); }}
+                      placeholder={autoAttrs.watts ? `Avtomatik: ${autoAttrs.watts}` : 'Aniqlanmadi'}
+                    />
+                  </Field>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
 
         <Card title="Reyting va sharhlar" description="Reyting sharhlardan hisoblanadi; sharhsiz mahsulotga tashqi manba qiymatini qo'lda kiriting. Sharh soni 0 bo'lsa kartada yulduzcha chiqmaydi.">
           <div className="grid gap-4 md:grid-cols-2">

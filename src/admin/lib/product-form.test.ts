@@ -7,6 +7,7 @@ function detail(over: Partial<AdminProductDetail> = {}): AdminProductDetail {
     id: 'p1', name: 'iPhone 17', category: 'iphone', condition: 'yangi', conditionNote: null, cashPriceUzs: 1000,
     imageUrl: '/images/products/main.webp', sortOrder: 0, isActive: true, categoryId: 'apple', type: 'iphone',
     oldPriceUzs: null, brandId: 'apple', slug: 'iphone-17', minPriceUzs: 900, ratingAvg: null, reviewCount: 0, preorder: false,
+    pcHidden: false, pcSocket: null, pcMemory: null, pcWatts: null,
     billzId: null, billzStock: null, description: null, brand: null,
     images: ['/images/products/main.webp', '/images/products/g1.webp'],
     specs: [{ label: 'Chip', value: 'A19' }],
@@ -89,6 +90,7 @@ describe('aylanma (detail → forma → payload)', () => {
   it("tegilmagan mahsulotni saqlash: barcha maydon (slug, reyting, variant sku/eski narx/rasm/qoldiq) o'zgarishsiz qaytadi", () => {
     const d = detail({
       conditionNote: 'Batafsil', oldPriceUzs: 1200, description: 'Tavsif', ratingAvg: 4.5, reviewCount: 3, sortOrder: 7, isActive: false, preorder: true,
+      pcHidden: true, pcSocket: 'AM5', pcMemory: 'DDR5', pcWatts: 650,
       variants: [
         { id: 'var1', sku: 'A1', cashPriceUzs: 900, oldPriceUzs: 950, imageUrl: '/images/products/v.webp', inStock: false, sortOrder: 0, optionValueIds: ['v1'] },
         { id: 'var2', sku: null, cashPriceUzs: 1100, oldPriceUzs: null, imageUrl: null, inStock: true, sortOrder: 1, optionValueIds: ['v2', 'missing'] },
@@ -101,6 +103,7 @@ describe('aylanma (detail → forma → payload)', () => {
       oldPriceUzs: 1200, description: 'Tavsif', imageUrl: d.imageUrl, images: ['/images/products/g1.webp'],
       specs: d.specs, sortOrder: 7, isActive: false, brandId: d.brandId, slug: d.slug,
       ratingAvg: 4.5, reviewCount: 3, preorder: true,
+      pcHidden: true, pcSocket: 'AM5', pcMemory: 'DDR5', pcWatts: 650,
       options: [{ name: 'Xotira', values: ['128GB', '256GB'] }],
       variants: [
         { sku: 'A1', cashPriceUzs: 900, oldPriceUzs: 950, imageUrl: '/images/products/v.webp', inStock: false, optionValues: [{ optionName: 'Xotira', value: '128GB' }] },

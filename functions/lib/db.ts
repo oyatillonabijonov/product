@@ -58,6 +58,10 @@ export interface ProductRow {
   rating_avg: number | null;
   review_count: number;
   preorder: number;
+  pc_hidden: number;
+  pc_socket: string | null;
+  pc_memory: string | null;
+  pc_watts: number | null;
   min_variant_price?: number | null;
 }
 
@@ -92,6 +96,10 @@ export function rowToProduct(row: ProductRow): ApiProduct {
     ratingAvg: row.rating_avg,
     reviewCount: row.review_count ?? 0,
     preorder: row.preorder === 1,
+    pcHidden: row.pc_hidden === 1,
+    pcSocket: row.pc_socket ?? null,
+    pcMemory: row.pc_memory ?? null,
+    pcWatts: row.pc_watts ?? null,
     billzId: row.billz_id ?? null,
     billzStock: row.billz_stock ?? null,
   };
