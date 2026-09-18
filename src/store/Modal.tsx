@@ -30,6 +30,10 @@ const Modal: FC<{
   const reduced = useReducedMotion();
   const panel = useRef<HTMLDivElement | null>(null);
   const restoreTo = useRef<HTMLElement | null>(null);
+  // Ota komponent `onClose`ni har renderda yangi funksiya qilib beradi. Effekt unga bog'lansa, har
+  // harfda qayta ishlab fokusni inputdan panelga olib qo'yardi — shuning uchun oxirgi qiymat ref'da.
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
@@ -37,14 +41,14 @@ const Modal: FC<{
     panel.current?.focus();
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeRef.current(); };
     window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = prev;
       restoreTo.current?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   const hidden = reduced
     ? { opacity: 0 }
