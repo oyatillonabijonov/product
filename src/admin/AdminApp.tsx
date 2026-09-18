@@ -42,8 +42,7 @@ import PageEdit from './screens/PageEdit';
 import VacanciesList from './screens/VacanciesList';
 import VacancyEdit from './screens/VacancyEdit';
 import VacanciesText, { VACANCIES_TEXT_ID } from './screens/VacanciesText';
-import SiteConfigForm from './SiteConfigForm';
-import BillzPanel from './BillzPanel';
+import SettingsIntegrations from './screens/SettingsIntegrations';
 import AccountForm from './AccountForm';
 
 const DEFAULT_PW_KEY = 'admin-default-pw';
@@ -69,13 +68,7 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
     case 'settings/store': return <SettingsStore />;
     case 'settings/contact': return <SettingsContact />;
     case 'settings/payment': return <SettingsPayment />;
-    case 'settings/integrations':
-      return (
-        <>
-          <SiteConfigForm />
-          <div className="mt-4"><BillzPanel /></div>
-        </>
-      );
+    case 'settings/integrations': return <SettingsIntegrations />;
     case 'settings/seo': return <SettingsSeo />;
     case 'settings/account':
       return (
