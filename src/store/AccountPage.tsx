@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import type { FC } from 'react';
 import { User, Package, Heart, LogOut } from 'lucide-react';
 import type { Translation } from '../locales';
@@ -10,6 +10,10 @@ import FavoritesList from './account/FavoritesList';
 
 type TabKey = 'profile' | 'orders' | 'favorites';
 
+function isTabKey(v: string | null): v is TabKey {
+  return v === 'profile' || v === 'orders' || v === 'favorites';
+}
+
 function initials(name: string, email: string): string {
   const src = (name || '').trim() || email || '?';
   const parts = src.split(/\s+/).filter(Boolean);
@@ -20,7 +24,9 @@ function initials(name: string, email: string): string {
 const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[] }> = ({
   t, customer, orders,
 }) => {
-  const [tab, setTab] = useState<TabKey>('profile');
+  const [sp, setSp] = useSearchParams();
+  const tabParam = sp.get('tab');
+  const tab: TabKey = isTabKey(tabParam) ? tabParam : 'profile';
   const { count: favCount } = useFavorites();
 
   const nav = [
@@ -30,6 +36,13 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
   ] as const;
   const active = nav.find((n) => n.key === tab) ?? nav[0];
   const ActiveIcon = active.Icon;
+
+  const setTab = (key: TabKey) => {
+    const next = new URLSearchParams(sp);
+    if (key === 'profile') next.delete('tab');
+    else next.set('tab', key);
+    setSp(next, { preventScrollReset: true });
+  };
 
   return (
     <div className="bg-bg min-h-[70vh]">
