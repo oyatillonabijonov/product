@@ -475,7 +475,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                   <Field label={pcSlot === 'psu' ? 'Quvvat, W' : "Iste'mol, W"}>
                     <Input
                       value={form.pcWatts ? String(form.pcWatts) : ''}
-                      onChange={(v) => { const n = Number(v.replace(/\D/g, '')); set('pcWatts', n > 0 ? n : null); }}
+                      onChange={(v) => { const n = Number(v.replace(/\D/g, '')); set('pcWatts', n > 0 ? Math.min(3000, n) : null); }}
                       placeholder={autoAttrs.watts ? `Avtomatik: ${autoAttrs.watts}` : 'Aniqlanmadi'}
                     />
                   </Field>
