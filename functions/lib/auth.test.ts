@@ -9,6 +9,7 @@ import {
   getCookie,
   lockDelaySeconds,
   LOGIN_LOCK_THRESHOLD,
+  isSecureRequest,
 } from './auth';
 
 const SECRET = 'test-secret';
@@ -83,5 +84,21 @@ describe('getCookie', () => {
     const req = new Request('https://x', { headers: { cookie: 'a=1; session=abc; b=2' } });
     expect(getCookie(req, 'session')).toBe('abc');
     expect(getCookie(req, 'yoq')).toBeNull();
+  });
+});
+
+describe('isSecureRequest', () => {
+  const req = (url: string, headers?: Record<string, string>) => new Request(url, { headers });
+
+  it("proxy `x-forwarded-proto` birinchi o'rinda", () => {
+    expect(isSecureRequest(req('http://x.uz/a', { 'x-forwarded-proto': 'https' }))).toBe(true);
+    expect(isSecureRequest(req('https://x.uz/a', { 'x-forwarded-proto': 'http' }))).toBe(false);
+    // Bir necha proxy: birinchi qiymat mijozga eng yaqini
+    expect(isSecureRequest(req('http://x.uz/a', { 'x-forwarded-proto': 'https, http' }))).toBe(true);
+  });
+
+  it("sarlavha bo'lmasa URL sxemasi", () => {
+    expect(isSecureRequest(req('https://x.uz/a'))).toBe(true);
+    expect(isSecureRequest(req('http://x.uz/a'))).toBe(false);
   });
 });

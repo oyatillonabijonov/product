@@ -129,10 +129,21 @@ export function getCookie(request: Request, name: string): string | null {
   return null;
 }
 
-export function sessionCookie(token: string, ttlSeconds: number): string {
-  return `session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${ttlSeconds}`;
+/**
+ * So'rov HTTPS orqali kelganmi. Brauzer `Secure` cookie'ni oddiy HTTP'da **saqlamaydi**
+ * (localhost istisno) — domenga sertifikat qo'yilmagan bo'lsa admin kirgan zahoti chiqib ketardi.
+ * Proxy ortidamiz, shuning uchun avval `x-forwarded-proto`.
+ */
+export function isSecureRequest(request: Request): boolean {
+  const proto = request.headers.get('x-forwarded-proto');
+  if (proto) return proto.split(',')[0].trim() === 'https';
+  return new URL(request.url).protocol === 'https:';
 }
 
-export function clearedSessionCookie(): string {
-  return 'session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0';
+export function sessionCookie(token: string, ttlSeconds: number, secure: boolean): string {
+  return `session=${token}; HttpOnly;${secure ? ' Secure;' : ''} SameSite=Lax; Path=/; Max-Age=${ttlSeconds}`;
+}
+
+export function clearedSessionCookie(secure: boolean): string {
+  return `session=; HttpOnly;${secure ? ' Secure;' : ''} SameSite=Lax; Path=/; Max-Age=0`;
 }
