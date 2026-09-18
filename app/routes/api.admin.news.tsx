@@ -9,7 +9,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const env = context.env;
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
-  const { results } = await env.DB.prepare('SELECT * FROM news ORDER BY sort_order ASC').all<NewsRow>();
+  const { results } = await env.DB.prepare('SELECT * FROM news ORDER BY sort_order ASC, id ASC').all<NewsRow>();
   return json(results.map(rowToNews));
 }
 

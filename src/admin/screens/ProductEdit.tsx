@@ -90,14 +90,6 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
     return () => { stale = true; };
   }, [id, isNew, retry]);
 
-  // Saqlanmagan o'zgarish bo'lsa sahifa yopilishi/yangilanishida ogohlantirish.
-  useEffect(() => {
-    if (!dirty) return;
-    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, [dirty]);
-
   const patch = (fn: (f: ProductFormState) => ProductFormState) => { setForm(fn); setDirty(true); };
   const set = <K extends keyof ProductFormState>(k: K, v: ProductFormState[K]) => patch((f) => ({ ...f, [k]: v }));
   /** Yo'nalish almashsa eski tur begona bo'lib qoladi (masalan `pc`da `iphone`) — tozalanadi. */

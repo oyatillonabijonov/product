@@ -31,6 +31,14 @@ export const Page: FC<{
       .then((ok) => { if (ok) blocker.proceed(); else blocker.reset(); });
   }, [blocker.state]);
 
+  // Tab yopilishi yoki yangilanishi `useBlocker`dan o'tmaydi — saqlanmagan forma uchun brauzer ogohlantirishi.
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
+
   return (
     <div>
       <header className="sticky top-0 z-30 -mx-4 mb-6 bg-bg px-4 pb-4 pt-5 md:-mx-8 md:px-8 md:pt-8">
@@ -42,10 +50,10 @@ export const Page: FC<{
               </Link>
             )}
             <h1 className="truncate text-subhead font-semibold text-primary md:text-heading">{title}</h1>
-            {description && <p className="mt-1 text-para text-muted">{description}</p>}
           </div>
           {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </div>
+        {description && <p className="mt-1 text-para text-muted">{description}</p>}
       </header>
       {children}
     </div>

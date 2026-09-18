@@ -321,7 +321,7 @@ export async function loadBanners(env: Env): Promise<ApiBanner[]> {
 /** Landing "Yangiliklar" bo'limi — faol, tartib bo'yicha birinchi 3 tasi (tile to'ri shuncha joyga chizilgan). */
 export async function loadNews(env: Env): Promise<ApiNews[]> {
   try {
-    const { results } = await env.DB.prepare('SELECT * FROM news WHERE is_active = 1 ORDER BY sort_order ASC LIMIT 3').all<NewsRow>();
+    const { results } = await env.DB.prepare('SELECT * FROM news WHERE is_active = 1 ORDER BY sort_order ASC, id ASC LIMIT 3').all<NewsRow>();
     return results.map(rowToNews);
   } catch (err) {
     console.error('loadNews fallback:', err);
