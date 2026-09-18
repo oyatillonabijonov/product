@@ -46,22 +46,27 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
   const showDivider = Boolean(config.googleClientId && config.telegramLoginBot);
 
   return (
-    <div className="flex flex-col items-center gap-5">
-      <img src={asset('logo')} alt={config.name} className="logo-light h-9 w-auto object-contain" />
-      <img src={asset('logoDark')} alt="" aria-hidden className="logo-dark h-9 w-auto object-contain" />
-      <h2 className="text-heading font-semibold text-primary">{t.loginTitle}</h2>
+    <div className="flex flex-col items-center">
+      <img src={asset('logo')} alt={config.name} className="logo-light h-7 w-auto object-contain" />
+      <img src={asset('logoDark')} alt="" aria-hidden className="logo-dark h-7 w-auto object-contain" />
+      <h2 className="mt-5 text-subhead font-semibold text-primary">{t.loginTitle}</h2>
+      <p className="mt-1.5 text-para text-muted text-balance text-center">{t.loginLede}</p>
 
       {error && (
-        <p className="w-full text-label text-sale bg-sale/10 border border-sale/20 rounded-sm px-3.5 py-2.5 text-center">
+        <p className="mt-5 w-full text-label text-sale bg-sale/10 border border-sale/20 rounded-sm px-3.5 py-2.5 text-center">
           {t.loginError}
         </p>
       )}
 
-      <div className="w-full flex flex-col items-center gap-3">
+      {/* Telegram tugmasi — Telegram'ning o'z vidjeti (iframe): rangi, matni va eni
+          ularniki, biz faqat `data-size`/`data-radius`ni beramiz. Shuning uchun ustun
+          `w-fit`: eni vidjetnikiga tenglashadi va Google tugmasi shu enni to'ldiradi —
+          aks holda biri to'liq enli, ikkinchisi tor bo'lib turardi. */}
+      <div className={`mt-6 flex flex-col items-center gap-3 ${showDivider ? 'w-fit min-w-[200px]' : 'w-full'}`}>
         {config.googleClientId && (
           <a
             href="/auth/google"
-            className="press w-full h-[52px] border border-line rounded-full font-medium text-copy text-primary hover:border-accent hover:bg-bg flex items-center justify-center gap-3"
+            className="press flex h-11 w-full items-center justify-center gap-2.5 rounded-full border border-line text-copy font-medium text-primary hover:border-accent hover:bg-bg"
           >
             <GoogleG /> {t.loginGoogle}
           </a>
@@ -75,6 +80,8 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
         )}
         <div ref={tgRef} className="min-h-[1px] flex items-center justify-center empty:hidden" />
       </div>
+
+      <p className="mt-6 text-label text-muted-2 text-center">{t.loginGuest}</p>
     </div>
   );
 };
