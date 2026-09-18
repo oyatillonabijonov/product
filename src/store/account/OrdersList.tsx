@@ -1,8 +1,9 @@
 import type { FC } from 'react';
-import { Package } from 'lucide-react';
+import { ChevronRight, Package } from 'lucide-react';
 import type { Translation } from '../../locales';
 import type { ApiOrder, OrderStatus } from '../../../shared/types';
 import { formatUzs } from '../../lib/installment';
+import AccountEmptyState from './AccountEmptyState';
 
 const statusStyle: Record<OrderStatus, string> = {
   new: 'bg-accent-soft text-accent',
@@ -12,37 +13,35 @@ const statusStyle: Record<OrderStatus, string> = {
 
 const OrdersList: FC<{ t: Translation; orders: ApiOrder[] }> = ({ t, orders }) => {
   if (orders.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center text-center py-14 gap-3">
-        <div className="w-14 h-14 rounded-full bg-bg flex items-center justify-center">
-          <Package className="w-7 h-7 text-muted-2" />
-        </div>
-        <p className="text-muted text-label">{t.accountNoOrders}</p>
-      </div>
-    );
+    return <AccountEmptyState icon={Package} text={t.accountNoOrders} />;
   }
 
   const statusLabel = (s: OrderStatus) =>
     s === 'contacted' ? t.orderStatusContacted : s === 'done' ? t.orderStatusDone : t.orderStatusNew;
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-3">
       {orders.map((o) => {
         const itemsTotal = o.items.reduce((s, it) => s + it.priceUzs * it.qty, 0);
+        const total = o.totalUzs ?? itemsTotal;
         const installment = o.paymentKind === 'installment';
         return (
-          <div key={o.id} className="rounded-sm bg-bg overflow-hidden">
-            <div className="flex items-center justify-between gap-3 px-4 py-3 bg-bg/50 border-b border-line/60">
-              <div className="flex items-baseline gap-2.5">
-                <span className="text-label font-semibold text-primary tabular-nums">#{o.id}</span>
-                <span className="text-label text-muted-2">{new Date(o.createdAt * 1000).toLocaleDateString('ru-RU')}</span>
+          <details key={o.id} className="group rounded-sm bg-bg overflow-hidden">
+            <summary className="list-none [&::-webkit-details-marker]:hidden flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 px-4 py-3 bg-bg/50 hover:bg-bg cursor-pointer transition-colors">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <ChevronRight className="w-4 h-4 text-muted-2 shrink-0 transition-transform duration-200 group-open:rotate-90" />
+                <span className="text-label font-semibold text-primary tabular-nums shrink-0">#{o.id}</span>
+                <span className="text-label text-muted-2 shrink-0">{new Date(o.createdAt * 1000).toLocaleDateString('ru-RU')}</span>
               </div>
-              <span className={`text-label font-semibold px-2.5 py-1 rounded-full ${statusStyle[o.status] ?? statusStyle.new}`}>
-                {statusLabel(o.status)}
-              </span>
-            </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-label font-semibold px-2.5 py-1 rounded-full ${statusStyle[o.status] ?? statusStyle.new}`}>
+                  {statusLabel(o.status)}
+                </span>
+                <span className="text-control font-semibold text-primary tabular-nums">{formatUzs(total, t.sum)}</span>
+              </div>
+            </summary>
 
-            <div className="p-4">
+            <div className="p-4 border-t border-line/60">
               <div className="flex flex-col gap-1.5">
                 {o.items.map((it, i) => (
                   <div key={i} className="flex items-baseline justify-between gap-3 text-label">
@@ -81,12 +80,12 @@ const OrdersList: FC<{ t: Translation; orders: ApiOrder[] }> = ({ t, orders }) =
                 ) : (
                   <div className="flex justify-between items-baseline">
                     <span className="text-label text-muted">{t.calcTotal}</span>
-                    <span className="text-control font-semibold text-primary tabular-nums">{formatUzs(o.totalUzs ?? itemsTotal, t.sum)}</span>
+                    <span className="text-control font-semibold text-primary tabular-nums">{formatUzs(total, t.sum)}</span>
                   </div>
                 )}
               </div>
             </div>
-          </div>
+          </details>
         );
       })}
     </div>

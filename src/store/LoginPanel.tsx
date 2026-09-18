@@ -43,22 +43,35 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
     return () => { host.innerHTML = ''; };
   }, [active, config.telegramLoginBot]);
 
+  const showDivider = Boolean(config.googleClientId && config.telegramLoginBot);
+
   return (
     <div className="flex flex-col items-center gap-5">
       <img src={asset('logo')} alt={config.name} className="logo-light h-9 w-auto object-contain" />
       <img src={asset('logoDark')} alt="" aria-hidden className="logo-dark h-9 w-auto object-contain" />
-      <h2 className="text-lede font-semibold text-primary">{t.loginTitle}</h2>
+      <h2 className="text-heading font-semibold text-primary">{t.loginTitle}</h2>
 
-      {error && <p className="text-sale text-label">{t.loginError}</p>}
+      {error && (
+        <p className="w-full text-label text-sale bg-sale/10 border border-sale/20 rounded-sm px-3.5 py-2.5 text-center">
+          {t.loginError}
+        </p>
+      )}
 
       <div className="w-full flex flex-col items-center gap-3">
         {config.googleClientId && (
           <a
             href="/auth/google"
-            className="press w-full h-[52px] border border-line rounded-full font-medium text-para text-primary hover:border-accent hover:bg-bg flex items-center justify-center gap-3"
+            className="press w-full h-[52px] border border-line rounded-full font-medium text-copy text-primary hover:border-accent hover:bg-bg flex items-center justify-center gap-3"
           >
             <GoogleG /> {t.loginGoogle}
           </a>
+        )}
+        {showDivider && (
+          <div className="w-full flex items-center gap-3 text-label text-muted-2">
+            <span className="flex-1 h-px bg-line" />
+            {t.loginOr}
+            <span className="flex-1 h-px bg-line" />
+          </div>
         )}
         <div ref={tgRef} className="min-h-[1px] flex items-center justify-center empty:hidden" />
       </div>
