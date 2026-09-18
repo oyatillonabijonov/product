@@ -11,6 +11,7 @@ import Dashboard from './screens/Dashboard';
 import ContentHome from './screens/ContentHome';
 import SettingsStore from './screens/SettingsStore';
 import SettingsContact from './screens/SettingsContact';
+import SettingsPayment from './screens/SettingsPayment';
 import SettingsSeo from './screens/SettingsSeo';
 import { Page } from './ui';
 import { ToastProvider } from './ui/toast';
@@ -42,7 +43,6 @@ import VacanciesList from './screens/VacanciesList';
 import VacancyEdit from './screens/VacancyEdit';
 import VacanciesText, { VACANCIES_TEXT_ID } from './screens/VacanciesText';
 import SiteConfigForm from './SiteConfigForm';
-import SettingsForm from './SettingsForm';
 import BillzPanel from './BillzPanel';
 import AccountForm from './AccountForm';
 
@@ -68,7 +68,7 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
       return id ? <VacancyEdit key={id} id={id} /> : <VacanciesList />;
     case 'settings/store': return <SettingsStore />;
     case 'settings/contact': return <SettingsContact />;
-    case 'settings/payment': return <SettingsForm />;
+    case 'settings/payment': return <SettingsPayment />;
     case 'settings/integrations':
       return (
         <>

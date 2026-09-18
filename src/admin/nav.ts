@@ -56,7 +56,7 @@ export const SECTIONS: SectionDef[] = [
     tabs: [
       { id: 'store', segment: 'store', label: "Do'kon", Icon: Store, ownPage: true },
       { id: 'contact', segment: 'contact', label: 'Aloqa', Icon: Phone, ownPage: true },
-      { id: 'payment', segment: 'payment', label: "To'lov va kurs", Icon: Wallet },
+      { id: 'payment', segment: 'payment', label: "To'lov va kurs", Icon: Wallet, ownPage: true },
       { id: 'integrations', segment: 'integrations', label: 'Integratsiyalar', Icon: Plug },
       { id: 'seo', segment: 'seo', label: 'SEO', Icon: Search, ownPage: true },
       { id: 'account', segment: 'account', label: 'Akkaunt', Icon: UserRound },
