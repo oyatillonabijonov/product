@@ -14,9 +14,15 @@ describe('partAttrs — CPU', () => {
   it('Core Ultra 2xx → LGA1851 + DDR5', () => {
     expect(a('cpu', 'Intel Core Ultra 7 265F')).toEqual({ socket: 'LGA1851', memory: 'DDR5', watts: 200 });
   });
+  it('"Core" so\'zisiz Ultra ham → LGA1851', () => {
+    expect(a('cpu', 'Intel Ultra 9 285K')).toEqual({ socket: 'LGA1851', memory: 'DDR5', watts: 250 });
+  });
   it('Ryzen 7000/9000 → AM5, 5000 → AM4', () => {
     expect(a('cpu', 'AMD Ryzen 7 9800x3D')).toEqual({ socket: 'AM5', memory: 'DDR5', watts: 150 });
     expect(a('cpu', 'AMD Ryzen 5 5600X')).toEqual({ socket: 'AM4', memory: 'DDR4', watts: 110 });
+  });
+  it('kod nomi tier va model raqami orasida, savdo belgisi bilan ham', () => {
+    expect(a('cpu', 'AMD Ryzen™ 5 Granite Ridge 9600X')).toEqual({ socket: 'AM5', memory: 'DDR5', watts: 110 });
   });
   it('tanilmagan nom → null', () => {
     expect(a('cpu', 'Noma\'lum protsessor')).toEqual({ socket: null, memory: null, watts: null });

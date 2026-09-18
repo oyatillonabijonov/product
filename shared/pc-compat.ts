@@ -47,11 +47,16 @@ function socketMemory(socket: PcSocket | null): PcMemory | null {
 }
 
 function cpuSocket(n: string): PcSocket | null {
-  if (/core\s*ultra\s*[3579]\s*2\d\d/.test(n)) return 'LGA1851';
+  if (/(?:core\s*)?ultra\s*[3579]\s*2\d\d/.test(n)) return 'LGA1851';
   if (/i[3579][\s-]*1[234]\d{3}/.test(n)) return 'LGA1700';
   if (/i[3579][\s-]*1[01]\d{3}/.test(n)) return 'LGA1200';
-  if (/ryzen\s*[3579]\s*[789]\d{3}/.test(n)) return 'AM5';
-  if (/ryzen\s*[3579]\s*[345]\d{3}/.test(n)) return 'AM4';
+  // Kod nomi ("Granite Ridge") tier va model raqami orasiga tushishi mumkin — model
+  // raqamining birinchi raqami avlodni beradi (7/8/9 → AM5, 3/4/5 → AM4).
+  const ryzen = n.match(/ryzen\s*[3579]\b.*?\b([3-9])\d{3}/);
+  if (ryzen) {
+    if (ryzen[1] === '7' || ryzen[1] === '8' || ryzen[1] === '9') return 'AM5';
+    if (ryzen[1] === '3' || ryzen[1] === '4' || ryzen[1] === '5') return 'AM4';
+  }
   return null;
 }
 
@@ -136,7 +141,8 @@ const asMemory = (v: string | null): PcMemory | null => (v === 'DDR4' || v === '
 
 /** Qism atributlari: admin tuzatishi (to'g'ri qiymat bo'lsa) → nom → null. */
 export function partAttrs(slot: SlotKey, name: string, override?: PartOverride): PartAttrs {
-  const n = name.toLowerCase();
+  // ™/® savdo belgisi tier va model raqami orasiga tushib qolsa \s* uni bo'shliq deb qabul qilmaydi.
+  const n = name.toLowerCase().replace(/[™®]/g, '');
   const o = override ?? { socket: null, memory: null, watts: null };
   const oWatts = o.watts !== null && o.watts > 0 ? o.watts : null;
   if (slot === 'cpu') {
