@@ -49,7 +49,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
       <div className="max-w-[1080px] mx-auto px-4 py-8 md:py-10">
         <div className="grid md:grid-cols-[270px_1fr] gap-5 items-start">
           {/* Sidebar */}
-          <aside className=" rounded-lg bg-surface border border-line-2 overflow-hidden md:sticky md:top-24">
+          <aside className=" rounded-lg bg-surface overflow-hidden md:sticky md:top-24">
             <div className="flex items-center gap-3 p-5 border-b border-line/60">
               <div className="w-12 h-12 rounded-full bg-accent-soft text-accent flex items-center justify-center font-semibold text-copy shrink-0">
                 {initials(customer.name, customer.email ?? '')}
@@ -91,7 +91,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
           </aside>
 
           {/* Content */}
-          <section className=" rounded-lg bg-surface border border-line-2 p-5 md:p-7 min-h-[360px]">
+          <section className=" rounded-lg bg-surface p-5 md:p-7 min-h-[360px]">
             <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-line/60">
               <ActiveIcon className="w-5 h-5 text-accent" />
               <h1 className="text-lede font-semibold text-primary">{active.label}</h1>

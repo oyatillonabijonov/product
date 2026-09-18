@@ -11,11 +11,12 @@ import Dashboard from './screens/Dashboard';
 import ContentHome from './screens/ContentHome';
 import SettingsStore from './screens/SettingsStore';
 import SettingsContact from './screens/SettingsContact';
+import SettingsPayment from './screens/SettingsPayment';
 import SettingsSeo from './screens/SettingsSeo';
 import { Page } from './ui';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm';
-// Ekranlar shu jadval orqali ulanadi; Sozlamalarning To'lov/Integratsiyalar/Akkaunt tablari hali eski komponentlar (5b).
+// Ekranlar shu jadval orqali ulanadi.
 import ProductsList from './screens/ProductsList';
 import TypesList from './screens/TypesList';
 import TypeEdit from './screens/TypeEdit';
@@ -41,10 +42,8 @@ import PageEdit from './screens/PageEdit';
 import VacanciesList from './screens/VacanciesList';
 import VacancyEdit from './screens/VacancyEdit';
 import VacanciesText, { VACANCIES_TEXT_ID } from './screens/VacanciesText';
-import SiteConfigForm from './SiteConfigForm';
-import SettingsForm from './SettingsForm';
-import BillzPanel from './BillzPanel';
-import AccountForm from './AccountForm';
+import SettingsIntegrations from './screens/SettingsIntegrations';
+import SettingsAccount from './screens/SettingsAccount';
 
 const DEFAULT_PW_KEY = 'admin-default-pw';
 
@@ -68,26 +67,10 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
       return id ? <VacancyEdit key={id} id={id} /> : <VacanciesList />;
     case 'settings/store': return <SettingsStore />;
     case 'settings/contact': return <SettingsContact />;
-    case 'settings/payment': return <SettingsForm />;
-    case 'settings/integrations':
-      return (
-        <>
-          <SiteConfigForm />
-          <div className="mt-4"><BillzPanel /></div>
-        </>
-      );
+    case 'settings/payment': return <SettingsPayment />;
+    case 'settings/integrations': return <SettingsIntegrations />;
     case 'settings/seo': return <SettingsSeo />;
-    case 'settings/account':
-      return (
-        <>
-          {defaultPw && (
-            <p className="mb-6 rounded-sm border border-danger/30 bg-danger/5 px-4 py-3 text-para text-danger">
-              <b>Diqqat:</b> standart «admin» paroli ishlatilmoqda — quyida yangi parol qo'ying.
-            </p>
-          )}
-          <AccountForm onPasswordChanged={clearDefaultPw} />
-        </>
-      );
+    case 'settings/account': return <SettingsAccount defaultPw={defaultPw} onPasswordChanged={clearDefaultPw} />;
     default: return null;
   }
 }

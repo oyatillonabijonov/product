@@ -26,7 +26,7 @@ const OrdersList: FC<{ t: Translation; orders: ApiOrder[] }> = ({ t, orders }) =
         const total = o.totalUzs ?? itemsTotal;
         const installment = o.paymentKind === 'installment';
         return (
-          <details key={o.id} className="group rounded-sm border border-line-2 overflow-hidden">
+          <details key={o.id} className="group rounded-sm bg-bg overflow-hidden">
             <summary className="list-none [&::-webkit-details-marker]:hidden flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 px-4 py-3 bg-bg/50 hover:bg-bg cursor-pointer transition-colors">
               <div className="flex items-center gap-2.5 min-w-0">
                 <ChevronRight className="w-4 h-4 text-muted-2 shrink-0 transition-transform duration-200 group-open:rotate-90" />

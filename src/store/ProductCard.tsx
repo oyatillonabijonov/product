@@ -47,7 +47,7 @@ const ProductCard: FC<{
     <motion.div
       whileHover={{ y: -6 }}
       transition={SPRING_UI}
-      className="group flex w-full flex-col rounded-md border border-divider bg-surface p-2 transition-colors duration-300 hover:border-line-2"
+      className="group flex w-full flex-col rounded-md bg-surface p-2"
     >
       <div className="relative">
         <LocaleLink
@@ -74,6 +74,9 @@ const ProductCard: FC<{
               <span className="h-1.5 w-1.5 rounded-full bg-trust" />
               {t.badgeUsed}
             </span>
+          )}
+          {product.preorder && (
+            <span className="text-label font-semibold px-2.5 py-1 rounded-full backdrop-blur bg-surface/90 text-new">{t.badgePreorder}</span>
           )}
           {disc !== null && (
             <span className="text-label font-bold px-2 py-1 rounded-full bg-sale text-white">-{disc}%</span>

@@ -14,13 +14,13 @@ export async function customerSecret(env: Env): Promise<string> {
   return s;
 }
 
-export async function customerCookie(env: Env, customerId: number): Promise<string> {
+export async function customerCookie(env: Env, customerId: number, secure: boolean): Promise<string> {
   const token = await createSession(String(customerId), await customerSecret(env), TTL, Math.floor(Date.now() / 1000));
-  return `${COOKIE}=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${TTL}`;
+  return `${COOKIE}=${token}; HttpOnly;${secure ? ' Secure;' : ''} SameSite=Lax; Path=/; Max-Age=${TTL}`;
 }
 
-export function clearedCustomerCookie(): string {
-  return `${COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+export function clearedCustomerCookie(secure: boolean): string {
+  return `${COOKIE}=; HttpOnly;${secure ? ' Secure;' : ''} SameSite=Lax; Path=/; Max-Age=0`;
 }
 
 /** Cookie'dagi sessiyani `secret` bilan tekshiradi (secret allaqachon yuklangan bo'lsa — qo'shimcha D1 o'qishsiz). */

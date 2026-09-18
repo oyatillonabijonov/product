@@ -10,6 +10,14 @@ export interface InstallmentResult {
   monthly: number;
 }
 
+/**
+ * Oylik to'lov: `jami = naqd × (1 + ustama)`, `oylik = (jami − boshlang'ich) / oy`.
+ * Biznes yadrosi — `calcInstallment` ham, admin'dagi namuna hisobi ham shu funksiyani chaqiradi.
+ */
+export function monthlyPayment(cashUzs: number, term: Term, downPaymentUzs: number): number {
+  return Math.max(0, (cashUzs * (1 + term.markup) - downPaymentUzs) / term.months);
+}
+
 export function calcInstallment(
   product: Product,
   term: Term,
@@ -18,8 +26,7 @@ export function calcInstallment(
 ): InstallmentResult {
   const total = product.cashPriceUzs * (1 + term.markup);
   const down = downPaymentUzs ?? product.cashPriceUzs * (config.downPaymentPercent / 100);
-  const monthly = Math.max(0, (total - down) / term.months);
-  return { total, downPaymentUzs: down, monthly };
+  return { total, downPaymentUzs: down, monthly: monthlyPayment(product.cashPriceUzs, term, down) };
 }
 
 export type { PaymentMode };

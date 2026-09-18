@@ -1,21 +1,21 @@
 import type { FC } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { ShieldCheck, Truck, Wrench } from 'lucide-react';
+import { ChevronRight, ShieldCheck, Truck, Wrench } from 'lucide-react';
 import type { Translation } from '../locales';
 import LocaleLink from './LocaleLink';
-import { PILL, SECTION_HEADING } from './ui';
+import { LINK_MORE } from './ui';
 
 /**
  * Kafolat · yetkazib berish · servis — landingdagi xizmat va'dalari.
  *
- * Uslub apple.com'ning "Why Apple is the best place to buy" bo'limidan:
- * chegarasiz karta, tepada ingichka chiziqli ikonka, fakt ichida turgan qalin
- * gap-sarlavha ("12–24 oy rasmiy kafolat."), ostida izoh. Apple'dagi "+" tugmasi
- * yo'q — batafsil oynaga qo'yadigan matn yo'q, hech narsa qilmaydigan tugma esa
- * mijozni aldaydi.
+ * Uslub apple.com'ning "The Apple Store difference" bo'limidan: sarlavha qalin nom +
+ * och rangli davomi, o'ngda ko'k "Batafsil ›" havola; kartada ko'k chiziqli ikonka
+ * va bitta abzats — qalin gap-sarlavha ("12–24 oy rasmiy kafolat.") shu abzats
+ * boshida, izoh uning davomi. Apple'dagi "+" tugmasi yo'q — batafsil oynaga
+ * qo'yadigan matn yo'q, hech narsa qilmaydigan tugma esa mijozni aldaydi.
  *
  * Mobilda kartalar gorizontal suriladi (keyingisining cheti ko'rinib turadi),
- * `md`dan yuqorida uch ustunli to'r: uchala karta sig'adi, o'q tugmalari kerak emas.
+ * `md`dan yuqorida uch ustunli to'r.
  */
 const ServiceCards: FC<{ t: Translation }> = ({ t }) => {
   const items: { icon: LucideIcon; title: string; desc: string }[] = [
@@ -24,16 +24,13 @@ const ServiceCards: FC<{ t: Translation }> = ({ t }) => {
     { icon: Wrench, title: t.svcServiceCard, desc: t.svcServiceDesc },
   ];
   return (
-    <section className="flex flex-col gap-8 md:gap-10">
-      <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
-        <h2 className={`max-w-[680px] ${SECTION_HEADING}`}>
-          {t.svcTitle}
+    <section className="flex flex-col gap-6 md:gap-8">
+      <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
+        <h2 className="max-w-[760px] text-heading md:text-title font-semibold text-balance text-muted-2">
+          <span className="text-primary">{t.svcTitle}.</span> {t.svcPrompt}
         </h2>
-        <LocaleLink
-          to="/katalog"
-          className={PILL}
-        >
-          {t.heroCtaPrimary}
+        <LocaleLink to="/katalog" className={LINK_MORE}>
+          {t.heroCtaPrimary} <ChevronRight className="h-4 w-4" />
         </LocaleLink>
       </div>
 
@@ -41,11 +38,12 @@ const ServiceCards: FC<{ t: Translation }> = ({ t }) => {
         {items.map(({ icon: Icon, title, desc }) => (
           <article
             key={title}
-            className="rounded-xl flex w-[85%] shrink-0 snap-start flex-col bg-surface p-8 md:w-auto md:p-10"
+            className="rounded-lg flex w-[80%] shrink-0 snap-start flex-col bg-surface p-7 md:w-auto"
           >
-            <Icon aria-hidden className="h-12 w-12 text-primary" strokeWidth={1} />
-            <h3 className="mt-8 text-subhead font-semibold text-balance text-primary">{title}</h3>
-            <p className="mt-3 text-copy text-pretty text-body">{desc}</p>
+            <Icon aria-hidden className="h-9 w-9 text-cta" strokeWidth={1.5} />
+            <p className="mt-5 text-copy xl:text-lede text-pretty text-body">
+              <span className="font-semibold text-primary">{title}</span> {desc}
+            </p>
           </article>
         ))}
       </div>

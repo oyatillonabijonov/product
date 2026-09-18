@@ -90,7 +90,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Record<string,
 
       <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
         {/* Tanlov ro'yxati */}
-        <div className="rounded-xl border border-line-2 bg-surface p-4 md:p-6">
+        <div className="rounded-xl bg-surface p-4 md:p-6">
           <h3 className="px-1 text-lede font-semibold">{slot.label(t)}</h3>
           <ul className="mt-4 flex flex-col gap-2">
             {(parts[slot.key] ?? []).map((part) => {
@@ -132,7 +132,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Record<string,
         </div>
 
         {/* Yig'ma */}
-        <div className="rounded-xl flex h-fit flex-col border border-line-2 bg-surface p-6 lg:sticky lg:top-24">
+        <div className="rounded-xl flex h-fit flex-col bg-surface p-6 lg:sticky lg:top-24">
           <h3 className="text-lede font-semibold">{t.cfgSummary}</h3>
           <dl className="mt-5 flex flex-col divide-y divide-divider">
             {slots.map((s) => (

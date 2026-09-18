@@ -30,6 +30,7 @@ export interface ProductFormState {
   slug: string;
   ratingAvg: number;
   reviewCount: number;
+  preorder: boolean;
   options: OptionDraft[];
   variants: AdminVariantInput[];
   /** Billz tovari — sinxron maydonlar faqat o'qiladi, o'chirilmaydi. */
@@ -40,7 +41,7 @@ export interface ProductFormState {
 export const EMPTY_FORM: ProductFormState = {
   name: '', category: 'iphone', categoryId: null, type: null, condition: 'yangi', conditionNote: '',
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
-  brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, options: [], variants: [], billzId: null, billzStock: null,
+  brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, preorder: false, options: [], variants: [], billzId: null, billzStock: null,
 };
 
 export function variantLabel(v: AdminVariantInput): string {
@@ -58,7 +59,7 @@ export function detailToForm(d: AdminProductDetail): ProductFormState {
     conditionNote: d.conditionNote ?? '', cashPriceUzs: d.cashPriceUzs, oldPriceUzs: d.oldPriceUzs ?? 0,
     description: d.description ?? '', imageUrl: d.imageUrl, images: d.images.filter((u) => u !== d.imageUrl),
     specs: d.specs, sortOrder: d.sortOrder, isActive: d.isActive, brandId: d.brandId, slug: d.slug ?? '',
-    ratingAvg: d.ratingAvg ?? 0, reviewCount: d.reviewCount ?? 0,
+    ratingAvg: d.ratingAvg ?? 0, reviewCount: d.reviewCount ?? 0, preorder: d.preorder,
     options: d.options.map((o) => ({ name: o.name, values: o.values.map((v) => v.value) })),
     variants: d.variants.map((v) => ({
       sku: v.sku, cashPriceUzs: v.cashPriceUzs, oldPriceUzs: v.oldPriceUzs, imageUrl: v.imageUrl, inStock: v.inStock,
@@ -93,7 +94,7 @@ export function formToPayload(f: ProductFormState): AdminProductInput {
     specs: f.specs.filter((s) => s.label.trim() !== '' && s.value.trim() !== ''),
     sortOrder: f.sortOrder, isActive: f.isActive,
     brandId: f.brandId, slug: f.slug || null,
-    ratingAvg: f.ratingAvg > 0 ? f.ratingAvg : null, reviewCount: f.reviewCount,
+    ratingAvg: f.ratingAvg > 0 ? f.ratingAvg : null, reviewCount: f.reviewCount, preorder: f.preorder,
     options: f.options.filter((o) => o.name.trim() && o.values.length),
     variants: priced,
   };

@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { MessageSquare } from 'lucide-react';
 import type { ApiReview } from '../../shared/types';
 import type { Translation } from '../locales';
 import Stars from './Stars';
@@ -27,27 +28,41 @@ const Reviews: FC<{
   ratingAvg: number | null | undefined; reviewCount: number;
 }> = ({ t, reviews, ratingAvg, reviewCount }) => (
   <section className="mt-14 border-t border-divider pt-10">
-    <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
-      <h2 className="text-subhead font-semibold text-primary">{t.reviewsTitle}</h2>
-      <Stars t={t} rating={ratingAvg} count={reviewCount} />
-    </div>
+    {/* Sarlavha — mahsulot sahifasidagi `SectionTitle` naqshi: qalin nom, och savol. */}
+    <h2 className="text-subhead md:text-heading text-muted-2">
+      <span className="font-semibold text-primary">{t.reviewsTitle}.</span> {t.reviewsPrompt}
+    </h2>
 
-    {reviews.length === 0 ? (
-      <p className="mt-4 text-copy text-muted">{t.reviewsEmpty}</p>
-    ) : (
-      <ul className="mt-6 flex flex-col gap-6">
-        {reviews.map((r) => (
-          <li key={r.id} className="border-t border-divider pt-6 first:border-t-0 first:pt-0">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="text-copy font-medium text-primary">{r.author}</span>
-              <span className="text-label text-muted-2">{dateFmt(r.createdAt)}</span>
-            </div>
-            <Stars t={t} rating={r.rating} count={0} compact />
-            <p className="mt-2 max-w-[70ch] whitespace-pre-line text-copy text-body">{r.body}</p>
-          </li>
-        ))}
-      </ul>
-    )}
+    {/* Chapda umumiy baho kartasi, o'ngda sharh kartalari — ikkalasi `surface` yuzada,
+        sahifa fonidan ajralib turadi (ilgari oddiy matn qatori ko'zga tashlanmasdi). */}
+    <div className={`mt-8 grid gap-4 ${ratingAvg ? 'lg:grid-cols-[300px_1fr]' : ''}`}>
+      {ratingAvg ? (
+        <div className="flex flex-col items-start rounded-lg border border-divider bg-surface p-6 lg:self-start">
+          <span className="text-display font-semibold tabular-nums text-primary">{ratingAvg.toFixed(1)}</span>
+          <Stars t={t} rating={ratingAvg} count={reviewCount} />
+        </div>
+      ) : null}
+
+      {reviews.length === 0 ? (
+        <div className="flex items-center gap-4 rounded-lg border border-dashed border-line bg-surface p-6">
+          <MessageSquare className="h-8 w-8 shrink-0 text-muted-3" strokeWidth={1.5} />
+          <p className="text-copy text-muted">{t.reviewsEmpty}</p>
+        </div>
+      ) : (
+        <ul className="grid gap-4 md:grid-cols-2">
+          {reviews.map((r) => (
+            <li key={r.id} className="flex flex-col rounded-lg border border-divider bg-surface p-6">
+              <Stars t={t} rating={r.rating} count={0} compact />
+              <p className="mt-3 whitespace-pre-line text-copy text-body">{r.body}</p>
+              <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-4 text-label">
+                <span className="font-semibold text-primary">{r.author}</span>
+                <span className="text-muted-2">{dateFmt(r.createdAt)}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   </section>
 );
 

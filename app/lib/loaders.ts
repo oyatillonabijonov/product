@@ -38,6 +38,7 @@ function mapProduct(p: ApiProduct): Product {
     cashPriceUzs: p.cashPriceUzs, oldPriceUzs: p.oldPriceUzs ?? null,
     minPriceUzs: p.minPriceUzs, brandId: p.brandId, categoryId: p.categoryId, type: p.type,
     ratingAvg: p.ratingAvg, reviewCount: p.reviewCount,
+    preorder: p.preorder,
   };
 }
 function mapConfig(s: ApiSettings): InstallmentConfig {
