@@ -7,7 +7,7 @@ function detail(over: Partial<AdminProductDetail> = {}): AdminProductDetail {
     id: 'p1', name: 'iPhone 17', category: 'iphone', condition: 'yangi', conditionNote: null, cashPriceUzs: 1000,
     imageUrl: '/images/products/main.webp', sortOrder: 0, isActive: true, categoryId: 'apple', type: 'iphone',
     oldPriceUzs: null, brandId: 'apple', slug: 'iphone-17', minPriceUzs: 900, ratingAvg: null, reviewCount: 0, preorder: false,
-    billzId: null, billzStock: null, description: null, brand: null,
+    billzId: null, billzStock: null, manualFields: [], description: null, brand: null,
     images: ['/images/products/main.webp', '/images/products/g1.webp'],
     specs: [{ label: 'Chip', value: 'A19' }],
     options: [{ id: 'o1', name: 'Xotira', sortOrder: 0, values: [{ id: 'v1', value: '128GB', sortOrder: 0 }, { id: 'v2', value: '256GB', sortOrder: 1 }] }],
@@ -100,12 +100,21 @@ describe('aylanma (detail → forma → payload)', () => {
       conditionNote: 'Batafsil', cashPriceUzs: d.cashPriceUzs,
       oldPriceUzs: 1200, description: 'Tavsif', imageUrl: d.imageUrl, images: ['/images/products/g1.webp'],
       specs: d.specs, sortOrder: 7, isActive: false, brandId: d.brandId, slug: d.slug,
-      ratingAvg: 4.5, reviewCount: 3, preorder: true,
+      ratingAvg: 4.5, reviewCount: 3, preorder: true, manualFields: [],
       options: [{ name: 'Xotira', values: ['128GB', '256GB'] }],
       variants: [
         { sku: 'A1', cashPriceUzs: 900, oldPriceUzs: 950, imageUrl: '/images/products/v.webp', inStock: false, optionValues: [{ optionName: 'Xotira', value: '128GB' }] },
         { sku: null, cashPriceUzs: 1100, oldPriceUzs: null, imageUrl: null, inStock: true, optionValues: [{ optionName: 'Xotira', value: '256GB' }] },
       ],
     });
+  });
+});
+
+describe("Billz qo'l maydonlari", () => {
+  it("detail → forma → payload aylanasida saqlanadi", () => {
+    const d = detail({ billzId: 'b-1', billzStock: 4, manualFields: ['description', 'price'] });
+    const f = detailToForm(d);
+    expect(f.manualFields).toEqual(['description', 'price']);
+    expect(formToPayload(f).manualFields).toEqual(['description', 'price']);
   });
 });
