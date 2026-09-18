@@ -87,7 +87,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
 
   const Icon = SLOT_UI[active].icon;
   return (
-    <section className="flex flex-col gap-8 md:gap-10">
+    <section id="konfigurator" className="flex scroll-mt-28 flex-col gap-8 md:gap-10">
       <div className="max-w-[680px]">
         <h2 className={SECTION_HEADING}>{t.cfgTitle}</h2>
         <p className="mt-4 text-para text-muted text-pretty md:text-copy">{t.cfgLede}</p>

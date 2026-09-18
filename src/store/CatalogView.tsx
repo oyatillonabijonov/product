@@ -27,7 +27,9 @@ const CatalogView: FC<{
   subtitle?: string;
   /** Yo'nalish sahifasidagi rasmli tur qatori — to'r tepasida, sahifa chetidan (filtr va kartalar ustida). */
   tiles?: ReactNode;
-}> = ({ t, title, result, config, brands, filters, hideBrands, subtitle, tiles }) => {
+  /** To'r ichidagi reklama kartasi — ikki to'liq qator chiqadigan bo'lsagina (7+ mahsulot), aks holda kataklar bo'sh qolardi. */
+  promo?: ReactNode;
+}> = ({ t, title, result, config, brands, filters, hideBrands, subtitle, tiles, promo }) => {
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
   const { currency } = useCurrency();
@@ -109,7 +111,7 @@ const CatalogView: FC<{
             grid uni butun mahsulot to'ri balandligiga cho'zardi. */}
         <aside className="hidden self-start rounded-lg bg-surface px-6 pb-3 pt-5 lg:block">{panel}</aside>
         <div className="min-w-0">
-          <ProductGrid t={t} items={result.items} config={config} eagerCount={4} />
+          <ProductGrid t={t} items={result.items} config={config} eagerCount={4} promo={result.items.length >= 7 ? promo : undefined} />
           {result.total === 0 &&
             (filters.brands.length > 0 || filters.priceMin !== null || filters.priceMax !== null || filters.condition !== null) && (
               <div className="mt-4 text-center">

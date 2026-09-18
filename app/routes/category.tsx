@@ -11,6 +11,7 @@ import CatalogView from '../../src/store/CatalogView';
 import CategoryCover from '../../src/store/CategoryCover';
 import CategoryTiles from '../../src/store/CategoryTiles';
 import PcConfigurator from '../../src/store/PcConfigurator';
+import PcBuildPromo from '../../src/store/PcBuildPromo';
 import { columnForCategory, heroColumns } from '../../src/store/hero-columns';
 import { useAssets } from '../../src/store/SiteAssets';
 
@@ -67,6 +68,7 @@ export default function CategoryRoute() {
         t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters}
         subtitle={isOwnColumn ? ctx.t.proTitle : undefined}
         tiles={<CategoryTiles tiles={tiles} t={ctx.t} />}
+        promo={category.id === 'pc' ? <PcBuildPromo t={ctx.t} /> : undefined}
       />
       {category.id === 'pc' && (
         <div className="shell pb-14 md:pb-20">

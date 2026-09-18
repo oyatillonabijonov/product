@@ -1,12 +1,15 @@
+import type { ReactNode } from 'react';
 import type { Translation } from '../locales';
 import type { InstallmentConfig, Product } from '../data/products';
 import ProductCard from './ProductCard';
 
-export default function ProductGrid({ t, items, config, eagerCount = 0 }: { t: Translation; items: Product[]; config: InstallmentConfig; eagerCount?: number }) {
+/** `promo` — to'r ichidagi reklama kartasi; joyini o'zi grid klasslari bilan belgilaydi (PcBuildPromo). */
+export default function ProductGrid({ t, items, config, eagerCount = 0, promo }: { t: Translation; items: Product[]; config: InstallmentConfig; eagerCount?: number; promo?: ReactNode }) {
   if (items.length === 0) return <p className="text-muted py-8 text-center">{t.gridEmpty}</p>;
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
       {items.map((p, i) => <ProductCard key={p.id} t={t} product={p} config={config} eager={i < eagerCount} />)}
+      {promo}
     </div>
   );
 }
