@@ -209,6 +209,39 @@ export function summaryIssues(picked: Picked): Issue[] {
   return out;
 }
 
+export interface CandidateState { block: Issue | null; drops: SlotKey[]; warn: Issue | null }
+
+/**
+ * Nomzod holati faol bo'g'in uchun: `block` — faqat PC_SLOTS tartibida **oldinroq** turgan
+ * bo'g'inlar bilan mos kelmasa (keyingi bo'g'indagi tanlov nomzodni bloklamaydi — foydalanuvchi
+ * fikridan qaytishi kerak bo'lganda tiqilib qolmasin); `drops` — shu nomzod tanlansa keyingi
+ * bo'g'inlardan endi mos kelmay qoladiganlari (ketma-ket, oldingi olib tashlanganlar hisobga
+ * olingan holda — xuddi `choose()`dagi kaskad kabi); `warn` — quvvat ogohlantirishi (hamma bo'g'inlar bilan).
+ */
+export function candidateState(slot: SlotKey, cand: PartAttrs, picked: Picked): CandidateState {
+  const order = PC_SLOTS.map((s) => s.key);
+  const idx = order.indexOf(slot);
+
+  const earlier: Picked = {};
+  for (const k of order.slice(0, idx)) if (picked[k]) earlier[k] = picked[k];
+  const blockIssue = issueFor(slot, cand, earlier);
+  const block = blockIssue?.level === 'block' ? blockIssue : null;
+
+  const current: Picked = { ...picked, [slot]: cand };
+  const drops: SlotKey[] = [];
+  for (const k of order.slice(idx + 1)) {
+    const cur = current[k];
+    if (!cur) continue;
+    const i = issueFor(k, cur, current);
+    if (i?.level === 'block') { delete current[k]; drops.push(k); }
+  }
+
+  const warnIssue = issueFor(slot, cand, picked);
+  const warn = warnIssue?.level === 'warn' ? warnIssue : null;
+
+  return { block, drops, warn };
+}
+
 /** Qismning moslikka kerakli atributi aniqlanmagan → operator tasdiqlaydi. */
 export function needsVerify(slot: SlotKey, attrs: PartAttrs): boolean {
   if (slot === 'cpu' || slot === 'mb') return attrs.socket === null;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasMatch, issueFor, needsVerify, partAttrs, recommendedWatts, slotForType, summaryIssues, toConfigParts, type ConfigPartRow } from './pc-compat';
+import { candidateState, hasMatch, issueFor, needsVerify, partAttrs, recommendedWatts, slotForType, summaryIssues, toConfigParts, type ConfigPartRow } from './pc-compat';
 
 const a = (slot: Parameters<typeof partAttrs>[0], name: string) => partAttrs(slot, name);
 
@@ -129,6 +129,27 @@ describe('summaryIssues / needsVerify / hasMatch', () => {
     expect(hasMatch(cpu1851, [b760ddr4])).toBe(false);
     expect(hasMatch(cpu1851, [b760ddr4, z890])).toBe(true);
     expect(hasMatch(partAttrs('cpu', 'Noma\'lum'), [b760ddr4])).toBe(true);
+  });
+});
+
+describe('candidateState', () => {
+  it('oldingi tanlov bilan mos kelmasa ham CPUni bloklamaydi, keyingi platani olib tashlashga taklif qiladi', () => {
+    expect(candidateState('cpu', cpu1851, { mb: b760ddr4 })).toEqual({ block: null, drops: ['mb'], warn: null });
+  });
+  it('mos kelmaydigan plata (oldinroq CPU tanlangan) bloklanadi, hech narsa olib tashlanmaydi', () => {
+    expect(candidateState('mb', b760ddr4, { cpu: cpu1851 })).toEqual({
+      block: { slot: 'mb', level: 'block', code: 'socket', need: 'LGA1851' }, drops: [], warn: null,
+    });
+  });
+  it('kaskad: plata olib tashlangach RAM cpu bilan solishtiriladi', () => {
+    expect(candidateState('cpu', cpu1851, { mb: b760ddr4, ram: ddr5 })).toEqual({ block: null, drops: ['mb'], warn: null });
+    expect(candidateState('cpu', cpu1851, { mb: b760ddr4, ram: partAttrs('ram', 'Apacer 8GB 3200Mhz') }))
+      .toEqual({ block: null, drops: ['mb', 'ram'], warn: null });
+  });
+  it('quvvat — block emas, warn', () => {
+    expect(candidateState('psu', psu650, { cpu: cpu1700, gpu: rtx4090 })).toEqual({
+      block: null, drops: [], warn: { slot: 'psu', level: 'warn', code: 'power', need: '900' },
+    });
   });
 });
 

@@ -5,7 +5,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { Translation } from '../locales';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
 import {
-  PC_SLOTS, REQUIRED_SLOTS, hasMatch, issueFor, needsVerify, summaryIssues,
+  PC_SLOTS, REQUIRED_SLOTS, candidateState, hasMatch, issueFor, needsVerify, summaryIssues,
   type ConfigPart, type Issue, type Picked, type SlotKey,
 } from '../../shared/pc-compat';
 import { useCart } from './CartContext';
@@ -127,10 +127,22 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
           <ul className="mt-4 flex max-h-[560px] flex-col gap-2 overflow-y-auto">
             {(parts[active] ?? []).map((part) => {
               const on = picked[active]?.id === part.id;
-              const issue = issueFor(active, part.attrs, pickedAttrs);
-              const disabled = issue?.level === 'block';
+              const state = candidateState(active, part.attrs, pickedAttrs);
+              const disabled = !!state.block;
               const noBoard = active === 'cpu' && !hasMatch(part.attrs, boards);
-              const note = issue ? reason(t, issue) : noBoard ? t.cfgNoBoard : needsVerify(active, part.attrs) ? t.cfgVerify : '';
+              const dropsNote = state.drops.length > 0
+                ? t.cfgWillDrop.replace('{slots}', state.drops.map((k) => SLOT_UI[k].label(t)).join(', '))
+                : '';
+              const note = state.block
+                ? reason(t, state.block)
+                : dropsNote
+                  ? dropsNote
+                  : state.warn
+                    ? reason(t, state.warn)
+                    : noBoard
+                      ? t.cfgNoBoard
+                      : needsVerify(active, part.attrs) ? t.cfgVerify : '';
+              const attention = !state.block && (dropsNote !== '' || !!state.warn);
               return (
                 <li key={part.id}>
                   <button
@@ -153,7 +165,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
                         {part.inStock ? t.cfgInStock : t.cfgOnOrder}
                       </span>
                       {note && (
-                        <span className={`block text-label ${issue?.level === 'warn' ? 'text-new' : 'text-muted-2'}`}>{note}</span>
+                        <span className={`block text-label ${attention ? 'text-new' : 'text-muted-2'}`}>{note}</span>
                       )}
                     </span>
                     <span className="shrink-0 text-right text-para font-semibold tabular-nums text-primary">
