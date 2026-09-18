@@ -47,7 +47,7 @@ const ProductCard: FC<{
     <motion.div
       whileHover={{ y: -6 }}
       transition={SPRING_UI}
-      className="group flex w-full flex-col rounded-md border border-divider bg-surface p-2 transition-colors duration-300 hover:border-line-2"
+      className="group flex w-full flex-col rounded-md bg-surface p-2"
     >
       <div className="relative">
         <LocaleLink

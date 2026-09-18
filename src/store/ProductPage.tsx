@@ -222,7 +222,7 @@ const ProductPage: FC<{
           {showInstallment && (
             <section className="flex flex-col gap-3">
               <SectionTitle name={t.orderPaymentInstallment} prompt={t.installmentPrompt} />
-              <div className="rounded-sm border border-line bg-surface p-5">
+              <div className="rounded-sm bg-surface p-5">
                 <TermSegments t={t} terms={config.terms} months={months} onChange={setMonths} />
 
                 <div className="mt-5">
