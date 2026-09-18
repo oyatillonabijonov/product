@@ -23,7 +23,7 @@ const Stat: FC<{ label: string; value: number; Icon: LucideIcon; to: string; act
   </Card>
 );
 
-/** BillzPanel'dagi holat matni — bir xil so'zlar, egasi ikki joyda bir narsani o'qiydi. */
+/** Sozlamalar → Integratsiyalar'dagi holat matni — bir xil so'zlar, egasi ikki joyda bir narsani o'qiydi. */
 function billzSummary(s: BillzSyncStatus): ReactNode {
   if (!s.configured) return <span className="text-danger">Sozlanmagan — Integratsiyalar'da kalit va do'konni saqlang.</span>;
   if (s.running) return 'Ishlayapti…';

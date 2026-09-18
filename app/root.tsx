@@ -21,7 +21,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     ? JSON.stringify(organizationJsonLd(storeData.siteConfig, storeData.origin, orgContact)).replace(/</g, '\\u003c')
     : '';
   const favicon = storeData?.assets?.favicon || '/favicon.svg';
-  // Yandex Metrica — faqat hisoblagich sozlanganda (admin "Sayt ma'lumotlari") va
+  // Yandex Metrica — faqat hisoblagich sozlanganda (admin Sozlamalar → Integratsiyalar) va
   // faqat storefront'da (storeData admin/resource routelarda yo'q). Id raqamligini
   // parseSiteConfigInput kafolatlaydi — baribir Number() bilan qo'shamiz (XSS himoyasi).
   const metricaId = /^\d+$/.test(storeData?.siteConfig?.yandexMetricaId ?? '') ? Number(storeData?.siteConfig?.yandexMetricaId) : null;
