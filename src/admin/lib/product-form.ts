@@ -1,6 +1,7 @@
 import type { ApiSpec, Category, Condition } from '../../../shared/types';
 import type { AdminProductDetail, AdminProductInput, AdminVariantInput } from '../api';
 import { generateVariants, type OptionDraft } from './variant-gen';
+import type { ManualField } from '../../../shared/billz';
 
 /** Variant o'qlari — chiplar shu qiymatlardan; boshqa rang qo'lda yoziladi. */
 export const STORAGE_VALUES = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB'];
@@ -40,6 +41,8 @@ export interface ProductFormState {
   /** Billz tovari — sinxron maydonlar faqat o'qiladi, o'chirilmaydi. */
   billzId: string | null;
   billzStock: number | null;
+  /** Billz tovarida qo'lda tahrirlanadigan (sinxronizatsiya tegmaydigan) maydonlar. */
+  manualFields: ManualField[];
 }
 
 export const EMPTY_FORM: ProductFormState = {
@@ -47,7 +50,7 @@ export const EMPTY_FORM: ProductFormState = {
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
   brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, preorder: false,
   pcHidden: false, pcSocket: null, pcMemory: null, pcWatts: null,
-  options: [], variants: [], billzId: null, billzStock: null,
+  options: [], variants: [], billzId: null, billzStock: null, manualFields: [],
 };
 
 export function variantLabel(v: AdminVariantInput): string {
@@ -74,7 +77,7 @@ export function detailToForm(d: AdminProductDetail): ProductFormState {
         .map((id) => optionValueMap.get(id))
         .filter((x): x is { optionName: string; value: string } => x !== undefined),
     })),
-    billzId: d.billzId, billzStock: d.billzStock,
+    billzId: d.billzId, billzStock: d.billzStock, manualFields: d.manualFields,
   };
 }
 
@@ -105,6 +108,7 @@ export function formToPayload(f: ProductFormState): AdminProductInput {
     pcHidden: f.pcHidden, pcSocket: f.pcSocket, pcMemory: f.pcMemory, pcWatts: f.pcWatts,
     options: f.options.filter((o) => o.name.trim() && o.values.length),
     variants: priced,
+    manualFields: f.manualFields,
   };
 }
 

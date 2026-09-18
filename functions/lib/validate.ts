@@ -17,6 +17,7 @@ import type {
   Term,
 } from '../../shared/types';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
+import { parseManualFields } from '../../shared/billz';
 
 export class ValidationError extends Error {}
 
@@ -97,6 +98,10 @@ export function parseProductInput(body: unknown): ProductInput {
   const oldPriceUzs = typeof o.oldPriceUzs === 'number' && Number.isFinite(o.oldPriceUzs) && o.oldPriceUzs > 0 ? o.oldPriceUzs : null;
   const description =
     typeof o.description === 'string' && o.description.trim() !== '' ? o.description.trim() : null;
+  // Billz tovarida qo'lda tahrirlangan maydonlar — notanish kalit `parseManualFields`da tashlanadi.
+  const manualFields = parseManualFields(
+    Array.isArray(o.manualFields) ? o.manualFields.filter((x): x is string => typeof x === 'string').join(',') : '',
+  );
   const images = Array.isArray(o.images)
     ? o.images.filter((x): x is string => typeof x === 'string' && x.trim() !== '').map((x) => x.trim())
     : [];
@@ -199,6 +204,7 @@ export function parseProductInput(body: unknown): ProductInput {
     type,
     oldPriceUzs,
     description,
+    manualFields,
     images,
     specs,
     brandId,

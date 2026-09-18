@@ -32,6 +32,7 @@ import type {
 } from '../../shared/types';
 import { rowToProductType, type ProductTypeDbRow } from '../../shared/product-types';
 import type { Env } from '../env';
+import { parseManualFields } from '../../shared/billz';
 
 export const PRODUCT_COLS =
   `*, (SELECT MIN(v.cash_price_uzs) FROM product_variants v WHERE v.product_id = products.id AND v.in_stock = 1) AS min_variant_price`;
@@ -51,6 +52,7 @@ export interface ProductRow {
   type: string | null;
   billz_id: string | null;
   billz_stock: number | null;
+  manual_fields: string | null;
   old_price_uzs: number | null;
   description: string | null;
   brand_id: string | null;
@@ -102,6 +104,7 @@ export function rowToProduct(row: ProductRow): ApiProduct {
     pcWatts: row.pc_watts ?? null,
     billzId: row.billz_id ?? null,
     billzStock: row.billz_stock ?? null,
+    manualFields: parseManualFields(row.manual_fields),
   };
 }
 

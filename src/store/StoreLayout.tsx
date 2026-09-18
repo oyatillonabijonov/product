@@ -51,11 +51,11 @@ export default function StoreLayout({
     <CartProvider>
      <FavoritesProvider>
      <CurrencyProvider initial={currency} rate={usdRate} sum={t.sum}>
-      {/* Sayt sukut bo'yicha qorong'i — tokenlar `.theme-dark` ichida qayta e'lon
-          qilinadi (app/styles.css), shu sabab ichkaridagi bloklar o'zgarishsiz
-          qayta ranglanadi. Yorug' rejim — foydalanuvchi tanlovi
-          (`<html data-theme="light">`), u shu klassni bekor qiladi. */}
-      <div className="min-h-screen flex flex-col bg-bg theme-dark">
+      {/* Sayt sukut bo'yicha **yorug'** (2026-09-18, egasining qarori — ilgari qorong'i edi).
+          Qorong'i — foydalanuvchining aniq tanlovi: `<html data-theme="dark">`, tokenlar
+          o'sha selektor ostida qayta e'lon qilinadi (app/styles.css). Landing hero'si
+          ikkala rejimda ham qora — u mavzu emas, rasm. */}
+      <div className="min-h-screen flex flex-col bg-bg">
         {pending && (
           <div aria-hidden className="fixed top-0 inset-x-0 z-50 h-[3px] overflow-hidden bg-accent-soft">
             <div className="nav-progress h-full w-1/3 bg-accent rounded-full" />

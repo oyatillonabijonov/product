@@ -2,6 +2,7 @@ import type { Env, SqlStatement } from '../shared/runtime';
 import {
   BILLZ_BASE, productsUrl, hiddenIds, mapBillzProduct, mergeDuplicates, nameKey,
   type BillzProduct, type BillzProductsPage, type BillzShop, type BillzSyncResult, type BillzSyncStatus, type MapContext, type MappedProduct,
+  parseManualFields,
 } from '../shared/billz.ts';
 import { rowToProductType, type ProductTypeDbRow } from '../shared/product-types.ts';
 import { imagesStatements, specsStatements } from '../shared/product-statements.ts';
@@ -128,27 +129,38 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     return { downloaded, failed };
   }
 
-  function upsertStatements(m: MappedProduct, existingId: string | undefined): { stmts: SqlStatement[]; id: string } {
+  function upsertStatements(m: MappedProduct, existingId: string | undefined, manualRaw?: string): { stmts: SqlStatement[]; id: string } {
     const id = existingId ?? crypto.randomUUID();
     const stmts: SqlStatement[] = [];
+    // Egasi admin'da qo'lda yozgan maydonlar (`products.manual_fields`) — ular UPDATE'dan
+    // chiqariladi, aks holda har 30 daqiqada Billz qiymati ustiga yozilardi.
+    const manual = parseManualFields(manualRaw);
     if (existingId) {
       // Egasining ustunlari (slug, condition, sort_order, reyting, sharhlar) tegilmaydi.
-      stmts.push(env.DB.prepare(
-        'UPDATE products SET name=?, category=?, cash_price_uzs=?, old_price_uzs=?, brand_id=?, category_id=?, type=?, description=?, billz_stock=?, is_active=?, image_url=? WHERE id=?',
-      ).bind(m.name, m.legacyCategory, m.cashPriceUzs, m.oldPriceUzs, m.brandId, m.categoryId, m.type, m.description, m.stock, m.isActive ? 1 : 0, m.imageUrl, id));
+      const cols = ['name=?', 'category=?', 'brand_id=?', 'category_id=?', 'type=?', 'billz_stock=?', 'is_active=?', 'image_url=?'];
+      const vals: unknown[] = [m.name, m.legacyCategory, m.brandId, m.categoryId, m.type, m.stock, m.isActive ? 1 : 0, m.imageUrl];
+      if (!manual.includes('price')) {
+        cols.push('cash_price_uzs=?', 'old_price_uzs=?');
+        vals.push(m.cashPriceUzs, m.oldPriceUzs);
+      }
+      if (!manual.includes('description')) {
+        cols.push('description=?');
+        vals.push(m.description);
+      }
+      stmts.push(env.DB.prepare(`UPDATE products SET ${cols.join(', ')} WHERE id=?`).bind(...vals, id));
     } else {
       stmts.push(env.DB.prepare(
         `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, type, old_price_uzs, description, brand_id, slug, rating_avg, review_count, created_at, billz_id, billz_stock)
          VALUES (?, ?, ?, 'yangi', NULL, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, NULL, 0, unixepoch(), ?, ?)`,
       ).bind(id, m.name, m.legacyCategory, m.cashPriceUzs, m.imageUrl, m.isActive ? 1 : 0, m.categoryId, m.type, m.oldPriceUzs, m.description, m.brandId, m.slug, m.billzId, m.stock));
     }
-    stmts.push(...specsStatements(env, id, m.specs));
+    if (!manual.includes('specs')) stmts.push(...specsStatements(env, id, m.specs));
     // Galereya faqat Billz'da rasm bo'lsa qayta yoziladi — admin yuklagan galereya rasmsiz tovarda qoladi.
     if (m.photos.length > 0) stmts.push(...imagesStatements(env, id, m.gallery));
     return { stmts, id };
   }
 
-  interface ExistingRow { id: string; billz_id: string; image_url: string; name: string }
+  interface ExistingRow { id: string; billz_id: string; image_url: string; name: string; manual_fields: string }
 
   async function execute(cfg: Config): Promise<BillzSyncResult> {
     const result: BillzSyncResult = {
@@ -167,7 +179,7 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     // Mavjud Billz qatorlari — nom bo'yicha (bir nomga bir nechta qator bo'lsa eng eskisi
     // vakil, qolganlari run oxirida yashiriladi) va billz_id bo'yicha (nom o'zgargan holat).
     const existingRows = await env.DB.prepare(
-      'SELECT id, billz_id, image_url, name FROM products WHERE billz_id IS NOT NULL ORDER BY created_at ASC, id ASC',
+      'SELECT id, billz_id, image_url, name, manual_fields FROM products WHERE billz_id IS NOT NULL ORDER BY created_at ASC, id ASC',
     ).all<ExistingRow>();
     const byBillzId = new Map(existingRows.results.map((r) => [r.billz_id, r]));
     const byName = new Map<string, ExistingRow>();
@@ -225,13 +237,13 @@ export function createBillzSync(env: Env): BillzSyncHandle {
           const imageUrl = ex?.image_url ?? '';
           eff = { ...m, photos: [], imageUrl, gallery: [], isActive: m.stock > 0 && imageUrl !== '' };
         }
-        const { stmts: s, id } = upsertStatements(eff, ex?.id);
+        const { stmts: s, id } = upsertStatements(eff, ex?.id, ex?.manual_fields);
         stmts.push(...s);
         if (ex) { result.updated++; seenRows.add(ex.billz_id); }
         else {
           result.inserted++;
           seenRows.add(m.billzId);
-          const row: ExistingRow = { id, billz_id: m.billzId, image_url: eff.imageUrl, name: m.name };
+          const row: ExistingRow = { id, billz_id: m.billzId, image_url: eff.imageUrl, name: m.name, manual_fields: '' };
           byBillzId.set(m.billzId, row);
           byName.set(nameKey(m.name), row);
         }
