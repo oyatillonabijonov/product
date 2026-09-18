@@ -3,6 +3,7 @@ import { parseEmailAuthInput, ValidationError } from '../../functions/lib/valida
 import { findCustomerByEmail, createEmailCustomer } from '../../functions/lib/db';
 import { hashPassword, verifyPassword, randomSaltHex } from '../../functions/lib/auth';
 import { customerCookie } from '../../functions/lib/customer-auth';
+import { isSecureRequest } from '../../functions/lib/auth';
 
 // Email/parol bilan kirish yoki ro'yxatdan o'tish. Modal fetch() bilan chaqiradi:
 // muvaffaqiyat → JSON {ok} + customer_session cookie, klient reload qiladi.
@@ -31,7 +32,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     const salt = randomSaltHex();
     const hash = await hashPassword(password, salt);
     const id = await createEmailCustomer(env, email, name, hash, salt);
-    return Response.json({ ok: true }, { headers: { 'set-cookie': await customerCookie(env, id) } });
+    return Response.json({ ok: true }, { headers: { 'set-cookie': await customerCookie(env, id, isSecureRequest(request)) } });
   }
 
   // login
@@ -41,5 +42,5 @@ export async function action({ request, context }: Route.ActionArgs) {
   }
   const ok = await verifyPassword(password, found.passwordSalt, found.passwordHash);
   if (!ok) return Response.json({ error: 'bad_credentials' }, { status: 401 });
-  return Response.json({ ok: true }, { headers: { 'set-cookie': await customerCookie(env, found.id) } });
+  return Response.json({ ok: true }, { headers: { 'set-cookie': await customerCookie(env, found.id, isSecureRequest(request)) } });
 }

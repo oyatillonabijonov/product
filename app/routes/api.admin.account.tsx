@@ -5,6 +5,7 @@ import {
   hashPassword,
   randomSaltHex,
   randomSecretHex,
+  isSecureRequest,
   sessionCookie,
   verifyPassword,
 } from '../../functions/lib/auth';
@@ -83,7 +84,7 @@ export async function action({ request, context }: Route.ActionArgs) {
       TTL,
       Math.floor(Date.now() / 1000),
     );
-    return json({ ok: true }, { headers: { 'set-cookie': sessionCookie(token, TTL) } });
+    return json({ ok: true }, { headers: { 'set-cookie': sessionCookie(token, TTL, isSecureRequest(request)) } });
   }
   return json({ ok: true });
 }
