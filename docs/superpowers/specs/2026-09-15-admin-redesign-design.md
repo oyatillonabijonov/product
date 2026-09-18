@@ -362,6 +362,12 @@ kesilmaydi, 2400 px); forma maydonlari joriy matn bilan to'ldiriladi, bo'shatils
 sarlavhasi bo'sh qolsa o'zbekchasi yoziladi; maxsus sahifalarda (`biz-haqimizda`, huquqiy) slug o'zgarmaydi va o'chirish
 yo'q; ro'yxatdagi faol toggle to'liq yozuvni `PUT` qiladi (yangi endpoint yo'q); kontent ro'yxatlarida qidiruv faqat Blog'da.
 
+5a qarorlari (2026-09-18): Sozlamalarning har tabi bitta `site_config` yozuvining bir qismini ko'rsatadi — forma `useSiteConfig`
+hook'ida, ko'rsatilmagan maydonlar (sirlar, `mapLabel`) qoralamada saqlanib `PUT`da qaytariladi; eski `SiteConfigForm` 5b gacha
+Integratsiyalar tabida qoladi (aks holda bot/Billz/OAuth maydonlari ochilmay qolardi); telefon bitta maydon (`phoneFromDisplay`);
+ulashish rasmi va favicon o'zgarishsiz yuklanadi (WebP ijtimoiy oldindan ko'rishda ishonchsiz), yuklagich endi `accept` bo'yicha
+ham filtrlaydi.
+
 ## 8. Xavfsizlik va kesh
 
 Yangi route'lar `requireAdmin` + `parseBody`; sirlar `publicSiteConfig`da avvalgidek bo'shatiladi; matnlar

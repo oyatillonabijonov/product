@@ -11,6 +11,7 @@ import Dashboard from './screens/Dashboard';
 import ContentHome from './screens/ContentHome';
 import SettingsStore from './screens/SettingsStore';
 import SettingsContact from './screens/SettingsContact';
+import SettingsSeo from './screens/SettingsSeo';
 import { Page } from './ui';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm';
@@ -75,6 +76,7 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
           <div className="mt-4"><BillzPanel /></div>
         </>
       );
+    case 'settings/seo': return <SettingsSeo />;
     case 'settings/account':
       return (
         <>
