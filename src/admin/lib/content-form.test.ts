@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ASSET_FIELDS, TEXT_FIELDS } from '../../lib/site-content';
-import { changedAssets, changedTexts, contentSections, initialTexts, uploadOptions, withoutId, type TextFieldDef } from './content-form';
+import { acceptLabel, acceptsType, changedAssets, changedTexts, contentSections, initialTexts, uploadOptions, withoutId, type TextFieldDef } from './content-form';
 
 const fields: TextFieldDef[] = TEXT_FIELDS.map((f) => ({ ...f, defaults: { uz: `${f.key}-uz`, ru: `${f.key}-ru` } }));
 
@@ -55,5 +55,17 @@ describe('uploadOptions', () => {
 describe('withoutId', () => {
   it("id tanadan chiqadi", () => {
     expect(withoutId({ id: 'a', title: 'b', isActive: true })).toEqual({ title: 'b', isActive: true });
+  });
+});
+
+describe('acceptsType / acceptLabel', () => {
+  it("aniq ro'yxat, joker va bo'sh accept", () => {
+    expect(acceptsType('image/png,image/jpeg', 'image/png')).toBe(true);
+    expect(acceptsType('image/png', 'image/jpeg')).toBe(false);
+    expect(acceptsType('image/*', 'image/webp')).toBe(true);
+    expect(acceptsType(undefined, 'video/mp4')).toBe(true);
+  });
+  it('xato xabari uchun yorliq', () => {
+    expect(acceptLabel('image/png,image/jpeg')).toBe('PNG, JPEG');
   });
 });

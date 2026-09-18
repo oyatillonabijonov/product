@@ -78,3 +78,17 @@ export function withoutId<T extends { id: string }>(item: T): Omit<T, 'id'> {
   void id;
   return rest;
 }
+
+/**
+ * Fayl turi yuklagichning `accept` ro'yxatiga to'g'ri keladimi. `accept` berilmasa — hammasi; `image/*` kabi
+ * joker ham tushuniladi (hozircha chaqiruvchilar aniq ro'yxat beradi).
+ */
+export function acceptsType(accept: string | undefined, type: string): boolean {
+  if (!accept) return true;
+  return accept.split(',').map((t) => t.trim()).some((t) => (t.endsWith('/*') ? type.startsWith(t.slice(0, -1)) : t === type));
+}
+
+/** `accept` ro'yxatini xato xabarida ko'rsatish uchun: `image/png,image/jpeg` → `PNG, JPEG`. */
+export function acceptLabel(accept: string): string {
+  return accept.split(',').map((t) => t.trim().split('/')[1]?.replace('*', 'fayl').toUpperCase() ?? '').filter(Boolean).join(', ');
+}

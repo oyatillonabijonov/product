@@ -54,7 +54,7 @@ const SettingsSeo: FC = () => {
                 </Field>
               </div>
             </Card>
-            <Card title="Ulashish rasmi" description="Havola Telegram, WhatsApp yoki ijtimoiy tarmoqda tashlanganda shu rasm chiqadi. 1200×630, PNG yoki JPG — rasm o'zgarishsiz yuklanadi.">
+            <Card title="Ulashish rasmi" description="Bosh sahifa havolasi Telegram, WhatsApp yoki ijtimoiy tarmoqda tashlanganda shu rasm chiqadi (mahsulot havolasida mahsulot rasmi). 1200×630, PNG yoki JPG — rasm o'zgarishsiz yuklanadi.">
               <ImageUploader
                 label="Ulashish rasmi"
                 images={config.ogImage ? [config.ogImage] : []}

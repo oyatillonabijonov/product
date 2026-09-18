@@ -16,6 +16,7 @@ export interface SiteConfigState {
  * `site_config` formasi — Sozlamalarning to'rt tabi bir xil yozuvning turli qismlarini ko'rsatadi, shuning uchun
  * yuklash/qoralama/saqlash bitta joyda. Ko'rsatilmagan maydonlar (masalan sirlar yoki `mapLabel`) qoralamada
  * o'z holicha qoladi va `PUT`da qaytariladi — boshqa tabdagi qiymat tozalanib ketmasin.
+ * Bitta admin nazarda tutilgan: ikki tabda (yoki ikki qurilmada) parallel tahrirda oxirgi saqlash butun qatorni yozadi.
  */
 export function useSiteConfig(): SiteConfigState {
   const [rawConfig, setConfig] = useState(null as ApiSiteConfig | null);

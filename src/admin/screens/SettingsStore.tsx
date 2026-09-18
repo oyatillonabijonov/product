@@ -53,7 +53,7 @@ const SettingsStore: FC = () => {
           <div className="flex flex-col gap-4">
             <Card title="Do'kon">
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Do'kon nomi" required hint="Sayt sarlavhasida, footer'da va Telegram xabarlarida chiqadi">
+                <Field label="Do'kon nomi" required error={config.name.trim() === '' ? "Nomi majburiy" : undefined} hint="Sayt sarlavhasida, footer'da va Telegram xabarlarida chiqadi">
                   <Input value={config.name} onChange={(v) => cfg.set('name', v)} />
                 </Field>
               </div>

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { FC } from 'react';
 import { Upload, X } from 'lucide-react';
 import { uploadImage } from './api';
+import { acceptLabel, acceptsType } from './lib/content-form';
 import { normalizeImage, type NormalizeOptions } from './lib/image-normalize';
 import { moveItem } from './lib/reorder';
 
@@ -36,9 +37,12 @@ const ImageUploader: FC<{
   async function handleFiles(fileList: FileList | null) {
     if (!fileList) return;
     // `accept` berilgan bo'lsa (favicon — faqat PNG) sudrab tashlangan boshqa tur ham o'tmasin.
-    const allowed = accept ? accept.split(',').map((t) => t.trim()) : null;
-    let files = Array.from(fileList).filter((f) => f.type.startsWith(video ? 'video/' : 'image/') && (!allowed || allowed.includes(f.type)));
-    if (!files.length) return;
+    let files = Array.from(fileList).filter((f) => f.type.startsWith(video ? 'video/' : 'image/') && acceptsType(accept, f.type));
+    if (!files.length) {
+      // Jim qolmaydi: tanlangan fayl bor, lekin turi to'g'ri kelmadi.
+      if (fileList.length > 0) setError(video ? 'Faqat MP4 video qabul qilinadi' : `Faqat ${accept ? acceptLabel(accept) : 'rasm'} qabul qilinadi`);
+      return;
+    }
     if (!multiple) files = files.slice(0, 1);
     if (video && files.some((f) => f.size > VIDEO_MAX)) {
       setError('Video 40 MB dan katta — kichikroq fayl tanlang');

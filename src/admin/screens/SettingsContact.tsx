@@ -53,7 +53,7 @@ const SettingsContact: FC = () => {
           <div className="flex flex-col gap-4">
             <Card title="Telefon va ijtimoiy tarmoqlar" description="Bo'sh qoldirilgan havola saytda chiqmaydi.">
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Telefon" required hint={`Saytda shunday chiqadi; bosilganda ${config.phone || '—'} raqamiga qo'ng'iroq ochiladi`}>
+                <Field label="Telefon" required error={config.phone === '' ? 'Telefon majburiy' : undefined} hint={`Saytda shunday chiqadi; bosilganda ${config.phone || '—'} raqamiga qo'ng'iroq ochiladi`}>
                   <Input value={config.phoneDisplay} onChange={setPhone} placeholder="+998 (90) 123-45-67" />
                 </Field>
                 <Field label="Telegram" hint="https://t.me/… yoki / bilan boshlanadigan yo'l">

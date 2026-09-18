@@ -15,7 +15,7 @@ import SettingsSeo from './screens/SettingsSeo';
 import { Page } from './ui';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm';
-// Ekranlar shu jadval orqali ulanadi; Sozlamalar hali eski komponentlar (5-bosqich).
+// Ekranlar shu jadval orqali ulanadi; Sozlamalarning To'lov/Integratsiyalar/Akkaunt tablari hali eski komponentlar (5b).
 import ProductsList from './screens/ProductsList';
 import TypesList from './screens/TypesList';
 import TypeEdit from './screens/TypeEdit';
