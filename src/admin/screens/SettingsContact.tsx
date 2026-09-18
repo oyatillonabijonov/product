@@ -62,7 +62,7 @@ const SettingsContact: FC = () => {
                 <Field label="Instagram">
                   <Input value={config.instagram} onChange={(v) => cfg.set('instagram', v)} placeholder="https://instagram.com/username" />
                 </Field>
-                <Field label="WhatsApp" hint="To'ldiriilsa mobil aloqa tugmasida WhatsApp chiqadi">
+                <Field label="WhatsApp" hint="To'ldirilsa mobil aloqa tugmasida WhatsApp chiqadi">
                   <Input value={config.whatsapp} onChange={(v) => cfg.set('whatsapp', v)} placeholder="https://wa.me/998901234567" />
                 </Field>
               </div>
