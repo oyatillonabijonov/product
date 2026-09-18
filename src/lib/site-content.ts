@@ -57,6 +57,7 @@ export const TEXT_FIELDS: TextField[] = [
   heroCard('Video')('heroVideo', 'Nomi', 'textarea', NEW_LINE),
 
   services('svcTitle', "Bo'lim sarlavhasi"),
+  services('svcPrompt', 'Sarlavha davomi (och rangda)'),
   services('heroCtaPrimary', 'Katalog tugmasi', 'text', 'Sarlavha yonidagi tugma'),
   services('svcWarrantyCard', 'Kafolat — sarlavha'),
   services('svcWarrantyDesc', 'Kafolat — matn', 'textarea'),
