@@ -15,6 +15,7 @@ import {
   rowToVacancy, type VacancyRow,
 } from '../../functions/lib/db';
 import { rowToProductType, type ProductTypeDbRow, type ProductTypeRow } from '../../shared/product-types';
+import { PC_SLOTS, toConfigParts, type ConfigPart, type ConfigPartRow, type SlotKey } from '../../shared/pc-compat';
 import { applyFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 import { siteConfig as staticSiteConfig } from './site.config';
 import { translations, type Translation } from '../../src/locales';
@@ -129,6 +130,29 @@ export async function loadProductsBy(
     if (params.exclude) items = items.filter((p) => p.id !== params.exclude);
     for (const term of searchTerms((params.q ?? '').toLowerCase())) items = items.filter((p) => p.name.toLowerCase().includes(term));
     return params.limit ? items.slice(0, params.limit) : items;
+  }
+}
+
+/**
+ * PC konfiguratori qismlari — saytda yashirin bo'lsa ham (qoldiq 0 → "Buyurtma asosida"; rasmsiz qoldiqli).
+ * Qo'lda kiritilgan (billz_id yo'q) nofaol mahsulotlar — namuna ma'lumot, chiqmaydi. Xato → {} (bo'lim chiqmaydi).
+ */
+export async function loadConfiguratorParts(env: Env): Promise<Partial<Record<SlotKey, ConfigPart[]>>> {
+  try {
+    const types = PC_SLOTS.map((s) => s.type);
+    const { results } = await env.DB.prepare(
+      `SELECT id, name, image_url, type, COALESCE(
+         (SELECT MIN(v.cash_price_uzs) FROM product_variants v WHERE v.product_id = products.id AND v.in_stock = 1),
+         cash_price_uzs) AS price,
+       billz_id, billz_stock, is_active, pc_socket, pc_memory, pc_watts
+       FROM products
+       WHERE category_id = 'pc' AND type IN (${types.map(() => '?').join(', ')}) AND pc_hidden = 0
+         AND cash_price_uzs > 0 AND (is_active = 1 OR billz_id IS NOT NULL)`,
+    ).bind(...types).all<ConfigPartRow>();
+    return toConfigParts(results);
+  } catch (err) {
+    console.error('loadConfiguratorParts fallback:', err);
+    return {};
   }
 }
 
