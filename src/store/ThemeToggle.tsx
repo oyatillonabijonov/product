@@ -6,19 +6,16 @@ import { Moon, Sun } from 'lucide-react';
  *
  * Tanlov `localStorage.theme`da saqlanadi va `<html data-theme>`ga yoziladi
  * (`root.tsx`dagi kichik skript uni paint'dan oldin qo'yadi — chaqnash yo'q).
- * Tanlanmaguncha sayt o'z sukut holatida qoladi: landing qorong'i, qolgan
- * sahifalar yorug'.
+ * Tanlanmaguncha sayt **yorug'** (2026-09-18, egasining qarori): qorong'i faqat
+ * `data-theme="dark"` qo'yilganda yoqiladi.
  */
-export const effectiveDark = () => {
-  const set = document.documentElement.getAttribute('data-theme');
-  return set ? set === 'dark' : Boolean(document.querySelector('.theme-dark'));
-};
+export const effectiveDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
 
 const ThemeToggle: FC<{ label: string; className?: string; iconCls?: string; caption?: string }> = ({
   label, className, iconCls = 'h-[18px] w-[18px]', caption,
 }) => {
-  // Server va birinchi klient render bir xil bo'lishi kerak — haqiqiy holat effektda o'qiladi.
-  const [dark, setDark] = useState(true);
+  // Server va birinchi klient render bir xil bo'lishi kerak (sukut — yorug'); haqiqiy holat effektda o'qiladi.
+  const [dark, setDark] = useState(false);
   useEffect(() => setDark(effectiveDark()), []);
 
   function toggle() {
