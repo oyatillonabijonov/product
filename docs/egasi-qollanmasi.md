@@ -10,11 +10,11 @@ Bosh sahifada faqat harakat talab qiladigan narsa turadi: **Rasm kerak** (rasmi 
 
 ## 2. Tovar saytda qanday paydo bo'ladi
 
-Sayt tovarlarni **Billz**dan oladi (har 30 daqiqada, o'zi). Tovar saytda ko'rinishi uchun Billz'da uchta narsa bo'lishi shart:
+Sayt tovarlarni **Billz**dan oladi (har 30 daqiqada, o'zi). Tovar saytda ko'rinishi uchun Billz'da dastlabki ikkitasi shart, uchinchisi esa uni o'z bo'limiga qo'yadi:
 
 1. **Rasm** — Billz'da rasmsiz tovar saytga tushadi, lekin ko'rinmaydi. Rasmni Billz'ga yuklang (bir marta) yoki admin → Mahsulotlar → «Rasm kerak» ro'yxatidan saytning o'zida yuklang.
 2. **Qoldiq > 0** — qoldiq nolga tushsa tovar o'zi yashirinadi, qaytsa o'zi chiqadi.
-3. **«Nad Kategoriya»** maydoni: `Apple`, `PC`, `Audio` yoki `Video`. Bo'sh bo'lsa tovar hech qaysi bo'limga tushmaydi.
+3. **«Nad Kategoriya»** maydoni: `Apple`, `PC`, `Audio` yoki `Video`. Bo'sh bo'lsa tovar katalog va qidiruvda qoladi, lekin hech qaysi bo'limga tushmaydi.
 
 Bir xil nomdagi Billz yozuvlari (har dona alohida) saytda **bitta** tovar bo'lib chiqadi, qoldig'i yig'iladi. Shuning uchun nomni bir xil yozing: «MacBook Pro 14" …» va «MacBook Pro 14inch …» ikkita alohida tovar bo'ladi.
 
@@ -41,7 +41,7 @@ Vakansiyaga kelgan arizalar alohida: **Buyurtmalar → Ish arizalari**.
 Saytdagi deyarli har bir matn va rasm admin'da tahrirlanadi. Maydonni bo'shatsangiz standart matn qaytadi.
 
 - **Kontent → Bosh sahifa** — to'rt yo'nalish kartasi (nom, rasm, poster va ikkitagacha video), xizmat va'dalari, konsultatsiya bloki, bo'lim sarlavhalari.
-- **Kontent → Sahifalar** — Shartlar, FAQ, Biz haqimizda, Trade-In, Qaytarish, Ommaviy oferta, Maxfiylik. «Biz haqimizda» alohida forma (matnlar va to'rtta foto), huquqiy sahifalarda «Qisqa izoh» sarlavha ostida chiqadi. Matn oddiy belgilar bilan yoziladi: `## Sarlavha`, `- ro'yxat`, `1. band`, `**qalin**`. Ikki tilda (uz/ru); ruscha sarlavha bo'sh qolsa o'zbekchasi ishlatiladi.
+- **Kontent → Sahifalar** — Shartlar, FAQ, Biz haqimizda, Trade-In, Kontakt, Qaytarish, Ommaviy oferta, Maxfiylik. «Biz haqimizda» alohida forma (matnlar va to'rtta foto), huquqiy sahifalarda «Qisqa izoh» sarlavha ostida chiqadi. Matn oddiy belgilar bilan yoziladi: `## Sarlavha`, `- ro'yxat`, `1. band`, `**qalin**`. Ikki tilda (uz/ru); ruscha sarlavha bo'sh qolsa o'zbekchasi ishlatiladi.
 - **Kontent → Yangiliklar** — bosh sahifadagi uchta plitka. **Blog** — maqolalar. **Bannerlar** — bosh sahifada hero'dan keyin chiqadigan aksiya rasmlari (1200×400 atrofida); bo'sh bo'lsa hech narsa ko'rinmaydi.
 - **Kontent → Vakansiyalar** — lavozimlar ro'yxati; «Sahifa matni» kartasida vakansiyalar sahifasining matni va ikkita fotosi.
 

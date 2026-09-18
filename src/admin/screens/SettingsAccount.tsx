@@ -42,7 +42,8 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
       });
       setCurrentPassword('');
       setNewPassword('');
-      setBase({ username: (username as string).trim(), googleEmail: (googleEmail as string).trim() });
+      // Server bo'sh loginni o'tkazib yuboradi va emailni kichik harfga o'tkazadi — asl qiymat ham shunday bo'lsin.
+      setBase({ username: (username as string).trim() || base.username, googleEmail: (googleEmail as string).trim().toLowerCase() });
       toast('Saqlandi · keyingi kirishda yangi maʼlumotlardan foydalaning');
       if (changedPassword) onPasswordChanged();
     } catch (e) {

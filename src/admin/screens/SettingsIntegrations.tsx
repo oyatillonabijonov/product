@@ -24,7 +24,7 @@ const SettingsIntegrations: FC = () => {
   const config = cfg.config;
 
   function loadStatus() {
-    getBillzStatus()
+    return getBillzStatus()
       .then((s) => { setStatus(s); setStatusError(''); })
       .catch((e) => setStatusError(errText(e)));
   }
@@ -65,7 +65,7 @@ const SettingsIntegrations: FC = () => {
     try {
       await runBillzSync();
       toast('Sinxronizatsiya boshlandi');
-      loadStatus();
+      await loadStatus();
     } catch (e) {
       toast(errText(e), 'error');
     } finally {

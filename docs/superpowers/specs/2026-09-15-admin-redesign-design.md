@@ -213,7 +213,7 @@ API'sidan (oxirgi 200 ta) id bo'yicha — alohida GET yo'q; holat o'zgarsa sideb
   Telegram bot (token, chat ID, ko'rsatma), Mijoz kirishi (Google ID/secret, TG login bot), Analitika (Metrica).
 - **SEO** — sarlavha qo'shimchasi, bosh sahifa tavsifi, OG rasmi (yuklash — `ogImage` yo'liga yoziladi),
   katalog tavsif shabloni (`metaCatalogDesc`, izoh: `{title}` va `{store}` joyida qoladi).
-- **Akkaunt** — login/parol o'zgartirish, Google admin kirishi (bor `AccountForm` mantiqi).
+- **Akkaunt** — login/parol o'zgartirish, Google admin kirishi (`SettingsAccount.tsx`).
 
 ## 6. Ma'lumotlar — migratsiya `0035_product_types.sql`
 
