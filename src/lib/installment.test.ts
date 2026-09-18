@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { InstallmentConfig, Product, Term } from '../data/products';
-import { calcInstallment, discountPercent, formatUzs, priceView } from './installment';
+import { calcInstallment, discountPercent, formatUzs, monthlyPayment, priceView } from './installment';
 
 const config: InstallmentConfig = {
   downPaymentPercent: 20,
@@ -99,5 +99,14 @@ describe('priceView', () => {
     const v = priceView(p, config, 'installment');
     expect(v.monthlyPrimary).toBe(true);
     expect(v.showMonthly).toBe(true);
+  });
+});
+
+describe('monthlyPayment', () => {
+  it("ustama qo'shilgan jamidan boshlang'ichni ayirib, oyga bo'ladi", () => {
+    expect(monthlyPayment(10_000_000, { months: 10, markup: 0.2 }, 2_000_000)).toBe(1_000_000);
+  });
+  it("boshlang'ich jamidan katta bo'lsa 0", () => {
+    expect(monthlyPayment(1_000_000, { months: 6, markup: 0 }, 2_000_000)).toBe(0);
   });
 });
