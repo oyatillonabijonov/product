@@ -35,7 +35,9 @@ export async function action({ request, context }: Route.ActionArgs) {
     return json({ error: 'current_password_required' }, { status: 400 });
   }
   if (!(await verifyPassword(body.currentPassword, auth.passwordSalt, auth.passwordHash))) {
-    return json({ error: 'invalid_current_password' }, { status: 401 });
+    // 403, 401 emas: sessiya tirik, faqat qayta tasdiq xato. 401 bo'lsa `api.ts` sahifani
+    // qayta yuklab yuboradi va egasi xato xabarini ko'rmaydi.
+    return json({ error: 'invalid_current_password' }, { status: 403 });
   }
 
   const fields: { username?: string; passwordHash?: string; passwordSalt?: string; sessionSecret?: string; adminGoogleEmail?: string } = {};

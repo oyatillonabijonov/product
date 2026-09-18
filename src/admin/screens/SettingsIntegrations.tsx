@@ -35,7 +35,7 @@ const SettingsIntegrations: FC = () => {
     setBusy(true);
     try {
       await cfg.save();
-      toast('Saqlandi');
+      toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
       loadStatus();
     } catch (e) {
       toast(errText(e), 'error');
