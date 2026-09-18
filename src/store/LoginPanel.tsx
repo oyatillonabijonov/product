@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FC } from 'react';
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
@@ -18,19 +18,24 @@ export function loginEnabled(config: ApiSiteConfig): boolean {
   return Boolean(config.googleClientId || config.telegramLoginBot);
 }
 
-// Kirish kontenti — LoginModal va /kirish sahifasi ikkisi ham shundan foydalanadi.
-// `active`: Telegram widget skriptini faqat ko'rinib turganda inject qiladi.
+// Kirish kontenti — faqat `/kirish` sahifasi ishlatadi (modal 2026-09-18'da olib tashlandi:
+// kirish bitta joyda bo'lsin, modal ichida Telegram vidjeti ham ishonchsiz ochilardi).
 // Email+parol yo'li UI'dan olib tashlangan (2026-09): parolni tiklash oqimi yo'q edi,
 // unutgan mijoz abadiy qulflanardi. Server routelari (`auth/email`) turibdi.
-const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; active?: boolean }> = ({
-  t, config, error, active = true,
-}) => {
+const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string }> = ({ t, config, error }) => {
   const asset = useAssets();
   const tgRef = useRef<HTMLDivElement>(null);
+  // Vidjet **haqiqatan chizilganda** tugmalar ustuni uning eniga tenglashadi. U kelmasa
+  // (skript bloklangan, bot noto'g'ri) Google tugmasi to'liq enli qoladi va "yoki"
+  // ajratgichi chiqmaydi — aks holda kartada ostida hech narsasi yo'q ajratgich turardi.
+  const [rawTgReady, setTgReady] = useState(false);
+  const tgReady = rawTgReady as boolean;
 
   useEffect(() => {
     const host = tgRef.current;
-    if (!active || !config.telegramLoginBot || !host) return;
+    if (!config.telegramLoginBot || !host) return;
+    const seen = new MutationObserver(() => setTgReady(Boolean(host.querySelector('iframe'))));
+    seen.observe(host, { childList: true });
     const s = document.createElement('script');
     s.src = 'https://telegram.org/js/telegram-widget.js?22';
     s.async = true;
@@ -40,10 +45,10 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
     s.setAttribute('data-auth-url', '/auth/telegram');
     s.setAttribute('data-request-access', 'write');
     host.appendChild(s);
-    return () => { host.innerHTML = ''; };
-  }, [active, config.telegramLoginBot]);
+    return () => { seen.disconnect(); host.innerHTML = ''; setTgReady(false); };
+  }, [config.telegramLoginBot]);
 
-  const showDivider = Boolean(config.googleClientId && config.telegramLoginBot);
+  const showDivider = Boolean(config.googleClientId && tgReady);
 
   return (
     <div className="flex flex-col items-center">
@@ -62,7 +67,7 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
           ularniki, biz faqat `data-size`/`data-radius`ni beramiz. Shuning uchun ustun
           `w-fit`: eni vidjetnikiga tenglashadi va Google tugmasi shu enni to'ldiradi —
           aks holda biri to'liq enli, ikkinchisi tor bo'lib turardi. */}
-      <div className={`mt-6 flex flex-col items-center gap-3 ${showDivider ? 'w-fit min-w-[200px]' : 'w-full'}`}>
+      <div className={`mt-6 flex flex-col items-center gap-3 ${tgReady ? 'w-fit min-w-[200px]' : 'w-full'}`}>
         {config.googleClientId && (
           <a
             href="/auth/google"

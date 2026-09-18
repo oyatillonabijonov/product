@@ -46,8 +46,6 @@ export default function Header({
   categories: cats,
   brandName,
   customerName,
-  loginEnabled,
-  onLoginClick,
   hasDeals,
 }: {
   t: Translation;
@@ -58,10 +56,7 @@ export default function Header({
   brandName: string;
   /** Kirgan mijoz nomi, yoki null (kirmagan). */
   customerName: string | null;
-  /** Login sozlanganmi — Profil kirmagan holatda kirish oynasini ochadi, aks holda /kirish'ga olib boradi. */
-  loginEnabled: boolean;
   /** Kirmagan holatda akkaunt ikonkasi kirish drawer'ini ochadi. */
-  onLoginClick: () => void;
   /** Chegirma bormi — bo'lmasa menyuda "Chegirmalar" havolasi chiqmaydi (footer bilan bir qoida). */
   hasDeals: boolean;
 }) {
@@ -350,29 +345,19 @@ export default function Header({
           <ThemeToggle label={t.themeLabel} caption={t.themeLabel} className={ICON_COL} iconCls="w-5 h-5" />
         </div>
 
-        {/* Profil — o'ng chetda, doim ko'rinadi: kirgan → kabinet; login sozlangan → kirish oynasi;
-            sozlanmagan → /kirish (u bosh sahifaga qaytaradi — egasining tanlovi). */}
-        {customerName !== null ? (
-          <Link
-            to={localizedPath(locale, '/kabinet')}
-            className={ICON_COL}
-            aria-label={customerName || t.navProfile}
-            title={customerName || t.navProfile}
-          >
-            <User className="w-5 h-5" />
-            <span className={ICON_LABEL}>{t.navProfile}</span>
-          </Link>
-        ) : loginEnabled ? (
-          <button type="button" onClick={onLoginClick} className={ICON_COL} aria-label={t.navProfile} title={t.navProfile}>
-            <User className="w-5 h-5" />
-            <span className={ICON_LABEL}>{t.navProfile}</span>
-          </button>
-        ) : (
-          <Link to={localizedPath(locale, '/kirish')} className={ICON_COL} aria-label={t.navProfile} title={t.navProfile}>
-            <User className="w-5 h-5" />
-            <span className={ICON_LABEL}>{t.navProfile}</span>
-          </Link>
-        )}
+        {/* Profil — o'ng chetda, doim ko'rinadi: kirgan → kabinet, aks holda /kirish.
+            Kirish oynasi (modal) 2026-09-18'da olib tashlandi — egasining talabi: kirish
+            bitta joyda bo'lsin (modal ichida Telegram vidjeti ham ishonchsiz edi).
+            Login sozlanmagan bo'lsa /kirish bosh sahifaga qaytaradi. */}
+        <Link
+          to={localizedPath(locale, customerName !== null ? '/kabinet' : '/kirish')}
+          className={ICON_COL}
+          aria-label={customerName || t.navProfile}
+          title={customerName || t.navProfile}
+        >
+          <User className="w-5 h-5" />
+          <span className={ICON_LABEL}>{t.navProfile}</span>
+        </Link>
       </div>
 
       {/* `lg`gacha: Katalog (ikon) + to'liq enli qidiruv qatori. */}
