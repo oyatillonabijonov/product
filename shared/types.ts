@@ -1,4 +1,4 @@
-import type { BillzSyncStatus } from './billz';
+import type { BillzSyncStatus, ManualField } from './billz';
 import type { ProductTypeRow } from './product-types';
 
 export type Category = 'iphone' | 'mac' | 'ipad' | 'pc';
@@ -37,6 +37,8 @@ export interface ApiProduct {
   billzId: string | null;
   /** Billz'dagi qoldiq (tanlangan do'kon); qo'lda kiritilganda `null`. */
   billzStock: number | null;
+  /** Billz tovarida qo'lda tahrirlangan maydonlar — sinxronizatsiya ularga tegmaydi. */
+  manualFields: ManualField[];
 }
 
 export interface ApiReview {

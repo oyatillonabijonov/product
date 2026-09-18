@@ -3,6 +3,7 @@ import type { FC, ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { X } from 'lucide-react';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel, ApiProductType } from '../../../shared/types';
+import type { ManualField } from '../../../shared/billz';
 import { deriveLegacyCategory } from '../../../shared/legacy-category';
 import {
   createProduct, deleteProduct, getProductDetail, listBrands, listCategories, listDeviceModels, listTypes, updateProduct, uploadImage,
@@ -171,6 +172,19 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
   }
 
   const billz = form.billzId !== null;
+  // Billz tovarida narx/xususiyat/tavsifni qo'lda olish mumkin: yoqilgan maydonga
+  // sinxronizatsiya tegmaydi (`products.manual_fields`), qolgani avvalgidek Billz'niki.
+  const manual = (f: ManualField) => form.manualFields.includes(f);
+  const manualRow = (f: ManualField, hint: string) => (
+    <div className="mb-4 border-b border-line">
+      <SwitchRow
+        label="Qo'lda tahrirlash"
+        hint={hint}
+        on={manual(f)}
+        onChange={(on) => set('manualFields', on ? [...form.manualFields, f] : form.manualFields.filter((x) => x !== f))}
+      />
+    </div>
+  );
   const title = isNew ? 'Yangi mahsulot' : form.name || 'Mahsulot';
   const canSave = dirty && !busy && loadState === 'ready';
   const storage = form.options.find((o) => o.name === 'Xotira')?.values ?? [];
@@ -251,12 +265,23 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
           </div>
         </Card>
 
-        <Card title="Ma'lumot" description={billz ? "Billz'dan keladi — Billz'da o'zgartiring." : undefined}>
+        <Card
+          title="Ma'lumot"
+          description={billz ? "Nom, brend, kategoriya va tur Billz'dan keladi. Tavsifni qo'lda yozish mumkin." : undefined}
+        >
           {billz ? (
-            <Rows rows={[
-              { k: 'Nomi', v: form.name }, { k: 'Brend', v: brandName }, { k: 'Kategoriya', v: catName }, { k: 'Turi', v: typeLabel },
-              { k: 'Tavsif', v: form.description || '—' },
-            ]} />
+            <>
+              {manualRow('description', "Yoqilsa tavsifni o'zingiz yozasiz va sinxronizatsiya unga tegmaydi")}
+              <Rows rows={[
+                { k: 'Nomi', v: form.name }, { k: 'Brend', v: brandName }, { k: 'Kategoriya', v: catName }, { k: 'Turi', v: typeLabel },
+                ...(manual('description') ? [] : [{ k: 'Tavsif', v: form.description || '—' }]),
+              ]} />
+              {manual('description') && (
+                <Field label="Tavsif" className="mt-4">
+                  <Textarea value={form.description} onChange={(v) => set('description', v)} rows={5} />
+                </Field>
+              )}
+            </>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Nomi / model qidirish" required hint="Model tanlansa brend, kategoriya va xususiyatlar o'zi to'ladi" className="md:col-span-2">
@@ -287,13 +312,37 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
           )}
         </Card>
 
-        <Card title="Narx" description={billz ? "Billz'dagi USD narx × do'kon kursi — sinxronizatsiyada yangilanadi." : undefined}>
+        <Card
+          title="Narx"
+          description={billz
+            ? (manual('price')
+              ? "Qo'lda belgilangan — Billz narxi ham, dollar kursi ham bu tovarga ta'sir qilmaydi."
+              : "Billz'dagi USD narx × do'kon kursi — sinxronizatsiyada yangilanadi.")
+            : undefined}
+        >
           {billz ? (
-            <Rows rows={[
-              { k: 'Naqd', v: `${formatThousands(form.cashPriceUzs)} so'm` },
-              { k: 'Eski narx', v: form.oldPriceUzs > 0 ? `${formatThousands(form.oldPriceUzs)} so'm` : '—' },
-              { k: 'Qoldiq', v: String(form.billzStock ?? 0) },
-            ]} />
+            <>
+              {manualRow('price', "Yoqilsa narxni o'zingiz belgilaysiz; qoldiq baribir Billz'dan keladi")}
+              {manual('price') ? (
+                <>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field label="Naqd narx (so'm)" required>
+                      <PriceInput className={INPUT_CLS} value={form.cashPriceUzs} onChange={(v) => set('cashPriceUzs', v)} />
+                    </Field>
+                    <Field label="Eski narx (so'm)" hint="Chegirma belgisi uchun; ixtiyoriy">
+                      <PriceInput className={INPUT_CLS} value={form.oldPriceUzs} onChange={(v) => set('oldPriceUzs', v)} />
+                    </Field>
+                  </div>
+                  <p className="mt-3 text-label text-muted-2">{`Qoldiq: ${form.billzStock ?? 0} — Billz'dan.`}</p>
+                </>
+              ) : (
+                <Rows rows={[
+                  { k: 'Naqd', v: `${formatThousands(form.cashPriceUzs)} so'm` },
+                  { k: 'Eski narx', v: form.oldPriceUzs > 0 ? `${formatThousands(form.oldPriceUzs)} so'm` : '—' },
+                  { k: 'Qoldiq', v: String(form.billzStock ?? 0) },
+                ]} />
+              )}
+            </>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Naqd narx (so'm)" required={form.variants.length === 0} hint={form.variants.length > 0 ? "Bo'sh qolsa eng arzon variant narxi olinadi" : undefined}>
@@ -357,8 +406,14 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
           </Card>
         )}
 
-        <Card title="Xususiyatlar" description={billz ? "Billz'dan keladi." : 'Nom va qiymat — mahsulot sahifasidagi jadval.'}>
-          {billz ? (
+        <Card
+          title="Xususiyatlar"
+          description={billz
+            ? (manual('specs') ? "Qo'lda yuritiladi — sinxronizatsiya bu ro'yxatga tegmaydi." : "Billz'dan keladi.")
+            : 'Nom va qiymat — mahsulot sahifasidagi jadval.'}
+        >
+          {billz && manualRow('specs', "Yoqilsa ro'yxatni o'zingiz yuritasiz; Billz'dagi xususiyatlar ustiga yozilmaydi")}
+          {billz && !manual('specs') ? (
             form.specs.length > 0
               ? <Rows rows={form.specs.map((s) => ({ k: s.label, v: s.value }))} />
               : <p className="text-para text-muted">Xususiyat yo'q.</p>

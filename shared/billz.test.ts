@@ -3,6 +3,8 @@ import type { ProductTypeRow } from './product-types';
 import {
   toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct, nameKey, mergeDuplicates,
   type BillzProduct, type MapContext,
+  parseManualFields,
+  serializeManualFields,
 } from './billz';
 
 const SHOP = 'shop-1';
@@ -184,5 +186,22 @@ describe('dublikatlarni birlashtirish', () => {
     const out = mergeDuplicates([mapped({ billzId: 'a', stock: 2 }), mapped({ billzId: 'b', stock: 3 })]);
     expect(out[0].stock).toBe(5);
     expect(out[0].isActive).toBe(false);
+  });
+});
+
+describe('manual fields', () => {
+  it("bazadagi satrni ro'yxatga aylantiradi, notanish kalitni tashlaydi", () => {
+    expect(parseManualFields('description')).toEqual(['description']);
+    expect(parseManualFields('specs, price')).toEqual(['price', 'specs']);
+    expect(parseManualFields('name,description')).toEqual(['description']);
+    expect(parseManualFields('')).toEqual([]);
+    expect(parseManualFields(null)).toEqual([]);
+  });
+
+  it('tartib va to\'plam doim bir xil satr beradi', () => {
+    expect(serializeManualFields(['specs', 'price'])).toBe('price,specs');
+    expect(serializeManualFields(['price', 'price'])).toBe('price');
+    expect(serializeManualFields(['nom'])).toBe('');
+    expect(serializeManualFields(null)).toBe('');
   });
 });

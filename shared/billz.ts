@@ -267,3 +267,25 @@ export function mergeDuplicates(items: MappedProduct[]): MappedProduct[] {
   }
   return out;
 }
+
+/**
+ * Billz tovarining **qo'lda tahrirlanadigan** maydonlari. Billz'da tavsif va xususiyatlar
+ * ko'pincha to'liq emas, shuning uchun egasi ularni admin'da yozishi mumkin: shu ro'yxatga
+ * tushgan maydonga sinxronizatsiya boshqa tegmaydi (`products.manual_fields` ustuni).
+ * Qolgan ustunlar avvalgidek Billz'niki — nom, qoldiq, ko'rinish, rasm, brend, tur.
+ */
+export const MANUAL_FIELDS = ['price', 'specs', 'description'] as const;
+export type ManualField = (typeof MANUAL_FIELDS)[number];
+
+/** Bazadagi vergulli satrni ro'yxatga aylantiradi; notanish kalit va takror tashlanadi. */
+export function parseManualFields(raw: string | null | undefined): ManualField[] {
+  if (!raw) return [];
+  const seen = new Set(raw.split(',').map((s) => s.trim()));
+  return MANUAL_FIELDS.filter((f) => seen.has(f));
+}
+
+/** Ro'yxatni bazaga yoziladigan satrga aylantiradi — tartib va to'plam doim bir xil. */
+export function serializeManualFields(fields: readonly string[] | null | undefined): string {
+  if (!fields) return '';
+  return MANUAL_FIELDS.filter((f) => fields.includes(f)).join(',');
+}
