@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FC } from 'react';
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
@@ -18,19 +18,24 @@ export function loginEnabled(config: ApiSiteConfig): boolean {
   return Boolean(config.googleClientId || config.telegramLoginBot);
 }
 
-// Kirish kontenti — LoginModal va /kirish sahifasi ikkisi ham shundan foydalanadi.
-// `active`: Telegram widget skriptini faqat ko'rinib turganda inject qiladi.
+// Kirish kontenti — faqat `/kirish` sahifasi ishlatadi (modal 2026-09-18'da olib tashlandi:
+// kirish bitta joyda bo'lsin, modal ichida Telegram vidjeti ham ishonchsiz ochilardi).
 // Email+parol yo'li UI'dan olib tashlangan (2026-09): parolni tiklash oqimi yo'q edi,
 // unutgan mijoz abadiy qulflanardi. Server routelari (`auth/email`) turibdi.
-const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; active?: boolean }> = ({
-  t, config, error, active = true,
-}) => {
+const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string }> = ({ t, config, error }) => {
   const asset = useAssets();
   const tgRef = useRef<HTMLDivElement>(null);
+  // Vidjet **haqiqatan chizilganda** tugmalar ustuni uning eniga tenglashadi. U kelmasa
+  // (skript bloklangan, bot noto'g'ri) Google tugmasi to'liq enli qoladi va "yoki"
+  // ajratgichi chiqmaydi — aks holda kartada ostida hech narsasi yo'q ajratgich turardi.
+  const [rawTgReady, setTgReady] = useState(false);
+  const tgReady = rawTgReady as boolean;
 
   useEffect(() => {
     const host = tgRef.current;
-    if (!active || !config.telegramLoginBot || !host) return;
+    if (!config.telegramLoginBot || !host) return;
+    const seen = new MutationObserver(() => setTgReady(Boolean(host.querySelector('iframe'))));
+    seen.observe(host, { childList: true });
     const s = document.createElement('script');
     s.src = 'https://telegram.org/js/telegram-widget.js?22';
     s.async = true;
@@ -40,28 +45,48 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string; ac
     s.setAttribute('data-auth-url', '/auth/telegram');
     s.setAttribute('data-request-access', 'write');
     host.appendChild(s);
-    return () => { host.innerHTML = ''; };
-  }, [active, config.telegramLoginBot]);
+    return () => { seen.disconnect(); host.innerHTML = ''; setTgReady(false); };
+  }, [config.telegramLoginBot]);
+
+  const showDivider = Boolean(config.googleClientId && tgReady);
 
   return (
-    <div className="flex flex-col items-center gap-5">
-      <img src={asset('logo')} alt={config.name} className="logo-light h-9 w-auto object-contain" />
-      <img src={asset('logoDark')} alt="" aria-hidden className="logo-dark h-9 w-auto object-contain" />
-      <h2 className="text-lede font-semibold text-primary">{t.loginTitle}</h2>
+    <div className="flex flex-col items-center">
+      <img src={asset('logo')} alt={config.name} className="logo-light h-7 w-auto object-contain" />
+      <img src={asset('logoDark')} alt="" aria-hidden className="logo-dark h-7 w-auto object-contain" />
+      <h2 className="mt-5 text-subhead font-semibold text-primary">{t.loginTitle}</h2>
+      <p className="mt-1.5 text-para text-muted text-balance text-center">{t.loginLede}</p>
 
-      {error && <p className="text-sale text-label">{t.loginError}</p>}
+      {error && (
+        <p className="mt-5 w-full text-label text-sale bg-sale/10 border border-sale/20 rounded-sm px-3.5 py-2.5 text-center">
+          {t.loginError}
+        </p>
+      )}
 
-      <div className="w-full flex flex-col items-center gap-3">
+      {/* Telegram tugmasi — Telegram'ning o'z vidjeti (iframe): rangi, matni va eni
+          ularniki, biz faqat `data-size`/`data-radius`ni beramiz. Shuning uchun ustun
+          `w-fit`: eni vidjetnikiga tenglashadi va Google tugmasi shu enni to'ldiradi —
+          aks holda biri to'liq enli, ikkinchisi tor bo'lib turardi. */}
+      <div className={`mt-6 flex flex-col items-center gap-3 ${tgReady ? 'w-fit min-w-[200px]' : 'w-full'}`}>
         {config.googleClientId && (
           <a
             href="/auth/google"
-            className="press w-full h-[52px] border border-line rounded-full font-medium text-para text-primary hover:border-accent hover:bg-bg flex items-center justify-center gap-3"
+            className="press flex h-11 w-full items-center justify-center gap-2.5 rounded-full border border-line text-copy font-medium text-primary hover:border-accent hover:bg-bg"
           >
             <GoogleG /> {t.loginGoogle}
           </a>
         )}
+        {showDivider && (
+          <div className="w-full flex items-center gap-3 text-label text-muted-2">
+            <span className="flex-1 h-px bg-line" />
+            {t.loginOr}
+            <span className="flex-1 h-px bg-line" />
+          </div>
+        )}
         <div ref={tgRef} className="min-h-[1px] flex items-center justify-center empty:hidden" />
       </div>
+
+      <p className="mt-6 text-label text-muted-2 text-center">{t.loginGuest}</p>
     </div>
   );
 };

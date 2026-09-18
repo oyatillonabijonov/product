@@ -4,6 +4,7 @@ import type { Translation } from '../../locales';
 import { useFavorites } from '../FavoritesContext';
 import { useCurrency } from '../CurrencyContext';
 import LocaleLink from '../LocaleLink';
+import AccountEmptyState from './AccountEmptyState';
 
 const FavoritesList: FC<{ t: Translation }> = ({ t }) => {
   const { items, remove, loaded } = useFavorites();
@@ -11,14 +12,7 @@ const FavoritesList: FC<{ t: Translation }> = ({ t }) => {
   // SSR'da ro'yxat hali o'qilmagan — "bo'sh" holati chaqnab o'tmasin.
   if (!loaded) return null;
   if (items.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center text-center py-14 gap-3">
-        <div className="w-14 h-14 rounded-full bg-bg flex items-center justify-center">
-          <Heart className="w-7 h-7 text-muted-2" />
-        </div>
-        <p className="text-muted text-label">{t.favEmpty}</p>
-      </div>
-    );
+    return <AccountEmptyState icon={Heart} text={t.favEmpty} />;
   }
 
   return (
@@ -29,7 +23,7 @@ const FavoritesList: FC<{ t: Translation }> = ({ t }) => {
             type="button"
             onClick={() => remove(f.productId)}
             aria-label={t.favRemove}
-            className=" press absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 border border-line flex items-center justify-center text-muted-2 hover:text-sale z-10"
+            className=" press absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-surface/90 backdrop-blur-sm border border-line flex items-center justify-center text-muted-2 hover:text-sale z-10"
           >
             <X className="w-4 h-4" />
           </button>
