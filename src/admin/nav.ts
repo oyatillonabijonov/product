@@ -54,7 +54,7 @@ export const SECTIONS: SectionDef[] = [
   {
     id: 'settings', label: 'Sozlamalar', short: 'Sozlash', Icon: Settings,
     tabs: [
-      { id: 'store', segment: 'store', label: "Do'kon", Icon: Store },
+      { id: 'store', segment: 'store', label: "Do'kon", Icon: Store, ownPage: true },
       { id: 'payment', segment: 'payment', label: "To'lov va kurs", Icon: Wallet },
       { id: 'integrations', segment: 'integrations', label: 'Integratsiyalar', Icon: Plug },
       { id: 'account', segment: 'account', label: 'Akkaunt', Icon: UserRound },

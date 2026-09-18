@@ -35,7 +35,9 @@ const ImageUploader: FC<{
 
   async function handleFiles(fileList: FileList | null) {
     if (!fileList) return;
-    let files = Array.from(fileList).filter((f) => f.type.startsWith(video ? 'video/' : 'image/'));
+    // `accept` berilgan bo'lsa (favicon — faqat PNG) sudrab tashlangan boshqa tur ham o'tmasin.
+    const allowed = accept ? accept.split(',').map((t) => t.trim()) : null;
+    let files = Array.from(fileList).filter((f) => f.type.startsWith(video ? 'video/' : 'image/') && (!allowed || allowed.includes(f.type)));
     if (!files.length) return;
     if (!multiple) files = files.slice(0, 1);
     if (video && files.some((f) => f.size > VIDEO_MAX)) {

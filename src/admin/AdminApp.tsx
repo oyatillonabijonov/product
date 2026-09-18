@@ -9,6 +9,7 @@ import Login from './Login';
 import SectionTabs from './SectionTabs';
 import Dashboard from './screens/Dashboard';
 import ContentHome from './screens/ContentHome';
+import SettingsStore from './screens/SettingsStore';
 import { Page } from './ui';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm';
@@ -63,9 +64,15 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
     case 'content/vacancies':
       if (id === VACANCIES_TEXT_ID) return <VacanciesText />;
       return id ? <VacancyEdit key={id} id={id} /> : <VacanciesList />;
-    case 'settings/store': return <SiteConfigForm />;
+    case 'settings/store': return <SettingsStore />;
     case 'settings/payment': return <SettingsForm />;
-    case 'settings/integrations': return <BillzPanel />;
+    case 'settings/integrations':
+      return (
+        <>
+          <SiteConfigForm />
+          <div className="mt-4"><BillzPanel /></div>
+        </>
+      );
     case 'settings/account':
       return (
         <>

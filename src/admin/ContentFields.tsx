@@ -98,13 +98,16 @@ const AssetInput: FC<{ field: AssetField; value: string; onChange: (url: string)
   </div>
 );
 
-/** Bo'limlar kartalari: matn — uz/ru juftligi, rasm/video — yuklagich (fayl o'chirilsa standart qaytadi). */
-export const ContentFields: FC<{ content: SiteContent }> = ({ content }) => {
+/**
+ * Bo'limlar kartalari: matn — uz/ru juftligi, rasm/video — yuklagich (fayl o'chirilsa standart qaytadi).
+ * `only` — faqat shu sarlavhali bo'limlar (bitta guruhning kartalarini ekranda ajratib qo'yish uchun).
+ */
+export const ContentFields: FC<{ content: SiteContent; only?: string[] }> = ({ content, only }) => {
   if (content.error) return <EmptyState title="Sayt matnlari yuklanmadi" text={content.error} />;
   if (!content.loaded) return <Skeleton rows={6} />;
   return (
     <>
-      {content.sections.map((s) => (
+      {content.sections.filter((s) => !only || only.includes(s.title)).map((s) => (
         <Card key={s.title} title={s.title}>
           <div className="flex flex-col gap-4">
             {s.texts.map((f) => (
