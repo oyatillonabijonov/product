@@ -210,8 +210,8 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
               <p className="flex items-center gap-1.5 text-label font-medium text-verified"><Check className="h-4 w-4" strokeWidth={2.4} /> {t.cfgAllOk}</p>
             )}
             {issues.map((i) => (
-              <p key={i.slot + i.code} className={`flex items-center gap-1.5 text-label ${i.level === 'block' ? 'text-sale' : 'text-new'}`}>
-                <AlertTriangle className="h-4 w-4 shrink-0" /> {SLOT_UI[i.slot].label(t)}: {reason(t, i)}
+              <p key={i.slot + i.code} className="flex items-center gap-1.5 text-label text-primary">
+                <AlertTriangle className={`h-4 w-4 shrink-0 ${i.level === 'block' ? 'text-sale' : 'text-new'}`} /> {SLOT_UI[i.slot].label(t)}: {reason(t, i)}
               </p>
             ))}
             {anyOnOrder && <p className="text-label text-muted-2">{t.cfgOnOrderNote}</p>}
