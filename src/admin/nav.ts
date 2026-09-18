@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  BookOpen, Boxes, Briefcase, FileText, House, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Plug,
+  BookOpen, Boxes, Briefcase, FileText, House, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Phone, Plug,
   Receipt, Settings, Shapes, Smartphone, Store, Tag, UserRound, Users, Wallet,
 } from 'lucide-react';
 import type { AdminRoute, SectionId } from './lib/admin-path';
@@ -55,6 +55,7 @@ export const SECTIONS: SectionDef[] = [
     id: 'settings', label: 'Sozlamalar', short: 'Sozlash', Icon: Settings,
     tabs: [
       { id: 'store', segment: 'store', label: "Do'kon", Icon: Store, ownPage: true },
+      { id: 'contact', segment: 'contact', label: 'Aloqa', Icon: Phone, ownPage: true },
       { id: 'payment', segment: 'payment', label: "To'lov va kurs", Icon: Wallet },
       { id: 'integrations', segment: 'integrations', label: 'Integratsiyalar', Icon: Plug },
       { id: 'account', segment: 'account', label: 'Akkaunt', Icon: UserRound },
