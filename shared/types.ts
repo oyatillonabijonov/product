@@ -31,6 +31,8 @@ export interface ApiProduct {
   ratingAvg: number | null;
   /** Sharhlar soni; 0 = hali sharh yo'q. */
   reviewCount: number;
+  /** Oldindan buyurtma (pre-order): sahifada "Yangi" o'rniga "Pre-order", tugma matni boshqa. */
+  preorder: boolean;
   /** Billz tovar UUID'si — sinxronizatsiya bog'lanishi; qo'lda kiritilgan mahsulotda `null`. */
   billzId: string | null;
   /** Billz'dagi qoldiq (tanlangan do'kon); qo'lda kiritilganda `null`. */

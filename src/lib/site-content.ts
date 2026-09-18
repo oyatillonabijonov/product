@@ -87,8 +87,6 @@ export const TEXT_FIELDS: TextField[] = [
   productPage('svcWarrantyFact', 'Kafolat — muddat'),
   productPage('feature2', 'Kafolat — izoh'),
   productPage('trustShort', "Muddatli to'lov qatori", 'text', "Faqat muddatli to'lov yoqilganda chiqadi"),
-  productPage('helpTitle', 'Yordam — savol'),
-  productPage('helpContact', 'Yordam — havola matni'),
   productPage('setupTitle', 'Apple sozlash — sarlavha', 'text', 'Faqat Apple mahsulotlarida, sahifa oxirida'),
   productPage('setupText', 'Apple sozlash — matn', 'textarea'),
   productPage('setupCta', 'Apple sozlash — tugma'),

@@ -225,6 +225,12 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
               on={form.isActive}
               onChange={(v) => set('isActive', v)}
             />
+            <SwitchRow
+              label="Pre-order"
+              hint="Sotuvga hali chiqmagan: saytda «Pre-order» yorlig'i, tugma — «Oldindan buyurtma berish»."
+              on={form.preorder}
+              onChange={(v) => set('preorder', v)}
+            />
             <div className="flex flex-wrap items-center justify-between gap-4 py-3">
               <div>
                 <p className="text-para text-primary">Holati</p>

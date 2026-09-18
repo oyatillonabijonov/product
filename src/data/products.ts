@@ -39,6 +39,8 @@ export interface Product {
   ratingAvg?: number | null;
   /** Sharhlar soni; 0 = hali sharh yo'q. */
   reviewCount?: number;
+  /** Oldindan buyurtma (pre-order). */
+  preorder?: boolean;
 }
 
 export interface Term {
