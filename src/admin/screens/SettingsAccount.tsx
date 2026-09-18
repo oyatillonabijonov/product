@@ -16,10 +16,17 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [rawBase, setBase] = useState({ username: '', googleEmail: '' });
+  const base = rawBase as { username: string; googleEmail: string };
 
   useEffect(() => {
     getAccount()
-      .then((a) => { setUsername(a.username); setGoogleEmail(a.adminGoogleEmail); setLoaded(true); })
+      .then((a) => {
+        setUsername(a.username);
+        setGoogleEmail(a.adminGoogleEmail);
+        setBase({ username: a.username, googleEmail: a.adminGoogleEmail });
+        setLoaded(true);
+      })
       .catch(() => setError("Sahifani yangilab qayta urinib ko'ring"));
   }, []);
 
@@ -35,6 +42,7 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
       });
       setCurrentPassword('');
       setNewPassword('');
+      setBase({ username: (username as string).trim(), googleEmail: (googleEmail as string).trim() });
       toast('Saqlandi · keyingi kirishda yangi maʼlumotlardan foydalaning');
       if (changedPassword) onPasswordChanged();
     } catch (e) {
@@ -44,12 +52,16 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
     }
   }
 
-  const canSave = !busy && (currentPassword as string) !== '';
+  const dirty = (username as string).trim() !== base.username
+    || (googleEmail as string).trim() !== base.googleEmail
+    || (newPassword as string) !== '';
+  const canSave = !busy && dirty && (currentPassword as string) !== '';
 
   return (
     <Page
       title="Akkaunt"
       description="Admin panelga kirish maʼlumotlari. O'zgartirish uchun joriy parolni kiriting."
+      dirty={dirty}
       actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
     >
       <SectionTabs section="settings" active="account" />
