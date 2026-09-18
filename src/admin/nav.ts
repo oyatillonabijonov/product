@@ -59,7 +59,7 @@ export const SECTIONS: SectionDef[] = [
       { id: 'payment', segment: 'payment', label: "To'lov va kurs", Icon: Wallet, ownPage: true },
       { id: 'integrations', segment: 'integrations', label: 'Integratsiyalar', Icon: Plug, ownPage: true },
       { id: 'seo', segment: 'seo', label: 'SEO', Icon: Search, ownPage: true },
-      { id: 'account', segment: 'account', label: 'Akkaunt', Icon: UserRound },
+      { id: 'account', segment: 'account', label: 'Akkaunt', Icon: UserRound, ownPage: true },
     ],
   },
 ];

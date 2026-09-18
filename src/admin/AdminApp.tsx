@@ -43,7 +43,7 @@ import VacanciesList from './screens/VacanciesList';
 import VacancyEdit from './screens/VacancyEdit';
 import VacanciesText, { VACANCIES_TEXT_ID } from './screens/VacanciesText';
 import SettingsIntegrations from './screens/SettingsIntegrations';
-import AccountForm from './AccountForm';
+import SettingsAccount from './screens/SettingsAccount';
 
 const DEFAULT_PW_KEY = 'admin-default-pw';
 
@@ -70,17 +70,7 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
     case 'settings/payment': return <SettingsPayment />;
     case 'settings/integrations': return <SettingsIntegrations />;
     case 'settings/seo': return <SettingsSeo />;
-    case 'settings/account':
-      return (
-        <>
-          {defaultPw && (
-            <p className="mb-6 rounded-sm border border-danger/30 bg-danger/5 px-4 py-3 text-para text-danger">
-              <b>Diqqat:</b> standart «admin» paroli ishlatilmoqda — quyida yangi parol qo'ying.
-            </p>
-          )}
-          <AccountForm onPasswordChanged={clearDefaultPw} />
-        </>
-      );
+    case 'settings/account': return <SettingsAccount defaultPw={defaultPw} onPasswordChanged={clearDefaultPw} />;
     default: return null;
   }
 }

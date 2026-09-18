@@ -368,6 +368,10 @@ Integratsiyalar tabida qoladi (aks holda bot/Billz/OAuth maydonlari ochilmay qol
 ulashish rasmi va favicon o'zgarishsiz yuklanadi (WebP ijtimoiy oldindan ko'rishda ishonchsiz), yuklagich endi `accept` bo'yicha
 ham filtrlaydi.
 
+5b qarorlari (2026-09-18): muddat qatoridagi namuna oylik to'lov biznes yadrosidan (`monthlyPayment` — `calcInstallment` ham
+shuni chaqiradi, admin formulani takrorlamaydi); Billz kaliti, do'koni, holati va «Sinxronlash» bitta kartada; standart parol
+ogohlantirishi `AdminApp`dan Akkaunt ekraniga ko'chdi; Akkauntda «Saqlash» joriy parol kiritilguncha o'chiq turadi.
+
 ## 8. Xavfsizlik va kesh
 
 Yangi route'lar `requireAdmin` + `parseBody`; sirlar `publicSiteConfig`da avvalgidek bo'shatiladi; matnlar
