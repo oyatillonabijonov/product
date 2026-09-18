@@ -5,8 +5,6 @@
  * Spec: docs/superpowers/specs/2026-09-18-pc-konfigurator-moslik-design.md
  */
 
-import { nameKey } from './billz.ts';
-
 export type SlotKey = 'cpu' | 'mb' | 'ram' | 'gpu' | 'psu' | 'ssd' | 'case';
 
 /** Bo'g'in → tovar turi (`product_types`, `pc` yo'nalishi). Tartib — UI'dagi qadamlar tartibi. */
@@ -278,6 +276,23 @@ export interface ConfigPartRow {
 export interface ConfigPart { id: string; name: string; image: string; priceUzs: number; inStock: boolean; attrs: PartAttrs }
 
 /**
+ * Konfigurator dedupe kaliti — `nameKey` (billz.ts, sinxronizatsiya guruhlash uchun, o'zgartirilmaydi)
+ * dan farqli, karta yozuvidagi yaqin-dublikatlarni ham baholaydi: bir xil tovar turli qatorlarda
+ * turli prefiks ("CPU "/"Motherboard ") va rang qo'shimchasi ("/ Black", ba'zan takrorlanib
+ * "... Black / Black") bilan kelishi mumkin.
+ */
+function partKey(name: string): string {
+  const stripped = name
+    .toLowerCase()
+    .replace(/[™®]/g, '')
+    .replace(/^(?:cpu|gpu|psu|ram|motherboard)\s+/, '')
+    .trim();
+  const dedupedColor = stripped.replace(/\s+(\S+)\s*\/\s*\1$/, '');
+  const withoutColor = dedupedColor !== stripped ? dedupedColor : stripped.replace(/\s*\/\s*.+$/, '');
+  return withoutColor.replace(/\s+/g, ' ').trim();
+}
+
+/**
  * Loader qatorlari → bo'g'in bo'yicha qismlar. Omborda: Billz qoldig'i > 0 yoki qo'lda kiritilgan faol tovar.
  * Nom bo'yicha dublikat (sinxronizatsiya eski dublikatni `is_active=0, billz_stock=0` qilib qoldiradi) —
  * omborda bori, keyin faoli saqlanadi. Tartib: omborda bori oldin, keyin arzonroq.
@@ -289,7 +304,7 @@ export function toConfigParts(rows: ConfigPartRow[]): Partial<Record<SlotKey, Co
     const slot = slotForType(row.type);
     if (!slot) continue;
     const inStock = (row.billz_stock ?? 0) > 0 || (row.billz_id === null && row.is_active === 1);
-    const key = `${slot}|${nameKey(row.name)}`;
+    const key = `${slot}|${partKey(row.name)}`;
     const cur = best.get(key);
     const cand = { row, inStock, slot };
     if (!cur || rank(cand) > rank(cur)) best.set(key, cand);

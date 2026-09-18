@@ -200,4 +200,23 @@ describe('toConfigParts', () => {
     const out = toConfigParts([row({ name: 'Noma\'lum', pc_socket: 'AM5' })]);
     expect(out.cpu?.[0].attrs.socket).toBe('AM5');
   });
+  it("yaqin-dublikat nomlar (\"CPU \" prefiksi, \"/ Rang\" qo'shimchasi) bitta qismga birlashadi", () => {
+    const bySuffix = toConfigParts([
+      row({ id: 'old', name: 'Intel Core i7 14700F / Silver', billz_stock: 0, is_active: 0 }),
+      row({ id: 'new', name: 'Intel Core i7 14700f', billz_stock: 2 }),
+    ]);
+    expect(bySuffix.cpu?.map((p) => p.id)).toEqual(['new']);
+
+    const byPrefix = toConfigParts([
+      row({ id: 'old', name: 'CPU Intel Core i5 2400', billz_stock: 0, is_active: 0 }),
+      row({ id: 'new', name: 'Intel Core i5 2400', billz_stock: 1 }),
+    ]);
+    expect(byPrefix.cpu?.map((p) => p.id)).toEqual(['new']);
+
+    const byDupColor = toConfigParts([
+      row({ id: 'old', name: 'Motherboard Asus Z790 Max Gaming WiFi7 Black / Black', type: 'motherboard', billz_stock: 0, is_active: 0 }),
+      row({ id: 'new', name: 'Asus Z790 Max Gaming WiFi7 / Black', type: 'motherboard', billz_stock: 1 }),
+    ]);
+    expect(byDupColor.mb?.map((p) => p.id)).toEqual(['new']);
+  });
 });
