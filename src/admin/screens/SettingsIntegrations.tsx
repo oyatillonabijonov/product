@@ -18,10 +18,15 @@ const SettingsIntegrations: FC = () => {
   const [rawShops, setShops] = useState([] as BillzShop[]);
   const shops = rawShops as BillzShop[];
   const [shopsBusy, setShopsBusy] = useState(false);
+  const [rawStatusError, setStatusError] = useState('');
+  const statusError = rawStatusError as string;
+  const [syncBusy, setSyncBusy] = useState(false);
   const config = cfg.config;
 
   function loadStatus() {
-    getBillzStatus().then(setStatus).catch(() => setStatus(null));
+    return getBillzStatus()
+      .then((s) => { setStatus(s); setStatusError(''); })
+      .catch((e) => setStatusError(errText(e)));
   }
   useEffect(() => { loadStatus(); }, []);
   // Sinxronizatsiya fon vazifasi — ishlayotganda 3 soniyada bir holat so'raladi.
@@ -56,12 +61,15 @@ const SettingsIntegrations: FC = () => {
   }
 
   async function sync() {
+    setSyncBusy(true);
     try {
       await runBillzSync();
       toast('Sinxronizatsiya boshlandi');
-      loadStatus();
+      await loadStatus();
     } catch (e) {
       toast(errText(e), 'error');
+    } finally {
+      setSyncBusy(false);
     }
   }
 
@@ -98,10 +106,11 @@ const SettingsIntegrations: FC = () => {
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Button variant="secondary" onClick={loadShops} disabled={shopsBusy}>{shopsBusy ? 'Yuklanmoqda…' : "Do'konlarni yuklash"}</Button>
-                <Button variant="secondary" onClick={sync} disabled={!status?.configured || status.running}>Sinxronlash</Button>
+                <Button variant="secondary" onClick={sync} disabled={!status?.configured || status.running || syncBusy}>Sinxronlash</Button>
               </div>
               <p className="mt-3 text-label text-muted-2">
-                {!status ? 'Holat yuklanmoqda…'
+                {statusError ? `Holat o'qilmadi: ${statusError}`
+                  : !status ? 'Holat yuklanmoqda…'
                   : !status.configured ? "Sozlanmagan — kalit va do'konni saqlang."
                   : status.running ? 'Ishlayapti…'
                   : !last ? 'Hali sinxronlanmagan.'

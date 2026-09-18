@@ -213,7 +213,7 @@ API'sidan (oxirgi 200 ta) id bo'yicha — alohida GET yo'q; holat o'zgarsa sideb
   Telegram bot (token, chat ID, ko'rsatma), Mijoz kirishi (Google ID/secret, TG login bot), Analitika (Metrica).
 - **SEO** — sarlavha qo'shimchasi, bosh sahifa tavsifi, OG rasmi (yuklash — `ogImage` yo'liga yoziladi),
   katalog tavsif shabloni (`metaCatalogDesc`, izoh: `{title}` va `{store}` joyida qoladi).
-- **Akkaunt** — login/parol o'zgartirish, Google admin kirishi (bor `AccountForm` mantiqi).
+- **Akkaunt** — login/parol o'zgartirish, Google admin kirishi (`SettingsAccount.tsx`).
 
 ## 6. Ma'lumotlar — migratsiya `0035_product_types.sql`
 
@@ -388,6 +388,8 @@ Sof mantiq (vitest): `mergeTexts`, `parseAdminPath`, `categoryTiles(types, …)`
 
 ## 10. Bosqichlar (har biri ishlaydigan holatda)
 
+**Holat (2026-09-18): oltala bosqich bajarildi** — 1 qobiq, 2 mahsulotlar, 3 buyurtmalar, 4a/4b kontent, 5a/5b sozlamalar, 6 tozalash va hujjat.
+
 1. **Qobiq + kit** — `src/admin/ui/`, `parseAdminPath`, yangi `AdminApp` (sidebar/tab bar), dashboard + API,
    login. Eski ekranlar vaqtincha yangi qobiq ichida.
 2. **Mahsulotlar** — ro'yxat + tahrir (Billz'ga qarab), migratsiya `0035`, turlar CRUD + sayt/Billz bazadan,
@@ -397,7 +399,7 @@ Sof mantiq (vitest): `mergeTexts`, `parseAdminPath`, `categoryTiles(types, …)`
    huquqiy izohlar); bannerlar/yangiliklar/blog/vakansiyalar + "Sahifa matni"; `TermsBento` o'chirish; video
    yuklash + Range.
 5. **Sozlamalar** — 6 tab, bitta telefon, va'dalar kartasi, OG yuklash, integratsiyalar bir joyda.
-6. **Tozalash + hujjat** — eski komponentlar o'chadi, `CLAUDE.md`, `docs/egasi-qollanmasi.md`.
+6. **Tozalash + hujjat** — eski komponentlar o'chadi, `CLAUDE.md`, `docs/egasi-qollanmasi.md`. Eski komponentlar bosqichma-bosqich (2b, 3, 4b, 5b) o'chirilgani uchun bu bosqichda o'chiriladigan fayl qolmadi.
 
 ## 11. Fayl xaritasi
 

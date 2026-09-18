@@ -21,12 +21,14 @@ export interface SiteConfigState {
 export function useSiteConfig(): SiteConfigState {
   const [rawConfig, setConfig] = useState(null as ApiSiteConfig | null);
   const config = rawConfig as ApiSiteConfig | null;
-  const [dirty, setDirty] = useState(false);
+  // Saqlangan holat — `dirty` shu bilan solishtirishdan chiqadi, aks holda qiymat asliga qaytsa ham "o'zgargan" bo'lib qolardi.
+  const [rawSaved, setSaved] = useState('');
+  const saved = rawSaved as string;
   const [error, setError] = useState('');
 
   useEffect(() => {
     getSiteConfig()
-      .then(setConfig)
+      .then((c) => { setConfig(c); setSaved(JSON.stringify(c)); })
       .catch(() => setError("Sahifani yangilab qayta urinib ko'ring"));
   }, []);
 
@@ -34,12 +36,13 @@ export function useSiteConfig(): SiteConfigState {
     loaded: config !== null,
     error: error as string,
     config,
-    dirty: dirty as boolean,
-    set: (key, value) => { setConfig((c: ApiSiteConfig | null) => (c ? { ...c, [key]: value } : c)); setDirty(true); },
+    dirty: config !== null && JSON.stringify(config) !== saved,
+    set: (key, value) => setConfig((c: ApiSiteConfig | null) => (c ? { ...c, [key]: value } : c)),
     save: async () => {
       if (!config) return;
-      setConfig(await updateSiteConfig(config));
-      setDirty(false);
+      const next = await updateSiteConfig(config);
+      setConfig(next);
+      setSaved(JSON.stringify(next));
     },
   };
 }
