@@ -36,6 +36,8 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
   const [activeRaw, setActive] = useState(slots[0] ?? 'cpu');
   const [pickedRaw, setPicked] = useState({});
   const [removedRaw, setRemoved] = useState([]);
+  const [stockOnlyRaw, setStockOnly] = useState(false);
+  const stockOnly = stockOnlyRaw as boolean;
   const picked = pickedRaw as Partial<Record<SlotKey, ConfigPart>>;
   const removed = removedRaw as SlotKey[];
   const cart = useCart();
@@ -118,14 +120,31 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
 
       <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
         <div className="rounded-xl bg-surface p-4 md:p-6">
-          <h3 className="px-1 text-lede font-semibold">{SLOT_UI[active].label(t)}</h3>
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-1">
+            <h3 className="text-lede font-semibold">{SLOT_UI[active].label(t)}</h3>
+            {/* Barcha pozitsiyalar ↔ faqat omborda — tanlangan yon qalin matn bilan ajraladi. */}
+            <div className="flex items-center gap-2.5 text-label">
+              <span className={stockOnly ? 'text-muted-2' : 'text-primary'}>{t.cfgAllItems}</span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={stockOnly}
+                aria-label={t.cfgStockOnly}
+                onClick={() => setStockOnly(!stockOnly)}
+                className={`press relative h-7 w-12 shrink-0 rounded-full ${stockOnly ? 'bg-cta' : 'bg-fill-2'}`}
+              >
+                <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white transition-[left] duration-200 ${stockOnly ? 'left-[22px]' : 'left-0.5'}`} />
+              </button>
+              <span className={stockOnly ? 'text-primary' : 'text-muted-2'}>{t.cfgStockOnly}</span>
+            </div>
+          </div>
           {removed.length > 0 && (
             <p className="mt-3 px-1 text-label text-new">
               {t.cfgRemoved.replace('{slots}', removed.map((k) => SLOT_UI[k].label(t)).join(', '))}
             </p>
           )}
           <ul className="mt-4 flex max-h-[560px] flex-col gap-2 overflow-y-auto">
-            {(parts[active] ?? []).map((part) => {
+            {(parts[active] ?? []).filter((part) => !stockOnly || part.inStock).map((part) => {
               const on = picked[active]?.id === part.id;
               const state = candidateState(active, part.attrs, pickedAttrs);
               const disabled = !!state.block;
