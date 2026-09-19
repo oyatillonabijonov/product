@@ -1,5 +1,7 @@
 import type { FC } from 'react';
 import { Link, useLocation } from 'react-router';
+import { motion } from 'motion/react';
+import { SPRING_UI } from '../lib/motion';
 import { Home, TextSearch, Heart, ShoppingCart, User } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Translation } from '../locales';
@@ -13,8 +15,9 @@ import { useFavorites } from './FavoritesContext';
  * bosh barmoq pastda yetadi. Joriy bo'lim `text-primary`, qolgani `text-muted-2`.
  * `StoreLayout` sahifa ostiga shu balandlikda bo'sh joy qoldiradi, `ContactFab` va cookie
  * banneri undan yuqorida turadi. iPhone'ning pastki "home" chizig'i uchun safe-area.
+ * `hidden` — bosh sahifa hero'si ekranda turganda panel pastga yashirinadi (StoreLayout).
  */
-const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean }> = ({ t, locale, signedIn }) => {
+const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean; hidden?: boolean }> = ({ t, locale, signedIn, hidden = false }) => {
   const { pathname } = useLocation();
   const { count } = useCart();
   const { count: favCount } = useFavorites();
@@ -34,8 +37,13 @@ const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean }> = 
   ];
 
   return (
-    <nav
+    <motion.nav
       aria-label={t.navCatalog}
+      aria-hidden={hidden}
+      inert={hidden}
+      initial={false}
+      animate={{ y: hidden ? '100%' : '0%' }}
+      transition={SPRING_UI}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="grid grid-cols-5">
@@ -59,7 +67,7 @@ const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean }> = 
           </li>
         ))}
       </ul>
-    </nav>
+    </motion.nav>
   );
 };
 

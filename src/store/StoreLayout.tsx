@@ -1,4 +1,6 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { motion } from 'motion/react';
+import { SPRING_UI } from '../lib/motion';
 import { useLocation, useNavigation } from 'react-router';
 import { stripLocale } from '../../app/lib/i18n';
 import { ymHit } from '../lib/metrica';
@@ -42,6 +44,18 @@ export default function StoreLayout({
   const header = (
     <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} hasDeals={hasDeals} />
   );
+  // Bosh sahifada (mobil) hero to'liq ekran: header, pastki panel va aloqa tugmasi yashirin,
+  // foydalanuvchi pastga aylantirgach chiqadi. Boshqa sahifalarda doim ko'rinadi. SSR'da yashirin.
+  const [scrolledRaw, setScrolled] = useState(false);
+  const scrolled = scrolledRaw as boolean;
+  useEffect(() => {
+    if (!isHome) return;
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.25);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isHome]);
+  const chromeHidden = isHome && !scrolled;
   const firstHit = useRef(true);
   useEffect(() => {
     if (firstHit.current) { firstHit.current = false; return; }
@@ -65,13 +79,25 @@ export default function StoreLayout({
         {/* Bosh sahifada hero to'liq ekranni egallaydi va desktopda o'z "notch"
             navigatsiyasini olib yuradi. Notch hover bilan ochilgani uchun mobilda
             ishlamaydi — u yerda odatdagi header qoladi. */}
-        {isHome ? <div className="md:hidden">{header}</div> : header}
+        {isHome ? (
+          // Hero ustida suzadi (fixed) — chiqqanda kontentni surmaydi; yuqoridan tushib keladi.
+          <motion.div
+            className="fixed inset-x-0 top-0 z-40 md:hidden"
+            initial={false}
+            animate={{ y: chromeHidden ? '-100%' : '0%' }}
+            transition={SPRING_UI}
+            aria-hidden={chromeHidden}
+            inert={chromeHidden}
+          >
+            {header}
+          </motion.div>
+        ) : header}
         {/* `lg`gacha pastki panel (MobileTabBar) kontentni yopmasin — footer ostida uning balandligicha joy. */}
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} categories={categories} hasDeals={hasDeals} />
         <div aria-hidden className="h-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" />
-        <MobileTabBar t={t} locale={locale} signedIn={customer !== null} />
-        <ContactFab t={t} config={config} />
+        <MobileTabBar t={t} locale={locale} signedIn={customer !== null} hidden={chromeHidden} />
+        {!chromeHidden && <ContactFab t={t} config={config} />}
         <CookieBanner t={t} />
       </div>
      </CurrencyProvider>
