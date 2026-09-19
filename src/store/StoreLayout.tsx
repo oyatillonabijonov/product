@@ -8,6 +8,7 @@ import type { ApiCategory, ApiCustomer, ApiSiteConfig } from '../../shared/types
 import type { PageLink } from '../../app/lib/loaders';
 import type { SiteAssets } from '../lib/site-content';
 import Header from './Header';
+import MobileTabBar from './MobileTabBar';
 import Footer from './Footer';
 import ContactFab from './ContactFab';
 import CookieBanner from './CookieBanner';
@@ -65,8 +66,11 @@ export default function StoreLayout({
             navigatsiyasini olib yuradi. Notch hover bilan ochilgani uchun mobilda
             ishlamaydi — u yerda odatdagi header qoladi. */}
         {isHome ? <div className="md:hidden">{header}</div> : header}
+        {/* `lg`gacha pastki panel (MobileTabBar) kontentni yopmasin — footer ostida uning balandligicha joy. */}
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} categories={categories} hasDeals={hasDeals} />
+        <div aria-hidden className="h-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" />
+        <MobileTabBar t={t} locale={locale} signedIn={customer !== null} />
         <ContactFab t={t} config={config} />
         <CookieBanner t={t} />
       </div>

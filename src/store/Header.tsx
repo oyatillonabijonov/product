@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Search, ShoppingCart, LayoutGrid, X, Globe, User, Heart, Wallet } from 'lucide-react';
+import { Search, ShoppingCart, Menu, X, Globe, User, Heart, Wallet, ChevronDown } from 'lucide-react';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import { localizedPath, langToLocale, stripLocale, categoryLabel, type Locale } from '../../app/lib/i18n';
@@ -128,7 +128,7 @@ export default function Header({
     </form>
   );
 
-  // Katalog tugmasidagi ikonka: yopiq — grid, ochiq — ✕. Ikkalasi bir joyda ustma-ust turib
+  // Katalog tugmasidagi ikonka: yopiq — hamburger, ochiq — ✕. Ikkalasi bir joyda ustma-ust turib
   // almashadi (masshtab + shaffoflik + blur), tugma kengligi o'zgarmaydi.
   const iconOut = reduced ? { opacity: 0 } : { opacity: 0, scale: 0.25, filter: 'blur(4px)' };
   const toggleIcon = (cls: string) => (
@@ -142,13 +142,13 @@ export default function Header({
           transition={SPRING_SNAPPY}
           className="absolute inset-0"
         >
-          {catOpen ? <X className="size-full" /> : <LayoutGrid className="size-full" />}
+          {catOpen ? <X className="size-full" /> : <Menu className="size-full" />}
         </motion.span>
       </AnimatePresence>
     </span>
   );
 
-  // `lg`gacha valyuta, til va mavzu 1-qatorga sig'maydi — Katalog menyusining pastida turadi.
+  // `lg`gacha valyuta va mavzu Katalog menyusining pastida (til — 1-qatorda, logo o'ng tomonida).
   const settings = (
     <div className="lg:hidden flex flex-col gap-2 border-t border-line pt-6">
       <div className="flex gap-1" role="group" aria-label={t.currencyLabel}>
@@ -161,19 +161,6 @@ export default function Header({
             className={`${SEG} ${currency === c ? 'bg-accent text-bg' : 'bg-segment text-primary'}`}
           >
             {c}
-          </button>
-        ))}
-      </div>
-      <div className="flex gap-1" role="group" aria-label={t.langLabel}>
-        {(["O'zbek tili", 'Rus tili'] as const).map((l) => (
-          <button
-            key={l}
-            type="button"
-            aria-pressed={lang === l}
-            onClick={() => { closeMenu(); switchLang(l); }}
-            className={`${SEG} ${lang === l ? 'bg-accent text-bg' : 'bg-segment text-primary'}`}
-          >
-            {l === 'Rus tili' ? 'Русский' : "O'zbek"}
           </button>
         ))}
       </div>
@@ -305,6 +292,25 @@ export default function Header({
           </div>
         </div>
 
+        {/* `lg`gacha Sevimlilar · Savat · Profil pastki panelda (MobileTabBar), 1-qatorda esa til tanlagichi. */}
+        <div className="lg:hidden relative">
+          <span className="press pointer-events-none flex h-9 items-center gap-1.5 rounded-full bg-segment pl-3 pr-2.5 text-label text-primary">
+            <Globe className="h-4 w-4" />
+            {locale === 'ru' ? 'Русский' : "O'zbek"}
+            <ChevronDown className="h-4 w-4 text-muted-2" />
+          </span>
+          <select
+            value={lang}
+            onChange={(e) => switchLang(e.target.value as LangKey)}
+            aria-label={t.langLabel}
+            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          >
+            <option value="O'zbek tili">O'zbek</option>
+            <option value="Rus tili">Русский</option>
+          </select>
+        </div>
+
+        <div className="hidden lg:contents">
         <Link to={localizedPath(locale, '/sevimlilar')} className={ICON_COL} aria-label={t.accountTabFavorites}>
           <span className="relative">
             <Heart className="w-5 h-5" />
@@ -320,6 +326,7 @@ export default function Header({
           </span>
           <span className={ICON_LABEL}>{t.cartTitle}</span>
         </Link>
+        </div>
 
         <div className="hidden lg:contents">
           <div className={`rounded-sm relative focus-within:ring-2 focus-within:ring-accent/50 ${ICON_COL}`}>
@@ -346,7 +353,7 @@ export default function Header({
             Login sozlanmagan bo'lsa /kirish bosh sahifaga qaytaradi. */}
         <Link
           to={localizedPath(locale, customerName !== null ? '/kabinet' : '/kirish')}
-          className={ICON_COL}
+          className={`${ICON_COL} max-lg:hidden`}
           aria-label={customerName || t.navProfile}
           title={customerName || t.navProfile}
         >

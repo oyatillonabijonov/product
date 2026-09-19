@@ -16,7 +16,7 @@ const ContactFab: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config }
   if (!config.phone && !tgHref && !waHref) return null;
 
   return (
-    <div className="md:hidden fixed bottom-5 right-4 z-40 flex flex-col items-end gap-2.5">
+    <div className="md:hidden fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-40 flex flex-col items-end gap-2.5">
       {open && (
         <>
           <div className="fixed inset-0 -z-10" onClick={() => setOpen(false)} />

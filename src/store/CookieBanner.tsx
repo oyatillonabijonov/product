@@ -28,7 +28,7 @@ const CookieBanner: FC<{ t: Translation }> = ({ t }) => {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-4">
+    <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-50 p-3 sm:p-4 lg:bottom-0">
       <div className=" rounded-lg max-w-[720px] mx-auto bg-surface border border-line-2 px-4 py-3 flex items-center gap-3">
         <Cookie className="w-5 h-5 shrink-0 text-accent" />
         <p className="flex-1 text-label text-body leading-snug">{t.cookieText}</p>

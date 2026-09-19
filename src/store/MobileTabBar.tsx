@@ -1,0 +1,66 @@
+import type { FC } from 'react';
+import { Link, useLocation } from 'react-router';
+import { Home, TextSearch, Heart, ShoppingCart, User } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import type { Translation } from '../locales';
+import { localizedPath, stripLocale, type Locale } from '../../app/lib/i18n';
+import { useCart } from './CartContext';
+import { useFavorites } from './FavoritesContext';
+
+/**
+ * Mobil pastki navigatsiya (`lg`gacha) — ilova tab bar'i naqshi: Bosh sahifa · Katalog ·
+ * Sevimlilar · Savat · Profil. Header'ning 1-qatoridagi ikonkalar `lg`gacha shu yerga ko'chgan —
+ * bosh barmoq pastda yetadi. Joriy bo'lim `text-primary`, qolgani `text-muted-2`.
+ * `StoreLayout` sahifa ostiga shu balandlikda bo'sh joy qoldiradi, `ContactFab` va cookie
+ * banneri undan yuqorida turadi. iPhone'ning pastki "home" chizig'i uchun safe-area.
+ */
+const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean }> = ({ t, locale, signedIn }) => {
+  const { pathname } = useLocation();
+  const { count } = useCart();
+  const { count: favCount } = useFavorites();
+  const path = stripLocale(pathname);
+
+  const tabs: { to: string; label: string; Icon: LucideIcon; active: boolean; badge?: number }[] = [
+    { to: '/', label: t.breadcrumbHome, Icon: Home, active: path === '/' },
+    { to: '/katalog', label: t.navCatalog, Icon: TextSearch, active: path.startsWith('/katalog') || path.startsWith('/category') },
+    { to: '/sevimlilar', label: t.accountTabFavorites, Icon: Heart, active: path === '/sevimlilar', badge: favCount },
+    { to: '/savat', label: t.cartTitle, Icon: ShoppingCart, active: path === '/savat', badge: count },
+    {
+      to: signedIn ? '/kabinet' : '/kirish',
+      label: t.navProfile,
+      Icon: User,
+      active: path === '/kabinet' || path === '/kirish',
+    },
+  ];
+
+  return (
+    <nav
+      aria-label={t.navCatalog}
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] lg:hidden"
+    >
+      <ul className="grid grid-cols-5">
+        {tabs.map(({ to, label, Icon, active, badge }) => (
+          <li key={to}>
+            <Link
+              to={localizedPath(locale, to)}
+              aria-current={active ? 'page' : undefined}
+              className={`press flex h-16 flex-col items-center justify-center gap-1 ${active ? 'text-primary' : 'text-muted-2'}`}
+            >
+              <span className="relative">
+                <Icon className="h-6 w-6" strokeWidth={active ? 2 : 1.6} />
+                {!!badge && (
+                  <span className="absolute -right-2.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-sale px-1 text-label font-bold leading-none text-white">
+                    {badge}
+                  </span>
+                )}
+              </span>
+              <span className="text-label leading-none">{label}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+};
+
+export default MobileTabBar;
