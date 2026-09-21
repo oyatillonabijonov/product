@@ -40,20 +40,39 @@ function isPrivateHost(host: string): boolean {
     // O'rniga, birinchi 4 hex hekstetga qidiring va IPv4 ni qayta qurayotgan.
     const parts = suffix.split(':').filter((p) => p.length > 0);
     if (parts.length === 2) {
-      // Burada XXYY:ZZWW format yoki yanada qisqacha X:Z format
-      try {
-        const part1Hex = parts[0].padStart(4, '0');
-        const part2Hex = parts[1].padStart(4, '0');
-        const b1 = parseInt(part1Hex.slice(0, 2), 16);
-        const b2 = parseInt(part1Hex.slice(2, 4), 16);
-        const b3 = parseInt(part2Hex.slice(0, 2), 16);
-        const b4 = parseInt(part2Hex.slice(2, 4), 16);
-        if ([b1, b2, b3, b4].every((n) => Number.isFinite(n) && n >= 0 && n <= 255)) {
-          const ipv4 = `${b1}.${b2}.${b3}.${b4}`;
-          return PRIVATE_V4.some((re) => re.test(ipv4));
-        }
-      } catch {
-        // Ignore parsing errors
+      const part1Hex = parts[0].padStart(4, '0');
+      const part2Hex = parts[1].padStart(4, '0');
+      const b1 = parseInt(part1Hex.slice(0, 2), 16);
+      const b2 = parseInt(part1Hex.slice(2, 4), 16);
+      const b3 = parseInt(part2Hex.slice(0, 2), 16);
+      const b4 = parseInt(part2Hex.slice(2, 4), 16);
+      if ([b1, b2, b3, b4].every((n) => Number.isFinite(n) && n >= 0 && n <= 255)) {
+        const ipv4 = `${b1}.${b2}.${b3}.${b4}`;
+        return PRIVATE_V4.some((re) => re.test(ipv4));
+      }
+    }
+  }
+
+  // IPv4-compatible IPv6: ::a.b.c.d (deprecated RFC 4291, shu yo'lda birinchi bitta :: quyidagi).
+  // Normalizes to ::aabb:ccdd hex format. Loopback ekvivalenti (::127.0.0.1) bu yerda bloklandi.
+  if (h.startsWith('::') && !h.startsWith('::ffff:') && h !== '::1') {
+    const suffix = h.slice(2);
+    // Nuqtali o'nliklar format.
+    if (suffix.includes('.')) {
+      return PRIVATE_V4.some((re) => re.test(suffix));
+    }
+    // Hex format: exactly 2 parts for IPv4-compatible addresses.
+    const parts = suffix.split(':').filter((p) => p.length > 0);
+    if (parts.length === 2) {
+      const part1Hex = parts[0].padStart(4, '0');
+      const part2Hex = parts[1].padStart(4, '0');
+      const b1 = parseInt(part1Hex.slice(0, 2), 16);
+      const b2 = parseInt(part1Hex.slice(2, 4), 16);
+      const b3 = parseInt(part2Hex.slice(0, 2), 16);
+      const b4 = parseInt(part2Hex.slice(2, 4), 16);
+      if ([b1, b2, b3, b4].every((n) => Number.isFinite(n) && n >= 0 && n <= 255)) {
+        const ipv4 = `${b1}.${b2}.${b3}.${b4}`;
+        return PRIVATE_V4.some((re) => re.test(ipv4));
       }
     }
   }

@@ -49,6 +49,13 @@ describe('isSafeImageUrl', () => {
     expect(isSafeImageUrl('https://[febf::1]/a.jpg').ok).toBe(false);
   });
 
+  it('IPv4-compatible IPv6 addresses (deprecated ::a.b.c.d) ichki qatorlarni rad etadi', () => {
+    // ::127.0.0.1 normalizes to ::7f00:1 (loopback-equivalent)
+    expect(isSafeImageUrl('https://[::7f00:1]/a.jpg').ok).toBe(false);
+    // ::169.254.169.254 normalizes to ::a9fe:a9fe (link-local-equivalent)
+    expect(isSafeImageUrl('https://[::a9fe:a9fe]/a.jpg').ok).toBe(false);
+  });
+
   it('ochiq IP va 172.32 ichki emas', () => {
     expect(isSafeImageUrl('https://8.8.8.8/a.jpg').ok).toBe(true);
     expect(isSafeImageUrl('https://172.32.0.1/a.jpg').ok).toBe(true);
