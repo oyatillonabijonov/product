@@ -190,7 +190,7 @@ describe('dublikatlarni birlashtirish', () => {
 describe('saytdagi rasmni saqlash', () => {
   const photo = { url: 'https://fra1.digitaloceanspaces.com/b/x.jpg', key: 'products/billz-x.jpg' };
   const base = (over: Partial<import('./billz').MappedProduct> = {}): import('./billz').MappedProduct => ({
-    billzId: 'a', name: 'MacBook Air', slug: 'macbook-air-a', categoryId: 'apple', legacyCategory: 'mac', type: 'macbook',
+    billzId: 'a', name: 'MacBook Air', slug: 'macbook-air-a', categoryId: 'apple', type: 'macbook',
     brandId: 'apple', newBrand: null, cashPriceUzs: 1, oldPriceUzs: null, stock: 3, description: null, specs: [],
     photos: [], imageUrl: '', gallery: [], isActive: false, ...over,
   });
