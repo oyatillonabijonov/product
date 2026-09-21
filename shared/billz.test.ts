@@ -87,7 +87,6 @@ describe('mapBillzProduct', () => {
     expect(m?.billzId).toBe('2ce40c63-4527-4898-a975-7c30c255fd50');
     expect(m?.slug).toBe('iphone-17-pro-256gb-cosmic-orange-2ce40c63');
     expect(m?.categoryId).toBe('apple');
-    expect(m?.legacyCategory).toBe('iphone');
     expect(m?.type).toBe('iphone');
     expect(m?.brandId).toBe('apple');
     expect(m?.newBrand).toBeNull();
@@ -116,7 +115,6 @@ describe('mapBillzProduct', () => {
     const m = mapBillzProduct(raw({ custom_fields: [{ custom_field_name: 'Nad Kategoriya', custom_field_value: 'Gaming' }] }), ctx);
     expect(m?.categoryId).toBeNull();
     expect(m?.type).toBeNull();
-    expect(m?.legacyCategory).toBe('pc');
   });
   it('yangi brend', () => {
     const m = mapBillzProduct(raw({ brand_name: 'ADAM Audio' }), ctx);
@@ -153,7 +151,7 @@ describe('mapBillzProduct', () => {
 
 describe('dublikatlarni birlashtirish', () => {
   const mapped = (over: Partial<import('./billz').MappedProduct> = {}): import('./billz').MappedProduct => ({
-    billzId: 'a', name: 'Apple TV 4K', slug: 'apple-tv-4k-a', categoryId: 'apple', legacyCategory: 'mac', type: 'aksessuar',
+    billzId: 'a', name: 'Apple TV 4K', slug: 'apple-tv-4k-a', categoryId: 'apple', type: 'aksessuar',
     brandId: 'apple', newBrand: null, cashPriceUzs: 2142000, oldPriceUzs: null, stock: 1, description: null, specs: [],
     photos: [], imageUrl: '', gallery: [], isActive: false, ...over,
   });

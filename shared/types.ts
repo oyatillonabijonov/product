@@ -1,7 +1,6 @@
 import type { BillzSyncStatus, ManualField } from './billz';
 import type { ProductTypeRow } from './product-types';
 
-export type Category = 'iphone' | 'mac' | 'ipad' | 'pc';
 export type Condition = 'yangi' | 'ishlatilgan';
 export type PaymentMode = 'both' | 'cash' | 'installment';
 
@@ -13,7 +12,6 @@ export interface Term {
 export interface ApiProduct {
   id: string;
   name: string;
-  category: Category;
   condition: Condition;
   conditionNote: string | null;
   cashPriceUzs: number;
@@ -77,14 +75,8 @@ export interface ApiCategory {
   name: string;
   /** Ruscha nom; bo'sh bo'lsa UI o'zbekcha `name`ga tushadi. */
   nameRu: string;
-  iconUrl: string;
-  /** Preset icon key (saytda ishlatilmaydi, ustun qoldi); falls back to a generic icon when empty/unknown. */
-  icon: string;
-  /** Kategoriya sahifasidagi cover rasmi (R2 yo'li); bo'sh bo'lsa cover ko'rsatilmaydi. */
+  /** Kategoriya sahifasidagi cover rasmi; bo'sh bo'lsa cover ko'rsatilmaydi. */
   coverUrl: string;
-  /** Cover'dagi bir qatorli izoh (uz / ru); bo'sh bo'lsa faqat nom chiqadi. */
-  coverLede: string;
-  coverLedeRu: string;
   sortOrder: number;
 }
 
@@ -138,11 +130,11 @@ export interface ApiVariant {
   optionValueIds: string[];
 }
 
+/** Sayt ikki tilda chiqadi. `pages` jadvalidagi en/cyrl ustunlari eski
+ *  migratsiyalardan qolgan — o'qilmaydi ham, yozilmaydi ham. */
 export interface LocalizedText {
   uz: string;
   ru: string;
-  en: string;
-  uzCyrl: string;
 }
 
 export interface ApiBanner {
@@ -245,7 +237,6 @@ export interface ApiDeviceModel {
   name: string;
   brandId: string;
   categoryId: string;
-  legacyCategory: Category;
   chip: string;
   ram: string;
   camera: string;
@@ -261,7 +252,6 @@ export interface ApiSiteConfig {
   instagram: string;
   whatsapp: string;
   mapLl: string;
-  mapLabel: string;
   seoTitleSuffix: string;
   seoDescription: string;
   ogImage: string;

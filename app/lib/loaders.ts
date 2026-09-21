@@ -6,7 +6,6 @@ import {
   products as fallbackProducts,
   categories as fallbackCategories,
   brands as fallbackBrands,
-  fallbackCategoryOf,
 } from '../../src/data/products';
 import {
   rowToProduct, rowToCategory, rowToBrand, buildProductDetail, PRODUCT_COLS,
@@ -34,7 +33,7 @@ export interface ProductDetail extends Product {
 
 function mapProduct(p: ApiProduct): Product {
   return {
-    id: p.id, name: p.name, category: p.category, condition: p.condition,
+    id: p.id, name: p.name, condition: p.condition,
     conditionNote: p.conditionNote ?? undefined, image: p.imageUrl,
     cashPriceUzs: p.cashPriceUzs, oldPriceUzs: p.oldPriceUzs ?? null,
     minPriceUzs: p.minPriceUzs, brandId: p.brandId, categoryId: p.categoryId, type: p.type,
@@ -125,7 +124,7 @@ export async function loadProductsBy(
   } catch (err) {
     console.error('loadProductsBy fallback:', err);
     let items = fallbackProducts;
-    if (params.category) items = items.filter((p) => fallbackCategoryOf(p) === params.category);
+    if (params.category) items = items.filter((p) => p.categoryId === params.category);
     if (params.type) items = items.filter((p) => p.type === params.type);
     if (params.exclude) items = items.filter((p) => p.id !== params.exclude);
     for (const term of searchTerms((params.q ?? '').toLowerCase())) items = items.filter((p) => p.name.toLowerCase().includes(term));
@@ -291,7 +290,7 @@ export interface PageLink {
   title: LocalizedText;
 }
 
-export function staticSiteConfigAsApi(): ApiSiteConfig {
+function staticSiteConfigAsApi(): ApiSiteConfig {
   return {
     name: staticSiteConfig.name,
     phone: staticSiteConfig.phone,
@@ -300,7 +299,6 @@ export function staticSiteConfigAsApi(): ApiSiteConfig {
     instagram: staticSiteConfig.instagram,
     whatsapp: staticSiteConfig.whatsapp,
     mapLl: staticSiteConfig.map.ll,
-    mapLabel: staticSiteConfig.map.label,
     seoTitleSuffix: staticSiteConfig.seo.titleSuffix,
     seoDescription: staticSiteConfig.seo.description,
     ogImage: staticSiteConfig.seo.ogImage,
@@ -416,26 +414,6 @@ export async function loadPost(env: Env, slug: string): Promise<ApiPost | null> 
   } catch (err) {
     console.error('loadPost fallback:', err);
     return null;
-  }
-}
-
-export async function loadRail(env: Env, kind: 'deals' | 'latest', limit = 8): Promise<Product[]> {
-  try {
-    const where = kind === 'deals'
-      ? 'is_active = 1 AND old_price_uzs IS NOT NULL AND old_price_uzs > cash_price_uzs'
-      : 'is_active = 1';
-    const order = kind === 'deals' ? 'sort_order ASC, created_at ASC' : 'created_at DESC';
-    const { results } = await env.DB.prepare(
-      `SELECT ${PRODUCT_COLS} FROM products WHERE ${where} ORDER BY ${order} LIMIT ?`,
-    ).bind(limit).all<ProductRow>();
-    return results.map(rowToProduct).map(mapProduct);
-  } catch (err) {
-    console.error('loadRail fallback:', err);
-    // 'latest' fallback katalogdagi 'yangi' bilan bir xil: sample tartibi saqlanadi (created_at yo'q)
-    const all = kind === 'deals'
-      ? fallbackProducts.filter((p) => p.oldPriceUzs != null && p.oldPriceUzs > p.cashPriceUzs)
-      : fallbackProducts;
-    return all.slice(0, limit);
   }
 }
 

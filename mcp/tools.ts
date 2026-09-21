@@ -2,7 +2,6 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { basename, extname, join } from 'node:path';
 import { z } from 'zod';
 import type { ApiAdminBrand, ApiCategory, ApiProduct, ApiProductDetail, ApiProductType } from '../shared/types.ts';
-import { deriveLegacyCategory } from '../shared/legacy-category.ts';
 import { catalogStats, imageFilesOf, incompleteProducts, manualFieldsFor, detailToInput, type ProductPatch } from '../shared/mcp-tools.ts';
 import type { AdminClient } from './client.ts';
 
@@ -147,7 +146,7 @@ export function registerTools(
     };
     const images = parsed.imageUrls ?? [];
     const created = await api.write<{ id: string }>('/api/admin/products', 'POST', {
-      name: parsed.name, category: deriveLegacyCategory(parsed.categoryId), categoryId: parsed.categoryId, type: parsed.type,
+      name: parsed.name, categoryId: parsed.categoryId, type: parsed.type,
       condition: parsed.condition, conditionNote: null, cashPriceUzs: parsed.cashPriceUzs,
       oldPriceUzs: null, description: parsed.description ?? null,
       imageUrl: images[0] ?? '', images: images.slice(1), specs: parsed.specs ?? [],

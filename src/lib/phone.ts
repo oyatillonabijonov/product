@@ -19,3 +19,14 @@ export function isCompleteUzPhone(value: string): boolean {
   if (d.startsWith('998')) d = d.slice(3);
   return d.length === 9;
 }
+
+/**
+ * Ko'rinishdagi telefondan bosiladigan raqam: faqat raqamlar, oldida `+` (`tel:` havolasi shundan yasaladi).
+ * Mahalliy 9 raqam yozilsa `998` old qo'shiladi — saytdagi maska bilan bir qoida (yuqoridagi `formatUzPhone`).
+ * Egasi bitta maydonga ko'rinishini yozadi — `site_config.phone` shu yerda chiqariladi.
+ */
+export function phoneFromDisplay(display: string): string {
+  const digits = display.replace(/\D+/g, '');
+  if (digits === '') return '';
+  return `+${digits.length === 9 ? `998${digits}` : digits}`;
+}

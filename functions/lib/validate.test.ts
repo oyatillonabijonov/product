@@ -9,9 +9,7 @@ import {
   parseDeviceModelInput,
   parseSettingsInput,
   parseOrderInput,
-  parseEmailAuthInput,
   parseProfileInput,
-  parsePasswordInput,
   parseVacancyInput,
   parseJobApplicationInput,
   parseTypeInput,
@@ -19,7 +17,6 @@ import {
   parseAssetsInput,
   ValidationError,
 } from './validate';
-import { deriveLegacyCategory } from '../../shared/legacy-category';
 
 const base = { name: 'iPhone 17', category: 'iphone', condition: 'yangi', cashPriceUzs: 1000, imageUrl: '' };
 
@@ -118,36 +115,6 @@ describe('parseProductInput variants', () => {
   });
 });
 
-describe('parseProductInput category default (T7)', () => {
-  it('derives category from categoryId telefonlar when category omitted', () => {
-    const p = parseProductInput({
-      name: base.name, condition: base.condition, cashPriceUzs: base.cashPriceUzs, imageUrl: base.imageUrl,
-      categoryId: 'telefonlar',
-    });
-    expect(p.category).toBe('iphone');
-  });
-  it('defaults to pc when category and categoryId are both omitted', () => {
-    const p = parseProductInput({
-      name: base.name, condition: base.condition, cashPriceUzs: base.cashPriceUzs, imageUrl: base.imageUrl,
-    });
-    expect(p.category).toBe('pc');
-  });
-  it('defaults to pc when categoryId is null', () => {
-    const p = parseProductInput({
-      name: base.name, condition: base.condition, cashPriceUzs: base.cashPriceUzs, imageUrl: base.imageUrl,
-      categoryId: null,
-    });
-    expect(p.category).toBe('pc');
-  });
-  it('respects an explicit category (mac)', () => {
-    const p = parseProductInput({ ...base, category: 'mac' });
-    expect(p.category).toBe('mac');
-  });
-  it('throws on an explicit invalid category', () => {
-    expect(() => parseProductInput({ ...base, category: 'junk' })).toThrow('category_invalid');
-  });
-});
-
 describe('parseProductInput slug auto-derive (T7)', () => {
   it('derives the slug from the name when slug is omitted', () => {
     const p = parseProductInput({ ...base, name: 'iPhone 17 Pro' });
@@ -226,12 +193,11 @@ describe('parseBannerInput linkUrl', () => {
 });
 
 describe('parsePageInput', () => {
-  const title = { uz: 'FAQ', ru: 'FAQ', en: 'FAQ', uzCyrl: 'FAQ' };
+  const title = { uz: 'FAQ', ru: 'FAQ' };
   it('accepts a valid page and defaults empty content', () => {
     const p = parsePageInput({ slug: 'faq', title });
     expect(p.slug).toBe('faq');
-    expect(p.title.uzCyrl).toBe('FAQ');
-    expect(p.content).toEqual({ uz: '', ru: '', en: '', uzCyrl: '' });
+    expect(p.content).toEqual({ uz: '', ru: '' });
     expect(p.isActive).toBe(true);
   });
   it('rejects invalid slug', () => {
@@ -257,27 +223,6 @@ describe('parseSiteConfigInput', () => {
     expect(c.billzSecretToken).toBe('abc');
     expect(c.billzShopId).toBe('shop-1');
     expect(c.billzLastSync).toBe('');
-  });
-});
-
-describe('deriveLegacyCategory', () => {
-  it('maps telefonlar to iphone', () => {
-    expect(deriveLegacyCategory('telefonlar')).toBe('iphone');
-  });
-  it('maps planshetlar to ipad', () => {
-    expect(deriveLegacyCategory('planshetlar')).toBe('ipad');
-  });
-  it('maps noutbuklar to mac', () => {
-    expect(deriveLegacyCategory('noutbuklar')).toBe('mac');
-  });
-  it('maps aksessuarlar to pc', () => {
-    expect(deriveLegacyCategory('aksessuarlar')).toBe('pc');
-  });
-  it('maps kompyuterlar to pc', () => {
-    expect(deriveLegacyCategory('kompyuterlar')).toBe('pc');
-  });
-  it('maps null to pc', () => {
-    expect(deriveLegacyCategory(null)).toBe('pc');
   });
 });
 
@@ -315,24 +260,14 @@ describe('parseSiteConfigInput — paymentMode', () => {
 });
 
 describe('parseDeviceModelInput', () => {
-  it('happy path derives legacyCategory and slugified id, defaults', () => {
+  it('happy path slugified id, defaults', () => {
     const m = parseDeviceModelInput({ name: 'iPhone 16 Pro', brandId: 'apple', categoryId: 'telefonlar' });
-    expect(m.legacyCategory).toBe('iphone');
     expect(m.id).toBe('iphone-16-pro');
     expect(m.chip).toBe('');
     expect(m.ram).toBe('');
     expect(m.camera).toBe('');
     expect(m.display).toBe('');
     expect(m.sortOrder).toBe(0);
-  });
-  it('respects explicit legacyCategory', () => {
-    const m = parseDeviceModelInput({ name: 'Mac Studio', brandId: 'apple', categoryId: 'noutbuklar', legacyCategory: 'pc' });
-    expect(m.legacyCategory).toBe('pc');
-  });
-  it('rejects invalid legacyCategory', () => {
-    expect(() =>
-      parseDeviceModelInput({ name: 'X', brandId: 'apple', categoryId: 'telefonlar', legacyCategory: 'junk' }),
-    ).toThrow('legacy_category_invalid');
   });
   it('rejects missing name', () => {
     expect(() => parseDeviceModelInput({ brandId: 'apple', categoryId: 'telefonlar' })).toThrow('name_required');
@@ -382,22 +317,6 @@ describe('parseOrderInput', () => {
   });
 });
 
-describe('parseEmailAuthInput', () => {
-  const ok = { mode: 'register', email: 'A@B.com', password: 'secret123', name: '  Ali  ' };
-  it('emailni lower-case qiladi va name trim qiladi', () => {
-    expect(parseEmailAuthInput(ok)).toEqual({ mode: 'register', email: 'a@b.com', password: 'secret123', name: 'Ali' });
-  });
-  it("noto'g'ri mode rad etadi", () => {
-    expect(() => parseEmailAuthInput({ ...ok, mode: 'x' })).toThrow('mode_invalid');
-  });
-  it("noto'g'ri email rad etadi", () => {
-    expect(() => parseEmailAuthInput({ ...ok, email: 'bad' })).toThrow('email_invalid');
-  });
-  it('qisqa parolni rad etadi', () => {
-    expect(() => parseEmailAuthInput({ ...ok, password: 'short' })).toThrow('password_too_short');
-  });
-});
-
 describe('parseProfileInput', () => {
   it('ism trim, telefon ixtiyoriy', () => {
     expect(parseProfileInput({ name: '  Ali  ' })).toEqual({ name: 'Ali', phone: '' });
@@ -410,15 +329,6 @@ describe('parseProfileInput', () => {
   });
   it('to\'g\'ri telefonni qabul qiladi', () => {
     expect(parseProfileInput({ name: 'Ali', phone: '+998 90 123 45 67' })).toEqual({ name: 'Ali', phone: '+998 90 123 45 67' });
-  });
-});
-
-describe('parsePasswordInput', () => {
-  it('yangi parol qaytadi', () => {
-    expect(parsePasswordInput({ currentPassword: 'old', newPassword: 'newsecret1' })).toEqual({ currentPassword: 'old', newPassword: 'newsecret1' });
-  });
-  it('qisqa yangi parolni rad etadi', () => {
-    expect(() => parsePasswordInput({ newPassword: 'short' })).toThrow('password_too_short');
   });
 });
 

@@ -6,13 +6,11 @@ import mini from '../assets/images/mini.webp';
 import pc from '../assets/images/pc.webp';
 import type { ApiBrand } from '../../shared/types';
 
-export type Category = 'iphone' | 'mac' | 'ipad' | 'pc';
 export type Condition = 'yangi' | 'ishlatilgan';
 
 export interface Product {
   id: string;
   name: string;
-  category: Category;
   condition: Condition;
   /** Ishlatilgan uchun holat izohi, masalan "95% holat". */
   conditionNote?: string;
@@ -67,18 +65,12 @@ export const brands: ApiBrand[] = [
 ];
 
 /** Storefront kategoriyalari — API ishlamaganда namuna sifatida (migratsiya 0003 bilan mos). */
-export const categories: { id: string; name: string; nameRu: string; iconUrl: string; icon: string; coverUrl: string; coverLede: string; coverLedeRu: string; sortOrder: number }[] = [
-  { id: 'apple', name: 'Apple', nameRu: 'Apple', iconUrl: '', icon: 'smartphone', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 10 },
-  { id: 'pc', name: 'PC', nameRu: 'PC', iconUrl: '', icon: 'monitor', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 20 },
-  { id: 'audio', name: 'Audio', nameRu: 'Audio', iconUrl: '', icon: 'headphones', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 30 },
-  { id: 'video', name: 'Video', nameRu: 'Video', iconUrl: '', icon: 'camera', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 40 },
+export const categories: { id: string; name: string; nameRu: string; coverUrl: string; sortOrder: number }[] = [
+  { id: 'apple', name: 'Apple', nameRu: 'Apple', coverUrl: '', sortOrder: 10 },
+  { id: 'pc', name: 'PC', nameRu: 'PC', coverUrl: '', sortOrder: 20 },
+  { id: 'audio', name: 'Audio', nameRu: 'Audio', coverUrl: '', sortOrder: 30 },
+  { id: 'video', name: 'Video', nameRu: 'Video', coverUrl: '', sortOrder: 40 },
 ];
-
-/** Sample mahsulotni yo'nalishga bog'lash (migratsiya 0025 mantig'i). */
-export function fallbackCategoryOf(p: Product): string | null {
-  if (p.category === 'pc') return 'pc';
-  return 'apple'; // iphone / ipad / mac — hammasi Apple yo'nalishi
-}
 
 export const installmentConfig: InstallmentConfig = {
   downPaymentPercent: 20, // NAMUNA — admin o'zgartiradi
@@ -110,31 +102,31 @@ const macbookSpecs = [
 
 // NAMUNA narxlar — egasi keyin real narxlarga almashtiradi.
 export const products: Product[] = [
-  { id: 'iphone-17-pro', name: 'iPhone 17 Pro', category: 'iphone', condition: 'yangi', image: iph1, cashPriceUzs: 18_500_000, minPriceUzs: 18_500_000, specs: iphoneSpecs, description: 'Titan korpus, Apple A18 Pro chipi va professional kamera tizimi. Muddatli to\'lovga — pasport + boshlang\'ich to\'lov bilan.' },
-  { id: 'iphone-16', name: 'iPhone 16', category: 'iphone', condition: 'yangi', image: iph1, cashPriceUzs: 12_900_000, minPriceUzs: 12_900_000, specs: iphoneSpecs, description: 'Yangi avlod iPhone — kuchli protsessor va yaxshilangan kamera. Rasmiy kafolat bilan.' },
-  { id: 'macbook-pro', name: 'MacBook Pro', category: 'mac', condition: 'yangi', image: mac1, cashPriceUzs: 32_000_000, minPriceUzs: 32_000_000, specs: macbookSpecs, description: 'M4 Pro chipidagi professional noutbuk — video montaj, dasturlash va og\'ir vazifalar uchun.' },
-  { id: 'macbook-air', name: 'MacBook Air', category: 'mac', condition: 'yangi', image: mac1, cashPriceUzs: 19_900_000, minPriceUzs: 19_900_000, specs: macbookSpecs, description: 'Yengil va nozik korpus, kun bo\'yi batareya. Kundalik ishlar uchun ideal.' },
-  { id: 'ipad-pro', name: 'iPad Pro', category: 'ipad', condition: 'yangi', image: pad1, cashPriceUzs: 14_500_000, minPriceUzs: 14_500_000, specs: [
+  { id: 'iphone-17-pro', name: 'iPhone 17 Pro', categoryId: 'apple', condition: 'yangi', image: iph1, cashPriceUzs: 18_500_000, minPriceUzs: 18_500_000, specs: iphoneSpecs, description: 'Titan korpus, Apple A18 Pro chipi va professional kamera tizimi. Muddatli to\'lovga — pasport + boshlang\'ich to\'lov bilan.' },
+  { id: 'iphone-16', name: 'iPhone 16', categoryId: 'apple', condition: 'yangi', image: iph1, cashPriceUzs: 12_900_000, minPriceUzs: 12_900_000, specs: iphoneSpecs, description: 'Yangi avlod iPhone — kuchli protsessor va yaxshilangan kamera. Rasmiy kafolat bilan.' },
+  { id: 'macbook-pro', name: 'MacBook Pro', categoryId: 'apple', condition: 'yangi', image: mac1, cashPriceUzs: 32_000_000, minPriceUzs: 32_000_000, specs: macbookSpecs, description: 'M4 Pro chipidagi professional noutbuk — video montaj, dasturlash va og\'ir vazifalar uchun.' },
+  { id: 'macbook-air', name: 'MacBook Air', categoryId: 'apple', condition: 'yangi', image: mac1, cashPriceUzs: 19_900_000, minPriceUzs: 19_900_000, specs: macbookSpecs, description: 'Yengil va nozik korpus, kun bo\'yi batareya. Kundalik ishlar uchun ideal.' },
+  { id: 'ipad-pro', name: 'iPad Pro', categoryId: 'apple', condition: 'yangi', image: pad1, cashPriceUzs: 14_500_000, minPriceUzs: 14_500_000, specs: [
     { label: 'Ekran', value: '11" Ultra Retina XDR' },
     { label: 'Protsessor', value: 'Apple M4' },
     { label: 'Xotira', value: '256 GB' },
     { label: 'Apple Pencil', value: 'Pro qo\'llab-quvvatlaydi' },
   ] },
-  { id: 'imac', name: 'iMac', category: 'mac', condition: 'yangi', image: imac1, cashPriceUzs: 24_000_000, minPriceUzs: 24_000_000, specs: [
+  { id: 'imac', name: 'iMac', categoryId: 'apple', condition: 'yangi', image: imac1, cashPriceUzs: 24_000_000, minPriceUzs: 24_000_000, specs: [
     { label: 'Ekran', value: '24" 4.5K Retina' },
     { label: 'Protsessor', value: 'Apple M4' },
     { label: 'Operativ xotira', value: '16 GB' },
     { label: 'SSD', value: '512 GB' },
   ] },
-  { id: 'iphone-15-used', name: 'iPhone 15 (ishlatilgan)', category: 'iphone', condition: 'ishlatilgan', conditionNote: '95% holat', image: iph1, cashPriceUzs: 9_500_000, minPriceUzs: 9_500_000, specs: iphoneSpecs, description: 'Tekshirilgan, toza holatdagi iPhone 15. Ishlatilgan, lekin ishonchli.' },
-  { id: 'macbook-air-used', name: 'MacBook Air (ishlatilgan)', category: 'mac', condition: 'ishlatilgan', conditionNote: '90% holat', image: mac1, cashPriceUzs: 13_900_000, minPriceUzs: 13_900_000, specs: macbookSpecs, description: 'Ishlatilgan MacBook Air — tekshirilgan va tayyor. Arzon narxda.' },
-  { id: 'mac-mini', name: 'Mac Mini', category: 'mac', condition: 'yangi', image: mini, cashPriceUzs: 9_900_000, minPriceUzs: 9_900_000, specs: [
+  { id: 'iphone-15-used', name: 'iPhone 15 (ishlatilgan)', categoryId: 'apple', condition: 'ishlatilgan', conditionNote: '95% holat', image: iph1, cashPriceUzs: 9_500_000, minPriceUzs: 9_500_000, specs: iphoneSpecs, description: 'Tekshirilgan, toza holatdagi iPhone 15. Ishlatilgan, lekin ishonchli.' },
+  { id: 'macbook-air-used', name: 'MacBook Air (ishlatilgan)', categoryId: 'apple', condition: 'ishlatilgan', conditionNote: '90% holat', image: mac1, cashPriceUzs: 13_900_000, minPriceUzs: 13_900_000, specs: macbookSpecs, description: 'Ishlatilgan MacBook Air — tekshirilgan va tayyor. Arzon narxda.' },
+  { id: 'mac-mini', name: 'Mac Mini', categoryId: 'apple', condition: 'yangi', image: mini, cashPriceUzs: 9_900_000, minPriceUzs: 9_900_000, specs: [
     { label: 'Protsessor', value: 'Apple M4' },
     { label: 'Operativ xotira', value: '16 GB' },
     { label: 'SSD', value: '256 GB' },
     { label: 'Portlar', value: 'Thunderbolt 4, HDMI' },
   ] },
-  { id: 'workstation', name: 'Workstation PC', category: 'pc', condition: 'yangi', image: pc, cashPriceUzs: 21_000_000, minPriceUzs: 21_000_000, specs: [
+  { id: 'workstation', name: 'Workstation PC', categoryId: 'pc', condition: 'yangi', image: pc, cashPriceUzs: 21_000_000, minPriceUzs: 21_000_000, specs: [
     { label: 'Protsessor', value: 'Intel Core i9' },
     { label: 'Videokarta', value: 'NVIDIA RTX 4070' },
     { label: 'Operativ xotira', value: '32 GB DDR5' },

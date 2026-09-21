@@ -4,7 +4,7 @@ import type { Translation } from '../locales';
 import type { ApiCategory, ApiSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
 import { categoryLabel, localizedPath, localeToTextKey, type Locale } from '../../app/lib/i18n';
-import { safeHref } from '../lib/safe-href';
+import { safeHref } from '../../shared/safe-href';
 
 // ponytail: sahifalar guruhi slug bo'yicha. Yangi sahifa avtomatik "Xaridorlarga"
 // ustuniga tushadi; boshqa guruhga kerak bo'lsa slug shu to'plamlardan biriga qo'shiladi.

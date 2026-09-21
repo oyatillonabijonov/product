@@ -57,12 +57,8 @@ export const SPRING_MOMENTUM = spring(0.8, 0.4);
  * ochilishidagi bir martalik reveal (foydalanuvchi unga tegmaydi, demak uzilish
  * ham, tezlik merosi ham kerak emas).
  *
- * `EASE_APPLE` CSS'dagi `--ease-apple` bilan bitta qiymat — ikkalasi ajralib
- * ketmasligi uchun shu yerda ham yozilgan.
+ * Landing reveal'ining o'z egrisi — uzoqroq va yumshoqroq chiqish.
  */
-export const EASE_APPLE = [0.32, 0.72, 0, 1] as const;
-
-/** Landing reveal'ining o'z egrisi — uzoqroq va yumshoqroq chiqish. */
 export const EASE_GLIDE = [0.16, 1, 0.3, 1] as const;
 
 /**

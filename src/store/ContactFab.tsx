@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { Phone, Send, MessageCircle, X } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { ApiSiteConfig } from '../../shared/types';
-import { safeHref } from '../lib/safe-href';
+import { safeHref } from '../../shared/safe-href';
 import { ymGoal } from '../lib/metrica';
 
 /** Mobil suzuvchi aloqa tugmasi — bu bozorda mijozlarning katta qismi forma emas,

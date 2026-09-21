@@ -5,7 +5,6 @@ import { pageTitle, storeConfigFrom, productJsonLd, breadcrumbJsonLd, ogMeta, pr
 import { siteConfig } from '../lib/site.config';
 import { formatUzs } from '../../src/lib/installment';
 import { loadProductDetail, loadConfig, loadProductsBy, loadCategories, loadReviews } from '../lib/loaders';
-import { fallbackCategoryOf } from '../../src/data/products';
 import { translations } from '../../src/locales';
 import { firstParagraph } from '../../src/lib/markdown';
 import type { StoreContext } from '../../src/store/StoreLayout';
@@ -20,7 +19,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     loadReviews(env, params.id as string),
   ]);
   if (!product) throw new Response('Not Found', { status: 404 });
-  const categoryId = product.categoryId ?? fallbackCategoryOf(product);
+  const categoryId = product.categoryId;
   // O'xshashlar — avval shu turdagi (type) tovarlar, yetmasa shu yo'nalishdan;
   // tasodifiy tartib — aks holda har bir Apple sahifasida bir xil 4 ta aksessuar chiqardi.
   const similar = product.type

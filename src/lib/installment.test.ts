@@ -16,7 +16,6 @@ const config: InstallmentConfig = {
 const product: Product = {
   id: 'iphone-16',
   name: 'iPhone 16',
-  category: 'iphone',
   condition: 'yangi',
   image: 'x',
   cashPriceUzs: 10_000_000,

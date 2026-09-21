@@ -80,7 +80,7 @@ export function parseCart(raw: string | null): CartItem[] {
  * jami naqd summaga calcInstallment'ni qo'llash per-item hisoblar yig'indisiga teng. */
 export function cartInstallment(sumUzs: number, term: Term, config: InstallmentConfig): InstallmentResult {
   const pseudo: Product = {
-    id: '__cart__', name: '__cart__', category: 'pc', condition: 'yangi', image: '',
+    id: '__cart__', name: '__cart__', condition: 'yangi', image: '',
     cashPriceUzs: sumUzs, minPriceUzs: sumUzs,
   };
   return calcInstallment(pseudo, term, config);

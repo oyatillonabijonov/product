@@ -25,9 +25,7 @@ import type {
   OrderPaymentKind,
   OrderSource,
   OrderStatus,
-  Category,
   Condition,
-  PaymentMode,
   Term,
 } from '../../shared/types';
 import { rowToProductType, type ProductTypeDbRow } from '../../shared/product-types';
@@ -82,7 +80,6 @@ export function rowToProduct(row: ProductRow): ApiProduct {
   return {
     id: row.id,
     name: row.name,
-    category: row.category as Category,
     condition: row.condition as Condition,
     conditionNote: row.condition_note,
     cashPriceUzs: row.cash_price_uzs,
@@ -126,11 +123,7 @@ export interface CategoryRow {
   id: string;
   name: string;
   name_ru: string;
-  icon_url: string;
-  icon: string;
   cover_url: string;
-  cover_lede: string;
-  cover_lede_ru: string;
   sort_order: number;
 }
 
@@ -154,16 +147,12 @@ export function rowToCategory(row: CategoryRow): ApiCategory {
     id: row.id,
     name: row.name,
     nameRu: row.name_ru ?? '',
-    iconUrl: row.icon_url,
-    icon: row.icon ?? '',
     coverUrl: row.cover_url ?? '',
-    coverLede: row.cover_lede ?? '',
-    coverLedeRu: row.cover_lede_ru ?? '',
     sortOrder: row.sort_order,
   };
 }
 
-export function rowToSpec(row: SpecRow): ApiSpec {
+function rowToSpec(row: SpecRow): ApiSpec {
   return { label: row.label, value: row.value };
 }
 
@@ -523,16 +512,16 @@ export function rowToJobApplication(r: JobApplicationRow): ApiJobApplication {
 
 export interface PageRow {
   id: string; slug: string;
-  title_uz: string; title_ru: string; title_en: string; title_cyrl: string;
-  content_uz: string; content_ru: string; content_en: string; content_cyrl: string;
+  title_uz: string; title_ru: string;
+  content_uz: string; content_ru: string;
   sort_order: number; is_active: number;
 }
 
 export function rowToPage(r: PageRow): ApiPage {
   return {
     id: r.id, slug: r.slug,
-    title: { uz: r.title_uz, ru: r.title_ru, en: r.title_en, uzCyrl: r.title_cyrl },
-    content: { uz: r.content_uz, ru: r.content_ru, en: r.content_en, uzCyrl: r.content_cyrl },
+    title: { uz: r.title_uz, ru: r.title_ru },
+    content: { uz: r.content_uz, ru: r.content_ru },
     sortOrder: r.sort_order, isActive: r.is_active === 1,
   };
 }
@@ -560,7 +549,7 @@ export function rowToPost(r: PostRow): ApiPost {
 export interface SiteConfigRow {
   id: number; name: string; phone: string; phone_display: string;
   telegram: string; instagram: string; whatsapp: string;
-  map_ll: string; map_label: string;
+  map_ll: string;
   seo_title_suffix: string; seo_description: string; og_image: string;
   payment_mode: string;
   telegram_bot_token: string;
@@ -584,7 +573,6 @@ export interface DeviceModelRow {
 export function rowToDeviceModel(r: DeviceModelRow): ApiDeviceModel {
   return {
     id: r.id, name: r.name, brandId: r.brand_id, categoryId: r.category_id,
-    legacyCategory: r.legacy_category as Category,
     chip: r.chip, ram: r.ram, camera: r.camera, display: r.display,
     sortOrder: r.sort_order,
   };
@@ -594,7 +582,7 @@ export function rowToSiteConfig(r: SiteConfigRow): ApiSiteConfig {
   return {
     name: r.name, phone: r.phone, phoneDisplay: r.phone_display,
     telegram: r.telegram, instagram: r.instagram, whatsapp: r.whatsapp,
-    mapLl: r.map_ll, mapLabel: r.map_label,
+    mapLl: r.map_ll,
     seoTitleSuffix: r.seo_title_suffix, seoDescription: r.seo_description, ogImage: r.og_image,
     paymentMode: (r.payment_mode === 'cash' || r.payment_mode === 'installment') ? r.payment_mode : 'both',
     telegramBotToken: r.telegram_bot_token, telegramOrderChatId: r.telegram_order_chat_id,
@@ -612,7 +600,7 @@ export interface CustomerRow {
   password_hash: string | null; password_salt: string | null;
 }
 
-export function rowToCustomer(r: CustomerRow): ApiCustomer {
+function rowToCustomer(r: CustomerRow): ApiCustomer {
   return { id: r.id, createdAt: r.created_at, name: r.name, phone: r.phone, email: r.email };
 }
 
@@ -637,45 +625,10 @@ export async function upsertCustomerByGoogle(env: Env, sub: string, email: strin
   return Number(res.meta.last_row_id);
 }
 
-/** Email bo'yicha mijozni topadi (login + register dublikat tekshiruvi). Email lower-case saqlanadi. */
-export async function findCustomerByEmail(
-  env: Env,
-  email: string,
-): Promise<{ id: number; passwordHash: string | null; passwordSalt: string | null } | null> {
-  const row = await env.DB.prepare('SELECT id, password_hash, password_salt FROM customers WHERE email = ? LIMIT 1')
-    .bind(email).first<{ id: number; password_hash: string | null; password_salt: string | null }>();
-  return row ? { id: row.id, passwordHash: row.password_hash, passwordSalt: row.password_salt } : null;
-}
-
-/** Email/parol bilan yangi mijoz yaratadi, id qaytaradi. Chaqiruvchi avval email bandligini tekshiradi. */
-export async function createEmailCustomer(
-  env: Env, email: string, name: string, passwordHash: string, passwordSalt: string,
-): Promise<number> {
-  const res = await env.DB.prepare(
-    'INSERT INTO customers (name, email, password_hash, password_salt) VALUES (?, ?, ?, ?)',
-  ).bind(name, email, passwordHash, passwordSalt).run();
-  return Number(res.meta.last_row_id);
-}
-
 /** Kabinet: profil (ism + telefon) yangilash. */
 export async function updateCustomerProfile(env: Env, id: number, name: string, phone: string): Promise<void> {
   await env.DB.prepare('UPDATE customers SET name = ?, phone = ? WHERE id = ?')
     .bind(name, phone || null, id).run();
-}
-
-/** Kabinet parol oqimi uchun: email + joriy xash/salt (parol tekshiruvi + email borligi). */
-export async function getCustomerAuth(
-  env: Env,
-  id: number,
-): Promise<{ email: string | null; passwordHash: string | null; passwordSalt: string | null } | null> {
-  const row = await env.DB.prepare('SELECT email, password_hash, password_salt FROM customers WHERE id = ?')
-    .bind(id).first<{ email: string | null; password_hash: string | null; password_salt: string | null }>();
-  return row ? { email: row.email, passwordHash: row.password_hash, passwordSalt: row.password_salt } : null;
-}
-
-export async function setCustomerPassword(env: Env, id: number, hash: string, salt: string): Promise<void> {
-  await env.DB.prepare('UPDATE customers SET password_hash = ?, password_salt = ? WHERE id = ?')
-    .bind(hash, salt, id).run();
 }
 
 /** Telegram user id bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */

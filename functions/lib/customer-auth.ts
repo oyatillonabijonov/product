@@ -6,7 +6,7 @@ const TTL = 60 * 60 * 24 * 30; // 30 kun
 
 /** Mijoz sessiya siri — bo'sh bo'lsa runtime'da generatsiya qilinib D1'ga saqlanadi.
  * ponytail: birinchi ikki so'rov poygasi last-writer-wins (nodir; bitta sessiya bekor bo'lishi mumkin). */
-export async function customerSecret(env: Env): Promise<string> {
+async function customerSecret(env: Env): Promise<string> {
   const row = await env.DB.prepare('SELECT customer_session_secret AS s FROM site_config WHERE id = 1').first<{ s: string }>();
   if (row?.s) return row.s;
   const s = randomSecretHex();

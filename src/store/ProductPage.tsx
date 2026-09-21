@@ -8,7 +8,7 @@ import type { Translation } from '../locales';
 import { calcInstallment, discountPercent } from '../lib/installment';
 import { SWATCHES } from '../lib/swatches';
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, valuePrice, type VariantSelection } from '../lib/variants';
-import { safeHref } from '../lib/safe-href';
+import { safeHref } from '../../shared/safe-href';
 import { useCart } from './CartContext';
 import { useCurrency } from './CurrencyContext';
 import Expandable from './Expandable';

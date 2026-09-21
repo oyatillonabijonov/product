@@ -6,7 +6,7 @@ export const siteConfig = {
   instagram: 'https://www.instagram.com/pro_duct.uz/',
   whatsapp: 'https://wa.me/998884148888',
   // ponytail: ll — aniq koordinata Yandex "ProDuct"dan olib admin orqali kiritiladi
-  map: { ll: '69.271481,41.338874', label: "Tong Yulduzi MFY, ko'prik ko'chasi, 30-uy, Toshkent" },
+  map: { ll: '69.271481,41.338874' },
   paymentMode: 'cash',
   seo: {
     titleSuffix: 'ProDuct',

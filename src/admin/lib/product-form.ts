@@ -1,4 +1,4 @@
-import type { ApiSpec, Category, Condition } from '../../../shared/types';
+import type { ApiSpec, Condition } from '../../../shared/types';
 import type { AdminProductDetail, AdminProductInput, AdminVariantInput } from '../api';
 import { generateVariants, type OptionDraft } from './variant-gen';
 import type { ManualField } from '../../../shared/billz';
@@ -7,12 +7,11 @@ import type { ManualField } from '../../../shared/billz';
 export const STORAGE_VALUES = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB'];
 export const COLOR_VALUES = ['Qora', 'Oq', 'Kulrang', "Ko'k", 'Yashil', 'Qizil', 'Tillarang', 'Pushti'];
 /** Variant yorlig'i — o'qlar doim shu tartibda (Xotira · Rang). */
-export const AXES = ['Xotira', 'Rang'];
+const AXES = ['Xotira', 'Rang'];
 
 /** Mahsulot tahriri holati — ekran faqat chizadi, mantiq shu faylda (testli). */
 export interface ProductFormState {
   name: string;
-  category: Category;
   categoryId: string | null;
   type: string | null;
   condition: Condition;
@@ -46,7 +45,7 @@ export interface ProductFormState {
 }
 
 export const EMPTY_FORM: ProductFormState = {
-  name: '', category: 'iphone', categoryId: null, type: null, condition: 'yangi', conditionNote: '',
+  name: '', categoryId: null, type: null, condition: 'yangi', conditionNote: '',
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
   brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, preorder: false,
   pcHidden: false, pcSocket: null, pcMemory: null, pcWatts: null,
@@ -64,7 +63,7 @@ export function detailToForm(d: AdminProductDetail): ProductFormState {
     for (const v of o.values) optionValueMap.set(v.id, { optionName: o.name, value: v.value });
   }
   return {
-    name: d.name, category: d.category, categoryId: d.categoryId, type: d.type, condition: d.condition,
+    name: d.name, categoryId: d.categoryId, type: d.type, condition: d.condition,
     conditionNote: d.conditionNote ?? '', cashPriceUzs: d.cashPriceUzs, oldPriceUzs: d.oldPriceUzs ?? 0,
     description: d.description ?? '', imageUrl: d.imageUrl, images: d.images.filter((u) => u !== d.imageUrl),
     specs: d.specs, sortOrder: d.sortOrder, isActive: d.isActive, brandId: d.brandId, slug: d.slug ?? '',
@@ -97,7 +96,7 @@ export function formToPayload(f: ProductFormState): AdminProductInput {
   const priced = f.variants.filter((v) => v.cashPriceUzs > 0);
   const cashPriceUzs = f.cashPriceUzs > 0 ? f.cashPriceUzs : priced.length ? Math.min(...priced.map((v) => v.cashPriceUzs)) : 0;
   return {
-    name: f.name, category: f.category, categoryId: f.categoryId, type: f.type, condition: f.condition,
+    name: f.name, categoryId: f.categoryId, type: f.type, condition: f.condition,
     conditionNote: f.conditionNote || null, cashPriceUzs,
     oldPriceUzs: f.oldPriceUzs > 0 ? f.oldPriceUzs : null, description: f.description || null,
     imageUrl: f.imageUrl, images: f.images,

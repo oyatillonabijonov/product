@@ -1,5 +1,4 @@
 import type {
-  ApiCategory,
   ApiNews,
   ApiSiteText,
   ApiVacancy,
@@ -7,7 +6,6 @@ import type {
   ApiProduct,
   ApiSettings,
   ApiSiteConfig,
-  Category,
   Condition,
   LocalizedText,
   OrderInput,
@@ -16,12 +14,11 @@ import type {
   PaymentMode,
   Term,
 } from '../../shared/types';
-import { deriveLegacyCategory } from '../../shared/legacy-category';
+import { SAFE_HREF_RE } from '../../shared/safe-href';
 import { parseManualFields } from '../../shared/billz';
 
 export class ValidationError extends Error {}
 
-const CATEGORIES: Category[] = ['iphone', 'mac', 'ipad', 'pc'];
 // Payload chegaralari — chegarasiz massivlar minglab ketma-ket INSERT bo'lib ketardi.
 const MAX_IMAGES = 24;
 const MAX_SPECS = 60;
@@ -72,10 +69,6 @@ export function parseProductInput(body: unknown): ProductInput {
   const o = asRecord(body);
   const name = reqString(o, 'name');
   const categoryId = typeof o.categoryId === 'string' ? o.categoryId : null;
-  const rawCategory =
-    typeof o.category === 'string' && o.category.trim() !== '' ? (o.category.trim() as Category) : null;
-  if (rawCategory !== null && !CATEGORIES.includes(rawCategory)) throw new ValidationError('category_invalid');
-  const category = rawCategory ?? deriveLegacyCategory(categoryId);
   // Tur faqat shakl bo'yicha; yo'nalishga tegishliligi route'da bazadan (`typeExists`).
   const type = typeof o.type === 'string' && o.type.trim() !== '' ? o.type.trim() : null;
   if (type !== null && !TYPE_ID.test(type)) throw new ValidationError('type_invalid');
@@ -193,7 +186,6 @@ export function parseProductInput(body: unknown): ProductInput {
   return {
     id,
     name,
-    category,
     condition,
     conditionNote,
     cashPriceUzs,
@@ -274,11 +266,7 @@ export interface CategoryInput {
   id: string;
   name: string;
   nameRu: string;
-  iconUrl: string;
-  icon: string;
   coverUrl: string;
-  coverLede: string;
-  coverLedeRu: string;
   sortOrder: number;
 }
 
@@ -295,13 +283,9 @@ export function parseCategoryInput(body: unknown): CategoryInput {
   const id =
     typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : slugify(name) || crypto.randomUUID();
   const nameRu = typeof o.nameRu === 'string' ? o.nameRu.trim() : '';
-  const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : '';
-  const icon = typeof o.icon === 'string' ? o.icon.trim() : '';
   const coverUrl = typeof o.coverUrl === 'string' ? o.coverUrl.trim() : '';
-  const coverLede = typeof o.coverLede === 'string' ? o.coverLede.trim() : '';
-  const coverLedeRu = typeof o.coverLedeRu === 'string' ? o.coverLedeRu.trim() : '';
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
-  return { id, name, nameRu, iconUrl, icon, coverUrl, coverLede, coverLedeRu, sortOrder };
+  return { id, name, nameRu, coverUrl, sortOrder };
 }
 
 export interface BannerInput {
@@ -318,8 +302,7 @@ export function parseBannerInput(body: unknown): BannerInput {
   const imageUrl = reqString(o, 'imageUrl');
   const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID();
   const linkUrl = typeof o.linkUrl === 'string' ? o.linkUrl.trim() : '';
-  // nusxasi src/lib/safe-href.ts da (functions tsconfig src/ ni ko'rmaydi)
-  if (linkUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(linkUrl)) throw new ValidationError('link_invalid');
+  if (linkUrl !== '' && !SAFE_HREF_RE.test(linkUrl)) throw new ValidationError('link_invalid');
   const altText = typeof o.altText === 'string' ? o.altText.trim() : '';
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
@@ -335,7 +318,7 @@ export function parseNewsInput(body: unknown): NewsInput {
   const imageUrl = reqString(o, 'imageUrl');
   const str = (k: string, max: number) => (typeof o[k] === 'string' ? (o[k] as string).trim().slice(0, max) : '');
   const linkUrl = str('linkUrl', 500);
-  if (linkUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(linkUrl)) throw new ValidationError('link_invalid');
+  if (linkUrl !== '' && !SAFE_HREF_RE.test(linkUrl)) throw new ValidationError('link_invalid');
   return {
     id: typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID(),
     badge: str('badge', 40), badgeRu: str('badgeRu', 40),
@@ -350,7 +333,7 @@ export function parseNewsInput(body: unknown): NewsInput {
 }
 
 const PAGE_SLUG_RE = /^[a-z0-9-]+$/;
-const TEXT_KEYS: (keyof LocalizedText)[] = ['uz', 'ru', 'en', 'uzCyrl'];
+const TEXT_KEYS: (keyof LocalizedText)[] = ['uz', 'ru'];
 
 function localizedText(o: Record<string, unknown>, key: string, required: boolean): LocalizedText {
   const raw = o[key];
@@ -359,8 +342,7 @@ function localizedText(o: Record<string, unknown>, key: string, required: boolea
   for (const k of TEXT_KEYS) {
     const v = r[k];
     const s = typeof v === 'string' ? v.trim() : '';
-    // Sayt faqat uz/ru ni chiqaradi — en/uzCyrl ustunlari ixtiyoriy (eski migratsiyalar to'ldirgan, admin to'ldirmaydi).
-    if (required && s === '' && (k === 'uz' || k === 'ru')) throw new ValidationError(`${key}_${k}_required`);
+    if (required && s === '') throw new ValidationError(`${key}_${k}_required`);
     out[k] = s;
   }
   return out;
@@ -413,7 +395,7 @@ export function parsePostInput(body: unknown): PostInput {
   const publishedAt = opt('publishedAt');
   if (publishedAt !== '' && !ISO_DATE_RE.test(publishedAt)) throw new ValidationError('published_at_invalid');
   const coverUrl = opt('coverUrl');
-  if (coverUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(coverUrl)) throw new ValidationError('cover_invalid');
+  if (coverUrl !== '' && !SAFE_HREF_RE.test(coverUrl)) throw new ValidationError('cover_invalid');
   const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID();
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
@@ -427,7 +409,7 @@ export function parsePostInput(body: unknown): PostInput {
 
 export interface DeviceModelInput {
   id: string; name: string; brandId: string; categoryId: string;
-  legacyCategory: Category; chip: string; ram: string; camera: string;
+  chip: string; ram: string; camera: string;
   display: string; sortOrder: number;
 }
 
@@ -436,35 +418,10 @@ export function parseDeviceModelInput(body: unknown): DeviceModelInput {
   const name = reqString(o, 'name');
   const brandId = reqString(o, 'brandId');
   const categoryId = reqString(o, 'categoryId');
-  const rawLegacy = typeof o.legacyCategory === 'string' && o.legacyCategory.trim() !== '' ? (o.legacyCategory.trim() as Category) : null;
-  if (rawLegacy !== null && !CATEGORIES.includes(rawLegacy)) throw new ValidationError('legacy_category_invalid');
-  const legacyCategory = rawLegacy ?? deriveLegacyCategory(categoryId);
   const opt = (key: string): string => (typeof o[key] === 'string' ? (o[key] as string).trim() : '');
   const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : (slugify(name) || crypto.randomUUID());
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
-  return { id, name, brandId, categoryId, legacyCategory, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
-}
-
-export interface EmailAuthInput {
-  mode: 'login' | 'register';
-  email: string;
-  password: string;
-  name: string;
-}
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/** /auth/email body — kirish yoki ro'yxatdan o'tish. Email lower-case normallashtiriladi. */
-export function parseEmailAuthInput(body: unknown): EmailAuthInput {
-  const o = asRecord(body);
-  const mode = o.mode === 'register' ? 'register' : o.mode === 'login' ? 'login' : null;
-  if (!mode) throw new ValidationError('mode_invalid');
-  const email = (typeof o.email === 'string' ? o.email : '').trim().toLowerCase();
-  if (!EMAIL_RE.test(email)) throw new ValidationError('email_invalid');
-  const password = typeof o.password === 'string' ? o.password : '';
-  if (password.length < 8) throw new ValidationError('password_too_short');
-  const name = (typeof o.name === 'string' ? o.name : '').trim().slice(0, 80);
-  return { mode, email, password, name };
+  return { id, name, brandId, categoryId, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
 }
 
 /** Kabinet profil tahriri — ism (majburiy) + telefon (ixtiyoriy, bo'lsa UZ format). */
@@ -480,25 +437,16 @@ export function parseProfileInput(body: unknown): { name: string; phone: string 
   return { name, phone };
 }
 
-/** Kabinet parol o'rnatish/o'zgartirish — joriy (ixtiyoriy, faqat paroli bor hisobda) + yangi (min 8). */
-export function parsePasswordInput(body: unknown): { currentPassword: string; newPassword: string } {
-  const o = asRecord(body);
-  const currentPassword = typeof o.currentPassword === 'string' ? o.currentPassword : '';
-  const newPassword = typeof o.newPassword === 'string' ? o.newPassword : '';
-  if (newPassword.length < 8) throw new ValidationError('password_too_short');
-  return { currentPassword, newPassword };
-}
-
 export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
   const o = asRecord(body);
   const name = reqString(o, 'name');
   const phone = reqString(o, 'phone');
   const opt = (key: string): string => (typeof o[key] === 'string' ? (o[key] as string).trim() : '');
-  // Banner linkUrl bilan bir xil qoida (nusxasi src/lib/safe-href.ts) — kontakt
+  // Banner linkUrl bilan bir xil qoida — kontakt
   // URL'lar storefront'da to'g'ridan-to'g'ri href bo'ladi, javascript: o'tmasin.
   const link = (key: string): string => {
     const v = opt(key);
-    if (v !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(v)) throw new ValidationError(`${key}_invalid`);
+    if (v !== '' && !SAFE_HREF_RE.test(v)) throw new ValidationError(`${key}_invalid`);
     return v;
   };
   const pm = opt('paymentMode');
@@ -513,7 +461,6 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
     instagram: link('instagram'),
     whatsapp: link('whatsapp'),
     mapLl: opt('mapLl'),
-    mapLabel: opt('mapLabel'),
     seoTitleSuffix: opt('seoTitleSuffix') || name,
     seoDescription: opt('seoDescription'),
     ogImage: opt('ogImage'),

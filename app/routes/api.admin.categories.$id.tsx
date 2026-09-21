@@ -13,9 +13,9 @@ export async function action({ request, context, params }: Route.ActionArgs) {
     const input = parseBody({ ...((await request.json().catch(() => null)) ?? {}) as object, id }, parseCategoryInput);
     if (input instanceof Response) return input;
     await env.DB.prepare(
-      'UPDATE categories SET name=?, name_ru=?, icon_url=?, icon=?, cover_url=?, cover_lede=?, cover_lede_ru=?, sort_order=? WHERE id=?',
+      'UPDATE categories SET name=?, name_ru=?, cover_url=?, sort_order=? WHERE id=?',
     )
-      .bind(input.name, input.nameRu, input.iconUrl, input.icon, input.coverUrl, input.coverLede, input.coverLedeRu, input.sortOrder, id)
+      .bind(input.name, input.nameRu, input.coverUrl, input.sortOrder, id)
       .run();
     const row = await env.DB.prepare('SELECT * FROM categories WHERE id = ?').bind(id).first<CategoryRow>();
     if (!row) return json({ error: 'not_found' }, { status: 404 });

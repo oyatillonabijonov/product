@@ -47,12 +47,7 @@ const CategoryEdit: FC<{ id: string }> = ({ id }) => {
 
   async function save() {
     setBusy(true); setError('');
-    // Saytda ko'rinmaydigan ustunlar (ikonka kaliti, cover izohi) tahrirlanmaydi — mavjud qiymat saqlanadi.
-    const body = {
-      name: form.name, nameRu: form.nameRu, coverUrl: form.coverUrl, sortOrder: form.sortOrder,
-      icon: initial?.icon ?? '', iconUrl: initial?.iconUrl ?? '',
-      coverLede: initial?.coverLede ?? '', coverLedeRu: initial?.coverLedeRu ?? '',
-    };
+    const body = { name: form.name, nameRu: form.nameRu, coverUrl: form.coverUrl, sortOrder: form.sortOrder };
     try {
       if (isNew) {
         await createCategory(body);

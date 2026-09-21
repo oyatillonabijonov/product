@@ -4,7 +4,7 @@ import type { ProductDetail } from './loaders';
 
 function makeDetail(over: Partial<ProductDetail> = {}): ProductDetail {
   return {
-    id: 'p1', name: 'iPhone 15', category: 'iphone', condition: 'yangi',
+    id: 'p1', name: 'iPhone 15', condition: 'yangi',
     image: '/i.webp', cashPriceUzs: 1000, oldPriceUzs: null, minPriceUzs: 900,
     brandId: null, categoryId: null, description: null, images: ['/i.webp'],
     specs: [], brand: null, options: [], variants: [],
@@ -74,7 +74,7 @@ describe('breadcrumbJsonLd', () => {
 });
 
 describe('storeConfigFrom', () => {
-  const cfg = { seoTitleSuffix: 'S', seoDescription: 'D', name: 'N', phone: '', phoneDisplay: '', telegram: '', instagram: '', whatsapp: '', mapLl: '', mapLabel: '', ogImage: '' };
+  const cfg = { seoTitleSuffix: 'S', seoDescription: 'D', name: 'N', phone: '', phoneDisplay: '', telegram: '', instagram: '', whatsapp: '', mapLl: '', ogImage: '' };
   it('finds siteConfig in matches array', () => {
     expect(storeConfigFrom([{ data: undefined }, { data: { siteConfig: cfg } }])).toEqual(cfg);
   });
@@ -109,7 +109,7 @@ describe('catalogMeta description', () => {
 describe('organizationJsonLd manzil', () => {
   it("manzil va ish vaqti sayt matnlaridan, sayt URL'i kiradi", () => {
     const ld = organizationJsonLd(
-      { name: 'ProDuct', phone: '+998', telegram: 't', instagram: 'i', mapLl: '69.27,41.33', mapLabel: 'eski yozuv' } as never,
+      { name: 'ProDuct', phone: '+998', telegram: 't', instagram: 'i', mapLl: '69.27,41.33' } as never,
       'https://product.uz',
       { address: "O'zbekiston, Toshkent shahar, Tong Yulduzi MFY, 30-uy", openingHours: 'Mo-Sa 09:00-20:00' },
     ) as {

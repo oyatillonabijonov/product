@@ -31,9 +31,6 @@ export const PILL =
 export const BTN_MD =
   'press inline-flex h-11 items-center justify-center gap-2 rounded-full px-[21px] text-copy font-normal';
 
-/** Ixcham tugma — Apple'da 36px balandlik va 8px radius (pill emas). */
-export const BTN_SM =
-  'press inline-flex h-9 items-center justify-center gap-2 rounded-xs px-4 text-label font-normal';
 
 /** Matnli havola — apple.com'dagi "Batafsil ›"; `link` tokeni (qorong'i kartada ham AA). Ortidan `ChevronRight`. */
 export const LINK_MORE = 'press inline-flex items-center gap-0.5 text-copy text-link hover:underline';
