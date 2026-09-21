@@ -6,6 +6,7 @@ import type { ServerBuild } from 'react-router';
 import { createEnv, IMAGES_DIR } from './env.ts';
 import { createBillzSync } from './billz-sync.ts';
 import { createUsdRate } from './usd-rate.ts';
+import { mountMcp } from './mcp.ts';
 
 /**
  * Ilova serveri — dev va production uchun bitta fayl.
@@ -44,7 +45,7 @@ app.use((_req, res, next) => {
 
 // Storefront sahifalari uchun qisqa kesh + stale-while-revalidate. Keshlashni
 // oldindagi proxy bajaradi; dinamik va shaxsiy sahifalar keshlanmaydi.
-const NO_CACHE = ['/admin', '/api/', '/auth/', '/images/', '/assets/'];
+const NO_CACHE = ['/admin', '/api/', '/auth/', '/images/', '/assets/', '/mcp'];
 const NO_CACHE_EXACT = ['/search', '/savat', '/kirish', '/kabinet'];
 app.use((req, res, next) => {
   if (req.method !== 'GET') return next();
@@ -61,6 +62,9 @@ app.use((req, res, next) => {
 // Yuklangan rasm va videolar diskdan to'g'ridan-to'g'ri: Range va ETag Express'dan (Safari `<video>` Range'siz
 // o'ynamaydi). Fayl bo'lmasa keyingi qatlamga o'tadi — `images.$` route'i 404 beradi.
 app.use('/images/products', express.static(join(IMAGES_DIR, 'products'), { immutable: true, maxAge: '1y', index: false, redirect: false }));
+
+// Remote MCP — React Router handler'idan oldin, aks holda `*` route'i uni 404 qiladi.
+mountMcp(app, env);
 
 if (isProd) {
   // Hashlangan assetlar — uzoq muddatli kesh; qolgan statik fayllar qisqa.

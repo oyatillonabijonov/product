@@ -9,7 +9,7 @@
     "start": "NODE_ENV=production node server/index.ts",
     "migrate": "node server/migrate.ts",
     "typecheck": "react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
-    "lint": "react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
+    "lint": "node --experimental-strip-types --check mcp/stdio.ts && node --experimental-strip-types --check server/index.ts && react-router typegen && tsc --noEmit && tsc --noEmit -p functions/tsconfig.json",
     "test": "vitest run",
     "import:d1": "node server/import-d1.ts",
     "backup": "node server/backup.ts",
