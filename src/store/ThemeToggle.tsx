@@ -9,7 +9,7 @@ import { Moon, Sun } from 'lucide-react';
  * Tanlanmaguncha sayt **yorug'** (2026-09-18, egasining qarori): qorong'i faqat
  * `data-theme="dark"` qo'yilganda yoqiladi.
  */
-export const effectiveDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+const effectiveDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
 
 const ThemeToggle: FC<{ label: string; className?: string; iconCls?: string; caption?: string }> = ({
   label, className, iconCls = 'h-[18px] w-[18px]', caption,

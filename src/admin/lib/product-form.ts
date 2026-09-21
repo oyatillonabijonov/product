@@ -7,7 +7,7 @@ import type { ManualField } from '../../../shared/billz';
 export const STORAGE_VALUES = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB'];
 export const COLOR_VALUES = ['Qora', 'Oq', 'Kulrang', "Ko'k", 'Yashil', 'Qizil', 'Tillarang', 'Pushti'];
 /** Variant yorlig'i — o'qlar doim shu tartibda (Xotira · Rang). */
-export const AXES = ['Xotira', 'Rang'];
+const AXES = ['Xotira', 'Rang'];
 
 /** Mahsulot tahriri holati — ekran faqat chizadi, mantiq shu faylda (testli). */
 export interface ProductFormState {

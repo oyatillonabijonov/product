@@ -8,8 +8,8 @@ import { matchBillzType, typesOf, type ProductTypeRow } from './product-types.ts
  */
 export const BILLZ_BASE = 'https://api-admin.billz.ai';
 /** Rasm faqat shu hostlardan yuklanadi — Billz ma'lumoti yarim ishonchli, SSRF'ga yo'l yo'q. */
-export const BILLZ_CDN_HOSTS = ['fra1.digitaloceanspaces.com'];
-export const BILLZ_PAGE_SIZE = 200;
+const BILLZ_CDN_HOSTS = ['fra1.digitaloceanspaces.com'];
+const BILLZ_PAGE_SIZE = 200;
 
 export interface BillzPhoto { photo_url: string; sequence: number; is_main: boolean }
 export interface BillzShopPrice { shop_id: string; retail_price: number; retail_currency: string; promo_price: number }

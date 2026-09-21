@@ -152,7 +152,7 @@ export function rowToCategory(row: CategoryRow): ApiCategory {
   };
 }
 
-export function rowToSpec(row: SpecRow): ApiSpec {
+function rowToSpec(row: SpecRow): ApiSpec {
   return { label: row.label, value: row.value };
 }
 
@@ -600,7 +600,7 @@ export interface CustomerRow {
   password_hash: string | null; password_salt: string | null;
 }
 
-export function rowToCustomer(r: CustomerRow): ApiCustomer {
+function rowToCustomer(r: CustomerRow): ApiCustomer {
   return { id: r.id, createdAt: r.created_at, name: r.name, phone: r.phone, email: r.email };
 }
 

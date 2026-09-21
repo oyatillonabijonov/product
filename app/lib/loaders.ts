@@ -290,7 +290,7 @@ export interface PageLink {
   title: LocalizedText;
 }
 
-export function staticSiteConfigAsApi(): ApiSiteConfig {
+function staticSiteConfigAsApi(): ApiSiteConfig {
   return {
     name: staticSiteConfig.name,
     phone: staticSiteConfig.phone,
