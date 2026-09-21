@@ -203,7 +203,7 @@ const SettingsIntegrations: FC = () => {
 
             <Card
               title="MCP tokenlari"
-              description="Claude shu token bilan admin API'ga ulanadi va sizning nomingizdan tovar qo'sha oladi. Har odamga alohida token bering."
+              description="Claude shu token bilan admin API'ga ulanadi. Token admin panelining barcha huquqiga ega — sozlamalardagi sirlarni o'qish ham kiradi, shuning uchun faqat ishonchli odamga bering va ketganda bekor qiling."
             >
               <div className="flex flex-col gap-3">
                 <div className="flex flex-wrap items-end gap-3">

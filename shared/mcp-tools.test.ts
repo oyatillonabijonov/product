@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type { ApiProduct } from './types';
-import { catalogStats, imageFilesOf, incompleteProducts, manualFieldsFor } from './mcp-tools';
+import type { ApiProduct, ApiProductDetail } from './types';
+import { catalogStats, imageFilesOf, incompleteProducts, manualFieldsFor, detailToInput } from './mcp-tools';
 
 const p = (over: Partial<ApiProduct>): ApiProduct => ({
   id: 'x', name: 'Tovar', category: 'iphone', condition: 'yangi', conditionNote: null,
@@ -74,5 +74,42 @@ describe('imageFilesOf', () => {
   it("faqat rasm kengaytmalari, nom bo'yicha tartibda", () => {
     expect(imageFilesOf(['b.PNG', 'a.jpg', 'c.txt', 'd.webp', '.DS_Store', 'e.jpeg']))
       .toEqual(['a.jpg', 'b.PNG', 'd.webp', 'e.jpeg']);
+  });
+
+  it('raqamli nomlarni to\'g\'ri tartiblaydi', () => {
+    expect(imageFilesOf(['img10.jpg', 'img2.jpg', 'img1.jpg'])).toEqual(['img1.jpg', 'img2.jpg', 'img10.jpg']);
+  });
+});
+
+describe('detailToInput', () => {
+  const detail = {
+    ...p({ id: 'v1', imageUrl: '/images/products/main.webp' }),
+    description: 'Tavsif',
+    images: ['/images/products/main.webp', '/images/products/g1.webp'],
+    specs: [{ label: 'Chip', value: 'A19' }],
+    brand: null,
+    options: [{ id: 'o1', name: 'Xotira', sortOrder: 0, values: [
+      { id: 'ov1', value: '128GB', sortOrder: 0 },
+      { id: 'ov2', value: '256GB', sortOrder: 1 },
+    ] }],
+    variants: [{
+      id: 'var1', sku: 'A1', cashPriceUzs: 900, oldPriceUzs: null, imageUrl: null,
+      inStock: true, sortOrder: 0, optionValueIds: ['ov1'],
+    }],
+  } as unknown as ApiProductDetail;
+
+  it('option qiymatlarini nomga, variantni juftlikka o\'giradi', () => {
+    const b = detailToInput(detail);
+    expect(b.options).toEqual([{ name: 'Xotira', values: ['128GB', '256GB'] }]);
+    expect(b.variants[0].optionValues).toEqual([{ optionName: 'Xotira', value: '128GB' }]);
+  });
+
+  it('galereyadan asosiy rasmni chiqaradi', () => {
+    expect(detailToInput(detail).images).toEqual(['/images/products/g1.webp']);
+  });
+
+  it("noma'lum option qiymati tashlab yuboriladi", () => {
+    const d = { ...detail, variants: [{ ...detail.variants[0], optionValueIds: ['yoq'] }] } as ApiProductDetail;
+    expect(detailToInput(d).variants[0].optionValues).toEqual([]);
   });
 });

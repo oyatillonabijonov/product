@@ -107,7 +107,7 @@ Har bir tool javobi **qisqa** bo'ladi — model kontekstiga butun katalog tushma
 | Tool | Kirish | Chiqish |
 |---|---|---|
 | `catalog_stats` | — | jami tovar, faol, yashirin, rasmi yo'q, tavsifi yo'q, qoldiq 0, Billz/qo'lda soni |
-| `products_incomplete` | `missing: 'image' \| 'description' \| 'any'`, `limit` (sukut 20), `cursor` | `{ id, name, missing: [...] }` ro'yxati + `nextCursor` |
+| `products_incomplete` | `missing: 'image' \| 'description' \| 'any'`, `limit` (sukut 20), `offset` | `{ id, name, missing: [...] }` ro'yxati + `nextOffset` |
 | `product_get` | `id` yoki `q` (nom bo'yicha qidiruv) | bitta tovarning to'liq ma'lumoti + admin havolasi |
 | `types_list` | `categoryId?` | `{ id, label, categoryId }` |
 | `categories_list` | — | `{ id, name }` |

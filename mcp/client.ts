@@ -30,7 +30,10 @@ export class AdminClient {
     if (!res.ok) {
       const body = (await res.json().catch(() => ({}))) as { error?: string };
       const code = body.error ?? `http_${res.status}`;
-      throw new Error(`${errText(new Error(code))} (${code})`);
+      // `errText` tanimagan kodni o'zini qaytaradi — «http_502 (http_502)» bo'lmasin.
+      // `unauthorized` admin'da «sessiya tugadi» deb tarjima qilinadi, MCP'da esa token aybdor.
+      const msg = code === 'unauthorized' ? 'Token yaroqsiz yoki bekor qilingan' : errText(new Error(code));
+      throw new Error(msg === code ? code : `${msg} (${code})`);
     }
     return (await res.json()) as T;
   }

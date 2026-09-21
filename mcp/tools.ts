@@ -3,17 +3,8 @@ import { basename, extname, join } from 'node:path';
 import { z } from 'zod';
 import type { ApiAdminBrand, ApiCategory, ApiProduct, ApiProductDetail, ApiProductType } from '../shared/types.ts';
 import { deriveLegacyCategory } from '../shared/legacy-category.ts';
-import { catalogStats, imageFilesOf, incompleteProducts, manualFieldsFor, type ProductPatch } from '../shared/mcp-tools.ts';
+import { catalogStats, imageFilesOf, incompleteProducts, manualFieldsFor, detailToInput, type ProductPatch } from '../shared/mcp-tools.ts';
 import type { AdminClient } from './client.ts';
-
-/**
- * Rasm konvensiyasi admin formasi bilan bir xil: `imageUrl` — asosiy rasm,
- * `images` — **faqat galereya** (asosiysiz). `detailToForm` ham shunday filtrlaydi
- * (`src/admin/lib/product-form.ts`), shuning uchun MCP boshqacha qilsa asosiy rasm
- * galereyaga ikki marta tushardi.
- */
-const galleryOf = (d: { imageUrl: string; images: string[] }): string[] =>
-  d.images.filter((u) => u !== d.imageUrl);
 
 const MAX_IMAGE = 5 * 1024 * 1024;
 const MIME: Record<string, string> = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
@@ -45,12 +36,12 @@ export function registerTools(
   const products = () => api.get<ApiProduct[]>('/api/admin/products');
 
   server.registerTool('catalog_stats', {
-    description: "Katalog holati: jami tovar, faol/yashirin, rasmi yo'q, tavsifi yo'q, qoldiq 0, Billz va qo'lda kiritilganlar soni.",
+    description: "Katalog holati: jami tovar, faol/yashirin, rasmi yo'q, tavsifi yo'q, qoldiq 0, Billz va qo'lda kiritilganlar soni. Hamma tovar bo'yicha sanaydi — admin panelidagi «Rasm kerak» esa faqat qoldig'i bor Billz tovarlarini ko'rsatadi, shuning uchun sonlar farq qiladi.",
     inputSchema: {},
   }, async () => text(JSON.stringify(catalogStats(await products()), null, 2)));
 
   server.registerTool('products_incomplete', {
-    description: "Ma'lumoti to'liq bo'lmagan tovarlar: rasmi yo'q va/yoki tavsifi yo'q. Sahifalanadi.",
+    description: "Ma'lumoti to'liq bo'lmagan tovarlar: rasmi yo'q va/yoki tavsifi yo'q. Sahifalanadi. Qoldiq va Billz holatiga qaramay hamma tovar tekshiriladi.",
     inputSchema: {
       missing: z.enum(['image', 'description', 'any']).default('any'),
       limit: z.number().int().min(1).max(50).default(20),
@@ -180,7 +171,7 @@ export function registerTools(
     const { id, ...patch } = parsed;
     const current = await api.get<ApiProductDetail>(`/api/admin/products/${id}`);
     const manualFields = current.billzId ? manualFieldsFor(current.manualFields, patch) : current.manualFields;
-    await api.write(`/api/admin/products/${id}`, 'PUT', { ...current, ...patch, images: galleryOf(current), manualFields }, 'product_update');
+    await api.write(`/api/admin/products/${id}`, 'PUT', { ...detailToInput(current), ...patch, manualFields }, 'product_update');
     const locked = current.billzId && manualFields.length > current.manualFields.length;
     return text(`Saqlandi: ${opts.adminUrl}/admin/products/${id}${locked ? '\nBillz tovari — tegilgan maydonlar endi qo\'lda boshqariladi.' : ''}`);
   });
@@ -191,7 +182,7 @@ export function registerTools(
   }, async (args: unknown) => {
     const parsed = args as { id: string; imageUrls: string[] };
     const current = await api.get<ApiProductDetail>(`/api/admin/products/${parsed.id}`);
-    await api.write(`/api/admin/products/${parsed.id}`, 'PUT', { ...current, imageUrl: parsed.imageUrls[0], images: parsed.imageUrls.slice(1) }, 'product_set_images');
+    await api.write(`/api/admin/products/${parsed.id}`, 'PUT', { ...detailToInput(current), imageUrl: parsed.imageUrls[0], images: parsed.imageUrls.slice(1) }, 'product_set_images');
     return text(`Rasmlar yangilandi (${parsed.imageUrls.length} ta): ${opts.adminUrl}/admin/products/${parsed.id}`);
   });
 }

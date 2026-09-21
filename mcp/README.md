@@ -8,6 +8,14 @@ to'ldirish, katalog holatini so'rash.
 Admin → Sozlamalar → Integratsiyalar → «MCP tokenlari» → nom yozing → **Token yaratish**.
 Token faqat bir marta ko'rsatiladi.
 
+## 1.5. Repoda paketlarni o'rnating
+
+```bash
+bun install
+```
+
+`node mcp/stdio.ts` `node_modules` dagi MCP SDK'ni talab qiladi.
+
 ## 2. Claude Code
 
 `~/.claude.json` (yoki loyiha `.mcp.json`) ichiga:
@@ -36,6 +44,8 @@ Token faqat bir marta ko'rsatiladi.
 
 ## Cheklovlar
 
+- **Token — to'liq admin kaliti.** Tool'lar ro'yxati tor (o'chirish va sozlamalar yo'q), lekin
+  tokenning o'zi admin API'ning hammasiga kiradi. Uni faqat ishonchli kompyuterda saqlang.
 - Rasm ≤ 5 MB, faqat jpg/jpeg/png/webp. Kattasi rad etiladi (server rasm qayta ishlamaydi).
 - Yangi tovar **yashirin** yaratiladi — saytga chiqarish admin'dagi toggle bilan.
 - Tovar o'chirish, sozlamalar va akkaunt tool'lari yo'q.

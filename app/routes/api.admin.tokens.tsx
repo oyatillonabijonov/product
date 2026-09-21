@@ -1,7 +1,7 @@
 import type { Route } from './+types/api.admin.tokens';
 import { json } from '../../functions/lib/db';
 import { ValidationError } from '../../functions/lib/validate';
-import { hashToken, newToken } from '../../shared/mcp-auth';
+import { hashToken, newToken, tokenFromHeader } from '../../shared/mcp-auth';
 import type { ApiAdminToken } from '../../shared/types';
 import { parseBody, requireAdmin } from './api.admin.guard';
 
@@ -30,6 +30,11 @@ function parseTokenInput(body: unknown): { label: string } {
 }
 
 export async function loader({ request, context }: Route.LoaderArgs) {
+  // Token bilan token boshqarib bo'lmaydi: aks holda sizib ketgan token o'ziga
+  // ikkinchisini yasab qo'yadi va «bekor qilish» kill-switch bo'lmay qoladi.
+  if (tokenFromHeader(request.headers.get('authorization'))) {
+    return json({ error: 'cookie_only' }, { status: 403 });
+  }
   const who = await requireAdmin(request, context.env);
   if (who instanceof Response) return who;
   const { results } = await context.env.DB.prepare(
@@ -40,6 +45,11 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
 export async function action({ request, context }: Route.ActionArgs) {
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, { status: 405 });
+  // Token bilan token boshqarib bo'lmaydi: aks holda sizib ketgan token o'ziga
+  // ikkinchisini yasab qo'yadi va «bekor qilish» kill-switch bo'lmay qoladi.
+  if (tokenFromHeader(request.headers.get('authorization'))) {
+    return json({ error: 'cookie_only' }, { status: 403 });
+  }
   const who = await requireAdmin(request, context.env);
   if (who instanceof Response) return who;
   const input = parseBody(await request.json().catch(() => null), parseTokenInput);
