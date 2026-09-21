@@ -37,6 +37,7 @@ export default [
   route('auth/google/callback', 'routes/auth.google.callback.tsx'),
   route('auth/telegram', 'routes/auth.telegram.tsx'),
   route('auth/logout', 'routes/auth.logout.tsx'),
+  route('oauth/consent', 'routes/oauth.consent.tsx'),
   route('api/account', 'routes/api.account.tsx'),
   route('api/order', 'routes/api.order.tsx'),
   route('api/consult', 'routes/api.consult.tsx'),

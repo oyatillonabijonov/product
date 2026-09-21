@@ -37,8 +37,9 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   }
   const who = await requireAdmin(request, context.env);
   if (who instanceof Response) return who;
+  // 'refresh' — ichki jihoz (yangi access olish uchun), ro'yxatda ko'rinmaydi.
   const { results } = await context.env.DB.prepare(
-    'SELECT id, label, kind, created_at, last_used_at FROM admin_tokens WHERE revoked_at IS NULL ORDER BY created_at DESC',
+    "SELECT id, label, kind, created_at, last_used_at FROM admin_tokens WHERE revoked_at IS NULL AND kind != 'refresh' ORDER BY created_at DESC",
   ).all<TokenRow>();
   return json(results.map(rowToToken));
 }

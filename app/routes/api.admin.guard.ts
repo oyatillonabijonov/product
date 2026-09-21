@@ -23,15 +23,21 @@ export function parseBody<T>(body: unknown, parse: (b: unknown) => T): T | Respo
  * Token to'liq admin huquqiga ega (egasining qarori 2026-09-21), shuning uchun har bir
  * **yozuv** amali `admin_audit`ga tushadi: kim (token nomi), qaysi tool, qaysi yozuv.
  * Tool nomini MCP `X-MCP-Tool` sarlavhasida yuboradi; bo'lmasa metod va yo'l yoziladi.
+ *
+ * `kind='refresh'` rad etiladi: refresh token faqat `/token` da yangi access olish
+ * uchun, u bilan admin API'ga kirib bo'lmaydi.
  */
 async function adminFromToken(request: Request, env: Env, token: string): Promise<string | Response> {
   const row = await env.DB.prepare(
-    'SELECT id, label FROM admin_tokens WHERE token_hash = ? AND revoked_at IS NULL',
+    "SELECT id, label, expires_at FROM admin_tokens WHERE token_hash = ? AND revoked_at IS NULL AND kind != 'refresh'",
   )
     .bind(await hashToken(token))
-    .first<{ id: number; label: string }>();
+    .first<{ id: number; label: string; expires_at: number | null }>();
   const now = Math.floor(Date.now() / 1000);
-  if (!row) {
+  // `expires_at` tekshiruvi qaytarildi: OAuth access tokeni 30 kunlik muddat bilan
+  // yoziladi, ya'ni ustun endi haqiqatan ishlatiladi (ilgari hech kim yozmagani uchun
+  // tekshiruv o'lik kod deb olib tashlangan edi).
+  if (!row || (row.expires_at !== null && row.expires_at < now)) {
     return json({ error: 'unauthorized' }, { status: 401 });
   }
   await env.DB.prepare('UPDATE admin_tokens SET last_used_at = ? WHERE id = ?').bind(now, row.id).run();
