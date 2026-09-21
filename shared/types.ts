@@ -132,11 +132,11 @@ export interface ApiVariant {
   optionValueIds: string[];
 }
 
+/** Sayt ikki tilda chiqadi. `pages` jadvalidagi en/cyrl ustunlari eski
+ *  migratsiyalardan qolgan — o'qilmaydi ham, yozilmaydi ham. */
 export interface LocalizedText {
   uz: string;
   ru: string;
-  en: string;
-  uzCyrl: string;
 }
 
 export interface ApiBanner {

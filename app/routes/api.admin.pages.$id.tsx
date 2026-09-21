@@ -14,9 +14,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
     if (input instanceof Response) return input;
     try {
       await env.DB.prepare(
-        'UPDATE pages SET slug=?, title_uz=?, title_ru=?, title_en=?, title_cyrl=?, content_uz=?, content_ru=?, content_en=?, content_cyrl=?, sort_order=?, is_active=? WHERE id=?',
-      ).bind(input.slug, input.title.uz, input.title.ru, input.title.en, input.title.uzCyrl,
-        input.content.uz, input.content.ru, input.content.en, input.content.uzCyrl,
+        'UPDATE pages SET slug=?, title_uz=?, title_ru=?, content_uz=?, content_ru=?, sort_order=?, is_active=? WHERE id=?',
+      ).bind(input.slug, input.title.uz, input.title.ru, input.content.uz, input.content.ru,
         input.sortOrder, input.isActive ? 1 : 0, id).run();
     } catch (e) {
       if (e instanceof Error && e.message.includes('UNIQUE')) return json({ error: 'slug_taken' }, { status: 400 });

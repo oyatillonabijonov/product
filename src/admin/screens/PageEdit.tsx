@@ -60,12 +60,12 @@ const PageEdit: FC<{ id: string }> = ({ id }) => {
 
   async function save() {
     setBusy(true); setError('');
-    // en/uzCyrl ustunlari saytda chiqmaydi — eski qiymat saqlanadi. Ruscha sarlavha serverda majburiy:
-    // bo'sh qolsa o'zbekchasi yoziladi (saytdagi "ruscha bo'lmasa o'zbekchasi" qoidasi).
+    // Ruscha sarlavha serverda majburiy: bo'sh qolsa o'zbekchasi yoziladi
+    // (saytdagi "ruscha bo'lmasa o'zbekchasi" qoidasi).
     const payload: Partial<ApiPage> = {
       slug: form.slug.trim(),
-      title: { uz: form.titleUz, ru: form.titleRu.trim() || form.titleUz, en: initial?.title.en ?? '', uzCyrl: initial?.title.uzCyrl ?? '' },
-      content: { uz: form.contentUz, ru: form.contentRu, en: initial?.content.en ?? '', uzCyrl: initial?.content.uzCyrl ?? '' },
+      title: { uz: form.titleUz, ru: form.titleRu.trim() || form.titleUz },
+      content: { uz: form.contentUz, ru: form.contentRu },
       sortOrder: form.sortOrder,
       isActive: form.isActive,
     };

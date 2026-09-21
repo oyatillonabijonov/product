@@ -226,12 +226,11 @@ describe('parseBannerInput linkUrl', () => {
 });
 
 describe('parsePageInput', () => {
-  const title = { uz: 'FAQ', ru: 'FAQ', en: 'FAQ', uzCyrl: 'FAQ' };
+  const title = { uz: 'FAQ', ru: 'FAQ' };
   it('accepts a valid page and defaults empty content', () => {
     const p = parsePageInput({ slug: 'faq', title });
     expect(p.slug).toBe('faq');
-    expect(p.title.uzCyrl).toBe('FAQ');
-    expect(p.content).toEqual({ uz: '', ru: '', en: '', uzCyrl: '' });
+    expect(p.content).toEqual({ uz: '', ru: '' });
     expect(p.isActive).toBe(true);
   });
   it('rejects invalid slug', () => {

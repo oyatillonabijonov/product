@@ -342,7 +342,7 @@ export function parseNewsInput(body: unknown): NewsInput {
 }
 
 const PAGE_SLUG_RE = /^[a-z0-9-]+$/;
-const TEXT_KEYS: (keyof LocalizedText)[] = ['uz', 'ru', 'en', 'uzCyrl'];
+const TEXT_KEYS: (keyof LocalizedText)[] = ['uz', 'ru'];
 
 function localizedText(o: Record<string, unknown>, key: string, required: boolean): LocalizedText {
   const raw = o[key];
@@ -351,8 +351,7 @@ function localizedText(o: Record<string, unknown>, key: string, required: boolea
   for (const k of TEXT_KEYS) {
     const v = r[k];
     const s = typeof v === 'string' ? v.trim() : '';
-    // Sayt faqat uz/ru ni chiqaradi — en/uzCyrl ustunlari ixtiyoriy (eski migratsiyalar to'ldirgan, admin to'ldirmaydi).
-    if (required && s === '' && (k === 'uz' || k === 'ru')) throw new ValidationError(`${key}_${k}_required`);
+    if (required && s === '') throw new ValidationError(`${key}_${k}_required`);
     out[k] = s;
   }
   return out;

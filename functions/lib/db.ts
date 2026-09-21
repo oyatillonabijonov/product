@@ -515,16 +515,16 @@ export function rowToJobApplication(r: JobApplicationRow): ApiJobApplication {
 
 export interface PageRow {
   id: string; slug: string;
-  title_uz: string; title_ru: string; title_en: string; title_cyrl: string;
-  content_uz: string; content_ru: string; content_en: string; content_cyrl: string;
+  title_uz: string; title_ru: string;
+  content_uz: string; content_ru: string;
   sort_order: number; is_active: number;
 }
 
 export function rowToPage(r: PageRow): ApiPage {
   return {
     id: r.id, slug: r.slug,
-    title: { uz: r.title_uz, ru: r.title_ru, en: r.title_en, uzCyrl: r.title_cyrl },
-    content: { uz: r.content_uz, ru: r.content_ru, en: r.content_en, uzCyrl: r.content_cyrl },
+    title: { uz: r.title_uz, ru: r.title_ru },
+    content: { uz: r.content_uz, ru: r.content_ru },
     sortOrder: r.sort_order, isActive: r.is_active === 1,
   };
 }
