@@ -1,4 +1,4 @@
-import { errText } from '../src/admin/errText.ts';
+import { errText } from './err-text.ts';
 
 /**
  * Admin API klienti. MCP hech qanday SQL yozmaydi — hamma yozuv shu API orqali,

@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { AdminClient } from './client.ts';
+import { AdminClient } from '../shared/mcp-client.ts';
 import { registerTools } from './tools.ts';
 
 /**
