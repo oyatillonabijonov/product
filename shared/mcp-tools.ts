@@ -1,5 +1,5 @@
-import { MANUAL_FIELDS, type ManualField } from './billz';
-import type { ApiProduct } from './types';
+import { MANUAL_FIELDS, type ManualField } from './billz.ts';
+import type { ApiProduct } from './types.ts';
 
 /**
  * MCP tool'larining sof mantig'i. Tool'larning o'zi `mcp/tools.ts`da (MCP SDK va fayl
