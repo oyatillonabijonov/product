@@ -5,7 +5,7 @@ import type { ApiAdminBrand, ApiCategory, ApiProduct, ApiProductType } from '../
 import { listBrands, listCategories, listProducts, listTypes, setProductActive } from '../api';
 import { errText } from '../errText';
 import { formatThousands } from '../lib/format';
-import { QUICK_FILTERS, filterProducts, type QuickFilter } from '../lib/product-filter';
+import { QUICK_FILTERS, filterProducts, summaryText, type QuickFilter } from '../lib/product-filter';
 import { Badge, Button, Card, DataTable, EmptyState, Pagination, SearchInput, Segmented, Select, Skeleton, Toggle, type Column } from '../ui';
 import { useToast } from '../ui/toast';
 
@@ -145,7 +145,10 @@ const ProductsList: FC = () => {
         <Skeleton rows={8} />
       ) : (
         <>
-          <p className="text-label text-muted">{filtered.length} ta mahsulot</p>
+          <p className="text-para text-muted">
+            {summaryText(items)}
+            {hasFilter && <span className="text-primary">{` Filtrga mos: ${filtered.length} ta.`}</span>}
+          </p>
           <Card padded={false}>
             <div className="px-2 py-1">
               <DataTable
