@@ -83,10 +83,28 @@ export function mountMcp(app: Express, env: Env): void {
 export function mountOAuth(app: Express, env: Env): boolean {
   const publicUrl = process.env.PUBLIC_URL;
   if (!publicUrl) return false;
+
+  // `new URL(...)` istisno tashlashi mumkin (masalan "not-a-url") — bu boot vaqtida,
+  // request handler'lar ulanishidan OLDIN chaqiriladi, shuning uchun tutilmagan xato
+  // butun serverni yiqitadi. Sxemasiz qiymat ("localhost:3000") esa istisno tashlamaydi —
+  // `URL` uni "localhost:" sxemasi deb noto'g'ri o'qiydi — shuning uchun protokol ham
+  // tekshiriladi.
+  let issuerUrl: URL;
+  try {
+    issuerUrl = new URL(publicUrl);
+  } catch {
+    console.log(`PUBLIC_URL yaroqsiz manzil (${publicUrl}) — OAuth ulanmadi; /mcp faqat bearer token bilan ishlaydi.`);
+    return false;
+  }
+  if (issuerUrl.protocol !== 'http:' && issuerUrl.protocol !== 'https:') {
+    console.log(`PUBLIC_URL http(s) bo'lishi shart, olindi: ${publicUrl} — OAuth ulanmadi; /mcp faqat bearer token bilan ishlaydi.`);
+    return false;
+  }
+
   app.use(mcpAuthRouter({
     provider: createOAuthProvider(env),
-    issuerUrl: new URL(publicUrl),
-    resourceServerUrl: new URL('/mcp', publicUrl),
+    issuerUrl,
+    resourceServerUrl: new URL('/mcp', issuerUrl),
     scopesSupported: ['admin'],
     resourceName: 'ProDuct admin',
   }));
