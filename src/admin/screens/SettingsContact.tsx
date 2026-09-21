@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { FC } from 'react';
 import { ContentFields, useSiteContent } from '../ContentFields';
 import { errText } from '../errText';
-import { phoneFromDisplay } from '../lib/phone';
+import { phoneFromDisplay } from '../../lib/phone';
 import SectionTabs from '../SectionTabs';
 import { useSiteConfig } from '../useSiteConfig';
 import { Button, Card, EmptyState, Field, Input, Page, Skeleton } from '../ui';

@@ -17,6 +17,7 @@ import type {
   Term,
 } from '../../shared/types';
 import { deriveLegacyCategory } from '../../shared/legacy-category';
+import { SAFE_HREF_RE } from '../../shared/safe-href';
 import { parseManualFields } from '../../shared/billz';
 
 export class ValidationError extends Error {}
@@ -318,8 +319,7 @@ export function parseBannerInput(body: unknown): BannerInput {
   const imageUrl = reqString(o, 'imageUrl');
   const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID();
   const linkUrl = typeof o.linkUrl === 'string' ? o.linkUrl.trim() : '';
-  // nusxasi src/lib/safe-href.ts da (functions tsconfig src/ ni ko'rmaydi)
-  if (linkUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(linkUrl)) throw new ValidationError('link_invalid');
+  if (linkUrl !== '' && !SAFE_HREF_RE.test(linkUrl)) throw new ValidationError('link_invalid');
   const altText = typeof o.altText === 'string' ? o.altText.trim() : '';
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
@@ -335,7 +335,7 @@ export function parseNewsInput(body: unknown): NewsInput {
   const imageUrl = reqString(o, 'imageUrl');
   const str = (k: string, max: number) => (typeof o[k] === 'string' ? (o[k] as string).trim().slice(0, max) : '');
   const linkUrl = str('linkUrl', 500);
-  if (linkUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(linkUrl)) throw new ValidationError('link_invalid');
+  if (linkUrl !== '' && !SAFE_HREF_RE.test(linkUrl)) throw new ValidationError('link_invalid');
   return {
     id: typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID(),
     badge: str('badge', 40), badgeRu: str('badgeRu', 40),
@@ -413,7 +413,7 @@ export function parsePostInput(body: unknown): PostInput {
   const publishedAt = opt('publishedAt');
   if (publishedAt !== '' && !ISO_DATE_RE.test(publishedAt)) throw new ValidationError('published_at_invalid');
   const coverUrl = opt('coverUrl');
-  if (coverUrl !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(coverUrl)) throw new ValidationError('cover_invalid');
+  if (coverUrl !== '' && !SAFE_HREF_RE.test(coverUrl)) throw new ValidationError('cover_invalid');
   const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID();
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
   const isActive = o.isActive === undefined ? true : Boolean(o.isActive);
@@ -494,11 +494,11 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
   const name = reqString(o, 'name');
   const phone = reqString(o, 'phone');
   const opt = (key: string): string => (typeof o[key] === 'string' ? (o[key] as string).trim() : '');
-  // Banner linkUrl bilan bir xil qoida (nusxasi src/lib/safe-href.ts) — kontakt
+  // Banner linkUrl bilan bir xil qoida — kontakt
   // URL'lar storefront'da to'g'ridan-to'g'ri href bo'ladi, javascript: o'tmasin.
   const link = (key: string): string => {
     const v = opt(key);
-    if (v !== '' && !/^(\/(?!\/)|https?:\/\/)/i.test(v)) throw new ValidationError(`${key}_invalid`);
+    if (v !== '' && !SAFE_HREF_RE.test(v)) throw new ValidationError(`${key}_invalid`);
     return v;
   };
   const pm = opt('paymentMode');

@@ -7,7 +7,7 @@ import LocaleLink from './LocaleLink';
 import PageHero from './PageHero';
 import { useAssets } from './SiteAssets';
 import { LINK_MORE, SECTION_HEADING } from './ui';
-import { safeHref } from '../lib/safe-href';
+import { safeHref } from '../../shared/safe-href';
 
 const CARD = 'flex flex-col overflow-hidden rounded-xl bg-surface';
 

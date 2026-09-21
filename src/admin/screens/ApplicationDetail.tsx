@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { useLocation } from 'react-router';
 import { Phone } from 'lucide-react';
 import type { ApiJobApplication, OrderStatus } from '../../../shared/types';
-import { safeHref } from '../../lib/safe-href';
+import { safeHref } from '../../../shared/safe-href';
 import { listJobApplications, setJobApplicationStatus } from '../api';
 import { errText } from '../errText';
 import { formatDateTime } from '../lib/format';

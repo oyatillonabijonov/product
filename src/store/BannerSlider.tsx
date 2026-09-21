@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import type { ApiBanner } from '../../shared/types';
 import type { Translation } from '../locales';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
-import { safeHref } from '../lib/safe-href';
+import { safeHref } from '../../shared/safe-href';
 
 const Slide: FC<{ banner: ApiBanner; locale: Locale; eager: boolean }> = ({ banner, locale, eager }) => {
   const img = (

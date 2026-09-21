@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatUzPhone, isCompleteUzPhone } from './phone';
+import { formatUzPhone, isCompleteUzPhone, phoneFromDisplay } from './phone';
 
 describe('formatUzPhone', () => {
   it('bo\'sh kiritish prefiksni qaytaradi', () => {
@@ -37,5 +37,16 @@ describe('isCompleteUzPhone', () => {
     expect(isCompleteUzPhone('+998 90 123-45-67')).toBe(true);
     expect(isCompleteUzPhone('+998 90 123-45-6')).toBe(false);
     expect(isCompleteUzPhone('+998')).toBe(false);
+  });
+});
+
+describe('phoneFromDisplay', () => {
+  it("ko'rinishdagi belgilarni tashlab, oldiga + qo'yadi", () => {
+    expect(phoneFromDisplay('+998 (90) 123-45-67')).toBe('+998901234567');
+    expect(phoneFromDisplay('90 123 45 67')).toBe('+998901234567');
+  });
+  it("raqam bo'lmasa bo'sh qaytaradi", () => {
+    expect(phoneFromDisplay('')).toBe('');
+    expect(phoneFromDisplay('aloqa')).toBe('');
   });
 });

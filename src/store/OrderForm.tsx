@@ -7,7 +7,7 @@ import type { OrderInput } from '../../shared/types';
 import type { StoreContext } from './StoreLayout';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
 import { ymGoal } from '../lib/metrica';
-import { safeHref } from '../lib/safe-href';
+import { safeHref } from '../../shared/safe-href';
 import Modal from './Modal';
 import { useCurrency } from './CurrencyContext';
 
