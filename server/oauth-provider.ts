@@ -138,12 +138,24 @@ export function createOAuthProvider(env: Env): OAuthServerProvider {
       return verifier.verifyAccessToken(token);
     },
 
-    async revokeToken(client: OAuthClientInformationFull, _request: OAuthTokenRevocationRequest): Promise<void> {
-      // Butun grant bekor qilinadi (access + refresh), faqat berilgan token emas — RFC 7009
-      // §2.1 shunga ruxsat beradi. Aks holda 'refresh' qatorlar admin ro'yxatida
-      // ko'rinmasdi (Decision C1), ya'ni public klient o'z access tokenini `/revoke`ga
-      // yuborib «bekor qilingandek» ko'rinardi-yu, refresh tokeni tirik qolib, istalgan
-      // vaqt yangi to'liq admin access tokeni yasab olardi — kill-switch yo'qolardi.
+    async revokeToken(client: OAuthClientInformationFull, request: OAuthTokenRevocationRequest): Promise<void> {
+      // Klientlarimiz public (`token_endpoint_auth_method: 'none'`, sir yo'q) — SDK
+      // `authenticateClient`ni faqat `client_id` do'konda borligiga qarab o'tkazadi.
+      // client_id esa sir emas: `/authorize?client_id=…` URL'ida va rozilik sahifasining
+      // yashirin maydonida ko'rinadi. Shuning uchun **haqiqiy, tirik token egaligi**
+      // tekshiriladi — aks holda client_id'ni ko'rgan istalgan kishi yaroqsiz token bilan
+      // /revoke chaqirib, o'zganing konnektorini bekor qilib qo'yishi mumkin edi (DoS).
+      const row = await env.DB.prepare(
+        'SELECT client_id FROM admin_tokens WHERE token_hash = ? AND revoked_at IS NULL',
+      )
+        .bind(await hashToken(request.token))
+        .first<{ client_id: string | null }>();
+      // RFC 7009 §2.2: yaroqsiz token — xato emas, shunchaki hech narsa qilinmaydi.
+      if (!row || row.client_id !== client.client_id) return;
+      // Token haqiqiy ekanligi tasdiqlangach — butun grant (access + refresh) bekor
+      // qilinadi, faqat berilgan token emas (RFC 7009 §2.1). Aks holda public klient
+      // o'z access tokenini /revoke qilib «bekor qilingandek» ko'rinardi-yu, ko'rinmas
+      // (Decision C1) refresh tokeni tirik qolib, istalgan payt yangisini yasab olardi.
       await env.DB.prepare('UPDATE admin_tokens SET revoked_at = unixepoch() WHERE client_id = ? AND revoked_at IS NULL')
         .bind(client.client_id)
         .run();
