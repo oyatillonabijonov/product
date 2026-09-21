@@ -275,11 +275,7 @@ export interface CategoryInput {
   id: string;
   name: string;
   nameRu: string;
-  iconUrl: string;
-  icon: string;
   coverUrl: string;
-  coverLede: string;
-  coverLedeRu: string;
   sortOrder: number;
 }
 
@@ -296,13 +292,9 @@ export function parseCategoryInput(body: unknown): CategoryInput {
   const id =
     typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : slugify(name) || crypto.randomUUID();
   const nameRu = typeof o.nameRu === 'string' ? o.nameRu.trim() : '';
-  const iconUrl = typeof o.iconUrl === 'string' ? o.iconUrl.trim() : '';
-  const icon = typeof o.icon === 'string' ? o.icon.trim() : '';
   const coverUrl = typeof o.coverUrl === 'string' ? o.coverUrl.trim() : '';
-  const coverLede = typeof o.coverLede === 'string' ? o.coverLede.trim() : '';
-  const coverLedeRu = typeof o.coverLedeRu === 'string' ? o.coverLedeRu.trim() : '';
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
-  return { id, name, nameRu, iconUrl, icon, coverUrl, coverLede, coverLedeRu, sortOrder };
+  return { id, name, nameRu, coverUrl, sortOrder };
 }
 
 export interface BannerInput {
@@ -513,7 +505,6 @@ export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
     instagram: link('instagram'),
     whatsapp: link('whatsapp'),
     mapLl: opt('mapLl'),
-    mapLabel: opt('mapLabel'),
     seoTitleSuffix: opt('seoTitleSuffix') || name,
     seoDescription: opt('seoDescription'),
     ogImage: opt('ogImage'),

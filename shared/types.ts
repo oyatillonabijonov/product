@@ -77,14 +77,8 @@ export interface ApiCategory {
   name: string;
   /** Ruscha nom; bo'sh bo'lsa UI o'zbekcha `name`ga tushadi. */
   nameRu: string;
-  iconUrl: string;
-  /** Preset icon key (saytda ishlatilmaydi, ustun qoldi); falls back to a generic icon when empty/unknown. */
-  icon: string;
-  /** Kategoriya sahifasidagi cover rasmi (R2 yo'li); bo'sh bo'lsa cover ko'rsatilmaydi. */
+  /** Kategoriya sahifasidagi cover rasmi; bo'sh bo'lsa cover ko'rsatilmaydi. */
   coverUrl: string;
-  /** Cover'dagi bir qatorli izoh (uz / ru); bo'sh bo'lsa faqat nom chiqadi. */
-  coverLede: string;
-  coverLedeRu: string;
   sortOrder: number;
 }
 
@@ -261,7 +255,6 @@ export interface ApiSiteConfig {
   instagram: string;
   whatsapp: string;
   mapLl: string;
-  mapLabel: string;
   seoTitleSuffix: string;
   seoDescription: string;
   ogImage: string;

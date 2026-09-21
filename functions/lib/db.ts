@@ -126,11 +126,7 @@ export interface CategoryRow {
   id: string;
   name: string;
   name_ru: string;
-  icon_url: string;
-  icon: string;
   cover_url: string;
-  cover_lede: string;
-  cover_lede_ru: string;
   sort_order: number;
 }
 
@@ -154,11 +150,7 @@ export function rowToCategory(row: CategoryRow): ApiCategory {
     id: row.id,
     name: row.name,
     nameRu: row.name_ru ?? '',
-    iconUrl: row.icon_url,
-    icon: row.icon ?? '',
     coverUrl: row.cover_url ?? '',
-    coverLede: row.cover_lede ?? '',
-    coverLedeRu: row.cover_lede_ru ?? '',
     sortOrder: row.sort_order,
   };
 }
@@ -560,7 +552,7 @@ export function rowToPost(r: PostRow): ApiPost {
 export interface SiteConfigRow {
   id: number; name: string; phone: string; phone_display: string;
   telegram: string; instagram: string; whatsapp: string;
-  map_ll: string; map_label: string;
+  map_ll: string;
   seo_title_suffix: string; seo_description: string; og_image: string;
   payment_mode: string;
   telegram_bot_token: string;
@@ -594,7 +586,7 @@ export function rowToSiteConfig(r: SiteConfigRow): ApiSiteConfig {
   return {
     name: r.name, phone: r.phone, phoneDisplay: r.phone_display,
     telegram: r.telegram, instagram: r.instagram, whatsapp: r.whatsapp,
-    mapLl: r.map_ll, mapLabel: r.map_label,
+    mapLl: r.map_ll,
     seoTitleSuffix: r.seo_title_suffix, seoDescription: r.seo_description, ogImage: r.og_image,
     paymentMode: (r.payment_mode === 'cash' || r.payment_mode === 'installment') ? r.payment_mode : 'both',
     telegramBotToken: r.telegram_bot_token, telegramOrderChatId: r.telegram_order_chat_id,

@@ -13,7 +13,7 @@ const uploaded: Partial<Record<AssetKey, string>> = {
 };
 const asset = (key: AssetKey) => uploaded[key] ?? '';
 const cat = (id: string): ApiCategory => ({
-  id, name: id, nameRu: '', iconUrl: '', icon: '', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 0,
+  id, name: id, nameRu: '', coverUrl: '', sortOrder: 0,
 });
 
 describe('heroColumns', () => {

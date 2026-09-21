@@ -300,7 +300,6 @@ export function staticSiteConfigAsApi(): ApiSiteConfig {
     instagram: staticSiteConfig.instagram,
     whatsapp: staticSiteConfig.whatsapp,
     mapLl: staticSiteConfig.map.ll,
-    mapLabel: staticSiteConfig.map.label,
     seoTitleSuffix: staticSiteConfig.seo.titleSuffix,
     seoDescription: staticSiteConfig.seo.description,
     ogImage: staticSiteConfig.seo.ogImage,

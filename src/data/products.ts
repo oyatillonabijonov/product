@@ -67,11 +67,11 @@ export const brands: ApiBrand[] = [
 ];
 
 /** Storefront kategoriyalari — API ishlamaganда namuna sifatida (migratsiya 0003 bilan mos). */
-export const categories: { id: string; name: string; nameRu: string; iconUrl: string; icon: string; coverUrl: string; coverLede: string; coverLedeRu: string; sortOrder: number }[] = [
-  { id: 'apple', name: 'Apple', nameRu: 'Apple', iconUrl: '', icon: 'smartphone', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 10 },
-  { id: 'pc', name: 'PC', nameRu: 'PC', iconUrl: '', icon: 'monitor', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 20 },
-  { id: 'audio', name: 'Audio', nameRu: 'Audio', iconUrl: '', icon: 'headphones', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 30 },
-  { id: 'video', name: 'Video', nameRu: 'Video', iconUrl: '', icon: 'camera', coverUrl: '', coverLede: '', coverLedeRu: '', sortOrder: 40 },
+export const categories: { id: string; name: string; nameRu: string; coverUrl: string; sortOrder: number }[] = [
+  { id: 'apple', name: 'Apple', nameRu: 'Apple', coverUrl: '', sortOrder: 10 },
+  { id: 'pc', name: 'PC', nameRu: 'PC', coverUrl: '', sortOrder: 20 },
+  { id: 'audio', name: 'Audio', nameRu: 'Audio', coverUrl: '', sortOrder: 30 },
+  { id: 'video', name: 'Video', nameRu: 'Video', coverUrl: '', sortOrder: 40 },
 ];
 
 /** Sample mahsulotni yo'nalishga bog'lash (migratsiya 0025 mantig'i). */
