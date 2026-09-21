@@ -6,7 +6,6 @@ import {
   products as fallbackProducts,
   categories as fallbackCategories,
   brands as fallbackBrands,
-  fallbackCategoryOf,
 } from '../../src/data/products';
 import {
   rowToProduct, rowToCategory, rowToBrand, buildProductDetail, PRODUCT_COLS,
@@ -34,7 +33,7 @@ export interface ProductDetail extends Product {
 
 function mapProduct(p: ApiProduct): Product {
   return {
-    id: p.id, name: p.name, category: p.category, condition: p.condition,
+    id: p.id, name: p.name, condition: p.condition,
     conditionNote: p.conditionNote ?? undefined, image: p.imageUrl,
     cashPriceUzs: p.cashPriceUzs, oldPriceUzs: p.oldPriceUzs ?? null,
     minPriceUzs: p.minPriceUzs, brandId: p.brandId, categoryId: p.categoryId, type: p.type,
@@ -125,7 +124,7 @@ export async function loadProductsBy(
   } catch (err) {
     console.error('loadProductsBy fallback:', err);
     let items = fallbackProducts;
-    if (params.category) items = items.filter((p) => fallbackCategoryOf(p) === params.category);
+    if (params.category) items = items.filter((p) => p.categoryId === params.category);
     if (params.type) items = items.filter((p) => p.type === params.type);
     if (params.exclude) items = items.filter((p) => p.id !== params.exclude);
     for (const term of searchTerms((params.q ?? '').toLowerCase())) items = items.filter((p) => p.name.toLowerCase().includes(term));

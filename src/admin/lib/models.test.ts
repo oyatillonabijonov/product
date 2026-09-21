@@ -3,7 +3,7 @@ import { modelToSpecs, mergeSpecs, filterModels } from './models';
 import type { ApiDeviceModel, ApiSpec } from '../../../shared/types';
 
 const model = (over: Partial<ApiDeviceModel> = {}): ApiDeviceModel => ({
-  id: '1', name: 'iPhone 16 Pro Max', brandId: 'b1', categoryId: 'c1', legacyCategory: 'iphone',
+  id: '1', name: 'iPhone 16 Pro Max', brandId: 'b1', categoryId: 'c1',
   chip: 'A18 Pro', ram: '8GB', camera: '48MP', display: '6.9"', sortOrder: 0, ...over,
 });
 

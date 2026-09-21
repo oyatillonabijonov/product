@@ -1,7 +1,6 @@
 import type { BillzSyncStatus, ManualField } from './billz';
 import type { ProductTypeRow } from './product-types';
 
-export type Category = 'iphone' | 'mac' | 'ipad' | 'pc';
 export type Condition = 'yangi' | 'ishlatilgan';
 export type PaymentMode = 'both' | 'cash' | 'installment';
 
@@ -13,7 +12,6 @@ export interface Term {
 export interface ApiProduct {
   id: string;
   name: string;
-  category: Category;
   condition: Condition;
   conditionNote: string | null;
   cashPriceUzs: number;
@@ -239,7 +237,6 @@ export interface ApiDeviceModel {
   name: string;
   brandId: string;
   categoryId: string;
-  legacyCategory: Category;
   chip: string;
   ram: string;
   camera: string;

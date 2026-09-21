@@ -25,9 +25,7 @@ import type {
   OrderPaymentKind,
   OrderSource,
   OrderStatus,
-  Category,
   Condition,
-  PaymentMode,
   Term,
 } from '../../shared/types';
 import { rowToProductType, type ProductTypeDbRow } from '../../shared/product-types';
@@ -82,7 +80,6 @@ export function rowToProduct(row: ProductRow): ApiProduct {
   return {
     id: row.id,
     name: row.name,
-    category: row.category as Category,
     condition: row.condition as Condition,
     conditionNote: row.condition_note,
     cashPriceUzs: row.cash_price_uzs,
@@ -576,7 +573,6 @@ export interface DeviceModelRow {
 export function rowToDeviceModel(r: DeviceModelRow): ApiDeviceModel {
   return {
     id: r.id, name: r.name, brandId: r.brand_id, categoryId: r.category_id,
-    legacyCategory: r.legacy_category as Category,
     chip: r.chip, ram: r.ram, camera: r.camera, display: r.display,
     sortOrder: r.sort_order,
   };

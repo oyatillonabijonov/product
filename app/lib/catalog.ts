@@ -1,5 +1,4 @@
 import type { Product } from '../../src/data/products';
-import { fallbackCategoryOf } from '../../src/data/products';
 
 export const PAGE_SIZE = 24;
 export const SORTS = ['default', 'arzon', 'qimmat', 'yangi'] as const;
@@ -81,7 +80,7 @@ const effective = (p: Product): number => p.minPriceUzs;
 
 export function applyFilters(products: Product[], f: CatalogFilters): CatalogResult {
   let xs = products;
-  if (f.category) xs = xs.filter((p) => fallbackCategoryOf(p) === f.category);
+  if (f.category) xs = xs.filter((p) => p.categoryId === f.category);
   if (f.condition) xs = xs.filter((p) => p.condition === f.condition);
   if (f.type) xs = xs.filter((p) => p.type === f.type);
   if (f.q) {
@@ -89,7 +88,7 @@ export function applyFilters(products: Product[], f: CatalogFilters): CatalogRes
       xs = xs.filter((p) =>
         p.name.toLowerCase().includes(term) ||
         (p.brandId ?? '').toLowerCase().includes(term) ||
-        (fallbackCategoryOf(p) ?? '').toLowerCase().includes(term),
+        (p.categoryId ?? '').toLowerCase().includes(term),
       );
     }
   }

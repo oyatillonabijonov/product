@@ -143,8 +143,6 @@ export interface MappedProduct {
   /** Faqat insert'da ishlatiladi — URL nom o'zgarsa ham turadi. */
   slug: string;
   categoryId: string | null;
-  /** Eski `products.category` ustuni (NOT NULL enum). */
-  legacyCategory: 'iphone' | 'ipad' | 'mac' | 'pc';
   type: string | null;
   brandId: string | null;
   /** Brend saytda yo'q — runner `brands`ga qo'shadi. */
@@ -184,9 +182,6 @@ export function mapBillzProduct(raw: BillzProduct, ctx: MapContext): MappedProdu
   const dir = field('Nad Kategoriya').trim().toLowerCase();
   const categoryId = ctx.categoryIds.has(dir) ? dir : null;
   const type = categoryId ? matchBillzType(typesOf(ctx.types, categoryId), raw.categories?.[0]?.name ?? '') : null;
-  const legacyCategory: MappedProduct['legacyCategory'] =
-    categoryId === 'apple' ? (type === 'iphone' ? 'iphone' : type === 'ipad' ? 'ipad' : 'mac') : 'pc';
-
   const brandName = (raw.brand_name ?? '').trim();
   let brandId: string | null = null;
   let newBrand: MappedProduct['newBrand'] = null;
@@ -224,7 +219,6 @@ export function mapBillzProduct(raw: BillzProduct, ctx: MapContext): MappedProdu
     name,
     slug: `${asciiSlug(name) || 'tovar'}-${raw.id.slice(0, 8)}`,
     categoryId,
-    legacyCategory,
     type,
     brandId,
     newBrand,

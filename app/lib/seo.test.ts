@@ -4,7 +4,7 @@ import type { ProductDetail } from './loaders';
 
 function makeDetail(over: Partial<ProductDetail> = {}): ProductDetail {
   return {
-    id: 'p1', name: 'iPhone 15', category: 'iphone', condition: 'yangi',
+    id: 'p1', name: 'iPhone 15', condition: 'yangi',
     image: '/i.webp', cashPriceUzs: 1000, oldPriceUzs: null, minPriceUzs: 900,
     brandId: null, categoryId: null, description: null, images: ['/i.webp'],
     specs: [], brand: null, options: [], variants: [],

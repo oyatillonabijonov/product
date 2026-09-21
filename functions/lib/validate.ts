@@ -1,5 +1,4 @@
 import type {
-  ApiCategory,
   ApiNews,
   ApiSiteText,
   ApiVacancy,
@@ -7,7 +6,6 @@ import type {
   ApiProduct,
   ApiSettings,
   ApiSiteConfig,
-  Category,
   Condition,
   LocalizedText,
   OrderInput,
@@ -16,13 +14,11 @@ import type {
   PaymentMode,
   Term,
 } from '../../shared/types';
-import { deriveLegacyCategory } from '../../shared/legacy-category';
 import { SAFE_HREF_RE } from '../../shared/safe-href';
 import { parseManualFields } from '../../shared/billz';
 
 export class ValidationError extends Error {}
 
-const CATEGORIES: Category[] = ['iphone', 'mac', 'ipad', 'pc'];
 // Payload chegaralari — chegarasiz massivlar minglab ketma-ket INSERT bo'lib ketardi.
 const MAX_IMAGES = 24;
 const MAX_SPECS = 60;
@@ -73,10 +69,6 @@ export function parseProductInput(body: unknown): ProductInput {
   const o = asRecord(body);
   const name = reqString(o, 'name');
   const categoryId = typeof o.categoryId === 'string' ? o.categoryId : null;
-  const rawCategory =
-    typeof o.category === 'string' && o.category.trim() !== '' ? (o.category.trim() as Category) : null;
-  if (rawCategory !== null && !CATEGORIES.includes(rawCategory)) throw new ValidationError('category_invalid');
-  const category = rawCategory ?? deriveLegacyCategory(categoryId);
   // Tur faqat shakl bo'yicha; yo'nalishga tegishliligi route'da bazadan (`typeExists`).
   const type = typeof o.type === 'string' && o.type.trim() !== '' ? o.type.trim() : null;
   if (type !== null && !TYPE_ID.test(type)) throw new ValidationError('type_invalid');
@@ -194,7 +186,6 @@ export function parseProductInput(body: unknown): ProductInput {
   return {
     id,
     name,
-    category,
     condition,
     conditionNote,
     cashPriceUzs,
@@ -418,7 +409,7 @@ export function parsePostInput(body: unknown): PostInput {
 
 export interface DeviceModelInput {
   id: string; name: string; brandId: string; categoryId: string;
-  legacyCategory: Category; chip: string; ram: string; camera: string;
+  chip: string; ram: string; camera: string;
   display: string; sortOrder: number;
 }
 
@@ -427,13 +418,10 @@ export function parseDeviceModelInput(body: unknown): DeviceModelInput {
   const name = reqString(o, 'name');
   const brandId = reqString(o, 'brandId');
   const categoryId = reqString(o, 'categoryId');
-  const rawLegacy = typeof o.legacyCategory === 'string' && o.legacyCategory.trim() !== '' ? (o.legacyCategory.trim() as Category) : null;
-  if (rawLegacy !== null && !CATEGORIES.includes(rawLegacy)) throw new ValidationError('legacy_category_invalid');
-  const legacyCategory = rawLegacy ?? deriveLegacyCategory(categoryId);
   const opt = (key: string): string => (typeof o[key] === 'string' ? (o[key] as string).trim() : '');
   const id = typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : (slugify(name) || crypto.randomUUID());
   const sortOrder = typeof o.sortOrder === 'number' ? o.sortOrder : 0;
-  return { id, name, brandId, categoryId, legacyCategory, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
+  return { id, name, brandId, categoryId, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
 }
 
 /** Kabinet profil tahriri — ism (majburiy) + telefon (ixtiyoriy, bo'lsa UZ format). */

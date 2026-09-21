@@ -24,14 +24,13 @@ export async function action({ request, context }: Route.ActionArgs) {
     await env.DB.prepare(
       `INSERT INTO device_models
         (id, name, brand_id, category_id, legacy_category, chip, ram, camera, display, sort_order)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, '', ?, ?, ?, ?, ?)`,
     )
       .bind(
         input.id,
         input.name,
         input.brandId,
         input.categoryId,
-        input.legacyCategory,
         input.chip,
         input.ram,
         input.camera,

@@ -106,7 +106,6 @@ export function imageFilesOf(names: string[]): string[] {
 /** `PUT /api/admin/products/:id` kutadigan tana. */
 export interface ProductInputBody {
   name: string;
-  category: string;
   categoryId: string | null;
   type: string | null;
   condition: string;
@@ -152,7 +151,7 @@ export function detailToInput(d: ApiProductDetail): ProductInputBody {
     for (const v of o.values) valueById.set(v.id, { optionName: o.name, value: v.value });
   }
   return {
-    name: d.name, category: d.category, categoryId: d.categoryId, type: d.type,
+    name: d.name, categoryId: d.categoryId, type: d.type,
     condition: d.condition, conditionNote: d.conditionNote, cashPriceUzs: d.cashPriceUzs,
     oldPriceUzs: d.oldPriceUzs, description: d.description, imageUrl: d.imageUrl,
     images: d.images.filter((u) => u !== d.imageUrl),

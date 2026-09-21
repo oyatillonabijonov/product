@@ -52,7 +52,7 @@ describe('hasActiveParams', () => {
 });
 
 const P = (o: Partial<Product> & { id: string; cashPriceUzs: number; minPriceUzs: number }): Product => ({
-  name: o.id, category: 'iphone', condition: 'yangi', image: '', ...o,
+  name: o.id, condition: 'yangi', image: '', ...o,
 });
 const items: Product[] = [
   P({ id: 'a', cashPriceUzs: 10, minPriceUzs: 8, brandId: 'apple' }),

@@ -4,7 +4,7 @@ import { EMPTY_FORM, addAxisValue, detailToForm, formToPayload, setAxisValues, t
 
 function detail(over: Partial<AdminProductDetail> = {}): AdminProductDetail {
   return {
-    id: 'p1', name: 'iPhone 17', category: 'iphone', condition: 'yangi', conditionNote: null, cashPriceUzs: 1000,
+    id: 'p1', name: 'iPhone 17', condition: 'yangi', conditionNote: null, cashPriceUzs: 1000,
     imageUrl: '/images/products/main.webp', sortOrder: 0, isActive: true, categoryId: 'apple', type: 'iphone',
     oldPriceUzs: null, brandId: 'apple', slug: 'iphone-17', minPriceUzs: 900, ratingAvg: null, reviewCount: 0, preorder: false,
     pcHidden: false, pcSocket: null, pcMemory: null, pcWatts: null,
@@ -98,7 +98,7 @@ describe('aylanma (detail → forma → payload)', () => {
     });
     const p = formToPayload(detailToForm(d));
     expect(p).toEqual({
-      name: d.name, category: d.category, categoryId: d.categoryId, type: d.type, condition: d.condition,
+      name: d.name, categoryId: d.categoryId, type: d.type, condition: d.condition,
       conditionNote: 'Batafsil', cashPriceUzs: d.cashPriceUzs,
       oldPriceUzs: 1200, description: 'Tavsif', imageUrl: d.imageUrl, images: ['/images/products/g1.webp'],
       specs: d.specs, sortOrder: 7, isActive: false, brandId: d.brandId, slug: d.slug,

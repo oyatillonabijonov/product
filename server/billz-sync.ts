@@ -140,8 +140,8 @@ export function createBillzSync(env: Env): BillzSyncHandle {
       const cols = ['name=?', 'brand_id=?', 'billz_stock=?', 'is_active=?', 'image_url=?'];
       const vals: unknown[] = [m.name, m.brandId, m.stock, m.isActive ? 1 : 0, m.imageUrl];
       if (!manual.includes('category')) {
-        cols.push('category=?', 'category_id=?', 'type=?');
-        vals.push(m.legacyCategory, m.categoryId, m.type);
+        cols.push('category_id=?', 'type=?');
+        vals.push(m.categoryId, m.type);
       }
       if (!manual.includes('price')) {
         cols.push('cash_price_uzs=?', 'old_price_uzs=?');
@@ -155,8 +155,8 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     } else {
       stmts.push(env.DB.prepare(
         `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, type, old_price_uzs, description, brand_id, slug, rating_avg, review_count, created_at, billz_id, billz_stock)
-         VALUES (?, ?, ?, 'yangi', NULL, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, NULL, 0, unixepoch(), ?, ?)`,
-      ).bind(id, m.name, m.legacyCategory, m.cashPriceUzs, m.imageUrl, m.isActive ? 1 : 0, m.categoryId, m.type, m.oldPriceUzs, m.description, m.brandId, m.slug, m.billzId, m.stock));
+         VALUES (?, ?, '', 'yangi', NULL, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, NULL, 0, unixepoch(), ?, ?)`,
+      ).bind(id, m.name, m.cashPriceUzs, m.imageUrl, m.isActive ? 1 : 0, m.categoryId, m.type, m.oldPriceUzs, m.description, m.brandId, m.slug, m.billzId, m.stock));
     }
     if (!manual.includes('specs')) stmts.push(...specsStatements(env, id, m.specs));
     // Galereya faqat Billz'da rasm bo'lsa qayta yoziladi — admin yuklagan galereya rasmsiz tovarda qoladi.

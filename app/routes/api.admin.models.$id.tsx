@@ -15,14 +15,13 @@ export async function action({ request, context, params }: Route.ActionArgs) {
     try {
       await env.DB.prepare(
         `UPDATE device_models
-         SET name=?, brand_id=?, category_id=?, legacy_category=?, chip=?, ram=?, camera=?, display=?, sort_order=?
+         SET name=?, brand_id=?, category_id=?, chip=?, ram=?, camera=?, display=?, sort_order=?
          WHERE id=?`,
       )
         .bind(
           input.name,
           input.brandId,
           input.categoryId,
-          input.legacyCategory,
           input.chip,
           input.ram,
           input.camera,

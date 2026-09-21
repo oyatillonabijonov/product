@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from 'react-router';
 import { X } from 'lucide-react';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel, ApiProductType } from '../../../shared/types';
 import type { ManualField } from '../../../shared/billz';
-import { deriveLegacyCategory } from '../../../shared/legacy-category';
 import { PC_SOCKETS, partAttrs, slotForType } from '../../../shared/pc-compat';
 import {
   createProduct, deleteProduct, getProductDetail, listBrands, listCategories, listDeviceModels, listTypes, updateProduct, uploadImage,
@@ -103,13 +102,13 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
       // Registrdagi eskirgan yo'nalish id'si (0025'gacha: telefonlar/planshetlar/noutbuklar) mahsulotga o'tmasin.
       const categoryId = cats.some((c) => c.id === m.categoryId) ? m.categoryId : f.categoryId;
       return {
-        ...f, name: m.name, brandId: m.brandId, categoryId, category: m.legacyCategory,
+        ...f, name: m.name, brandId: m.brandId, categoryId,
         type: typeOf(categoryId, f.type), specs: mergeSpecs(f.specs, modelToSpecs(m)),
       };
     });
   }
   function setCategory(categoryId: string | null) {
-    patch((f) => ({ ...f, categoryId, category: deriveLegacyCategory(categoryId), type: typeOf(categoryId, f.type) }));
+    patch((f) => ({ ...f, categoryId, type: typeOf(categoryId, f.type) }));
   }
   function addCustomColor() {
     const c = colorDraft;
