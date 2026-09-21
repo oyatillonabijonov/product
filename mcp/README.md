@@ -36,6 +36,24 @@ bun install
 
 `claude_desktop_config.json` — xuddi shu `mcpServers` bloki.
 
+## Remote ulanish (claude.ai, telefon)
+
+Claude Code o'rnatish shart emas.
+
+1. claude.ai → Settings → Connectors → **Add custom connector**
+2. Manzil: `https://<sayt>/mcp`
+3. Ochilgan sahifada admin login va parolni kiriting, ulanishga nom bering
+   (masalan «Javlonning telefoni») va «Ruxsat berish»ni bosing.
+
+Ulanish admin → Sozlamalar → Integratsiyalar → «MCP tokenlari» ro'yxatida
+ko'rinadi va o'sha yerdan bekor qilinadi.
+
+**Farqi:** remote'da `image_upload_from_path` yo'q — serverda sizning
+fayllaringiz yo'q. Rasm faqat `https` havola orqali (`image_upload_from_url`).
+
+**Server sozlamasi:** `PUBLIC_URL=https://<sayt>` bo'lishi shart, aks holda OAuth
+ulanmaydi (log'da yoziladi) va faqat qo'lda yaratilgan token bilan ishlaydi.
+
 ## Namunalar
 
 - «Bu papkadagi rasmlarni qo'sh: /Users/javlon/Desktop/iphone-17. Nomi iPhone 17 Pro 256GB,

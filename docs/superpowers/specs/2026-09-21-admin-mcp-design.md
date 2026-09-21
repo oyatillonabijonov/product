@@ -85,6 +85,13 @@ Endpoint'lar (`app/routes.ts`ga qo'shiladi):
   grant'lari. Access token 30 kun, refresh token bekor qilinmaguncha.
 - `/mcp` avtorizatsiyasiz so'rovga `401` + `WWW-Authenticate: Bearer resource_metadata="<url>"`.
 
+> **Bajarilganda o'zgargan qaror (2026-09-21):** endpoint'lar `app/routes.ts` da qo'lda
+> yozilmadi. `@modelcontextprotocol/sdk` ichida tayyor `mcpAuthRouter` bor — u aynan shu
+> ro'yxatni (metadata, `/register`, `/authorize`, `/token`, `/revoke`) Express router
+> sifatida beradi va PKCE `S256` ni `pkce-challenge` bilan o'zi tekshiradi. Shuning uchun
+> yo'llar `/oauth/authorize` emas, SDK standarti bo'yicha `/authorize`; bizdan
+> `OAuthServerProvider` va rozilik sahifasi qoldi. Yangi dependency qo'shilmadi.
+
 Jadvallar — **alohida migratsiya `0040`** (1–2-bosqichda ularga ehtiyoj yo'q, oldindan yaratilmaydi):
 `oauth_clients(client_id, client_name, redirect_uris, created_at)` va
 `oauth_codes(code_hash, client_id, redirect_uri, code_challenge, label, expires_at)` — kod 10 daqiqa
@@ -221,13 +228,41 @@ Har bosqich mustaqil ishlaydigan holatda tugaydi.
 2. Jurnal qatori handler ishlamasdan **oldin** yoziladi: 400 bilan rad etilgan urinish ham
    «bajarilgan» ko'rinadi.
 3. `admin_tokens.expires_at` ustuni bor, lekin uni hech kim yozmaydi va UI'da maydon yo'q.
+   **Qisman bajarildi (2026-09-21, remote+OAuth reja):** OAuth bergan access token
+   (`kind='oauth'`) endi 30 kunlik `expires_at` bilan yoziladi; qo'lda yaratilgan token
+   (`kind='manual'`) hamon `NULL` yozadi va UI'da bu maydon hamon yo'q.
 4. `image_upload_from_url` da host oq ro'yxati yo'q (Billz yuklovchisida `BILLZ_CDN_HOSTS` bor) va
    tana 5 MB tekshiruvidan oldin to'liq buferlanadi. Remote transportda bu muhimroq.
+   **Bajarildi (2026-09-21, remote+OAuth reja):** `shared/mcp-image.ts` (`isSafeImageUrl`) faqat
+   `https`ga ruxsat beradi va ichki manzillarni (private IPv4, loopback, link-local, IPv4 ni
+   o'rovchi IPv6 shakllari) rad etadi; tana esa `content-length` bo'yicha to'liq buferlanishdan
+   oldin rad etiladi (`tooLarge`). Bu nom/manzil darajasidagi tekshiruv — DNS rebinding'ni
+   to'xtatmaydi (14-band, yangi qatorlarga qarang).
 5. `image_upload_from_path` papka bilan chegaralanmagan — ixtiyoriy `PRODUCT_IMAGE_ROOT` himoyani
    arzonga kuchaytiradi.
 6. `product_get` ga na `id`, na `q` berilmasa birinchi 10 ta tovar qaytadi (tavsifda yozilmagan).
 7. `DELETE /api/admin/tokens/:id` raqamsiz id'da ham `{ok:true}` qaytaradi.
 8. `@modelcontextprotocol/sdk` `dependencies` da, shuning uchun prod Docker image'iga tushadi,
    holbuki `mcp/` image'ga ko'chirilmaydi. 3-bosqichda remote transport kelganda qayta ko'riladi.
+   **Hal bo'ldi (2026-09-21, remote+OAuth reja):** endi shart emas — `server/mcp.ts` va
+   `server/oauth-provider.ts` (ikkalasi ham Docker image'dagi `server/`ning bir qismi) SDK'ni
+   to'g'ridan-to'g'ri ishlatadi, ya'ni `dependencies`da turishi to'g'ri qaror bo'lib qoldi.
 9. Type-stripping qoidasini lintga bog'lash: `bun run lint` ga
    `node --experimental-strip-types --check mcp/stdio.ts` qatorini qo'shish yetarli.
+   **Bajarildi (2026-09-21, remote+OAuth reja):** `package.json`dagi `lint` skripti
+   `mcp/stdio.ts` bilan bir qatorda `server/index.ts` ni ham shu tekshiruvdan o'tkazadi.
+
+Quyidagilar remote+OAuth rejaning (2026-09-21 → 2026-09-22) review'laridan qolgan, ataylab
+keyingi ishga qoldirilgan yangi bandlar — remote transport bilan **yomonlashmaydi** (gate
+baribir admin paroli):
+
+10. SDK'ning `/authorize`i loopback `redirect_uri` uchun portni bo'shashtiradi (RFC 8252 §7.3),
+    bizning `redirectUriAllowed` esa **aynan** moslikni talab qiladi — ya'ni loopback native
+    klient rozilik sahifasidan o'tadi-yu, submit'da rad etiladi.
+11. Authorization code muvaffaqiyatsiz PKCE urinishidan keyin ham o'zining to'liq 10 daqiqalik
+    muddatigacha yashaydi.
+12. `token_endpoint_auth_method: 'confidential'` so'ragan klient jimgina public'ga tushiriladi —
+    SDK qaytargan `client_secret` hech qayerda saqlanmaydi va tekshirilmaydi (PKCE baribir kodni
+    himoya qiladi).
+13. `isSafeImageUrl` nom/manzil darajasida ishlaydi — DNS rebinding'ni to'xtatmaydi (fayl
+    izohida yozilgan).

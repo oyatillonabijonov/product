@@ -68,7 +68,20 @@ Mijozlar ro'yxatdan o'tmasdan buyurtma beradi. Google/Telegram orqali kirish faq
 
 Server har kuni bazaning nusxasini `data/backups/` papkasiga oladi (oxirgi 7 kun). Oyda bir marta shu papkani va `data/images/` ni kompyuteringizga ko'chirib oling — bu sizning butun saytingiz.
 
-## 10. Kimga murojaat qilish
+## 10. Claude bilan gaplashib tovar qo'shish
+
+Claude Code o'rnatish shart emas — telefondan ham ishlaydi. Claude bilan gaplashib tovar
+qo'shish, yetishmayotgan rasm/tavsifni to'ldirish va katalog holatini so'rash mumkin.
+
+1. claude.ai → Settings → Connectors → **Add custom connector**.
+2. Manzil sifatida saytingizni yozing: `https://<saytingiz>/mcp`.
+3. Ochilgan sahifada admin login va parolingizni kiriting, bu ulanishga bir nom bering
+   (masalan «Javlonning telefoni») va «Ruxsat berish»ni bosing.
+
+Ulanish admin → Sozlamalar → Integratsiyalar → «MCP tokenlari» ro'yxatida ko'rinadi —
+kerak bo'lsa o'sha yerdan bir bosishda bekor qilinadi.
+
+## 11. Kimga murojaat qilish
 
 - Tovar saytda ko'rinmayapti → 2-bo'limdagi uchta shartni tekshiring.
 - Narx noto'g'ri → kurs (3-bo'lim) yoki Billz'dagi narx.
