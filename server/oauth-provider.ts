@@ -43,10 +43,13 @@ export function createOAuthProvider(env: Env): OAuthServerProvider {
       // Public klient + PKCE — sir berilmaydi (spec §5).
       const clientId = crypto.randomUUID();
       const issuedAt = Math.floor(Date.now() / 1000);
+      // SDK'ning registratsiya sxemasida uzunlik chegarasi yo'q — cheksiz nom rozilik
+      // sahifasining har renderiga tushib qolmasin (60 — `label` bilan bir xil chegara).
+      const clientName = (client.client_name ?? 'Konnektor').slice(0, 60);
       await env.DB.prepare('INSERT INTO oauth_clients (client_id, client_name, redirect_uris, created_at) VALUES (?, ?, ?, ?)')
-        .bind(clientId, client.client_name ?? 'Konnektor', JSON.stringify(client.redirect_uris), issuedAt)
+        .bind(clientId, clientName, JSON.stringify(client.redirect_uris), issuedAt)
         .run();
-      return { ...client, client_id: clientId, client_id_issued_at: issuedAt };
+      return { ...client, client_id: clientId, client_id_issued_at: issuedAt, client_name: clientName };
     },
   };
 
@@ -102,8 +105,13 @@ export function createOAuthProvider(env: Env): OAuthServerProvider {
       const row = await env.DB.prepare('SELECT client_id, redirect_uri, label, expires_at FROM oauth_codes WHERE code_hash = ?')
         .bind(hash)
         .first<{ client_id: string; redirect_uri: string; label: string; expires_at: number }>();
-      // Kod bir martalik: topilgan zahoti o'chiriladi, keyin tekshiriladi.
-      await env.DB.prepare('DELETE FROM oauth_codes WHERE code_hash = ?').bind(hash).run();
+      // Bir martalik ishlatish shu yerda kafolatlanadi: ikki parallel so'rov bitta kod
+      // uchun ikkalasi ham yuqoridagi SELECT'da qatorni ko'rishi mumkin, lekin faqat
+      // BITTASI uni haqiqatda o'chiradi (`meta.changes === 1`). Shu natija tekshiriladi —
+      // yuqoridagi SELECT emas — aks holda ikkalasi ham token olib, bitta rozilikdan
+      // ikkita to'liq admin grant chiqardi.
+      const del = await env.DB.prepare('DELETE FROM oauth_codes WHERE code_hash = ?').bind(hash).run();
+      if (del.meta.changes !== 1) throw new InvalidGrantError('Kod topilmadi');
       if (!row || row.client_id !== client.client_id) throw new InvalidGrantError('Kod topilmadi');
       if (row.expires_at < Math.floor(Date.now() / 1000)) throw new InvalidGrantError('Kod muddati tugagan');
       if (redirectUri !== undefined && redirectUri !== row.redirect_uri) throw new InvalidGrantError('redirect_uri mos emas');
@@ -130,9 +138,14 @@ export function createOAuthProvider(env: Env): OAuthServerProvider {
       return verifier.verifyAccessToken(token);
     },
 
-    async revokeToken(client: OAuthClientInformationFull, request: OAuthTokenRevocationRequest): Promise<void> {
-      await env.DB.prepare('UPDATE admin_tokens SET revoked_at = unixepoch() WHERE token_hash = ? AND client_id = ? AND revoked_at IS NULL')
-        .bind(await hashToken(request.token), client.client_id)
+    async revokeToken(client: OAuthClientInformationFull, _request: OAuthTokenRevocationRequest): Promise<void> {
+      // Butun grant bekor qilinadi (access + refresh), faqat berilgan token emas — RFC 7009
+      // §2.1 shunga ruxsat beradi. Aks holda 'refresh' qatorlar admin ro'yxatida
+      // ko'rinmasdi (Decision C1), ya'ni public klient o'z access tokenini `/revoke`ga
+      // yuborib «bekor qilingandek» ko'rinardi-yu, refresh tokeni tirik qolib, istalgan
+      // vaqt yangi to'liq admin access tokeni yasab olardi — kill-switch yo'qolardi.
+      await env.DB.prepare('UPDATE admin_tokens SET revoked_at = unixepoch() WHERE client_id = ? AND revoked_at IS NULL')
+        .bind(client.client_id)
         .run();
     },
   };

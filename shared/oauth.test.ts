@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { redirectUriAllowed, buildRedirect, parseConsentForm, ACCESS_TTL, CODE_TTL } from './oauth';
+import { redirectUriAllowed, buildRedirect, parseConsentForm, consentPage, ACCESS_TTL, CODE_TTL } from './oauth';
 
 describe('redirectUriAllowed', () => {
   it('aniq mos kelgan manzilni qabul qiladi', () => {
@@ -67,5 +67,46 @@ describe('muddatlar', () => {
   it('access 30 kun, kod 10 daqiqa', () => {
     expect(ACCESS_TTL).toBe(2592000);
     expect(CODE_TTL).toBe(600);
+  });
+});
+
+describe('consentPage', () => {
+  const base = { clientName: 'Claude', clientId: 'c1', redirectUri: 'https://claude.ai/api/mcp/auth_callback', codeChallenge: 'ch' };
+
+  it('kod yuboriladigan manzil hostini alohida ko\'rsatadi', () => {
+    const html = consentPage(base);
+    expect(html).toContain('claude.ai');
+    expect(html).toContain('Kod shu manzilga yuboriladi');
+  });
+
+  it("soxta klient nomida ham hostni ko'rsatadi — nom firibgarga tegishli bo'lsa ham manzil chin qoladi", () => {
+    const html = consentPage({ ...base, clientName: 'Claude', redirectUri: 'https://evil.example/cb' });
+    expect(html).toContain('evil.example');
+    expect(html).not.toContain('claude.ai');
+  });
+
+  it("klient nomini identifikatsiya sifatida emas — kim ekanini bilmasligimizni aytadigan shaklda chizadi", () => {
+    const html = consentPage(base);
+    expect(html).toContain("deb nomlangan ilova");
+  });
+
+  it('yaroqsiz redirect_uri bo\'lsa yiqilmaydi — xom qiymatni matn sifatida chizadi', () => {
+    const html = consentPage({ ...base, redirectUri: 'not a url' });
+    expect(html).toContain('not a url');
+  });
+
+  it('klient nomi va manzilni HTML sifatida emas, escape qilingan matn sifatida chizadi (XSS)', () => {
+    const html = consentPage({ ...base, clientName: '<script>alert(1)</script>' });
+    expect(html).not.toContain('<script>alert(1)</script>');
+    expect(html).toContain('&lt;script&gt;');
+  });
+
+  it("xato xabari ko'rsatiladi", () => {
+    const html = consentPage({ ...base, error: "Login yoki parol noto'g'ri" });
+    expect(html).toContain("Login yoki parol noto'g'ri");
+  });
+
+  it("xato yo'q bo'lsa .err bloki chiqmaydi", () => {
+    expect(consentPage(base)).not.toContain('class="err"');
   });
 });

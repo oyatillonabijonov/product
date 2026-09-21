@@ -20,12 +20,13 @@ export async function action({ request, context }: Route.ActionArgs) {
   const env = context.env;
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, { status: 405 });
 
-  const formData = await request.formData();
-  const body: Record<string, unknown> = {};
-  for (const [key, value] of formData.entries()) body[key] = value;
-
   let form;
   try {
+    // `formData()` ham yiqilishi mumkin (masalan content-type form emas) — shuning uchun
+    // `parseConsentForm` bilan bitta `catch`da, ikkalasi ham bir xil 400ni beradi.
+    const formData = await request.formData();
+    const body: Record<string, unknown> = {};
+    for (const [key, value] of formData.entries()) body[key] = value;
     form = parseConsentForm(body);
   } catch {
     return new Response("So'rov to'liq emas", { status: 400, headers: { 'content-type': 'text/plain; charset=utf-8' } });
@@ -64,6 +65,16 @@ export async function action({ request, context }: Route.ActionArgs) {
   await env.DB.prepare(
     'INSERT INTO oauth_codes (code_hash, client_id, redirect_uri, code_challenge, label, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
   ).bind(await hashToken(code), form.clientId, form.redirectUri, form.codeChallenge, form.label, now + CODE_TTL).run();
+  // Tozalash uchun alohida jarayon yo'q (jadval kichik, kod 10 daqiqada tugaydi) —
+  // har muvaffaqiyatli rozilikda tashlab ketilgan eski kodlar arzon supurib ketiladi.
+  await env.DB.prepare('DELETE FROM oauth_codes WHERE expires_at < ?').bind(now).run();
 
-  return new Response(null, { status: 302, headers: { location: buildRedirect(form.redirectUri, { code, state: form.state ?? undefined }) } });
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: buildRedirect(form.redirectUri, { code, state: form.state ?? undefined }),
+      // Kod URL'da — bu javob va oraliq keshlar/tarix hech qayerda saqlanmasin.
+      'cache-control': 'no-store',
+    },
+  });
 }

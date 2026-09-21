@@ -1,8 +1,9 @@
 /**
  * OAuth oqimining sof qismi. Endpoint'larning o'zini `@modelcontextprotocol/sdk`
  * ichidagi `mcpAuthRouter` chizadi (metadata, /register, /authorize, /token, /revoke)
- * va PKCE `S256` tekshiruvini ham o'zi bajaradi — bizdan faqat saqlash va rozilik
- * sahifasi talab qilinadi (`server/oauth-provider.ts`, `server/oauth-consent.ts`).
+ * va PKCE `S256` tekshiruvini ham o'zi bajaradi — bizdan faqat saqlash, rozilik
+ * sahifasi (`consentPage`, shu faylda) va uni yasovchi `server/oauth-provider.ts` +
+ * `app/routes/oauth.consent.tsx` talab qilinadi.
  */
 
 /** Access token — 30 kun. Refresh bekor qilinmaguncha yashaydi. */
@@ -67,13 +68,35 @@ export function parseConsentForm(body: Record<string, unknown>): ConsentForm {
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 /**
+ * `redirectUri`dan faqat host qismini ajratadi (rozilik sahifasida ko'rsatish uchun) —
+ * to'liq manzil emas, chunki uzun query/path odam ko'zida hostni yashirib yuborishi
+ * mumkin. `new URL()` yiqilsa (yaroqsiz manzil) xom qiymatning o'zi qaytariladi —
+ * chaqiruvchi baribir `esc` bilan matn sifatida chizadi, XSS yo'q.
+ */
+function redirectHost(redirectUri: string): string {
+  try {
+    return new URL(redirectUri).host;
+  } catch {
+    return redirectUri;
+  }
+}
+
+/**
  * Rozilik + kirish sahifasi HTML'i. Admin paneli React SPA, bu esa oddiy server HTML —
  * OAuth oqimi to'liq server tomonida kechadi va sahifa bitta forma, shuning uchun
  * bundle'ga qo'shish shart emas. POST qabul qiluvchisi `app/routes/oauth.consent.tsx`da.
+ *
+ * **`client_name` ishonchsiz:** `/register` autentifikatsiyasiz (spec §5), shuning uchun
+ * istalgan odam o'zini "Claude" deb ro'yxatdan o'tkazib, chinakam claude.ai oqimiga
+ * o'xshash rozilik ekrani yasashi mumkin edi. Shu sabab nom "kim ekanligi" sifatida
+ * emas — "shu nom bilan kelgan ilova" sifatida yoziladi, va sahifa **kod qayerga
+ * yuborilishini** (redirect_uri hosti) alohida, yaqqol ko'rsatadi: haqiqiy ekan-emasligini
+ * odam faqat shu manzildan bilishi mumkin, nomdan emas.
  */
 export function consentPage(p: {
   clientName: string; clientId: string; redirectUri: string; codeChallenge: string; state?: string; error?: string;
 }): string {
+  const host = redirectHost(p.redirectUri);
   return `<!doctype html>
 <html lang="uz"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>Ruxsat berish</title>
@@ -88,11 +111,14 @@ export function consentPage(p: {
  input{width:100%;box-sizing:border-box;height:44px;padding:0 12px;font-size:16px;border:1px solid #D2D2D7;border-radius:8px;background:#fff;color:inherit}
  button{width:100%;height:52px;margin-top:24px;border:0;border-radius:980px;background:#1D1D1F;color:#fff;font-size:17px;cursor:pointer}
  .err{background:#FDECEC;color:#B3261E;border-radius:8px;padding:10px 12px;font-size:14px;margin-bottom:16px}
+ .dest{background:#FFF6E5;color:#7A4A00;border:1px solid #F5D48A;border-radius:8px;padding:12px;font-size:14px;margin-bottom:24px;word-break:break-all}
+ .dest strong{font-size:15px}
  .hint{font-size:13px;color:#86868B;margin-top:8px}
 </style></head><body>
 <form method="post" action="/oauth/consent">
  <h1>Ruxsat berish</h1>
- <p><strong>${esc(p.clientName)}</strong> do'kon admin paneliga <strong>to'liq kirish</strong> so'rayapti: tovar qo'shish, tahrirlash va rasm yuklash.</p>
+ <p>«<strong>${esc(p.clientName)}</strong>» deb nomlangan ilova do'kon admin paneliga <strong>to'liq kirish</strong> so'rayapti: tovar qo'shish, tahrirlash va rasm yuklash.</p>
+ <div class="dest">Kod shu manzilga yuboriladi: <strong>${esc(host)}</strong>.<br>Agar bu manzilni tanimasangiz, parol kiritmang.</div>
  ${p.error ? `<div class="err">${esc(p.error)}</div>` : ''}
  <input type="hidden" name="client_id" value="${esc(p.clientId)}">
  <input type="hidden" name="redirect_uri" value="${esc(p.redirectUri)}">
