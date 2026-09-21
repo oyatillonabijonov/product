@@ -105,6 +105,7 @@ export function rowToProduct(row: ProductRow): ApiProduct {
     billzId: row.billz_id ?? null,
     billzStock: row.billz_stock ?? null,
     manualFields: parseManualFields(row.manual_fields),
+    description: row.description ?? null,
   };
 }
 

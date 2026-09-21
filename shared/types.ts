@@ -45,6 +45,8 @@ export interface ApiProduct {
   billzStock: number | null;
   /** Billz tovarida qo'lda tahrirlangan maydonlar — sinxronizatsiya ularga tegmaydi. */
   manualFields: ManualField[];
+  /** Mahsulot tavsifi; qo'lda kiritilgan yoki Billz'dan — olinadi. */
+  description: string | null;
 }
 
 export interface ApiReview {
@@ -92,7 +94,6 @@ export interface ApiSpec {
 }
 
 export interface ApiProductDetail extends ApiProduct {
-  description: string | null;
   images: string[];
   specs: ApiSpec[];
   brand: ApiBrand | null;
