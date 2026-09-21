@@ -25,7 +25,7 @@ const rowToToken = (r: TokenRow): ApiAdminToken => ({
 function parseTokenInput(body: unknown): { label: string } {
   const o = (body ?? {}) as Record<string, unknown>;
   const label = typeof o.label === 'string' ? o.label.trim() : '';
-  if (label.length < 2 || label.length > 40) throw new ValidationError('label_required');
+  if (label.length < 2 || label.length > 40) throw new ValidationError('token_label_required');
   return { label };
 }
 
