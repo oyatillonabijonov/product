@@ -105,7 +105,9 @@ const SettingsIntegrations: FC = () => {
     const ok = await confirm({
       title: `«${t.label}» tokenini bekor qilish`,
       message: 'Shu token bilan ulangan Claude darhol kirolmay qoladi. Qaytarib bo\'lmaydi.',
-      confirmLabel: 'Bekor qilish',
+      // Tasdiq oynasining bekor qilish tugmasi ham «Bekor qilish» — ikkita bir xil
+      // tugma bo'lib qolmasligi uchun tasdiq tugmasi boshqacha yoziladi.
+      confirmLabel: "Ha, o'chirilsin",
       destructive: true,
     });
     if (!ok) return;
