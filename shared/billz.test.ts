@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { ProductTypeRow } from './product-types';
 import {
-  toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct, nameKey, mergeDuplicates,
+  toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct, nameKey, mergeDuplicates, keepSiteImage,
   type BillzProduct, type MapContext,
   parseManualFields,
   serializeManualFields,
@@ -186,6 +186,37 @@ describe('dublikatlarni birlashtirish', () => {
     const out = mergeDuplicates([mapped({ billzId: 'a', stock: 2 }), mapped({ billzId: 'b', stock: 3 })]);
     expect(out[0].stock).toBe(5);
     expect(out[0].isActive).toBe(false);
+  });
+});
+
+describe('saytdagi rasmni saqlash', () => {
+  const photo = { url: 'https://fra1.digitaloceanspaces.com/b/x.jpg', key: 'products/billz-x.jpg' };
+  const base = (over: Partial<import('./billz').MappedProduct> = {}): import('./billz').MappedProduct => ({
+    billzId: 'a', name: 'MacBook Air', slug: 'macbook-air-a', categoryId: 'apple', legacyCategory: 'mac', type: 'macbook',
+    brandId: 'apple', newBrand: null, cashPriceUzs: 1, oldPriceUzs: null, stock: 3, description: null, specs: [],
+    photos: [], imageUrl: '', gallery: [], isActive: false, ...over,
+  });
+
+  it("Billz'da rasm yo'q — admin yuklagani qoladi va tovar ko'rinadi", () => {
+    const out = keepSiteImage(base(), '/images/products/uploaded.jpg', new Set());
+    expect(out.imageUrl).toBe('/images/products/uploaded.jpg');
+    expect(out.isActive).toBe(true);
+    expect(out.gallery).toEqual([]);
+  });
+
+  it('rasm yuklab bo\'lmadi — saytdagi rasm qoladi', () => {
+    const out = keepSiteImage(base({ photos: [photo], imageUrl: '/images/products/billz-x.jpg' }), '/images/products/uploaded.jpg', new Set([photo.key]));
+    expect(out.imageUrl).toBe('/images/products/uploaded.jpg');
+    expect(out.photos).toEqual([]);
+  });
+
+  it("Billz rasmi yuklandi — Billz'niki yozadi", () => {
+    const m = base({ photos: [photo], imageUrl: '/images/products/billz-x.jpg', isActive: true });
+    expect(keepSiteImage(m, '/images/products/uploaded.jpg', new Set())).toBe(m);
+  });
+
+  it("ikkala tomonda ham rasm yo'q — ko'rinmaydi", () => {
+    expect(keepSiteImage(base(), null, new Set()).isActive).toBe(false);
   });
 });
 

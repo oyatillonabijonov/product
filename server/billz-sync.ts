@@ -1,6 +1,6 @@
 import type { Env, SqlStatement } from '../shared/runtime';
 import {
-  BILLZ_BASE, productsUrl, hiddenIds, mapBillzProduct, mergeDuplicates, nameKey,
+  BILLZ_BASE, productsUrl, hiddenIds, keepSiteImage, mapBillzProduct, mergeDuplicates, nameKey,
   type BillzProduct, type BillzProductsPage, type BillzShop, type BillzSyncResult, type BillzSyncStatus, type MapContext, type MappedProduct,
   parseManualFields,
 } from '../shared/billz.ts';
@@ -235,12 +235,8 @@ export function createBillzSync(env: Env): BillzSyncHandle {
           brandsByName.set(m.newBrand.name.toLowerCase(), m.newBrand.id);
         }
         const ex = findRow(m.billzId, m.name);
-        // Asosiy rasm yuklanmagan bo'lsa saytdagi rasm qoladi (bo'sh bo'lsa tovar ko'rinmaydi).
-        let eff = m;
-        if (m.photos.length > 0 && failed.has(m.photos[0].key)) {
-          const imageUrl = ex?.image_url ?? '';
-          eff = { ...m, photos: [], imageUrl, gallery: [], isActive: m.stock > 0 && imageUrl !== '' };
-        }
+        // Billz'da rasm yo'q yoki yuklanmadi — saytdagi rasm qoladi (bo'sh bo'lsa tovar ko'rinmaydi).
+        const eff = keepSiteImage(m, ex?.image_url ?? null, failed);
         const { stmts: s, id } = upsertStatements(eff, ex?.id, ex?.manual_fields);
         stmts.push(...s);
         if (ex) { result.updated++; seenRows.add(ex.billz_id); }

@@ -269,6 +269,18 @@ export function mergeDuplicates(items: MappedProduct[]): MappedProduct[] {
 }
 
 /**
+ * Billz'da rasm bo'lmasa (yoki CDN'dan yuklab bo'lmasa) saytdagi rasm qoladi va
+ * ko'rinish o'sha rasm bo'yicha hisoblanadi. Aks holda Billz'ning bo'sh `image_url`i
+ * admin/MCP yuklagan rasmni har 30 daqiqada o'chirib, tovarni yana yashirar edi
+ * (galereya allaqachon shunday himoyalangan, asosiy rasm esa qolib ketgan edi).
+ */
+export function keepSiteImage(m: MappedProduct, existingImage: string | null, failed: Set<string>): MappedProduct {
+  if (m.photos.length > 0 && !failed.has(m.photos[0].key)) return m;
+  const imageUrl = existingImage ?? '';
+  return { ...m, photos: [], imageUrl, gallery: [], isActive: m.stock > 0 && imageUrl !== '' };
+}
+
+/**
  * Billz tovarining **qo'lda tahrirlanadigan** maydonlari. Billz'da tavsif va xususiyatlar
  * ko'pincha to'liq emas, `Nad Kategoriya` maydoni esa to'ldirilmay qolishi mumkin —
  * shuning uchun egasi ularni admin'da yozishi mumkin: shu ro'yxatga tushgan maydonga
