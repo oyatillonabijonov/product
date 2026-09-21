@@ -26,12 +26,12 @@ export function parseBody<T>(body: unknown, parse: (b: unknown) => T): T | Respo
  */
 async function adminFromToken(request: Request, env: Env, token: string): Promise<string | Response> {
   const row = await env.DB.prepare(
-    'SELECT id, label, expires_at FROM admin_tokens WHERE token_hash = ? AND revoked_at IS NULL',
+    'SELECT id, label FROM admin_tokens WHERE token_hash = ? AND revoked_at IS NULL',
   )
     .bind(await hashToken(token))
-    .first<{ id: number; label: string; expires_at: number | null }>();
+    .first<{ id: number; label: string }>();
   const now = Math.floor(Date.now() / 1000);
-  if (!row || (row.expires_at !== null && row.expires_at < now)) {
+  if (!row) {
     return json({ error: 'unauthorized' }, { status: 401 });
   }
   await env.DB.prepare('UPDATE admin_tokens SET last_used_at = ? WHERE id = ?').bind(now, row.id).run();

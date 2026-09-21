@@ -419,26 +419,6 @@ export async function loadPost(env: Env, slug: string): Promise<ApiPost | null> 
   }
 }
 
-export async function loadRail(env: Env, kind: 'deals' | 'latest', limit = 8): Promise<Product[]> {
-  try {
-    const where = kind === 'deals'
-      ? 'is_active = 1 AND old_price_uzs IS NOT NULL AND old_price_uzs > cash_price_uzs'
-      : 'is_active = 1';
-    const order = kind === 'deals' ? 'sort_order ASC, created_at ASC' : 'created_at DESC';
-    const { results } = await env.DB.prepare(
-      `SELECT ${PRODUCT_COLS} FROM products WHERE ${where} ORDER BY ${order} LIMIT ?`,
-    ).bind(limit).all<ProductRow>();
-    return results.map(rowToProduct).map(mapProduct);
-  } catch (err) {
-    console.error('loadRail fallback:', err);
-    // 'latest' fallback katalogdagi 'yangi' bilan bir xil: sample tartibi saqlanadi (created_at yo'q)
-    const all = kind === 'deals'
-      ? fallbackProducts.filter((p) => p.oldPriceUzs != null && p.oldPriceUzs > p.cashPriceUzs)
-      : fallbackProducts;
-    return all.slice(0, limit);
-  }
-}
-
 /** `site_texts` → kalit bo'yicha xarita. Xato yuqoriga uzatiladi — admin API shuni ishlatadi. */
 export async function readSiteTexts(env: Env): Promise<SiteTexts> {
   const { results } = await env.DB.prepare('SELECT key, uz, ru FROM site_texts').all<{ key: string; uz: string; ru: string }>();

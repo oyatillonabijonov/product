@@ -62,7 +62,6 @@
   --color-accent: #0A0A0A; /* Apple Devices Store skin — qora asosiy accent (ko'k emas) */
   --color-bg: #F4F5F7;
   --color-surface: #FFFFFF;   /* kartalar foni — landingda dark variantga almashadi */
-  --color-surface-2: #E7E9EE; /* footer kabi sahifadan ajralib turishi kerak bo'lgan yuzalar */
   --color-trust: #2E3238; /* yashil o'rniga neytral to'q (ink) — coral faqat chegirmaga qoladi */
   --color-sale: #E8404B; /* coral — chegirma/badge */
   --color-body: #454A52;
@@ -74,7 +73,6 @@
   --color-accent-hover: #232427;
   --color-accent-soft: #ECEEF1;
   --color-accent-soft-2: #E0E3E8;
-  --color-accent-bright: #E8404B; /* coral highlight */
   /* Quyidagi to'rttasi yorug' rejimda **sahifa foni** (#F4F5F7) ustida turadi,
      oq karta ustida emas: ilgari ular oqqa moslangan edi va sahifada ko'rinmasdi
      (hairline 1.03, hover to'ldirmasi 1.027 — ya'ni yo'q). Qiymatlar apple.com
@@ -122,12 +120,10 @@
   --color-disabled-2: #8B9199;
   --color-bg: #101214;        /* sahifa va footer bitta tonda */
   --color-surface: #27292B;   /* brend rangi */
-  --color-surface-2: #101214;
   --color-accent: #F2F4F6;
   --color-accent-hover: #FFFFFF;
   --color-accent-soft: #2F3235;
   --color-accent-soft-2: #383B3F;
-  --color-accent-bright: #E8404B;
   --color-trust: #E4E7EA;
   --color-trust-soft: #2A2D30;
   --color-row-alt: #1D1F21;
