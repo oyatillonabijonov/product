@@ -213,3 +213,21 @@ Har bosqich mustaqil ishlaydigan holatda tugaydi.
    chat orqali kelgan tovar saytga egasi ko'rmasdan chiqmaydi, admin'dagi toggle bir bosish.
 3. `admin_audit` uchun admin ekrani **yo'q** — kerak bo'lganda SQL bilan o'qiladi. Ekran haqiqiy
    ehtiyoj paydo bo'lganda qo'shiladi.
+
+## 14. Keyingi rejaga qolgan mayda tuzatishlar (2026-09-21 yakuniy reviewdan)
+
+1. `admin_audit.target_id` `POST`da yo'lning oxirgi bo'lagi (`products`) bo'lib yoziladi — yaratilgan
+   tovar id'si emas; jadvalga `token_id` ham qo'shilsa, bir xil nomli ikki token ajraladi.
+2. Jurnal qatori handler ishlamasdan **oldin** yoziladi: 400 bilan rad etilgan urinish ham
+   «bajarilgan» ko'rinadi.
+3. `admin_tokens.expires_at` ustuni bor, lekin uni hech kim yozmaydi va UI'da maydon yo'q.
+4. `image_upload_from_url` da host oq ro'yxati yo'q (Billz yuklovchisida `BILLZ_CDN_HOSTS` bor) va
+   tana 5 MB tekshiruvidan oldin to'liq buferlanadi. Remote transportda bu muhimroq.
+5. `image_upload_from_path` papka bilan chegaralanmagan — ixtiyoriy `PRODUCT_IMAGE_ROOT` himoyani
+   arzonga kuchaytiradi.
+6. `product_get` ga na `id`, na `q` berilmasa birinchi 10 ta tovar qaytadi (tavsifda yozilmagan).
+7. `DELETE /api/admin/tokens/:id` raqamsiz id'da ham `{ok:true}` qaytaradi.
+8. `@modelcontextprotocol/sdk` `dependencies` da, shuning uchun prod Docker image'iga tushadi,
+   holbuki `mcp/` image'ga ko'chirilmaydi. 3-bosqichda remote transport kelganda qayta ko'riladi.
+9. Type-stripping qoidasini lintga bog'lash: `bun run lint` ga
+   `node --experimental-strip-types --check mcp/stdio.ts` qatorini qo'shish yetarli.
