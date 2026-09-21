@@ -29,9 +29,34 @@ describe('isSafeImageUrl', () => {
     }
   });
 
+  it('IPv4-mapped IPv6 addresses ichki qatorlarni rad etadi', () => {
+    // ::ffff:169.254.169.254 normalizes to ::ffff:a9fe:a9fe
+    expect(isSafeImageUrl('https://[::ffff:a9fe:a9fe]/a.jpg').ok).toBe(false);
+    // ::ffff:127.0.0.1 normalizes to ::ffff:7f00:0001
+    expect(isSafeImageUrl('https://[::ffff:7f00:0001]/a.jpg').ok).toBe(false);
+    // ::ffff:10.0.0.1 normalizes to ::ffff:0a00:0001
+    expect(isSafeImageUrl('https://[::ffff:0a00:0001]/a.jpg').ok).toBe(false);
+    // ::ffff:192.168.1.1 normalizes to ::ffff:c0a8:0101
+    expect(isSafeImageUrl('https://[::ffff:c0a8:0101]/a.jpg').ok).toBe(false);
+  });
+
+  it('link-local IPv6 addresses (fe80::/10) rad etiladi', () => {
+    // fe80::1 is link-local
+    expect(isSafeImageUrl('https://[fe80::1]/a.jpg').ok).toBe(false);
+    // fe90 is in the fe80-febf range (link-local)
+    expect(isSafeImageUrl('https://[fe90::1]/a.jpg').ok).toBe(false);
+    // febf is the last address in fe80::/10
+    expect(isSafeImageUrl('https://[febf::1]/a.jpg').ok).toBe(false);
+  });
+
   it('ochiq IP va 172.32 ichki emas', () => {
     expect(isSafeImageUrl('https://8.8.8.8/a.jpg').ok).toBe(true);
     expect(isSafeImageUrl('https://172.32.0.1/a.jpg').ok).toBe(true);
+  });
+
+  it('ochiq IPv6 manzillari qabul qilinadi', () => {
+    // 2606:4700:4700::1111 is Cloudflare's public DNS in IPv6
+    expect(isSafeImageUrl('https://[2606:4700:4700::1111]/a.jpg').ok).toBe(true);
   });
 
   it("buzuq havolani yiqilmasdan rad etadi", () => {
