@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import type { BillzShop, BillzSyncStatus } from '../../../shared/billz';
-import { getBillzShops, getBillzStatus, runBillzSync } from '../api';
+import type { ApiAdminToken } from '../../../shared/types';
+import { createToken, getBillzShops, getBillzStatus, listTokens, revokeToken, runBillzSync } from '../api';
 import { errText } from '../errText';
 import SectionTabs from '../SectionTabs';
 import { useSiteConfig } from '../useSiteConfig';
 import { Button, Card, EmptyState, Field, Input, Page, Select, Skeleton } from '../ui';
+import { useConfirm } from '../ui/confirm';
 import { useToast } from '../ui/toast';
+import { formatDateTime } from '../lib/format';
 
 /** Sozlamalar → Integratsiyalar: Billz, buyurtma boti, mijoz kirishi va analitika — hammasi bir sahifada. */
 const SettingsIntegrations: FC = () => {
@@ -70,6 +73,50 @@ const SettingsIntegrations: FC = () => {
       toast(errText(e), 'error');
     } finally {
       setSyncBusy(false);
+    }
+  }
+
+  const confirm = useConfirm();
+  const [rawTokens, setTokens] = useState([] as ApiAdminToken[]);
+  const tokens = rawTokens as ApiAdminToken[];
+  const [tokenLabel, setTokenLabel] = useState('');
+  const [rawFresh, setFresh] = useState('');
+  const fresh = rawFresh as string;
+  const [tokenBusy, setTokenBusy] = useState(false);
+
+  useEffect(() => { listTokens().then(setTokens).catch(() => undefined); }, []);
+
+  async function addToken() {
+    setTokenBusy(true);
+    try {
+      const { token } = await createToken(tokenLabel as string);
+      setFresh(token);
+      setTokenLabel('');
+      setTokens(await listTokens());
+      toast('Token yaratildi — nusxa oling, u boshqa ko\'rsatilmaydi');
+    } catch (e) {
+      toast(errText(e), 'error');
+    } finally {
+      setTokenBusy(false);
+    }
+  }
+
+  async function removeToken(t: ApiAdminToken) {
+    const ok = await confirm({
+      title: `«${t.label}» tokenini bekor qilish`,
+      message: 'Shu token bilan ulangan Claude darhol kirolmay qoladi. Qaytarib bo\'lmaydi.',
+      // Tasdiq oynasining bekor qilish tugmasi ham «Bekor qilish» — ikkita bir xil
+      // tugma bo'lib qolmasligi uchun tasdiq tugmasi boshqacha yoziladi.
+      confirmLabel: "Ha, o'chirilsin",
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await revokeToken(t.id);
+      setTokens(await listTokens());
+      toast('Token bekor qilindi');
+    } catch (e) {
+      toast(errText(e), 'error');
     }
   }
 
@@ -151,6 +198,49 @@ const SettingsIntegrations: FC = () => {
                 <Field label="Metrica raqami" hint="Faqat raqamlar">
                   <Input value={config.yandexMetricaId} onChange={(v) => cfg.set('yandexMetricaId', v)} placeholder="12345678" />
                 </Field>
+              </div>
+            </Card>
+
+            <Card
+              title="MCP tokenlari"
+              description="Claude shu token bilan admin API'ga ulanadi. Token admin panelining barcha huquqiga ega — sozlamalardagi sirlarni o'qish ham kiradi, shuning uchun faqat ishonchli odamga bering va ketganda bekor qiling."
+            >
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-end gap-3">
+                  <Field label="Nomi" hint="Jurnalda shu nom ko'rinadi" className="min-w-[220px] flex-1">
+                    <Input value={tokenLabel as string} onChange={setTokenLabel} placeholder="Javlon aka" />
+                  </Field>
+                  <Button onClick={addToken} disabled={tokenBusy || (tokenLabel as string).trim().length < 2}>
+                    {tokenBusy ? 'Yaratilmoqda…' : 'Token yaratish'}
+                  </Button>
+                </div>
+
+                {fresh !== '' && (
+                  <div className="rounded-sm border border-line bg-bg p-3">
+                    <p className="text-label text-muted-2">Faqat hozir ko'rinadi — nusxa olib qo'ying:</p>
+                    <p className="mt-1 break-all text-para text-primary">{fresh}</p>
+                  </div>
+                )}
+
+                {tokens.length === 0
+                  ? <p className="text-para text-muted">Hali token yaratilmagan.</p>
+                  : (
+                    <ul className="flex flex-col">
+                      {tokens.map((t) => (
+                        <li key={t.id} className="flex items-center justify-between gap-4 border-t border-line py-2.5">
+                          <div className="min-w-0">
+                            <p className="text-para text-primary">{t.label}</p>
+                            <p className="text-label text-muted-2">
+                              {t.kind === 'oauth' ? 'Konnektor' : "Qo'lda"}
+                              {' · '}
+                              {t.lastUsedAt === null ? 'ishlatilmagan' : `oxirgi: ${formatDateTime(t.lastUsedAt)}`}
+                            </p>
+                          </div>
+                          <Button variant="quiet" onClick={() => removeToken(t)}>Bekor qilish</Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
               </div>
             </Card>
           </div>

@@ -70,6 +70,9 @@ const MESSAGES: Record<string, string> = {
   file_required: 'Fayl tanlanmagan',
   unsupported_type: 'Faqat JPG, PNG, WebP rasm yoki MP4 video',
   file_too_large: 'Fayl juda katta: rasm 5 MB, video 40 MB gacha',
+  method_not_allowed: "Bu amal qo'llab-quvvatlanmaydi",
+  token_label_required: "Nom 2–40 belgi bo'lishi kerak",
+  cookie_only: 'Bu amalni faqat admin panelidan bajarish mumkin',
 };
 
 export function errText(e: unknown): string {

@@ -2,6 +2,7 @@ import type {
   ApiBanner,
   ApiBrand,
   ApiAdminBrand,
+  ApiAdminToken,
   ApiCategory,
   ApiDashboard,
   ApiDeviceModel,
@@ -376,6 +377,22 @@ export async function getBillzShops(): Promise<BillzShop[]> {
 /** Fon vazifasini boshlaydi (202); holatni `getBillzStatus` bilan so'rab turiladi. */
 export async function runBillzSync(): Promise<void> {
   await handle(await fetch('/api/admin/billz', { method: 'POST' }));
+}
+
+// ── MCP tokenlari ───────────────────────────────────────────────────────────
+export async function listTokens(): Promise<ApiAdminToken[]> {
+  return handle(await fetch('/api/admin/tokens'));
+}
+/** Javobdagi token **bir marta** keladi — keyin bazada faqat hash qoladi. */
+export async function createToken(label: string): Promise<{ token: string }> {
+  return handle(await fetch('/api/admin/tokens', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ label }),
+  }));
+}
+export async function revokeToken(id: number): Promise<void> {
+  await handle(await fetch(`/api/admin/tokens/${id}`, { method: 'DELETE' }));
 }
 
 // ── Bosh sahifa ─────────────────────────────────────────────────────────────
