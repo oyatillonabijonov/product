@@ -6,7 +6,16 @@ import { errText } from '../src/admin/errText.ts';
  * Xato kodi o'zbekcha matnga `errText` bilan o'giriladi (admin bilan bir xil matn).
  */
 export class AdminClient {
-  constructor(private base: string, private token: string) {}
+  // Node type-stripping parametr-xususiyatni qo'llab-quvvatlamaydi
+  // (`constructor(private base)` → ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX), shuning uchun
+  // maydonlar ochiq yoziladi — `server/` dagi qoida bilan bir xil (CLAUDE.md).
+  private base: string;
+  private token: string;
+
+  constructor(base: string, token: string) {
+    this.base = base;
+    this.token = token;
+  }
 
   private async send<T>(path: string, init: RequestInit & { tool?: string } = {}): Promise<T> {
     const { tool, ...rest } = init;
