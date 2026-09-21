@@ -629,45 +629,10 @@ export async function upsertCustomerByGoogle(env: Env, sub: string, email: strin
   return Number(res.meta.last_row_id);
 }
 
-/** Email bo'yicha mijozni topadi (login + register dublikat tekshiruvi). Email lower-case saqlanadi. */
-export async function findCustomerByEmail(
-  env: Env,
-  email: string,
-): Promise<{ id: number; passwordHash: string | null; passwordSalt: string | null } | null> {
-  const row = await env.DB.prepare('SELECT id, password_hash, password_salt FROM customers WHERE email = ? LIMIT 1')
-    .bind(email).first<{ id: number; password_hash: string | null; password_salt: string | null }>();
-  return row ? { id: row.id, passwordHash: row.password_hash, passwordSalt: row.password_salt } : null;
-}
-
-/** Email/parol bilan yangi mijoz yaratadi, id qaytaradi. Chaqiruvchi avval email bandligini tekshiradi. */
-export async function createEmailCustomer(
-  env: Env, email: string, name: string, passwordHash: string, passwordSalt: string,
-): Promise<number> {
-  const res = await env.DB.prepare(
-    'INSERT INTO customers (name, email, password_hash, password_salt) VALUES (?, ?, ?, ?)',
-  ).bind(name, email, passwordHash, passwordSalt).run();
-  return Number(res.meta.last_row_id);
-}
-
 /** Kabinet: profil (ism + telefon) yangilash. */
 export async function updateCustomerProfile(env: Env, id: number, name: string, phone: string): Promise<void> {
   await env.DB.prepare('UPDATE customers SET name = ?, phone = ? WHERE id = ?')
     .bind(name, phone || null, id).run();
-}
-
-/** Kabinet parol oqimi uchun: email + joriy xash/salt (parol tekshiruvi + email borligi). */
-export async function getCustomerAuth(
-  env: Env,
-  id: number,
-): Promise<{ email: string | null; passwordHash: string | null; passwordSalt: string | null } | null> {
-  const row = await env.DB.prepare('SELECT email, password_hash, password_salt FROM customers WHERE id = ?')
-    .bind(id).first<{ email: string | null; password_hash: string | null; password_salt: string | null }>();
-  return row ? { email: row.email, passwordHash: row.password_hash, passwordSalt: row.password_salt } : null;
-}
-
-export async function setCustomerPassword(env: Env, id: number, hash: string, salt: string): Promise<void> {
-  await env.DB.prepare('UPDATE customers SET password_hash = ?, password_salt = ? WHERE id = ?')
-    .bind(hash, salt, id).run();
 }
 
 /** Telegram user id bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */

@@ -436,28 +436,6 @@ export function parseDeviceModelInput(body: unknown): DeviceModelInput {
   return { id, name, brandId, categoryId, legacyCategory, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
 }
 
-export interface EmailAuthInput {
-  mode: 'login' | 'register';
-  email: string;
-  password: string;
-  name: string;
-}
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/** /auth/email body — kirish yoki ro'yxatdan o'tish. Email lower-case normallashtiriladi. */
-export function parseEmailAuthInput(body: unknown): EmailAuthInput {
-  const o = asRecord(body);
-  const mode = o.mode === 'register' ? 'register' : o.mode === 'login' ? 'login' : null;
-  if (!mode) throw new ValidationError('mode_invalid');
-  const email = (typeof o.email === 'string' ? o.email : '').trim().toLowerCase();
-  if (!EMAIL_RE.test(email)) throw new ValidationError('email_invalid');
-  const password = typeof o.password === 'string' ? o.password : '';
-  if (password.length < 8) throw new ValidationError('password_too_short');
-  const name = (typeof o.name === 'string' ? o.name : '').trim().slice(0, 80);
-  return { mode, email, password, name };
-}
-
 /** Kabinet profil tahriri — ism (majburiy) + telefon (ixtiyoriy, bo'lsa UZ format). */
 export function parseProfileInput(body: unknown): { name: string; phone: string } {
   const o = asRecord(body);
@@ -469,15 +447,6 @@ export function parseProfileInput(body: unknown): { name: string; phone: string 
     if (digits.length < 9 || digits.length > 12) throw new ValidationError('phone_invalid');
   }
   return { name, phone };
-}
-
-/** Kabinet parol o'rnatish/o'zgartirish — joriy (ixtiyoriy, faqat paroli bor hisobda) + yangi (min 8). */
-export function parsePasswordInput(body: unknown): { currentPassword: string; newPassword: string } {
-  const o = asRecord(body);
-  const currentPassword = typeof o.currentPassword === 'string' ? o.currentPassword : '';
-  const newPassword = typeof o.newPassword === 'string' ? o.newPassword : '';
-  if (newPassword.length < 8) throw new ValidationError('password_too_short');
-  return { currentPassword, newPassword };
 }
 
 export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
