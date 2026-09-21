@@ -350,3 +350,12 @@ export interface ApiProductType extends ProductTypeRow {
   /** Shu turdagi mahsulotlar soni (ro'yxatda ko'rinadi, o'chirish tasdig'ida aytiladi). */
   productCount: number;
 }
+
+export interface ApiAdminToken {
+  id: number;
+  label: string;
+  /** `manual` — admin'da qo'lda yaratilgan; `oauth` — konnektor bergan. */
+  kind: 'manual' | 'oauth';
+  createdAt: number;
+  lastUsedAt: number | null;
+}

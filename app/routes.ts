@@ -54,6 +54,8 @@ export default [
   route('api/admin/me', 'routes/api.admin.me.tsx'),
   route('api/admin/dashboard', 'routes/api.admin.dashboard.tsx'),
   route('api/admin/account', 'routes/api.admin.account.tsx'),
+  route('api/admin/tokens', 'routes/api.admin.tokens.tsx'),
+  route('api/admin/tokens/:id', 'routes/api.admin.tokens.$id.tsx'),
   route('api/admin/products', 'routes/api.admin.products.tsx'),
   route('api/admin/products/:id', 'routes/api.admin.products.$id.tsx'),
   route('api/admin/categories', 'routes/api.admin.categories.tsx'),
