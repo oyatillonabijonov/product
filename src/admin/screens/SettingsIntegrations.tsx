@@ -4,6 +4,7 @@ import type { BillzShop, BillzSyncStatus } from '../../../shared/billz';
 import type { ApiAdminToken } from '../../../shared/types';
 import { createToken, getBillzShops, getBillzStatus, listTokens, revokeToken, runBillzSync } from '../api';
 import { errText } from '../errText';
+import { billzStatusText } from '../lib/billz-status';
 import SectionTabs from '../SectionTabs';
 import { useSiteConfig } from '../useSiteConfig';
 import { Button, Card, EmptyState, Field, Input, Page, Select, Skeleton } from '../ui';
@@ -120,8 +121,8 @@ const SettingsIntegrations: FC = () => {
     }
   }
 
-  const last = status?.last ?? null;
-  const when = last ? new Date(last.at).toLocaleString('ru-RU', { timeZone: 'Asia/Tashkent' }) : null;
+  // Holat matni bosh sahifa bilan umumiy — egasi ikki ekranda bir xil gapni o'qiydi.
+  const billzState = billzStatusText(status);
 
   return (
     <Page
@@ -155,17 +156,10 @@ const SettingsIntegrations: FC = () => {
                 <Button variant="secondary" onClick={loadShops} disabled={shopsBusy}>{shopsBusy ? 'Yuklanmoqda…' : "Do'konlarni yuklash"}</Button>
                 <Button variant="secondary" onClick={sync} disabled={!status?.configured || status.running || syncBusy}>Sinxronlash</Button>
               </div>
-              <p className="mt-3 text-label text-muted-2">
-                {statusError ? `Holat o'qilmadi: ${statusError}`
-                  : !status ? 'Holat yuklanmoqda…'
-                  : !status.configured ? "Sozlanmagan — kalit va do'konni saqlang."
-                  : status.running ? 'Ishlayapti…'
-                  : !last ? 'Hali sinxronlanmagan.'
-                  : last.ok
-                    ? `Oxirgi: ${when} · ko'rildi ${last.seen}/${last.count} · yangi ${last.inserted} · yangilandi ${last.updated} · yashirildi ${last.hidden} · rasm ${last.photos}`
-                    : `Oxirgi urinish xato: ${errText(new Error(last.error ?? 'network'))} (${when})`}
+              <p className={`mt-3 text-para ${statusError || billzState.error ? 'text-danger' : 'text-primary'}`}>
+                {statusError ? `Holat o'qilmadi: ${statusError}` : billzState.text}
               </p>
-              <p className="mt-1 text-label text-muted-2">Har 30 daqiqada butun katalog qayta o'qiladi. Billz tovarining nomi, narxi, qoldig'i, turi va tavsifi har safar qayta yoziladi; reyting, sharhlar va tartib sizniki.</p>
+              <p className="mt-1 text-label text-muted-2">Sayt har 30 daqiqada butun katalogni Billz'dan qayta o'qiydi. Tovarning nomi, narxi, qoldig'i, turi va tavsifi har safar Billz'dagiday bo'ladi — tahrirni saqlab qolish uchun tovar ichida «Qo'lda tahrirlash»ni yoqing. Reyting, sharhlar va tartib har doim sizniki.</p>
             </Card>
 
             <Card title="Buyurtma xabarnomasi (Telegram bot)" description="Yangi buyurtma va ariza kelganda botga xabar boradi.">

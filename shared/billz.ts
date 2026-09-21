@@ -270,11 +270,13 @@ export function mergeDuplicates(items: MappedProduct[]): MappedProduct[] {
 
 /**
  * Billz tovarining **qo'lda tahrirlanadigan** maydonlari. Billz'da tavsif va xususiyatlar
- * ko'pincha to'liq emas, shuning uchun egasi ularni admin'da yozishi mumkin: shu ro'yxatga
- * tushgan maydonga sinxronizatsiya boshqa tegmaydi (`products.manual_fields` ustuni).
- * Qolgan ustunlar avvalgidek Billz'niki — nom, qoldiq, ko'rinish, rasm, brend, tur.
+ * ko'pincha to'liq emas, `Nad Kategoriya` maydoni esa to'ldirilmay qolishi mumkin —
+ * shuning uchun egasi ularni admin'da yozishi mumkin: shu ro'yxatga tushgan maydonga
+ * sinxronizatsiya boshqa tegmaydi (`products.manual_fields` ustuni). `category` yo'nalish
+ * va turni birga qulflaydi (tur yo'nalish ichidan tanlanadi).
+ * Qolgan ustunlar avvalgidek Billz'niki — nom, qoldiq, ko'rinish, rasm, brend.
  */
-export const MANUAL_FIELDS = ['price', 'specs', 'description'] as const;
+export const MANUAL_FIELDS = ['price', 'specs', 'description', 'category'] as const;
 export type ManualField = (typeof MANUAL_FIELDS)[number];
 
 /** Bazadagi vergulli satrni ro'yxatga aylantiradi; notanish kalit va takror tashlanadi. */

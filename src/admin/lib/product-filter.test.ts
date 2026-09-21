@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { filterProducts, quickFilter } from './product-filter';
+import { filterProducts, quickFilter, summaryText } from './product-filter';
 import type { ApiProduct } from '../../../shared/types';
 
 function p(over: Partial<ApiProduct>): ApiProduct {
@@ -31,6 +31,7 @@ describe('filterProducts', () => {
     expect(filterProducts(items, { brandId: 'apple' }).map((x) => x.id)).toEqual(['1', '2']);
     expect(filterProducts(items, { condition: 'ishlatilgan' }).map((x) => x.id)).toEqual(['2']);
     expect(filterProducts(items, { quick: 'hidden' }).map((x) => x.id)).toEqual(['2']);
+    expect(filterProducts(items, { quick: 'active' }).map((x) => x.id)).toEqual(['1', '3']);
     expect(filterProducts(items, { quick: 'manual', categoryId: 'phones', brandId: 'samsung' }).map((x) => x.id)).toEqual(['3']);
   });
 });
@@ -59,5 +60,27 @@ describe('quickFilter', () => {
   it("manual → billzId yo'q", () => {
     expect(quickFilter(manual, 'manual')).toBe(true);
     expect(quickFilter(billzImg, 'manual')).toBe(false);
+  });
+});
+
+describe('summaryText', () => {
+  it("bo'sh ro'yxat", () => {
+    expect(summaryText([])).toBe("Hali tovar yo'q.");
+  });
+
+  it('hammasi saytda — sabab qatori yo\'q', () => {
+    expect(summaryText([p({ id: '1', isActive: true })])).toBe("Jami 1 ta tovar: 1 tasi saytda e'lon qilingan.");
+  });
+
+  it("sabablar takrorlanmaydi va yig'indisi ko'rinmayotganlarga teng", () => {
+    const items = [
+      p({ id: '1', isActive: true, imageUrl: '/a.webp' }),
+      p({ id: '2', isActive: false, billzId: 'b', imageUrl: '', billzStock: 0 }),
+      p({ id: '3', isActive: false, billzId: 'c', imageUrl: '/a.webp', billzStock: 0 }),
+      p({ id: '4', isActive: false, billzId: 'd', imageUrl: '/a.webp', billzStock: 7 }),
+    ];
+    expect(summaryText(items)).toBe(
+      "Jami 4 ta tovar: 1 tasi saytda e'lon qilingan, 3 tasi ko'rinmaydi. Sababi: 1 tasida rasm yo'q, 1 tasining qoldig'i tugagan, 1 tasini qo'lda yashirgansiz.",
+    );
   });
 });
