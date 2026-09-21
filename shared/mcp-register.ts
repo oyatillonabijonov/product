@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { ApiAdminBrand, ApiCategory, ApiProduct, ApiProductDetail, ApiProductType } from './types.ts';
 import { catalogStats, incompleteProducts, manualFieldsFor, detailToInput, type ProductPatch } from './mcp-tools.ts';
+import { isSafeImageUrl, tooLarge } from './mcp-image.ts';
 import type { AdminClient } from './mcp-client.ts';
 
 /**
@@ -85,14 +86,16 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     const parsed = args as { urls: string[] };
     const out: string[] = [];
     for (const u of parsed.urls) {
-      if (!u.startsWith('https://')) throw new Error(`Faqat https: ${u}`);
-      const res = await fetch(u, { redirect: 'manual' });
+      const safe = isSafeImageUrl(u);
+      if (!safe.ok) throw new Error(safe.reason);
+      const res = await fetch(safe.url, { redirect: 'manual' });
       if (!res.ok) throw new Error(`Rasm yuklanmadi (${res.status}): ${u}`);
       const type = res.headers.get('content-type') ?? '';
       if (!type.startsWith('image/')) throw new Error(`Bu rasm emas (${type}): ${u}`);
+      if (tooLarge(res.headers.get('content-length'), MAX_IMAGE)) throw new Error(`5 MB dan katta: ${u}`);
       const bytes = new Uint8Array(await res.arrayBuffer());
       if (bytes.byteLength > MAX_IMAGE) throw new Error(`5 MB dan katta: ${u}`);
-      const name = new URL(u).pathname.split('/').pop() || 'image';
+      const name = safe.url.pathname.split('/').pop() || 'image';
       out.push(await api.upload(bytes, name, type, 'image_upload_from_url'));
     }
     return text(out.join('\n'));
