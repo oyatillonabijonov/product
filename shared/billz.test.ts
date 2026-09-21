@@ -194,6 +194,7 @@ describe('manual fields', () => {
     expect(parseManualFields('description')).toEqual(['description']);
     expect(parseManualFields('specs, price')).toEqual(['price', 'specs']);
     expect(parseManualFields('name,description')).toEqual(['description']);
+    expect(parseManualFields('category,price')).toEqual(['price', 'category']);
     expect(parseManualFields('')).toEqual([]);
     expect(parseManualFields(null)).toEqual([]);
   });

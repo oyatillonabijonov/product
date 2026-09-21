@@ -189,6 +189,23 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
       />
     </div>
   );
+  // Kategoriya va tur — Billz tovarida ham (qulf yoqilganda) shu ikki maydon ishlatiladi.
+  const catFields = (
+    <>
+      <Field label="Kategoriya">
+        <Select value={form.categoryId ?? ''} onChange={(v) => setCategory(v || null)}>
+          <option value="">— tanlang —</option>
+          {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </Select>
+      </Field>
+      <Field label="Turi" hint="Yo'nalish sahifasidagi tur qatori; tursiz mahsulot katalogda qoladi">
+        <Select value={form.type ?? ''} disabled={form.categoryId === null} onChange={(v) => set('type', v || null)}>
+          <option value="">{form.categoryId === null ? '— avval kategoriya —' : '— tanlang —'}</option>
+          {types.filter((t) => t.categoryId === form.categoryId).map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+        </Select>
+      </Field>
+    </>
+  );
   const title = isNew ? 'Yangi mahsulot' : form.name || 'Mahsulot';
   const canSave = dirty && !busy && loadState === 'ready';
   const storage = form.options.find((o) => o.name === 'Xotira')?.values ?? [];
@@ -271,15 +288,18 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
 
         <Card
           title="Ma'lumot"
-          description={billz ? "Nom, brend, kategoriya va tur Billz'dan keladi. Tavsifni qo'lda yozish mumkin." : undefined}
+          description={billz ? "Nom va brend Billz'dan keladi. Kategoriya, tur va tavsifni qo'lda olish mumkin." : undefined}
         >
           {billz ? (
             <>
+              {manualRow('category', "Billz'dagi «Nad Kategoriya» bo'sh yoki xato bo'lsa — yo'nalish va turni shu yerda tanlaysiz")}
               {manualRow('description', "Yoqilsa tavsifni o'zingiz yozasiz va sinxronizatsiya unga tegmaydi")}
               <Rows rows={[
-                { k: 'Nomi', v: form.name }, { k: 'Brend', v: brandName }, { k: 'Kategoriya', v: catName }, { k: 'Turi', v: typeLabel },
+                { k: 'Nomi', v: form.name }, { k: 'Brend', v: brandName },
+                ...(manual('category') ? [] : [{ k: 'Kategoriya', v: catName }, { k: 'Turi', v: typeLabel }]),
                 ...(manual('description') ? [] : [{ k: 'Tavsif', v: form.description || '—' }]),
               ]} />
+              {manual('category') && <div className="mt-4 grid gap-4 md:grid-cols-2">{catFields}</div>}
               {manual('description') && (
                 <Field label="Tavsif" className="mt-4">
                   <Textarea value={form.description} onChange={(v) => set('description', v)} rows={5} />
@@ -297,18 +317,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                   {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </Select>
               </Field>
-              <Field label="Kategoriya">
-                <Select value={form.categoryId ?? ''} onChange={(v) => setCategory(v || null)}>
-                  <option value="">— tanlang —</option>
-                  {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </Select>
-              </Field>
-              <Field label="Turi" hint="Yo'nalish sahifasidagi tur qatori; tursiz mahsulot katalogda qoladi">
-                <Select value={form.type ?? ''} disabled={form.categoryId === null} onChange={(v) => set('type', v || null)}>
-                  <option value="">{form.categoryId === null ? '— avval kategoriya —' : '— tanlang —'}</option>
-                  {types.filter((t) => t.categoryId === form.categoryId).map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-                </Select>
-              </Field>
+              {catFields}
               <Field label="Tavsif" className="md:col-span-2">
                 <Textarea value={form.description} onChange={(v) => set('description', v)} rows={5} />
               </Field>

@@ -137,8 +137,12 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     const manual = parseManualFields(manualRaw);
     if (existingId) {
       // Egasining ustunlari (slug, condition, sort_order, reyting, sharhlar) tegilmaydi.
-      const cols = ['name=?', 'category=?', 'brand_id=?', 'category_id=?', 'type=?', 'billz_stock=?', 'is_active=?', 'image_url=?'];
-      const vals: unknown[] = [m.name, m.legacyCategory, m.brandId, m.categoryId, m.type, m.stock, m.isActive ? 1 : 0, m.imageUrl];
+      const cols = ['name=?', 'brand_id=?', 'billz_stock=?', 'is_active=?', 'image_url=?'];
+      const vals: unknown[] = [m.name, m.brandId, m.stock, m.isActive ? 1 : 0, m.imageUrl];
+      if (!manual.includes('category')) {
+        cols.push('category=?', 'category_id=?', 'type=?');
+        vals.push(m.legacyCategory, m.categoryId, m.type);
+      }
       if (!manual.includes('price')) {
         cols.push('cash_price_uzs=?', 'old_price_uzs=?');
         vals.push(m.cashPriceUzs, m.oldPriceUzs);

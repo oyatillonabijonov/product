@@ -14,7 +14,7 @@ Sayt tovarlarni **Billz**dan oladi (har 30 daqiqada, o'zi). Tovar saytda ko'rini
 
 1. **Rasm** — Billz'da rasmsiz tovar saytga tushadi, lekin ko'rinmaydi. Rasmni Billz'ga yuklang (bir marta) yoki admin → Mahsulotlar → «Rasm kerak» ro'yxatidan saytning o'zida yuklang.
 2. **Qoldiq > 0** — qoldiq nolga tushsa tovar o'zi yashirinadi, qaytsa o'zi chiqadi.
-3. **«Nad Kategoriya»** maydoni: `Apple`, `PC`, `Audio` yoki `Video`. Bo'sh bo'lsa tovar katalog va qidiruvda qoladi, lekin hech qaysi bo'limga tushmaydi.
+3. **«Nad Kategoriya»** maydoni: `Apple`, `PC`, `Audio` yoki `Video`. Bo'sh bo'lsa tovar katalog va qidiruvda qoladi, lekin hech qaysi bo'limga tushmaydi. Billz'ni tuzatmoqchi bo'lmasangiz, tovarni admin'da oching → «Ma'lumot» kartasidagi birinchi «Qo'lda tahrirlash»ni yoqib, bo'lim va turni o'zingiz tanlang — sinxronizatsiya keyin unga tegmaydi.
 
 Bir xil nomdagi Billz yozuvlari (har dona alohida) saytda **bitta** tovar bo'lib chiqadi, qoldig'i yig'iladi. Shuning uchun nomni bir xil yozing: «MacBook Pro 14" …» va «MacBook Pro 14inch …» ikkita alohida tovar bo'ladi.
 
