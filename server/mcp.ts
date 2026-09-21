@@ -2,10 +2,12 @@ import express, { type Express } from 'express';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { requireBearerAuth } from '@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js';
+import { mcpAuthRouter } from '@modelcontextprotocol/sdk/server/auth/router.js';
 import type { Env } from '../shared/runtime';
 import { AdminClient } from '../shared/mcp-client.ts';
 import { registerSharedTools } from '../shared/mcp-register.ts';
 import { createTokenVerifier } from './mcp-auth.ts';
+import { createOAuthProvider } from './oauth-provider.ts';
 import { createLimiter } from '../shared/rate-limit.ts';
 
 /**
@@ -63,4 +65,30 @@ export function mountMcp(app: Express, env: Env): void {
     await server.connect(transport);
     await transport.handleRequest(req, res);
   });
+}
+
+/**
+ * OAuth 2.1 avtorizatsiya serveri — claude.ai konnektori uchun.
+ *
+ * `mcpAuthRouter` ilova **ildiziga** o'rnatilishi shart (SDK talabi): u
+ * `/.well-known/oauth-authorization-server`, `/.well-known/oauth-protected-resource/mcp`,
+ * `/authorize`, `/token`, `/register`, `/revoke` yo'llarini oladi. Shuning uchun
+ * React Router handler'idan **oldin** ulanadi. Rozilik formasining POST'i
+ * (`/oauth/consent`) esa bu router ro'yxatida yo'q — u React Router route'i
+ * (`app/routes/oauth.consent.tsx`) bo'lib qoladi va shu qatordan pastga tushib boradi.
+ *
+ * `PUBLIC_URL` kerak: metadata ichidagi manzillar mutlaq bo'lishi shart va ularni
+ * so'rovdan taxmin qilib bo'lmaydi (klient metadatani boshqa yo'ldan o'qishi mumkin).
+ */
+export function mountOAuth(app: Express, env: Env): boolean {
+  const publicUrl = process.env.PUBLIC_URL;
+  if (!publicUrl) return false;
+  app.use(mcpAuthRouter({
+    provider: createOAuthProvider(env),
+    issuerUrl: new URL(publicUrl),
+    resourceServerUrl: new URL('/mcp', publicUrl),
+    scopesSupported: ['admin'],
+    resourceName: 'ProDuct admin',
+  }));
+  return true;
 }
