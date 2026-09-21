@@ -6,7 +6,7 @@ import type { Env } from '../shared/runtime';
 import { AdminClient } from '../shared/mcp-client.ts';
 import { registerSharedTools } from '../shared/mcp-register.ts';
 import { createTokenVerifier } from './mcp-auth.ts';
-import { createLimiter } from '../functions/lib/rate-limit.ts';
+import { createLimiter } from '../shared/rate-limit.ts';
 
 /**
  * Remote MCP — claude.ai va istalgan qurilma uchun.
@@ -24,8 +24,14 @@ import { createLimiter } from '../functions/lib/rate-limit.ts';
  */
 const allowMcp = createLimiter(60, 60 * 1000);
 
-/** So'rovdan o'z manzilimiz: proxy ortida `x-forwarded-*` haqiqatni aytadi. */
+/**
+ * So'rovdan o'z manzilimiz — tool'lar shu manzilga qaytib `/api/admin/*` chaqiradi.
+ * `PUBLIC_URL` sozlangan bo'lsa o'shani ishlatamiz (`x-forwarded-*`/`host` Express
+ * tomonidan `trust proxy` bilan tasdiqlanmaydi); bo'lmasa so'rovdan chiqarib olinadi.
+ */
 function originOf(req: express.Request): string {
+  const configured = process.env.PUBLIC_URL?.trim();
+  if (configured) return configured.replace(/\/+$/, '');
   const proto = (req.headers['x-forwarded-proto'] as string | undefined)?.split(',')[0].trim() ?? req.protocol;
   return `${proto}://${req.get('host')}`;
 }
