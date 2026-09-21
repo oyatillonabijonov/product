@@ -26,7 +26,15 @@ export function createTokenVerifier(env: Env): { verifyAccessToken(token: string
       // `/api/admin/*` orqali kirgan tokenning `last_used_at`ini `adminFromToken`
       // (`app/routes/api.admin.guard.ts`) yozadi; faqat `/mcp` chaqiradigan konnektor
       // shu yozuvsiz admin ro'yxatida "hech qachon ishlatilmagan" bo'lib ko'rinardi.
-      await env.DB.prepare('UPDATE admin_tokens SET last_used_at = ? WHERE token_hash = ?').bind(now, hash).run();
+      // Xato izolyatsiyalangan: bu faqat hisobot maydoni — boshqa yozuvchi bazani band
+      // qilib qo'ygan bo'lsa (`SQLITE_BUSY`, Billz/USD-kurs sinxronizatsiyasi kabi),
+      // tekshiruv baribir yuqoridagi SELECT natijasiga tayanib muvaffaqiyatli tugashi kerak —
+      // aks holda oddiy yozuv xatosi haqiqiy tokenni ham 500 bilan rad etib qo'yardi.
+      try {
+        await env.DB.prepare('UPDATE admin_tokens SET last_used_at = ? WHERE token_hash = ?').bind(now, hash).run();
+      } catch (e) {
+        console.error('mcp token last_used_at yozilmadi:', e);
+      }
       return {
         token,
         clientId: row.client_id ?? row.label,
