@@ -28,6 +28,7 @@ function isPrivateHost(host: string): boolean {
 
   // IPv6 tekshiruvi.
   if (h === '::1') return true; // Loopback.
+  if (h === '::') return true; // Unspecified address — loopback ekvivalenti.
 
   // IPv4-mapped IPv6: ::ffff:a.b.c.d yoki ::ffff:XXYY:ZZWW (URL parser'dan keyin hex format).
   if (h.startsWith('::ffff:')) {
@@ -55,7 +56,7 @@ function isPrivateHost(host: string): boolean {
 
   // IPv4-compatible IPv6: ::a.b.c.d (deprecated RFC 4291, shu yo'lda birinchi bitta :: quyidagi).
   // Normalizes to ::aabb:ccdd hex format. Loopback ekvivalenti (::127.0.0.1) bu yerda bloklandi.
-  if (h.startsWith('::') && !h.startsWith('::ffff:') && h !== '::1') {
+  if (h.startsWith('::') && !h.startsWith('::ffff:')) {
     const suffix = h.slice(2);
     // Nuqtali o'nliklar format.
     if (suffix.includes('.')) {

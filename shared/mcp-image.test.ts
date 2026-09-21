@@ -64,6 +64,13 @@ describe('isSafeImageUrl', () => {
   it('ochiq IPv6 manzillari qabul qilinadi', () => {
     // 2606:4700:4700::1111 is Cloudflare's public DNS in IPv6
     expect(isSafeImageUrl('https://[2606:4700:4700::1111]/a.jpg').ok).toBe(true);
+    // ::2 is not in any IANA special-purpose range
+    expect(isSafeImageUrl('https://[::2]/a.jpg').ok).toBe(true);
+  });
+
+  it('IPv6 unspecified address (::) loopback ekvivalenti rad etiladi', () => {
+    // :: connects to loopback on common stacks, should be blocked
+    expect(isSafeImageUrl('https://[::]/a.jpg').ok).toBe(false);
   });
 
   it("buzuq havolani yiqilmasdan rad etadi", () => {
