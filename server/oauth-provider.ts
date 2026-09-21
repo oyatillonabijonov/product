@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import { InvalidGrantError } from '@modelcontextprotocol/sdk/server/auth/errors.js';
+import { InvalidGrantError, InvalidClientMetadataError } from '@modelcontextprotocol/sdk/server/auth/errors.js';
 import type { OAuthServerProvider, AuthorizationParams } from '@modelcontextprotocol/sdk/server/auth/provider.js';
 import type { OAuthRegisteredClientsStore } from '@modelcontextprotocol/sdk/server/auth/clients.js';
 import type { OAuthClientInformationFull, OAuthTokens, OAuthTokenRevocationRequest } from '@modelcontextprotocol/sdk/shared/auth.js';
@@ -40,6 +40,17 @@ export function createOAuthProvider(env: Env): OAuthServerProvider {
       };
     },
     async registerClient(client): Promise<OAuthClientInformationFull> {
+      // SDK'ning registratsiya sxemasida `redirect_uris` massivi uchun na uzunlik, na
+      // elementlarning o'zi uchun belgi chegarasi bor — `/register` autentifikatsiyasiz
+      // (faqat soatiga 20/IP), shuning uchun chegarasiz massiv `oauth_clients`ni diskda
+      // joy tugaguncha to'ldirishi mumkin edi. Xatoni `InvalidClientMetadataError` bilan
+      // tashlash SDK handler'ida 400ga aylanadi (500 emas).
+      if (client.redirect_uris.length > 5) {
+        throw new InvalidClientMetadataError("redirect_uris juda ko'p (5 tadan ortiq)");
+      }
+      if (client.redirect_uris.some((uri) => uri.length > 512)) {
+        throw new InvalidClientMetadataError('redirect_uri juda uzun (512 belgidan ortiq)');
+      }
       // Public klient + PKCE — sir berilmaydi (spec §5).
       const clientId = crypto.randomUUID();
       const issuedAt = Math.floor(Date.now() / 1000);

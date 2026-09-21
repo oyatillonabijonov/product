@@ -14,14 +14,19 @@ import { hashToken } from '../shared/mcp-auth.ts';
 export function createTokenVerifier(env: Env): { verifyAccessToken(token: string): Promise<AuthInfo> } {
   return {
     async verifyAccessToken(token: string): Promise<AuthInfo> {
+      const hash = await hashToken(token);
       const row = await env.DB.prepare(
         "SELECT label, kind, client_id, expires_at FROM admin_tokens WHERE token_hash = ? AND revoked_at IS NULL AND kind != 'refresh'",
       )
-        .bind(await hashToken(token))
+        .bind(hash)
         .first<{ label: string; kind: string; client_id: string | null; expires_at: number | null }>();
       const now = Math.floor(Date.now() / 1000);
       if (!row) throw new InvalidTokenError('Token yaroqsiz yoki bekor qilingan');
       if (row.expires_at !== null && row.expires_at < now) throw new InvalidTokenError('Token muddati tugagan');
+      // `/api/admin/*` orqali kirgan tokenning `last_used_at`ini `adminFromToken`
+      // (`app/routes/api.admin.guard.ts`) yozadi; faqat `/mcp` chaqiradigan konnektor
+      // shu yozuvsiz admin ro'yxatida "hech qachon ishlatilmagan" bo'lib ko'rinardi.
+      await env.DB.prepare('UPDATE admin_tokens SET last_used_at = ? WHERE token_hash = ?').bind(now, hash).run();
       return {
         token,
         clientId: row.client_id ?? row.label,

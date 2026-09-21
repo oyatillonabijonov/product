@@ -26,20 +26,31 @@ import { createLimiter } from '../shared/rate-limit.ts';
  */
 const allowMcp = createLimiter(60, 60 * 1000);
 
+/** `PUBLIC_URL`ning tozalangan qiymati (oxiridagi `/` kesilgan) — sozlanmagan bo'lsa `undefined`. */
+function configuredOrigin(): string | undefined {
+  const configured = process.env.PUBLIC_URL?.trim();
+  return configured ? configured.replace(/\/+$/, '') : undefined;
+}
+
 /**
  * So'rovdan o'z manzilimiz — tool'lar shu manzilga qaytib `/api/admin/*` chaqiradi.
  * `PUBLIC_URL` sozlangan bo'lsa o'shani ishlatamiz (`x-forwarded-*`/`host` Express
  * tomonidan `trust proxy` bilan tasdiqlanmaydi); bo'lmasa so'rovdan chiqarib olinadi.
  */
 function originOf(req: express.Request): string {
-  const configured = process.env.PUBLIC_URL?.trim();
-  if (configured) return configured.replace(/\/+$/, '');
+  const configured = configuredOrigin();
+  if (configured) return configured;
   const proto = (req.headers['x-forwarded-proto'] as string | undefined)?.split(',')[0].trim() ?? req.protocol;
   return `${proto}://${req.get('host')}`;
 }
 
 export function mountMcp(app: Express, env: Env): void {
   const verifier = createTokenVerifier(env);
+  // `originOf(req)` bilan bir xil tozalangan qiymat: oxiridagi `/` saqlanib qolsa
+  // `resource_metadata` manzili qo'sh chiziq bilan chiqib (`…//.well-known/…`) 404 berardi.
+  // Sozlanmagan bo'lsa sarlavhaga nisbiy (mutlaq bo'lmagan) URL qo'shmaymiz — u RFC 9728
+  // bo'yicha yaroqsiz.
+  const publicOrigin = configuredOrigin();
 
   app.all('/mcp', (req, res, next) => {
     if (allowMcp(req.ip ?? '')) return next();
@@ -49,7 +60,7 @@ export function mountMcp(app: Express, env: Env): void {
   app.all('/mcp', requireBearerAuth({
     verifier,
     requiredScopes: ['admin'],
-    resourceMetadataUrl: `${process.env.PUBLIC_URL ?? ''}/.well-known/oauth-protected-resource/mcp`,
+    ...(publicOrigin ? { resourceMetadataUrl: `${publicOrigin}/.well-known/oauth-protected-resource/mcp` } : {}),
   }));
 
   app.all('/mcp', async (req, res) => {
@@ -96,17 +107,39 @@ export function mountOAuth(app: Express, env: Env): boolean {
     console.log(`PUBLIC_URL yaroqsiz manzil (${publicUrl}) — OAuth ulanmadi; /mcp faqat bearer token bilan ishlaydi.`);
     return false;
   }
-  if (issuerUrl.protocol !== 'http:' && issuerUrl.protocol !== 'https:') {
-    console.log(`PUBLIC_URL http(s) bo'lishi shart, olindi: ${publicUrl} — OAuth ulanmadi; /mcp faqat bearer token bilan ishlaydi.`);
+  // SDK'ning `mcpAuthRouter`i ichida `checkIssuerUrl` xuddi shu uch qoidani yana
+  // tekshiradi va mos kelmasa istisno tashlaydi — pastdagi try/catch uni baribir
+  // tutadi, lekin shu yerda oldindan aniqroq xabar bilan rad etamiz (eng ko'p
+  // uchraydigan xato — `http://` bilan yozilgan manzil).
+  const isLocal = issuerUrl.hostname === 'localhost' || issuerUrl.hostname === '127.0.0.1';
+  if (issuerUrl.protocol !== 'https:' && !isLocal) {
+    console.log(`PUBLIC_URL https:// bilan boshlanishi shart (localhost bundan mustasno), olindi: ${publicUrl} — OAuth ulanmadi; /mcp faqat bearer token bilan ishlaydi.`);
+    return false;
+  }
+  if (issuerUrl.search) {
+    console.log(`PUBLIC_URL so'rov satrini (?...) o'z ichiga olmasligi kerak: ${publicUrl} — OAuth ulanmadi; /mcp faqat bearer token bilan ishlaydi.`);
+    return false;
+  }
+  if (issuerUrl.hash) {
+    console.log(`PUBLIC_URL fragmentni (#...) o'z ichiga olmasligi kerak: ${publicUrl} — OAuth ulanmadi; /mcp faqat bearer token bilan ishlaydi.`);
     return false;
   }
 
-  app.use(mcpAuthRouter({
-    provider: createOAuthProvider(env),
-    issuerUrl,
-    resourceServerUrl: new URL('/mcp', issuerUrl),
-    scopesSupported: ['admin'],
-    resourceName: 'ProDuct admin',
-  }));
+  try {
+    app.use(mcpAuthRouter({
+      provider: createOAuthProvider(env),
+      issuerUrl,
+      resourceServerUrl: new URL('/mcp', issuerUrl),
+      scopesSupported: ['admin'],
+      resourceName: 'ProDuct admin',
+    }));
+  } catch (e) {
+    // `mcpAuthRouter` boot vaqtida (hali `app.listen`gacha) chaqiriladi — yuqoridagi
+    // tekshiruv qamramagan holat (SDK ichidagi qoida qattiqroq bo'lsa) shu yerda
+    // tutilmasa, butun sayt ko'tarilmay qoladi.
+    const reason = e instanceof Error ? e.message : String(e);
+    console.log(`PUBLIC_URL (${publicUrl}) OAuth uchun yaroqsiz: ${reason} — OAuth ulanmadi; /mcp faqat bearer token bilan ishlaydi.`);
+    return false;
+  }
   return true;
 }

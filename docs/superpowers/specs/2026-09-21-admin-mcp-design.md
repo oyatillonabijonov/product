@@ -249,8 +249,15 @@ Har bosqich mustaqil ishlaydigan holatda tugaydi.
    to'g'ridan-to'g'ri ishlatadi, ya'ni `dependencies`da turishi to'g'ri qaror bo'lib qoldi.
 9. Type-stripping qoidasini lintga bog'lash: `bun run lint` ga
    `node --experimental-strip-types --check mcp/stdio.ts` qatorini qo'shish yetarli.
-   **Bajarildi (2026-09-21, remote+OAuth reja):** `package.json`dagi `lint` skripti
-   `mcp/stdio.ts` bilan bir qatorda `server/index.ts` ni ham shu tekshiruvdan o'tkazadi.
+   **Bajarildi (2026-09-21, remote+OAuth reja), keyin tuzatildi (2026-09-22 final review):**
+   `--check` faqat sintaksisni tekshiradi — importlarga ergashmaydi va parametr-xususiyatni
+   (`constructor(private x)`) ushlamaydi (`--check` chiqishi 0 qaytaradi, lekin haqiqiy ishga
+   tushirish `ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX` bilan yiqiladi). Endi `lint` skripti modullarni
+   **haqiqatda import qiladi** — `node --experimental-strip-types -e "await import('./server/mcp.ts'); await import('./server/oauth-provider.ts'); await import('./mcp/tools.ts')"`.
+   Bu uchtasi — remote+OAuth qatlamining xavfli fayllari; `mcp/stdio.ts` va `server/index.ts`ning
+   o'zi import qilinmaydi, chunki ular boot vaqtida yon ta'sir qiladi (`process.exit`, stdio
+   transport ulash, `app.listen`) — ularning tool ro'yxati va import grafigi esa mos ravishda
+   `mcp/tools.ts` va `server/mcp.ts`/`server/oauth-provider.ts` orqali baribir yuklanadi.
 
 Quyidagilar remote+OAuth rejaning (2026-09-21 → 2026-09-22) review'laridan qolgan, ataylab
 keyingi ishga qoldirilgan yangi bandlar — remote transport bilan **yomonlashmaydi** (gate
