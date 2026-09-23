@@ -11,6 +11,7 @@ import type { PageLink } from '../../app/lib/loaders';
 import type { SiteAssets } from '../lib/site-content';
 import Header from './Header';
 import MobileTabBar from './MobileTabBar';
+import { parseAvatar } from '../../shared/avatar';
 import Footer from './Footer';
 import ContactFab from './ContactFab';
 import CookieBanner from './CookieBanner';
@@ -41,8 +42,10 @@ export default function StoreLayout({
   // Metrica SPA hit — birinchi renderni tashlab (uni 'init' o'zi qayd etadi), keyingi navigatsiyalarni yuboramiz.
   const location = useLocation();
   const isHome = stripLocale(location.pathname) === '/';
+  // Profil tugmasi — kirgan mijozda ikonka o'rniga o'z avatari (header va mobil panel).
+  const customerAvatar = customer ? parseAvatar(customer.avatar, customer.id) : null;
   const header = (
-    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} hasDeals={hasDeals} />
+    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} avatar={customerAvatar} hasDeals={hasDeals} />
   );
   // Bosh sahifada (mobil) hero to'liq ekran: header, pastki panel va aloqa tugmasi yashirin,
   // foydalanuvchi pastga aylantirgach chiqadi. Boshqa sahifalarda doim ko'rinadi. SSR'da yashirin.
@@ -96,7 +99,7 @@ export default function StoreLayout({
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} categories={categories} hasDeals={hasDeals} />
         <div aria-hidden className="h-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" />
-        <MobileTabBar t={t} locale={locale} signedIn={customer !== null} hidden={chromeHidden} />
+        <MobileTabBar t={t} locale={locale} signedIn={customer !== null} avatar={customerAvatar} hidden={chromeHidden} />
         {!chromeHidden && <ContactFab t={t} config={config} />}
         <CookieBanner t={t} />
       </div>
