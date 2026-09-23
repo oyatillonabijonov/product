@@ -101,7 +101,7 @@ export default function StoreLayout({
         <div aria-hidden className="h-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" />
         <MobileTabBar t={t} locale={locale} signedIn={customer !== null} avatar={customerAvatar} hidden={chromeHidden} />
         {!chromeHidden && <ContactFab t={t} config={config} />}
-        <CookieBanner t={t} />
+        <CookieBanner t={t} locale={locale} />
       </div>
      </CurrencyProvider>
      </FavoritesProvider>

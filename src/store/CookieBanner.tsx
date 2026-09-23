@@ -1,19 +1,40 @@
-import { useEffect, useState, type FC } from 'react';
-import { Cookie } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import type { FC } from 'react';
+import { Link } from 'react-router';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { Translation } from '../locales';
+import { localizedPath, type Locale } from '../../app/lib/i18n';
+import { PRIVACY_SLUG } from '../lib/page-slugs';
+import { SPRING_UI } from '../lib/motion';
+import { BTN_SM } from './ui';
 
 const STORAGE_KEY = 'cookie-consent';
+/** Sahifa avval o'zini ko'rsatsin — bildirishnoma undan keyin sirg'alib chiqadi. */
+const DELAY_MS = 900;
 
-/** Lightweight cookie notice. SSR-safe: renders nothing until the effect confirms no prior consent. */
-const CookieBanner: FC<{ t: Translation }> = ({ t }) => {
-  const [visible, setVisible] = useState(false);
+/**
+ * Cookie bildirishnomasi — **rozilik so'ramaydi**, xabar beradi.
+ *
+ * Sayt kuzatuv cookie'sini ishlatmaydi (analitika ulanmagan): faqat sessiya,
+ * OAuth CSRF va foydalanuvchi o'zi tanlagan valyuta. Shuning uchun bu bloklovchi
+ * vazifa emas — kartochka bo'lib kontent ustida turmaydi, footer kabi **chrome**:
+ * `bg-bg` va bitta hairline. Yopish tugmasi ham asosiy CTA emas, ixcham chegara.
+ *
+ * SSR-xavfsiz: effekt oldingi roziligni tekshirmaguncha hech narsa chizilmaydi.
+ */
+const CookieBanner: FC<{ t: Translation; locale: Locale }> = ({ t, locale }) => {
+  const [rawVisible, setVisible] = useState(false);
+  const visible = rawVisible as boolean;
+  const reduced = useReducedMotion();
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      if (localStorage.getItem(STORAGE_KEY) !== 'ok') setVisible(true);
+      if (localStorage.getItem(STORAGE_KEY) !== 'ok') timer = setTimeout(() => setVisible(true), DELAY_MS);
     } catch {
-      /* localStorage unavailable — stay hidden */
+      /* localStorage yo'q (private rejim) — ko'rsatmaymiz */
     }
+    return () => clearTimeout(timer);
   }, []);
 
   function accept() {
@@ -25,21 +46,38 @@ const CookieBanner: FC<{ t: Translation }> = ({ t }) => {
     setVisible(false);
   }
 
-  if (!visible) return null;
-
   return (
-    <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-50 p-3 sm:p-4 lg:bottom-0">
-      <div className=" rounded-lg max-w-[720px] mx-auto bg-surface border border-line-2 px-4 py-3 flex items-center gap-3">
-        <Cookie className="w-5 h-5 shrink-0 text-accent" />
-        <p className="flex-1 text-label text-body leading-snug">{t.cookieText}</p>
-        <button
-          onClick={accept}
-          className="press shrink-0 h-11 px-6 rounded-full bg-accent text-bg text-copy font-normal hover:bg-accent-hover"
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          role="status"
+          initial={reduced ? { opacity: 0 } : { y: '100%' }}
+          animate={reduced ? { opacity: 1 } : { y: '0%' }}
+          exit={reduced ? { opacity: 0 } : { y: '100%' }}
+          transition={SPRING_UI}
+          className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-50 border-t border-divider bg-bg lg:bottom-0"
         >
-          {t.cookieAccept}
-        </button>
-      </div>
-    </div>
+          <div className="shell flex flex-wrap items-center gap-x-6 gap-y-2 py-3">
+            <p className="min-w-0 flex-1 text-para text-muted">{t.cookieText}</p>
+            <div className="flex items-center gap-5 max-sm:w-full max-sm:justify-end">
+              <Link
+                to={localizedPath(locale, `/page/${PRIVACY_SLUG}`)}
+                className="press rounded-xs text-label text-link hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                {t.cookieMore}
+              </Link>
+              <button
+                type="button"
+                onClick={accept}
+                className={`${BTN_SM} border border-line-2 text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent`}
+              >
+                {t.cookieAccept}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
