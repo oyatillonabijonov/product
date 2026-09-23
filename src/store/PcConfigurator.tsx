@@ -22,6 +22,19 @@ const SLOT_UI: Record<SlotKey, { icon: LucideIcon; label: (t: Translation) => st
   case: { icon: Box, label: (t) => t.cfgCase },
 };
 
+/** Qadam o'qining chuqurligi, px. */
+const ARROW = 12;
+
+/**
+ * Qadam shakli: o'ng cheti o'q, chap cheti o'yiq (oldingisining o'qi shunga kiradi).
+ * Birinchisining chapi va oxirgisining o'ngi to'g'ri — ular `rounded-*-full` bilan yumaloqlanadi.
+ */
+const chevron = (first: boolean, last: boolean): string => {
+  const right = last ? ['100% 0', '100% 100%'] : [`calc(100% - ${ARROW}px) 0`, '100% 50%', `calc(100% - ${ARROW}px) 100%`];
+  const left = first ? [] : [`${ARROW}px 50%`];
+  return `polygon(0 0, ${right.join(', ')}, 0 100%${left.length ? `, ${left.join(', ')}` : ''})`;
+};
+
 const reason = (t: Translation, i: Issue): string =>
   (i.code === 'socket' ? t.cfgNeedSocket : i.code === 'memory' ? t.cfgNeedMemory : t.cfgNeedPower).replace('{need}', i.need);
 
@@ -95,24 +108,37 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
         <p className="mt-4 text-para text-muted text-pretty md:text-copy">{t.cfgLede}</p>
       </div>
 
-      {/* Bo'g'inlar — gorizontal scroll (mobil), tanlangani belgili */}
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {slots.map((k) => {
+      {/* Bo'g'inlar — o'q shaklidagi qadamlar (mijozning talabi: "keyingi bo'limga o'tgandek"):
+          har birining o'ng cheti keyingisining o'yig'iga kirib turadi, oralig'i 5px. Chegara
+          `clip-path` bilan chiziladi — tugmaning o'zi chegara rangida kesiladi, ichidagi qatlam
+          1.5px ichkarida sahifa rangida, shuning uchun diagonal chetlarda ham chiziq ko'rinadi
+          (oddiy `border` kesilgan shakl bo'ylab yurmaydi). Tugma ham kesilgani uchun bosish
+          maydoni shaklga mos: qo'shni qadamning o'q uchi bosilganda aynan o'sha qadam ochiladi. */}
+      <div className="-mx-4 flex overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {slots.map((k, i) => {
           const S = SLOT_UI[k];
           const on = k === active;
+          const first = i === 0;
+          const last = i === slots.length - 1;
+          const shape = chevron(first, last);
+          const round = `${first ? 'rounded-l-full' : ''} ${last ? 'rounded-r-full' : ''}`;
           return (
             <button
               key={k}
               type="button"
               onClick={() => setActive(k)}
               aria-pressed={on}
-              className={`press inline-flex h-11 shrink-0 items-center gap-2 rounded-full border-[1.5px] px-5 text-copy ${
-                on ? 'border-cta text-primary' : 'border-line text-muted hover:border-muted-3'
+              style={{ clipPath: shape }}
+              className={`press relative inline-flex h-11 shrink-0 items-center gap-2 text-copy outline-none ${round} ${
+                first ? 'pl-5' : '-ml-[7px] pl-8'
+              } ${last ? 'pr-5' : 'pr-8'} ${
+                on ? 'bg-cta text-primary' : 'bg-line text-muted hover:bg-muted-3 focus-visible:bg-cta'
               }`}
             >
-              <S.icon aria-hidden className="h-[18px] w-[18px]" strokeWidth={1.6} />
-              {S.label(t)}
-              {picked[k] && <Check aria-hidden className="h-4 w-4 text-verified" strokeWidth={2.4} />}
+              <span aria-hidden style={{ clipPath: shape }} className={`absolute inset-[1.5px] bg-bg ${round}`} />
+              <S.icon aria-hidden className="relative h-[18px] w-[18px]" strokeWidth={1.6} />
+              <span className="relative">{S.label(t)}</span>
+              {picked[k] && <Check aria-hidden className="relative h-4 w-4 text-verified" strokeWidth={2.4} />}
             </button>
           );
         })}
