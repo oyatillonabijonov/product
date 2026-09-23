@@ -1,5 +1,5 @@
 import type { Route } from './+types/api.admin.orders.$id';
-import { json } from '../../functions/lib/db';
+import { json, notifyOrderStatus } from '../../functions/lib/db';
 import { requireAdmin } from './api.admin.guard';
 
 export async function action({ request, params, context }: Route.ActionArgs) {
@@ -12,6 +12,9 @@ export async function action({ request, params, context }: Route.ActionArgs) {
   if (status !== 'new' && status !== 'contacted' && status !== 'done') {
     return json({ error: 'status_invalid' }, { status: 400 });
   }
+  // Bildirishnoma UPDATE'dan **oldin** — u eski holatni o'qib, haqiqatan
+  // o'zgarganini tekshiradi (bir xil holatni qayta bosish xabar yaratmasin).
+  await notifyOrderStatus(env, Number(params.id), status);
   await env.DB.prepare('UPDATE orders SET status = ? WHERE id = ?')
     .bind(status, Number(params.id))
     .run();

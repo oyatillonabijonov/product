@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import type { FC } from 'react';
 import { BotAvatar } from 'bot-avatars';
-import { User, Package, Heart, MapPin, LogOut } from 'lucide-react';
+import { User, Package, Heart, MapPin, Bell, LogOut } from 'lucide-react';
 import { parseAvatar } from '../../shared/avatar';
 import type { Translation } from '../locales';
 import type { ApiCustomer, ApiOrder } from '../../shared/types';
@@ -11,16 +11,18 @@ import ProfileForm from './account/ProfileForm';
 import OrdersList from './account/OrdersList';
 import FavoritesList from './account/FavoritesList';
 import AddressList from './account/AddressList';
+import NotificationsList from './account/NotificationsList';
+import type { ApiNotification } from '../../shared/notification';
 import type { ApiAddress } from '../../shared/address';
 
-type TabKey = 'profile' | 'orders' | 'addresses' | 'favorites';
+type TabKey = 'profile' | 'orders' | 'addresses' | 'notifications' | 'favorites';
 
 function isTabKey(v: string | null): v is TabKey {
-  return v === 'profile' || v === 'orders' || v === 'addresses' || v === 'favorites';
+  return v === 'profile' || v === 'orders' || v === 'addresses' || v === 'notifications' || v === 'favorites';
 }
 
-const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[]; itemImages: Record<string, string>; addresses: ApiAddress[] }> = ({
-  t, customer, orders, itemImages, addresses,
+const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[]; itemImages: Record<string, string>; addresses: ApiAddress[]; notifications: ApiNotification[] }> = ({
+  t, customer, orders, itemImages, addresses, notifications,
 }) => {
   // Saqlangandan keyin yon panel ham yangilansin — server qaytargan mijoz shu yerda turadi.
   const [rawCust, setCust] = useState(customer);
@@ -37,6 +39,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
     { key: 'profile', label: t.accountTabProfile, Icon: User, badge: 0 },
     { key: 'orders', label: t.accountOrders, Icon: Package, badge: orders.length },
     { key: 'addresses', label: t.accountTabAddresses, Icon: MapPin, badge: addrs.length },
+    { key: 'notifications', label: t.accountTabNotifications, Icon: Bell, badge: notifications.filter((n) => !n.read).length },
     { key: 'favorites', label: t.accountTabFavorites, Icon: Heart, badge: favCount },
   ] as const;
   const active = nav.find((n) => n.key === tab) ?? nav[0];
@@ -102,6 +105,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
             {tab === 'profile' && <ProfileForm t={t} customer={cust} onSaved={setCust} />}
             {tab === 'orders' && <OrdersList t={t} orders={orders} itemImages={itemImages} />}
             {tab === 'addresses' && <AddressList t={t} addresses={addrs} onChange={setAddrs} />}
+            {tab === 'notifications' && <NotificationsList t={t} items={notifications} />}
             {tab === 'favorites' && <FavoritesList t={t} />}
           </section>
         </div>

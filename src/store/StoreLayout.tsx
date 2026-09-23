@@ -29,13 +29,15 @@ export interface StoreContext {
   config: ApiSiteConfig;
   /** Kirgan mijoz (yoki null) — forma avto-to'ldirish + header holati uchun. */
   customer: ApiCustomer | null;
+  /** O'qilmagan bildirishnomalar soni — profil tugmasidagi nuqta. */
+  unread: number;
   /** Aktiv kontent sahifalar (nav/footer/hero linklari) — layout loader'idan. */
   pageLinks: PageLink[];
 }
 
 export default function StoreLayout({
-  locale, lang, t, config, customer, pageLinks, categories, hasDeals, currency, usdRate, assets, children,
-}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; customer: ApiCustomer | null; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean; currency: Currency; usdRate: number; assets: SiteAssets; children: ReactNode }) {
+  locale, lang, t, config, customer, unread, pageLinks, categories, hasDeals, currency, usdRate, assets, children,
+}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; customer: ApiCustomer | null; unread: number; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean; currency: Currency; usdRate: number; assets: SiteAssets; children: ReactNode }) {
   // SSR navigatsiyasi (filtr/sort/sahifa) sekin tarmoqda feedback'siz edi — indeterminate progress-bar.
   const navigation = useNavigation();
   const pending = navigation.state !== 'idle';
@@ -45,7 +47,7 @@ export default function StoreLayout({
   // Profil tugmasi — kirgan mijozda ikonka o'rniga o'z avatari (header va mobil panel).
   const customerAvatar = customer ? parseAvatar(customer.avatar, customer.id) : null;
   const header = (
-    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} avatar={customerAvatar} hasDeals={hasDeals} />
+    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} avatar={customerAvatar} unread={unread} hasDeals={hasDeals} />
   );
   // Bosh sahifada (mobil) hero to'liq ekran: header, pastki panel va aloqa tugmasi yashirin,
   // foydalanuvchi pastga aylantirgach chiqadi. Boshqa sahifalarda doim ko'rinadi. SSR'da yashirin.
@@ -99,7 +101,7 @@ export default function StoreLayout({
         <main className="flex-1">{children}</main>
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} categories={categories} hasDeals={hasDeals} />
         <div aria-hidden className="h-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" />
-        <MobileTabBar t={t} locale={locale} signedIn={customer !== null} avatar={customerAvatar} hidden={chromeHidden} />
+        <MobileTabBar t={t} locale={locale} signedIn={customer !== null} avatar={customerAvatar} unread={unread} hidden={chromeHidden} />
         {!chromeHidden && <ContactFab t={t} config={config} />}
         <CookieBanner t={t} locale={locale} />
       </div>

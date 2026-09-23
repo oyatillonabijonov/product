@@ -352,6 +352,14 @@ export async function deleteDeviceModel(id: string): Promise<void> {
 export async function listOrders(): Promise<ApiOrder[]> {
   return handle(await fetch('/api/admin/orders'));
 }
+export async function sendAnnouncement(
+  a: { titleUz: string; titleRu: string; bodyUz: string; bodyRu: string; link: string },
+): Promise<{ ok: true; sent: number }> {
+  return handle(await fetch('/api/admin/announcements', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(a),
+  }));
+}
+
 export async function setOrderStatus(id: number, status: OrderStatus): Promise<{ ok: true }> {
   return handle(await fetch(`/api/admin/orders/${id}`, {
     method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status }),

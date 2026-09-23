@@ -49,6 +49,7 @@ export default function Header({
   brandName,
   customerName,
   avatar,
+  unread,
   hasDeals,
 }: {
   t: Translation;
@@ -61,6 +62,8 @@ export default function Header({
   customerName: string | null;
   /** Kirgan mijoz avatari — ikonka o'rniga chiziladi; kirmaganda null. */
   avatar: Avatar | null;
+  /** O'qilmagan bildirishnomalar — avatar ustidagi nuqta (soni emas: chrome'da raqam ortiqcha). */
+  unread: number;
   /** Kirmagan holatda akkaunt ikonkasi kirish drawer'ini ochadi. */
   /** Chegirma bormi — bo'lmasa menyuda "Chegirmalar" havolasi chiqmaydi (footer bilan bir qoida). */
   hasDeals: boolean;
@@ -362,9 +365,12 @@ export default function Header({
           aria-label={customerName || t.navProfile}
           title={customerName || t.navProfile}
         >
-          {avatar
-            ? <BotAvatar type={avatar.type} face={avatar.face} size={22} interactive={false} />
-            : <User className="w-5 h-5" />}
+          <span className="relative">
+            {avatar
+              ? <BotAvatar type={avatar.type} face={avatar.face} size={22} interactive={false} />
+              : <User className="w-5 h-5" />}
+            {unread > 0 && <span aria-hidden className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-sale ring-2 ring-bg" />}
+          </span>
           <span className={ICON_LABEL}>{t.navProfile}</span>
         </Link>
       </div>

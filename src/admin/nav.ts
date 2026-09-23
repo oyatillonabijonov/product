@@ -38,6 +38,7 @@ export const SECTIONS: SectionDef[] = [
     tabs: [
       { id: 'list', segment: '', label: 'Buyurtmalar', Icon: Inbox, detail: true },
       { id: 'applications', segment: 'applications', label: 'Ish arizalari', Icon: Users, detail: true },
+      { id: 'announcements', segment: 'announcements', label: "E'lonlar", Icon: Megaphone, ownPage: true },
     ],
   },
   {

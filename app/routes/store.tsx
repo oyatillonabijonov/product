@@ -5,7 +5,7 @@ import { loadSiteConfig, loadPages, loadCategories, loadConfig, hasDeals, public
 import type { OrgContact } from '../lib/seo';
 import { CURRENCY_COOKIE, parseCurrency } from '../../src/lib/currency';
 import { textOverrides } from '../../src/lib/site-content';
-import { loadCustomer } from '../../functions/lib/db';
+import { loadCustomer, unreadNotificationCount } from '../../functions/lib/db';
 import { getCookie, verifySession } from '../../functions/lib/auth';
 import type { ApiCustomer } from '../../shared/types';
 import { translations, type Translation } from '../../src/locales';
@@ -35,6 +35,12 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     const cid = await verifySession(token, siteConfig.customerSessionSecret, Math.floor(Date.now() / 1000));
     if (cid) customer = await loadCustomer(env, Number(cid));
   }
+  // O'qilmaganlar soni — profil tugmasidagi nuqta uchun. Faqat kirgan mijozda,
+  // indeksli bitta COUNT (`idx_notifications_unread`).
+  let unread = 0;
+  if (customer) {
+    unread = await unreadNotificationCount(env, customer.id);
+  }
   // origin — root.tsx'dagi hreflang va route meta'lardagi absolut URL'lar uchun.
   // publicSiteConfig — sirlar (bot token, OAuth secret, sessiya siri) klientga (HTML) chiqmasin.
   // Valyuta tanlovi cookie'da (USD bo'lsa server/index.ts javobni umumiy keshdan chiqaradi).
@@ -45,17 +51,17 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   // Organization JSON-LD (root.tsx) — ko'cha manzili (2-qator; 1-qatordagi davlat va shahar JSON-LD'da alohida maydonlarda) va ish vaqti sayt matnlaridan.
   const orgContact: OrgContact = { address: tt.footerAddressText2, openingHours: tt.seoOpeningHours };
   return {
-    locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, deals, currency, usdRate: settings.usdToUzs,
+    locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, unread, deals, currency, usdRate: settings.usdToUzs,
     origin: new URL(request.url).origin, texts, orgContact, assets,
   };
 }
 
 export default function StoreRoot() {
-  const { locale, siteConfig, pageLinks, categories, customer, deals, currency, usdRate, texts, assets } = useLoaderData<typeof loader>();
+  const { locale, siteConfig, pageLinks, categories, customer, unread, deals, currency, usdRate, texts, assets } = useLoaderData<typeof loader>();
   const lang = localeToLang(locale);
   const t: Translation = { ...translations[lang], ...texts };
   return (
-    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} pageLinks={pageLinks} categories={categories} hasDeals={deals} currency={currency} usdRate={usdRate} assets={assets}>
+    <StoreLayout locale={locale} lang={lang} t={t} config={siteConfig} customer={customer} unread={unread} pageLinks={pageLinks} categories={categories} hasDeals={deals} currency={currency} usdRate={usdRate} assets={assets}>
       <Outlet context={{ t, lang, locale, config: siteConfig, customer, pageLinks }} />
     </StoreLayout>
   );

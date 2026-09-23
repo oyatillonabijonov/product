@@ -427,6 +427,19 @@ export function parseDeviceModelInput(body: unknown): DeviceModelInput {
   return { id, name, brandId, categoryId, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
 }
 
+/** Admin e'loni — o'zbekcha sarlavha majburiy, qolgani ixtiyoriy; havola banner qoidasi bilan. */
+export function parseAnnouncementInput(body: unknown): {
+  titleUz: string; titleRu: string; bodyUz: string; bodyRu: string; link: string;
+} {
+  const o = asRecord(body);
+  const f = (k: string, max: number) => (typeof o[k] === 'string' ? (o[k] as string).trim().slice(0, max) : '');
+  const titleUz = f('titleUz', 120);
+  if (!titleUz) throw new ValidationError('title_required');
+  const link = f('link', 300);
+  if (link && !SAFE_HREF_RE.test(link)) throw new ValidationError('link_invalid');
+  return { titleUz, titleRu: f('titleRu', 120), bodyUz: f('bodyUz', 500), bodyRu: f('bodyRu', 500), link };
+}
+
 /**
  * Kabinet manzili. Viloyat/tuman **ro'yxatdan** bo'lishi shart — aks holda kuryerga
  * ketadigan matnga ixtiyoriy qiymat tushardi. Qolgan maydonlar erkin, lekin qisqa.

@@ -19,13 +19,13 @@ import { useFavorites } from './FavoritesContext';
  * banneri undan yuqorida turadi. iPhone'ning pastki "home" chizig'i uchun safe-area.
  * `hidden` — bosh sahifa hero'si ekranda turganda panel pastga yashirinadi (StoreLayout).
  */
-const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean; avatar: Avatar | null; hidden?: boolean }> = ({ t, locale, signedIn, avatar, hidden = false }) => {
+const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean; avatar: Avatar | null; unread: number; hidden?: boolean }> = ({ t, locale, signedIn, avatar, unread, hidden = false }) => {
   const { pathname } = useLocation();
   const { count } = useCart();
   const { count: favCount } = useFavorites();
   const path = stripLocale(pathname);
 
-  const tabs: { to: string; label: string; Icon: LucideIcon; active: boolean; badge?: number; avatar?: Avatar }[] = [
+  const tabs: { to: string; label: string; Icon: LucideIcon; active: boolean; badge?: number; avatar?: Avatar; dot?: boolean }[] = [
     { to: '/', label: t.breadcrumbHome, Icon: Home, active: path === '/' },
     { to: '/katalog', label: t.navCatalog, Icon: TextSearch, active: path.startsWith('/katalog') || path.startsWith('/category') },
     { to: '/sevimlilar', label: t.accountTabFavorites, Icon: Heart, active: path === '/sevimlilar', badge: favCount },
@@ -37,6 +37,7 @@ const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean; avat
       active: path === '/kabinet' || path === '/kirish',
       // Kirgan bo'lsa ikonka o'rniga o'z avatari — header'dagi Profil ustuni bilan bir xil.
       avatar: avatar ?? undefined,
+      dot: unread > 0,
     },
   ];
 
@@ -51,7 +52,7 @@ const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean; avat
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="grid grid-cols-5">
-        {tabs.map(({ to, label, Icon, active, badge, avatar: tabAvatar }) => (
+        {tabs.map(({ to, label, Icon, active, badge, avatar: tabAvatar, dot }) => (
           <li key={to}>
             <Link
               to={localizedPath(locale, to)}
@@ -62,6 +63,7 @@ const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean; avat
                 {tabAvatar
                   ? <BotAvatar type={tabAvatar.type} face={tabAvatar.face} size={26} interactive={false} />
                   : <Icon className="h-6 w-6" strokeWidth={active ? 2 : 1.6} />}
+                {dot && <span aria-hidden className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-sale ring-2 ring-bg" />}
                 {!!badge && (
                   <span className="absolute -right-2.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-sale px-1 text-label font-bold leading-none text-white">
                     {badge}
