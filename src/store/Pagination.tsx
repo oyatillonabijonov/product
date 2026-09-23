@@ -23,17 +23,19 @@ const Pagination: FC<{ page: number; total: number; onPage: (n: number) => void 
     else next.set('page', String(n));
     return next.toString();
   };
+  // Apple pager idiomasi: raqamlar oddiy matn, xrom faqat **joriy** sahifada.
+  // Ilgari har bir raqam to'ldirma va chegara bilan chizilardi — bitta element ikki
+  // marta ajratilgan, ya'ni "elevation bir marta e'lon qilinadi" qoidasiga zid.
+  // Katak 44x44 (tegish maydonining pastki chegarasi), `tabular-nums` — raqam
+  // almashganda kenglik sakramaydi.
+  const CELL = 'inline-flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-label tabular-nums';
   return (
-    <nav className="flex items-center justify-center gap-1.5 mt-8">
+    <nav className="mt-8 flex items-center justify-center gap-0.5">
       {withGaps.map((p, i) =>
         p === '…' ? (
-          <span key={`gap-${i}`} className="px-2 text-muted-2">…</span>
+          <span key={`gap-${i}`} className="inline-flex h-11 items-center justify-center px-1 text-label text-muted-3">…</span>
         ) : p === page ? (
-          <span
-            key={p}
-            aria-current="page"
-            className="min-w-9 h-9 px-2 rounded-full text-label font-semibold bg-accent text-bg inline-flex items-center justify-center"
-          >
+          <span key={p} aria-current="page" className={`${CELL} bg-accent font-semibold text-bg`}>
             {p}
           </span>
         ) : (
@@ -44,7 +46,7 @@ const Pagination: FC<{ page: number; total: number; onPage: (n: number) => void 
               e.preventDefault();
               onPage(p);
             }}
-            className="press min-w-9 h-9 px-2 rounded-full text-label font-semibold bg-surface border border-line hover:border-accent inline-flex items-center justify-center"
+            className={`press ${CELL} text-muted hover:bg-fill-2 hover:text-primary`}
           >
             {p}
           </Link>
