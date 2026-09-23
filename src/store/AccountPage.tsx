@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import type { FC } from 'react';
+import { BotAvatar } from 'bot-avatars';
 import { User, Package, Heart, LogOut } from 'lucide-react';
+import { parseAvatar } from '../../shared/avatar';
 import type { Translation } from '../locales';
 import type { ApiCustomer, ApiOrder } from '../../shared/types';
 import { useFavorites } from './FavoritesContext';
@@ -14,16 +17,13 @@ function isTabKey(v: string | null): v is TabKey {
   return v === 'profile' || v === 'orders' || v === 'favorites';
 }
 
-function initials(name: string, email: string): string {
-  const src = (name || '').trim() || email || '?';
-  const parts = src.split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return src.slice(0, 2).toUpperCase();
-}
-
 const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[] }> = ({
   t, customer, orders,
 }) => {
+  // Saqlangandan keyin yon panel ham yangilansin — server qaytargan mijoz shu yerda turadi.
+  const [rawCust, setCust] = useState(customer);
+  const cust = rawCust as ApiCustomer;
+  const avatar = parseAvatar(cust.avatar, cust.id);
   const [sp, setSp] = useSearchParams();
   const tabParam = sp.get('tab');
   const tab: TabKey = isTabKey(tabParam) ? tabParam : 'profile';
@@ -51,12 +51,10 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
           {/* Sidebar */}
           <aside className=" rounded-lg bg-surface overflow-hidden md:sticky md:top-24">
             <div className="flex items-center gap-3 p-5 border-b border-line/60">
-              <div className="w-12 h-12 rounded-full bg-accent-soft text-accent flex items-center justify-center font-semibold text-copy shrink-0">
-                {initials(customer.name, customer.email ?? '')}
-              </div>
+              <BotAvatar type={avatar.type} face={avatar.face} size={48} />
               <div className="min-w-0">
-                <div className="font-semibold text-para text-primary truncate">{customer.name || '—'}</div>
-                {customer.email && <div className="text-label text-muted truncate">{customer.email}</div>}
+                <div className="font-semibold text-para text-primary truncate">{cust.name || '—'}</div>
+                {cust.email && <div className="text-label text-muted truncate">{cust.email}</div>}
               </div>
             </div>
             <nav className="p-2">
@@ -96,7 +94,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
               <ActiveIcon className="w-5 h-5 text-accent" />
               <h1 className="text-lede font-semibold text-primary">{active.label}</h1>
             </div>
-            {tab === 'profile' && <ProfileForm t={t} customer={customer} />}
+            {tab === 'profile' && <ProfileForm t={t} customer={cust} onSaved={setCust} />}
             {tab === 'orders' && <OrdersList t={t} orders={orders} />}
             {tab === 'favorites' && <FavoritesList t={t} />}
           </section>

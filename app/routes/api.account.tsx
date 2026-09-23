@@ -25,7 +25,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     } catch (e) {
       return Response.json({ error: e instanceof ValidationError ? e.message : 'bad_request' }, { status: 400 });
     }
-    await updateCustomerProfile(env, id, input.name, input.phone);
+    await updateCustomerProfile(env, id, input.name, input.phone, input.avatar);
     const customer = await loadCustomer(env, id);
     return Response.json({ ok: true, customer });
   }

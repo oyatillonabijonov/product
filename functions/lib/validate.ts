@@ -15,6 +15,7 @@ import type {
   Term,
 } from '../../shared/types';
 import { SAFE_HREF_RE } from '../../shared/safe-href';
+import { isAvatar } from '../../shared/avatar';
 import { parseManualFields } from '../../shared/billz';
 
 export class ValidationError extends Error {}
@@ -424,8 +425,8 @@ export function parseDeviceModelInput(body: unknown): DeviceModelInput {
   return { id, name, brandId, categoryId, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
 }
 
-/** Kabinet profil tahriri — ism (majburiy) + telefon (ixtiyoriy, bo'lsa UZ format). */
-export function parseProfileInput(body: unknown): { name: string; phone: string } {
+/** Kabinet profil tahriri — ism (majburiy) + telefon (ixtiyoriy, bo'lsa UZ format) + avatar. */
+export function parseProfileInput(body: unknown): { name: string; phone: string; avatar: string } {
   const o = asRecord(body);
   const name = (typeof o.name === 'string' ? o.name : '').trim().slice(0, 80);
   if (!name) throw new ValidationError('name_required');
@@ -434,7 +435,10 @@ export function parseProfileInput(body: unknown): { name: string; phone: string 
     const digits = phone.replace(/\D/g, '');
     if (digits.length < 9 || digits.length > 12) throw new ValidationError('phone_invalid');
   }
-  return { name, phone };
+  // Bo'sh — avatar tanlanmagan (shakl `id` dan chiqadi); aks holda faqat ro'yxatdagi qiymat.
+  const avatar = (typeof o.avatar === 'string' ? o.avatar : '').trim();
+  if (avatar && !isAvatar(avatar)) throw new ValidationError('avatar_invalid');
+  return { name, phone, avatar };
 }
 
 export function parseSiteConfigInput(body: unknown): ApiSiteConfig {
