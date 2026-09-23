@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { ShieldCheck, ChevronRight, Truck, ShoppingCart, Wallet } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
-import type { ApiReview, ApiSiteConfig } from '../../shared/types';
+import type { ApiOption, ApiReview, ApiSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import { calcInstallment, discountPercent } from '../lib/installment';
 import { SWATCHES } from '../lib/swatches';
@@ -21,6 +21,9 @@ import Reviews from './Reviews';
 import SetupBand from './SetupBand';
 import Stars from './Stars';
 import TermSegments from './TermSegments';
+
+/** Rang doiralari bilan chiziladigan variant — hamma qiymati palitrada bor. */
+const isSwatchOption = (o: ApiOption) => o.values.every((v) => SWATCHES[v.value]);
 
 /** Bo'lim sarlavhasi — apple.com uslubi: qalin nom, ortidan och rangli savol. */
 const SectionTitle: FC<{ name: string; prompt: string }> = ({ name, prompt }) => (
@@ -170,7 +173,7 @@ const ProductPage: FC<{
               {displayOld && disc !== null && (
                 <>
                   <span className="text-control md:text-copy tabular-nums text-disabled-2 line-through">{price(displayOld)}</span>
-                  <span className="rounded-full bg-sale px-2 py-0.5 text-label font-bold text-white">-{disc}%</span>
+                  <span className="rounded-full bg-sale px-2 py-0.5 text-label font-bold text-bg">-{disc}%</span>
                 </>
               )}
             </div>
@@ -182,10 +185,16 @@ const ProductPage: FC<{
             )}
           </div>
 
-          {/* Versiyalar (xotira, rang, …). Rang — Apple nomi bilan doiralar, qolgani ixcham kartalar
-              (qiymat + narx); tanlangani ko'k (`cta`) chiziq bilan, qalinligi doim `border-2` — siljimasin. */}
-          {product.options.length > 0 && selection && product.options.map((o) => {
-            const swatches = o.values.every((v) => SWATCHES[v.value]);
+          {/* Versiyalar. **Rang birinchi** — apple.com ham finish'ni xotiradan oldin so'raydi,
+              va telefonda bu uni narx bilan bitta ekranda ushlab qoladi: xotira to'ri (2×N karta,
+              ~224px) rang doiralarini ekran tashqarisiga surib yuborardi. `sort` barqaror, shuning
+              uchun qolgan variantlar admin bergan tartibda qoladi.
+              Rang — Apple nomi bilan doiralar, qolgani ixcham kartalar (qiymat + narx);
+              tanlangani ko'k (`cta`) chiziq bilan, qalinligi doim `border-2` — siljimasin. */}
+          {product.options.length > 0 && selection && [...product.options]
+            .sort((a, b) => Number(isSwatchOption(b)) - Number(isSwatchOption(a)))
+            .map((o) => {
+            const swatches = isSwatchOption(o);
             return (
               <section key={o.id} className="flex flex-col gap-3">
                 <SectionTitle name={o.name} prompt={t.optionPrompt} />

@@ -61,8 +61,8 @@ const JobApplyForm: FC<{ t: Translation; vacancyId: string | null; position: str
     }
   }
 
-  // Maydon foni sahifa foni (`bg-bg`): modal `surface` ustida qorong'i mavzuda ham chegarasi ko'rinadi —
-  // `border-line-2` #27292B kartada deyarli yo'qolardi.
+  // Maydon foni sahifa foni (`bg-bg`): modal `surface` ustida turadi, cho'kkan maydon
+  // uni chegara bilan emas, chuqurlik bilan ajratadi.
   const inputCls = (bad: boolean) =>
     `rounded-sm w-full border px-3 py-2.5 text-control text-primary bg-bg focus:outline-none ${
       bad ? 'border-danger focus:border-danger' : 'border-line focus:border-accent'

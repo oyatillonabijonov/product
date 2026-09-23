@@ -21,11 +21,6 @@ const FADE = 80;
  * nisbatni buzardi. Qator balandligi va element eni qat'iy — rasm yuklanganda
  * layout siljimaydi.
  *
- * Qorong'i mavzuda ikonka ortida yumshoq yorug'lik dog'i (`spotlight` tokeni, yorug'
- * mavzuda shaffof): qora qurilmalar (PSU, kuler, naushnik) aks holda fonga singib ketardi.
- * Dog' rasmga emas, tile eniga bog'langan (`w-full`) — hamma turda bir xil, rasm
- * yuklanguncha ingichka chiziq bo'lib qolmaydi.
- *
  * Qator `.shell` chetigacha chiqadi (`--shell-pad` qadar, har ekranda) va chetlarda
  * so'nadi. So'nish eni scroll bilan uzluksiz o'zgaradi (`--fade-l`/`--fade-r`, 0…80px):
  * qaysi tomonda yashirin tur bo'lsa, o'sha chet so'nadi; tinch holatda chapda faqat
@@ -100,7 +95,7 @@ const CategoryTiles: FC<{ tiles: CategoryTile[]; t: Translation }> = ({ tiles, t
                 >
                   <span
                     aria-hidden
-                    className={`relative isolate flex h-[68px] w-full items-end justify-center transition-opacity duration-200 group-hover:opacity-100 before:absolute before:-inset-x-2 before:-inset-y-4 before:-z-10 before:bg-[radial-gradient(closest-side,var(--color-spotlight),transparent)] ${dimmed ? 'opacity-45' : ''}`}
+                    className={`flex h-[68px] w-full items-end justify-center transition-opacity duration-200 group-hover:opacity-100 ${dimmed ? 'opacity-45' : ''}`}
                   >
                     <img src={tile.img} alt="" loading="lazy" className="max-w-none [zoom:0.5]" />
                   </span>

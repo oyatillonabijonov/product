@@ -99,8 +99,13 @@
      havola uchun emas: qorong'i kartada #0071E3 matn 3.1:1 berardi. Apple qiymatlari: yorug'da #0066CC
      (oq kartada 5.6:1), qorong'ida #2997FF (#27292B kartada 4.8:1). */
   --color-link: #0066CC;
-  /* Tur ikonkasi ortidagi yorug'lik dog'i — faqat qorong'i mavzuda (qora qurilma fonga singmasin) */
-  --color-spotlight: transparent;
+}
+
+/* Brauzerning o'z yuzalari — scrollbar, matn kursori, <select> ro'yxati va
+   native checkbox — mavzuni shu bitta e'londan oladi. Usiz qorong'i saytda
+   ular oq bo'lib qolardi. */
+:root {
+  color-scheme: light;
 }
 
 /*
@@ -111,39 +116,56 @@
  * komponentlar (FAQ, brendlar, blog) o'zgarishsiz qayta ranglanadi.
  */
 :root[data-theme="dark"] {
-  --color-primary: #F2F4F6;
-  --color-body: #C9CDD2;
-  --color-muted: #A2A8AF;
-  --color-muted-2: #949AA2;
-  --color-muted-3: #7B818A;
-  --color-disabled: #4A4E53;
-  --color-disabled-2: #8B9199;
-  --color-bg: #101214;        /* sahifa va footer bitta tonda */
-  --color-surface: #27292B;   /* brend rangi */
-  --color-accent: #F2F4F6;
-  --color-accent-hover: #FFFFFF;
-  --color-accent-soft: #2F3235;
-  --color-accent-soft-2: #383B3F;
-  --color-trust: #E4E7EA;
-  --color-trust-soft: #2A2D30;
-  --color-row-alt: #1D1F21;
-  --color-fill-2: #33363A;
-  --color-line: #34383C;
-  --color-line-2: #2C2F33;
-  --color-line-3: #26292C;
-  --color-divider: #232629;
-  --color-segment: #2A2D30;
-  --color-sale: #FF5C67;
-  --color-danger: #FF6B6B;
-  --color-new: #FF8A50;
-  --color-verified: #3FD47A;
-  --color-cta: #0071E3;
-  --color-cta-hover: #0A84FF;
-  --color-link: #2997FF;
-  --color-spotlight: #34373B;
+  /* Apple'ning qorong'i oilasi. Butun ramp **neytral**: R/G/B kanallari orasidagi
+     farq 2..5 birlik (apple.com'ning o'zida ham shuncha). Ilgari sahifa qora,
+     kartalar esa moviy-kulrang edi — ikki xil oila, shuning uchun bir-biriga
+     mos tushmasdi.
+
+     Ajralish WCAG bilan emas, **OKLCH dL** bilan o'lchanadi: qora fonlarda WCAG
+     nisbati siqilib qoladi va ko'rinadigan qadamni ham "yiqilgan" deb ko'rsatadi.
+     Apple'ning o'z qadami 0.055..0.067; bizda karta sahifadan 0.096 ko'tariladi,
+     undan yuqorisi esa bir tekis zinapoya. */
+  --color-primary: #F5F5F7;      /* apple.com asosiy matni */
+  --color-body: #D2D2D7;         /* apple.com matn tanasi */
+  --color-muted: #A1A1A6;        /* apple.com ikkilamchi */
+  --color-muted-2: #ABABB0;      /* 14px yorliqlar — `muted`dan bir pog'ona kuchli */
+  --color-muted-3: #6E6E73;      /* apple.com to'rtlamchi — faqat ikonka va hairline */
+  --color-disabled: #48484A;
+  --color-disabled-2: #86868B;   /* apple.com uchlamchi */
+  --color-bg: #08080A;           /* sahifa — qora, lekin sof #000 emas (halatsiya va OLED dog'i) */
+  --color-surface: #1D1D1F;      /* apple.com kartasining aynan rangi */
+  --color-accent: #F5F5F7;
+  --color-accent-hover: #D2D2D7;
+  /* Buyurtma holati chiplari diqqat darajasi bo'yicha: yangi > aloqada > bajarildi */
+  --color-accent-soft: #38383A;
+  --color-accent-soft-2: #48484A;
+  --color-trust: #E8E8ED;
+  --color-trust-soft: #2F2F31;
+  --color-row-alt: #28282A;
+  --color-fill-2: #2C2C2E;       /* iOS tertiarySystemBackground — hover to'ldirmasi */
+  /* Chiziqlar zinapoyasi karta ustida (dL): line-3 0.030 · line-2 0.082 ·
+     divider 0.102 · line 0.137. Hammasi kartadan **yorug'roq** — to'q fonda
+     hairline faqat shunda ko'rinadi. */
+  --color-line: #3F3F41;
+  --color-line-2: #313133;
+  --color-line-3: #242426;
+  --color-divider: #363638;
+  --color-segment: #161618;
+  /* Rangli tokenlar — imkon qadar Apple'ning o'z tizim ranglari. Havola ko'ki
+     Apple'da #2997FF, lekin u kartada Lc 43.7 beradi; o'qilishi uchun bir
+     pog'ona ko'tarildi (Lc 50.3) — "qulay bo'lsin" talabi shu yerda. */
+  --color-sale: #FF6C7C;
+  --color-danger: #FF705C;
+  --color-new: #FF9F0A;          /* iOS systemOrange (dark) */
+  --color-verified: #30D158;     /* iOS systemGreen (dark) */
+  --color-cta: #0066CD;
+  --color-cta-hover: #1475E1;
+  --color-link: #47A6FF;
+  color-scheme: dark;
   background-color: var(--color-bg);
   color: var(--color-primary);
 }
+
 
 :root[data-theme="dark"] body {
   background-color: var(--color-bg);
@@ -301,12 +323,12 @@ body {
     --color-muted-2: #3C4147;
   }
   :root[data-theme="dark"] {
-    --color-line: #6E747C;
-    --color-line-2: #797F87;
-    --color-line-3: #858B93;
-    --color-divider: #797F87;
-    --color-muted: #D5D9DE;
-    --color-muted-2: #D5D9DE;
+    --color-line: #5A5A5C;
+    --color-line-2: #4E4E50;
+    --color-line-3: #444446;
+    --color-divider: #545456;
+    --color-muted: #D2D2D7;
+    --color-muted-2: #D2D2D7;
   }
   *,
   *::before,

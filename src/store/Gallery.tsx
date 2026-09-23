@@ -39,7 +39,7 @@ const Gallery: FC<{ images: string[]; name: string }> = ({ images, name }) => {
 
   return (
     <div className="relative">
-      <div className="rounded-xl relative aspect-square overflow-hidden bg-white lg:aspect-[4/3]">
+      <div className="rounded-xl relative aspect-square overflow-hidden border border-line bg-white lg:aspect-[4/3]">
         {images.length === 0 ? (
           <span className="flex h-full items-center justify-center text-muted-2">{name}</span>
         ) : (

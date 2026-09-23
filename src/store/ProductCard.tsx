@@ -52,7 +52,7 @@ const ProductCard: FC<{
       <div className="relative">
         <LocaleLink
           to={`/product/${product.id}`}
-          className="rounded-sm aspect-square w-full flex items-center justify-center overflow-hidden bg-white p-2.5"
+          className="rounded-sm aspect-square w-full flex items-center justify-center overflow-hidden border border-line bg-white p-2.5"
         >
           {product.image ? (
             <img
@@ -79,7 +79,7 @@ const ProductCard: FC<{
             <span className="text-label font-semibold px-2.5 py-1 rounded-full backdrop-blur bg-surface/90 text-new">{t.badgePreorder}</span>
           )}
           {disc !== null && (
-            <span className="text-label font-bold px-2 py-1 rounded-full bg-sale text-white">-{disc}%</span>
+            <span className="text-label font-bold px-2 py-1 rounded-full bg-sale text-bg">-{disc}%</span>
           )}
         </div>
         <FavoriteButton

@@ -173,7 +173,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
                       on ? 'border-cta' : 'border-transparent bg-bg hover:border-muted-3'
                     } disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-transparent`}
                   >
-                    <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xs bg-white">
+                    <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xs border border-line bg-white">
                       {part.image
                         ? <img src={part.image} alt="" loading="lazy" className="h-full w-full object-contain" />
                         : <Icon aria-hidden className="h-6 w-6 text-muted-3" strokeWidth={1.5} />}

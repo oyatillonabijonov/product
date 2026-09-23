@@ -62,7 +62,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
         <div className="flex flex-col gap-3">
           {items.map((it) => (
             <div key={`${it.productId}-${it.variantId ?? ''}`} className=" rounded-lg bg-surface p-4 flex flex-wrap items-center gap-x-4 gap-y-3">
-              <div className="rounded-sm w-16 h-16 bg-bg flex items-center justify-center overflow-hidden shrink-0">
+              <div className="rounded-sm w-16 h-16 border border-line bg-bg flex items-center justify-center overflow-hidden shrink-0">
                 {it.image ? <img src={it.image} alt="" className="w-full h-full object-contain p-1.5" /> : null}
               </div>
               <div className="min-w-[45%] flex-1">

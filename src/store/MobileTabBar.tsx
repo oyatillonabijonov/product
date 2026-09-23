@@ -65,7 +65,7 @@ const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean; avat
                   : <Icon className="h-6 w-6" strokeWidth={active ? 2 : 1.6} />}
                 {dot && <span aria-hidden className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-sale ring-2 ring-bg" />}
                 {!!badge && (
-                  <span className="absolute -right-2.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-sale px-1 text-label font-bold leading-none text-white">
+                  <span className="absolute -right-2.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-sale px-1 text-label font-bold leading-none text-bg">
                     {badge}
                   </span>
                 )}

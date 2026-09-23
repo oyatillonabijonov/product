@@ -27,7 +27,7 @@ const FavoritesList: FC<{ t: Translation }> = ({ t }) => {
           >
             <X className="w-4 h-4" />
           </button>
-          <LocaleLink to={`/product/${f.productId}`} className="rounded-sm aspect-square bg-white flex items-center justify-center overflow-hidden">
+          <LocaleLink to={`/product/${f.productId}`} className="rounded-sm aspect-square border border-line bg-white flex items-center justify-center overflow-hidden">
             {f.image ? <img src={f.image} alt={f.name} className="w-full h-full object-contain" /> : <span className="text-muted-2 text-label">{f.name}</span>}
           </LocaleLink>
           <LocaleLink to={`/product/${f.productId}`} className="text-label font-medium mt-2.5 line-clamp-2 hover:text-accent transition-colors">
