@@ -16,6 +16,8 @@ import type {
 } from '../../shared/types';
 import { SAFE_HREF_RE } from '../../shared/safe-href';
 import { isAvatar } from '../../shared/avatar';
+import type { AddressFields } from '../../shared/address';
+import { districtById, regionById } from '../../shared/uz-regions';
 import { parseManualFields } from '../../shared/billz';
 
 export class ValidationError extends Error {}
@@ -425,6 +427,27 @@ export function parseDeviceModelInput(body: unknown): DeviceModelInput {
   return { id, name, brandId, categoryId, chip: opt('chip'), ram: opt('ram'), camera: opt('camera'), display: opt('display'), sortOrder };
 }
 
+/**
+ * Kabinet manzili. Viloyat/tuman **ro'yxatdan** bo'lishi shart — aks holda kuryerga
+ * ketadigan matnga ixtiyoriy qiymat tushardi. Qolgan maydonlar erkin, lekin qisqa.
+ */
+export function parseAddressInput(body: unknown): AddressFields & { isDefault: boolean } {
+  const o = asRecord(body);
+  const region = (typeof o.region === 'string' ? o.region : '').trim();
+  const district = (typeof o.district === 'string' ? o.district : '').trim();
+  if (!regionById(region)) throw new ValidationError('region_invalid');
+  if (!districtById(region, district)) throw new ValidationError('district_invalid');
+  const f = (k: string, max: number) => (typeof o[k] === 'string' ? (o[k] as string).trim().slice(0, max) : '');
+  const street = f('street', 120);
+  if (!street) throw new ValidationError('street_required');
+  return {
+    region, district, street,
+    house: f('house', 20), apartment: f('apartment', 20),
+    entrance: f('entrance', 20), floor: f('floor', 20),
+    isDefault: o.isDefault === true,
+  };
+}
+
 /** Kabinet profil tahriri — ism (majburiy) + telefon (ixtiyoriy, bo'lsa UZ format) + avatar. */
 export function parseProfileInput(body: unknown): { name: string; phone: string; avatar: string; email: string } {
   const o = asRecord(body);
@@ -615,6 +638,9 @@ export function parseOrderInput(body: unknown): OrderInput {
     totalUzs: installment ? num('totalUzs') : null,
     items,
     source: o.source === 'cart' ? 'cart' : 'product',
+    // Manzil — mijoz tanlagan profil manzilining matn nusxasi; ixtiyoriy (mehmon
+    // buyurtmasi avvalgidek manzilsiz keladi, operator telefonda aniqlaydi).
+    addressText: typeof o.addressText === 'string' ? o.addressText.trim().slice(0, 300) : '',
   };
 }
 

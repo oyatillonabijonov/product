@@ -10,9 +10,11 @@ import { ymGoal } from '../lib/metrica';
 import { safeHref } from '../../shared/safe-href';
 import Modal from './Modal';
 import { useCurrency } from './CurrencyContext';
+import type { ApiAddress } from '../../shared/address';
+import { formatAddress } from '../../shared/address';
 
 /** Ism/telefonsiz tayyor buyurtma — chaqiruvchi (ProductPage/CartPage) to'ldiradi. */
-export type OrderDraft = Omit<OrderInput, 'name' | 'phone' | 'note'> & { title: string };
+export type OrderDraft = Omit<OrderInput, 'name' | 'phone' | 'note' | 'addressText'> & { title: string };
 
 const OrderForm: FC<{
   t: Translation;
@@ -32,6 +34,27 @@ const OrderForm: FC<{
   const [nameErr, setNameErr] = useState('');
   const [phoneErr, setPhoneErr] = useState('');
   const [open, setOpen] = useState(true);
+  // Manzillar faqat kirgan mijozda va faqat forma ochilganda so'raladi —
+  // har sahifada olib yurish ortiqcha bo'lardi. Mehmon uchun tanlov umuman chiqmaydi.
+  const [rawAddrs, setAddrs] = useState([]);
+  const [rawAddrId, setAddrId] = useState(0);
+  const addrs = rawAddrs as ApiAddress[];
+  const addrId = rawAddrId as number;
+
+  useEffect(() => {
+    if (!customer) return;
+    let alive = true;
+    fetch('/api/addresses')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((b) => {
+        if (!alive || !b) return;
+        const list = (b as { addresses: ApiAddress[] }).addresses;
+        setAddrs(list);
+        setAddrId(list.find((a) => a.isDefault)?.id ?? 0);
+      })
+      .catch(() => { /* manzilsiz ham buyurtma ketaveradi */ });
+    return () => { alive = false; };
+  }, [customer]);
 
   const installment = draft.paymentKind === 'installment';
   const cashTotal = draft.items.reduce((s, it) => s + it.priceUzs * it.qty, 0);
@@ -69,7 +92,13 @@ const OrderForm: FC<{
       const res = await fetch('/api/order', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...order, name: name.trim(), phone: phone.trim(), company }),
+        body: JSON.stringify({
+          ...order,
+          name: name.trim(),
+          phone: phone.trim(),
+          addressText: addrId ? formatAddress(addrs.find((a) => a.id === addrId) as ApiAddress) : '',
+          company,
+        }),
       });
       if (!res.ok) throw new Error();
       setDone(true);
@@ -172,6 +201,20 @@ const OrderForm: FC<{
               className={`${inputCls(Boolean(phoneErr))} tabular-nums ${phoneErr ? 'mb-1' : 'mb-4'}`}
             />
             {phoneErr && <p className="text-label text-danger mb-3">{phoneErr}</p>}
+            {addrs.length > 0 && (
+              <>
+                <label htmlFor="order-address" className="block text-label text-muted mb-1">{t.addressInOrder}</label>
+                <select
+                  id="order-address"
+                  value={String(addrId)}
+                  onChange={(e) => setAddrId(Number(e.target.value))}
+                  className={`${inputCls(false)} mb-4`}
+                >
+                  {addrs.map((a) => <option key={a.id} value={String(a.id)}>{formatAddress(a)}</option>)}
+                  <option value="0">{t.addressNone}</option>
+                </select>
+              </>
+            )}
             {/* honeypot — foydalanuvchiga ko'rinmaydi, bot to'ldirsa buyurtma tashlanadi */}
             <input
               tabIndex={-1}

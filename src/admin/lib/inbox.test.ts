@@ -8,7 +8,7 @@ const order = (over: Partial<ApiOrder> = {}): ApiOrder => ({
   id: 1, createdAt: 0, name: 'Ali Valiyev', phone: '+998 90 123-45-67', note: '',
   paymentKind: 'cash', termMonths: null, downPaymentUzs: null, monthlyUzs: null, totalUzs: null,
   items: [{ productId: 'p1', name: 'iPhone 16', variantLabel: '128GB', qty: 1, priceUzs: 12_000_000 }],
-  source: 'product', status: 'new', telegramSent: true,
+  source: 'product', status: 'new', telegramSent: true, addressText: '',
   ...over,
 });
 

@@ -25,6 +25,7 @@ export function composeOrderMessage(o: OrderInput, brand: string): string {
     const cash = o.items.reduce((s, it) => s + it.priceUzs * it.qty, 0);
     lines.push(`💰 Naqd narx: ${fmt(cash)} so'm`);
   }
+  if (o.addressText) lines.push('', `📍 ${o.addressText}`);
   if (o.note) lines.push('', `📝 ${o.note}`);
   return lines.join('\n');
 }
