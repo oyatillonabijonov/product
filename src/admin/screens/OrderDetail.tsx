@@ -92,6 +92,7 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
               { k: 'Ism', v: order.name },
               { k: 'Telefon', v: <a href={telHref(order.phone)} className="press text-cta">{order.phone}</a> },
               { k: 'Manba', v: orderSource(order) },
+              ...(order.addressText ? [{ k: 'Manzil', v: <span className="whitespace-pre-line">{order.addressText}</span> }] : []),
               ...(order.note ? [{ k: 'Izoh', v: <span className="whitespace-pre-line">{order.note}</span> }] : []),
             ]}
           />

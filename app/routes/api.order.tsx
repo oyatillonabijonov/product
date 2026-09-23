@@ -52,12 +52,12 @@ export async function action({ request, context }: Route.ActionArgs) {
   }
 
   await env.DB.prepare(
-    'INSERT INTO orders (name, phone, note, payment_kind, term_months, down_payment_uzs, monthly_uzs, total_uzs, items_json, source, telegram_sent, customer_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO orders (name, phone, note, payment_kind, term_months, down_payment_uzs, monthly_uzs, total_uzs, items_json, source, telegram_sent, customer_id, address_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
   )
     .bind(
       input.name, input.phone, input.note, input.paymentKind,
       input.termMonths, input.downPaymentUzs, input.monthlyUzs, input.totalUzs,
-      JSON.stringify(input.items), input.source, telegramSent, customerId,
+      JSON.stringify(input.items), input.source, telegramSent, customerId, input.addressText || null,
     )
     .run();
 

@@ -30,6 +30,8 @@ import type {
 } from '../../shared/types';
 import { rowToProductType, type ProductTypeDbRow } from '../../shared/product-types';
 import type { Env } from '../env';
+import type { AddressFields, ApiAddress } from '../../shared/address';
+import { ADDRESS_MAX } from '../../shared/address';
 import { parseManualFields } from '../../shared/billz';
 
 export const PRODUCT_COLS =
@@ -617,6 +619,78 @@ export async function loadCustomerOrders(env: Env, id: number): Promise<ApiOrder
   return results.map(rowToOrder);
 }
 
+/**
+ * Buyurtmalardagi mahsulotlarning rasmlari: `productId` → `imageUrl`.
+ *
+ * Rasm buyurtma nusxasida saqlanmaydi (`items_json` faqat nom, variant, narx), shuning uchun
+ * alohida so'rov. Mahsulot keyin o'chirilgan bo'lsa shunchaki yo'q bo'ladi — buyurtma qatori
+ * rasmsiz chiziladi, xato emas.
+ */
+export async function loadOrderItemImages(env: Env, orders: ApiOrder[]): Promise<Record<string, string>> {
+  const ids = [...new Set(orders.flatMap((o) => o.items.map((it) => it.productId)))].filter(Boolean).slice(0, 200);
+  if (ids.length === 0) return {};
+  const { results } = await env.DB.prepare(
+    `SELECT id, image_url FROM products WHERE id IN (${ids.map(() => '?').join(',')})`,
+  ).bind(...ids).all<{ id: string; image_url: string }>();
+  const out: Record<string, string> = {};
+  for (const r of results) if (r.image_url) out[r.id] = r.image_url;
+  return out;
+}
+
+interface AddressRow {
+  id: number; customer_id: number; region: string; district: string;
+  street: string; house: string; apartment: string; entrance: string; floor: string;
+  is_default: number; created_at: number;
+}
+
+function rowToAddress(r: AddressRow): ApiAddress {
+  return {
+    id: r.id, region: r.region, district: r.district, street: r.street,
+    house: r.house, apartment: r.apartment, entrance: r.entrance, floor: r.floor,
+    isDefault: r.is_default === 1,
+  };
+}
+
+/** Mijoz manzillari — asosiysi birinchi, keyin yangisidan eskisiga. */
+export async function loadAddresses(env: Env, customerId: number): Promise<ApiAddress[]> {
+  const { results } = await env.DB.prepare(
+    'SELECT * FROM customer_addresses WHERE customer_id = ? ORDER BY is_default DESC, id DESC',
+  ).bind(customerId).all<AddressRow>();
+  return results.map(rowToAddress);
+}
+
+/** Asosiy manzil bittagina — yangisini belgilaganda qolganlaridan olinadi. */
+async function clearDefault(env: Env, customerId: number): Promise<void> {
+  await env.DB.prepare('UPDATE customer_addresses SET is_default = 0 WHERE customer_id = ?').bind(customerId).run();
+}
+
+export async function createAddress(
+  env: Env, customerId: number, a: AddressFields & { isDefault: boolean },
+): Promise<number> {
+  const count = await env.DB.prepare('SELECT COUNT(*) AS n FROM customer_addresses WHERE customer_id = ?')
+    .bind(customerId).first<{ n: number }>();
+  if ((count?.n ?? 0) >= ADDRESS_MAX) throw new Error('address_limit');
+  // Birinchi manzil o'zi asosiy bo'ladi — mijoz alohida belgilashi shart emas.
+  const isDefault = a.isDefault || (count?.n ?? 0) === 0;
+  if (isDefault) await clearDefault(env, customerId);
+  const res = await env.DB.prepare(
+    `INSERT INTO customer_addresses (customer_id, region, district, street, house, apartment, entrance, floor, is_default)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).bind(customerId, a.region, a.district, a.street, a.house, a.apartment, a.entrance, a.floor, isDefault ? 1 : 0).run();
+  return Number(res.meta.last_row_id);
+}
+
+/** `customer_id` shartda — boshqa mijozning manzilini o'chirib bo'lmaydi. */
+export async function deleteAddress(env: Env, customerId: number, id: number): Promise<void> {
+  await env.DB.prepare('DELETE FROM customer_addresses WHERE id = ? AND customer_id = ?').bind(id, customerId).run();
+}
+
+export async function setDefaultAddress(env: Env, customerId: number, id: number): Promise<void> {
+  await clearDefault(env, customerId);
+  await env.DB.prepare('UPDATE customer_addresses SET is_default = 1 WHERE id = ? AND customer_id = ?')
+    .bind(id, customerId).run();
+}
+
 /** Google `sub` bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */
 export async function upsertCustomerByGoogle(env: Env, sub: string, email: string, name: string): Promise<number> {
   const existing = await env.DB.prepare('SELECT id FROM customers WHERE google_sub = ?').bind(sub).first<{ id: number }>();
@@ -626,12 +700,16 @@ export async function upsertCustomerByGoogle(env: Env, sub: string, email: strin
   return Number(res.meta.last_row_id);
 }
 
-/** Kabinet: profil (ism + telefon) yangilash. */
+/**
+ * Kabinet: profil yangilash. Email bu yerda **aloqa ma'lumoti**, kirish identifikatori emas —
+ * kirish `google_sub`/`telegram_id` bo'yicha, va Google qayta kirganda emailni qayta yozmaydi
+ * (`upsertCustomerByGoogle` mavjud qatorni o'zgartirmaydi), shuning uchun tahrir saqlanib qoladi.
+ */
 export async function updateCustomerProfile(
-  env: Env, id: number, name: string, phone: string, avatar: string,
+  env: Env, id: number, name: string, phone: string, avatar: string, email: string,
 ): Promise<void> {
-  await env.DB.prepare('UPDATE customers SET name = ?, phone = ?, avatar = ? WHERE id = ?')
-    .bind(name, phone || null, avatar || null, id).run();
+  await env.DB.prepare('UPDATE customers SET name = ?, phone = ?, avatar = ?, email = ? WHERE id = ?')
+    .bind(name, phone || null, avatar || null, email || null, id).run();
 }
 
 /** Telegram user id bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */
@@ -647,7 +725,7 @@ export interface OrderRow {
   id: number; created_at: number; name: string; phone: string; note: string;
   payment_kind: string; term_months: number | null; down_payment_uzs: number | null;
   monthly_uzs: number | null; total_uzs: number | null; items_json: string;
-  source: string; status: string; telegram_sent: number;
+  source: string; status: string; telegram_sent: number; address_text: string | null;
 }
 
 export function rowToOrder(r: OrderRow): ApiOrder {
@@ -658,6 +736,7 @@ export function rowToOrder(r: OrderRow): ApiOrder {
     monthlyUzs: r.monthly_uzs, totalUzs: r.total_uzs,
     items: JSON.parse(r.items_json) as OrderItemInput[],
     source: r.source as OrderSource,
+    addressText: r.address_text ?? '',
     status: r.status as OrderStatus,
     telegramSent: r.telegram_sent === 1,
   };

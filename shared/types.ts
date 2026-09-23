@@ -310,6 +310,9 @@ export interface OrderInput {
   totalUzs: number | null;
   items: OrderItemInput[];
   source: OrderSource;
+  /** Yetkazib berish manzilining **matn nusxasi** (ixtiyoriy) — profildagi manzil
+   *  keyin o'zgarsa ham buyurtma o'sha paytdagisini saqlaydi. */
+  addressText: string;
 }
 
 export type OrderStatus = 'new' | 'contacted' | 'done';

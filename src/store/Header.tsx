@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Search, ShoppingCart, Menu, X, Globe, User, Heart, Wallet, ChevronDown } from 'lucide-react';
+import { BotAvatar } from 'bot-avatars';
+import type { Avatar } from '../../shared/avatar';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
 import { localizedPath, langToLocale, stripLocale, categoryLabel, type Locale } from '../../app/lib/i18n';
@@ -46,6 +48,7 @@ export default function Header({
   categories: cats,
   brandName,
   customerName,
+  avatar,
   hasDeals,
 }: {
   t: Translation;
@@ -56,6 +59,8 @@ export default function Header({
   brandName: string;
   /** Kirgan mijoz nomi, yoki null (kirmagan). */
   customerName: string | null;
+  /** Kirgan mijoz avatari — ikonka o'rniga chiziladi; kirmaganda null. */
+  avatar: Avatar | null;
   /** Kirmagan holatda akkaunt ikonkasi kirish drawer'ini ochadi. */
   /** Chegirma bormi — bo'lmasa menyuda "Chegirmalar" havolasi chiqmaydi (footer bilan bir qoida). */
   hasDeals: boolean;
@@ -357,7 +362,9 @@ export default function Header({
           aria-label={customerName || t.navProfile}
           title={customerName || t.navProfile}
         >
-          <User className="w-5 h-5" />
+          {avatar
+            ? <BotAvatar type={avatar.type} face={avatar.face} size={22} interactive={false} />
+            : <User className="w-5 h-5" />}
           <span className={ICON_LABEL}>{t.navProfile}</span>
         </Link>
       </div>
