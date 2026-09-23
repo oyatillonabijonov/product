@@ -617,6 +617,24 @@ export async function loadCustomerOrders(env: Env, id: number): Promise<ApiOrder
   return results.map(rowToOrder);
 }
 
+/**
+ * Buyurtmalardagi mahsulotlarning rasmlari: `productId` → `imageUrl`.
+ *
+ * Rasm buyurtma nusxasida saqlanmaydi (`items_json` faqat nom, variant, narx), shuning uchun
+ * alohida so'rov. Mahsulot keyin o'chirilgan bo'lsa shunchaki yo'q bo'ladi — buyurtma qatori
+ * rasmsiz chiziladi, xato emas.
+ */
+export async function loadOrderItemImages(env: Env, orders: ApiOrder[]): Promise<Record<string, string>> {
+  const ids = [...new Set(orders.flatMap((o) => o.items.map((it) => it.productId)))].filter(Boolean).slice(0, 200);
+  if (ids.length === 0) return {};
+  const { results } = await env.DB.prepare(
+    `SELECT id, image_url FROM products WHERE id IN (${ids.map(() => '?').join(',')})`,
+  ).bind(...ids).all<{ id: string; image_url: string }>();
+  const out: Record<string, string> = {};
+  for (const r of results) if (r.image_url) out[r.id] = r.image_url;
+  return out;
+}
+
 /** Google `sub` bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */
 export async function upsertCustomerByGoogle(env: Env, sub: string, email: string, name: string): Promise<number> {
   const existing = await env.DB.prepare('SELECT id FROM customers WHERE google_sub = ?').bind(sub).first<{ id: number }>();
@@ -626,12 +644,16 @@ export async function upsertCustomerByGoogle(env: Env, sub: string, email: strin
   return Number(res.meta.last_row_id);
 }
 
-/** Kabinet: profil (ism + telefon) yangilash. */
+/**
+ * Kabinet: profil yangilash. Email bu yerda **aloqa ma'lumoti**, kirish identifikatori emas —
+ * kirish `google_sub`/`telegram_id` bo'yicha, va Google qayta kirganda emailni qayta yozmaydi
+ * (`upsertCustomerByGoogle` mavjud qatorni o'zgartirmaydi), shuning uchun tahrir saqlanib qoladi.
+ */
 export async function updateCustomerProfile(
-  env: Env, id: number, name: string, phone: string, avatar: string,
+  env: Env, id: number, name: string, phone: string, avatar: string, email: string,
 ): Promise<void> {
-  await env.DB.prepare('UPDATE customers SET name = ?, phone = ?, avatar = ? WHERE id = ?')
-    .bind(name, phone || null, avatar || null, id).run();
+  await env.DB.prepare('UPDATE customers SET name = ?, phone = ?, avatar = ?, email = ? WHERE id = ?')
+    .bind(name, phone || null, avatar || null, email || null, id).run();
 }
 
 /** Telegram user id bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */

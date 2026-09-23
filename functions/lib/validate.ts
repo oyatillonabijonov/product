@@ -426,7 +426,7 @@ export function parseDeviceModelInput(body: unknown): DeviceModelInput {
 }
 
 /** Kabinet profil tahriri — ism (majburiy) + telefon (ixtiyoriy, bo'lsa UZ format) + avatar. */
-export function parseProfileInput(body: unknown): { name: string; phone: string; avatar: string } {
+export function parseProfileInput(body: unknown): { name: string; phone: string; avatar: string; email: string } {
   const o = asRecord(body);
   const name = (typeof o.name === 'string' ? o.name : '').trim().slice(0, 80);
   if (!name) throw new ValidationError('name_required');
@@ -438,7 +438,10 @@ export function parseProfileInput(body: unknown): { name: string; phone: string;
   // Bo'sh — avatar tanlanmagan (shakl `id` dan chiqadi); aks holda faqat ro'yxatdagi qiymat.
   const avatar = (typeof o.avatar === 'string' ? o.avatar : '').trim();
   if (avatar && !isAvatar(avatar)) throw new ValidationError('avatar_invalid');
-  return { name, phone, avatar };
+  // Email — aloqa uchun, ixtiyoriy; kirish identifikatori emas (u OAuth tomonda).
+  const email = (typeof o.email === 'string' ? o.email : '').trim().toLowerCase().slice(0, 120);
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new ValidationError('email_invalid');
+  return { name, phone, avatar, email };
 }
 
 export function parseSiteConfigInput(body: unknown): ApiSiteConfig {

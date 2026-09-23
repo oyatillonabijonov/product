@@ -17,8 +17,8 @@ function isTabKey(v: string | null): v is TabKey {
   return v === 'profile' || v === 'orders' || v === 'favorites';
 }
 
-const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[] }> = ({
-  t, customer, orders,
+const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[]; itemImages: Record<string, string> }> = ({
+  t, customer, orders, itemImages,
 }) => {
   // Saqlangandan keyin yon panel ham yangilansin — server qaytargan mijoz shu yerda turadi.
   const [rawCust, setCust] = useState(customer);
@@ -95,7 +95,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
               <h1 className="text-lede font-semibold text-primary">{active.label}</h1>
             </div>
             {tab === 'profile' && <ProfileForm t={t} customer={cust} onSaved={setCust} />}
-            {tab === 'orders' && <OrdersList t={t} orders={orders} />}
+            {tab === 'orders' && <OrdersList t={t} orders={orders} itemImages={itemImages} />}
             {tab === 'favorites' && <FavoritesList t={t} />}
           </section>
         </div>

@@ -27,6 +27,7 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer; onSaved: (c: ApiC
 }) => {
   const [rawName, setName] = useState(customer.name ?? '');
   const [rawPhone, setPhone] = useState(customer.phone ? formatUzPhone(customer.phone) : '');
+  const [rawEmail, setEmail] = useState(customer.email ?? '');
   const [rawAvatar, setAvatar] = useState(parseAvatar(customer.avatar, customer.id));
   const [rawPicking, setPicking] = useState(false);
   const [rawBusy, setBusy] = useState(false);
@@ -34,12 +35,14 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer; onSaved: (c: ApiC
   const [rawErr, setErr] = useState('');
   const name = rawName as string;
   const phone = rawPhone as string;
+  const email = rawEmail as string;
   const avatar = rawAvatar as Avatar;
   const err = rawErr as string;
 
   const savedPhone = customer.phone ? formatUzPhone(customer.phone) : '';
   const dirty = name.trim() !== (customer.name ?? '').trim()
     || phone !== savedPhone
+    || email.trim().toLowerCase() !== (customer.email ?? '').trim().toLowerCase()
     || serializeAvatar(avatar) !== serializeAvatar(parseAvatar(customer.avatar, customer.id));
 
   const touch = () => { setSaved(false); setErr(''); };
@@ -60,6 +63,7 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer; onSaved: (c: ApiC
           name: name.trim(),
           phone: isCompleteUzPhone(phone) ? phone.trim() : '',
           avatar: serializeAvatar(avatar),
+          email: email.trim(),
         }),
       });
       if (!res.ok) { setErr(t.orderError); return; }
@@ -110,9 +114,24 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer; onSaved: (c: ApiC
         </div>
       </div>
 
-      <div className="mt-5">
-        <div className={labelCls}>{t.loginEmail}</div>
-        <p className="text-control text-primary">{customer.email || '—'}</p>
+      <div className="mt-4">
+        <label htmlFor="profile-email" className={labelCls}>{t.loginEmail}</label>
+        <input
+          id="profile-email"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => { setEmail(e.target.value); touch(); }}
+          placeholder="pochta@example.com"
+          className={inputCls}
+        />
+        <p className="mt-1.5 text-label text-muted-2">{t.profileEmailHint}</p>
+      </div>
+
+      <div className="mt-5 flex items-baseline gap-2 border-t border-divider pt-4">
+        <span className="text-label text-muted-2">{t.profileCustomerId}</span>
+        <span className="text-label text-body tabular-nums">№{customer.id}</span>
       </div>
 
       {err && <p className="text-sale text-label mt-4" role="alert">{err}</p>}
