@@ -598,10 +598,11 @@ export interface CustomerRow {
   phone: string | null; email: string | null;
   google_sub: string | null; telegram_id: string | null;
   password_hash: string | null; password_salt: string | null;
+  avatar: string | null;
 }
 
 function rowToCustomer(r: CustomerRow): ApiCustomer {
-  return { id: r.id, createdAt: r.created_at, name: r.name, phone: r.phone, email: r.email };
+  return { id: r.id, createdAt: r.created_at, name: r.name, phone: r.phone, email: r.email, avatar: r.avatar };
 }
 
 export async function loadCustomer(env: Env, id: number): Promise<ApiCustomer | null> {
@@ -626,9 +627,11 @@ export async function upsertCustomerByGoogle(env: Env, sub: string, email: strin
 }
 
 /** Kabinet: profil (ism + telefon) yangilash. */
-export async function updateCustomerProfile(env: Env, id: number, name: string, phone: string): Promise<void> {
-  await env.DB.prepare('UPDATE customers SET name = ?, phone = ? WHERE id = ?')
-    .bind(name, phone || null, id).run();
+export async function updateCustomerProfile(
+  env: Env, id: number, name: string, phone: string, avatar: string,
+): Promise<void> {
+  await env.DB.prepare('UPDATE customers SET name = ?, phone = ?, avatar = ? WHERE id = ?')
+    .bind(name, phone || null, avatar || null, id).run();
 }
 
 /** Telegram user id bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */

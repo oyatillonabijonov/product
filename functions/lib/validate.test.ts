@@ -318,8 +318,8 @@ describe('parseOrderInput', () => {
 });
 
 describe('parseProfileInput', () => {
-  it('ism trim, telefon ixtiyoriy', () => {
-    expect(parseProfileInput({ name: '  Ali  ' })).toEqual({ name: 'Ali', phone: '' });
+  it('ism trim, telefon va avatar ixtiyoriy', () => {
+    expect(parseProfileInput({ name: '  Ali  ' })).toEqual({ name: 'Ali', phone: '', avatar: '' });
   });
   it('bo\'sh ismni rad etadi', () => {
     expect(() => parseProfileInput({ name: '   ' })).toThrow('name_required');
@@ -328,7 +328,15 @@ describe('parseProfileInput', () => {
     expect(() => parseProfileInput({ name: 'Ali', phone: '123' })).toThrow('phone_invalid');
   });
   it('to\'g\'ri telefonni qabul qiladi', () => {
-    expect(parseProfileInput({ name: 'Ali', phone: '+998 90 123 45 67' })).toEqual({ name: 'Ali', phone: '+998 90 123 45 67' });
+    expect(parseProfileInput({ name: 'Ali', phone: '+998 90 123 45 67' }))
+      .toEqual({ name: 'Ali', phone: '+998 90 123 45 67', avatar: '' });
+  });
+  it('avatarni qabul qiladi', () => {
+    expect(parseProfileInput({ name: 'Ali', avatar: 'cat.mouth' }).avatar).toBe('cat.mouth');
+  });
+  it('ro\'yxatda yo\'q avatarni rad etadi', () => {
+    expect(() => parseProfileInput({ name: 'Ali', avatar: 'yoq-shakl' })).toThrow('avatar_invalid');
+    expect(() => parseProfileInput({ name: 'Ali', avatar: '<script>' })).toThrow('avatar_invalid');
   });
 });
 

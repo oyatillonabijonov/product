@@ -284,6 +284,8 @@ export interface ApiCustomer {
   name: string;
   phone: string | null;
   email: string | null;
+  /** `"clover.mouth"`; NULL — hali tanlanmagan, shakl `id` dan (`shared/avatar.ts`). */
+  avatar: string | null;
 }
 
 export type OrderPaymentKind = 'cash' | 'installment';
