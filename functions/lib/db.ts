@@ -31,6 +31,7 @@ import type {
 import { rowToProductType, type ProductTypeDbRow } from '../../shared/product-types';
 import type { Env } from '../env';
 import type { AddressFields, ApiAddress } from '../../shared/address';
+import type { ApiNotification, NotificationKind } from '../../shared/notification';
 import { ADDRESS_MAX } from '../../shared/address';
 import { parseManualFields } from '../../shared/billz';
 
@@ -689,6 +690,74 @@ export async function setDefaultAddress(env: Env, customerId: number, id: number
   await clearDefault(env, customerId);
   await env.DB.prepare('UPDATE customer_addresses SET is_default = 1 WHERE id = ? AND customer_id = ?')
     .bind(id, customerId).run();
+}
+
+interface NotificationRow {
+  id: number; customer_id: number; kind: string; order_id: number | null; status: string | null;
+  title_uz: string; title_ru: string; body_uz: string; body_ru: string; link: string;
+  read_at: number | null; created_at: number;
+}
+
+/** `lang` — `'ru'` bo'lsa e'lon matni ruschadan olinadi; holat bildirishnomasida matn bo'sh. */
+function rowToNotification(r: NotificationRow, ru: boolean): ApiNotification {
+  return {
+    id: r.id,
+    kind: r.kind as NotificationKind,
+    orderId: r.order_id,
+    status: r.status,
+    title: ru ? (r.title_ru || r.title_uz) : r.title_uz,
+    body: ru ? (r.body_ru || r.body_uz) : r.body_uz,
+    link: r.link,
+    read: r.read_at !== null,
+    createdAt: r.created_at,
+  };
+}
+
+export async function loadNotifications(env: Env, customerId: number, ru: boolean): Promise<ApiNotification[]> {
+  const { results } = await env.DB.prepare(
+    'SELECT * FROM notifications WHERE customer_id = ? ORDER BY id DESC LIMIT 50',
+  ).bind(customerId).all<NotificationRow>();
+  return results.map((r) => rowToNotification(r, ru));
+}
+
+/** Header'dagi nuqta uchun — sahifa yuklanishida bitta indeksli COUNT. */
+export async function unreadNotificationCount(env: Env, customerId: number): Promise<number> {
+  const row = await env.DB.prepare(
+    'SELECT COUNT(*) AS n FROM notifications WHERE customer_id = ? AND read_at IS NULL',
+  ).bind(customerId).first<{ n: number }>();
+  return row?.n ?? 0;
+}
+
+/** Ro'yxat ochilganda hammasi o'qilgan deb belgilanadi — har biriga alohida bosish ortiqcha. */
+export async function markNotificationsRead(env: Env, customerId: number): Promise<void> {
+  await env.DB.prepare('UPDATE notifications SET read_at = unixepoch() WHERE customer_id = ? AND read_at IS NULL')
+    .bind(customerId).run();
+}
+
+/**
+ * Buyurtma holati o'zgarganda bildirishnoma. **Mehmon buyurtmasida hech narsa
+ * yozilmaydi** (`customer_id` yo'q — xabar beradigan odam ham yo'q), va holat
+ * haqiqatan o'zgargandagina yoziladi.
+ */
+export async function notifyOrderStatus(env: Env, orderId: number, status: string): Promise<void> {
+  const row = await env.DB.prepare('SELECT customer_id, status FROM orders WHERE id = ?')
+    .bind(orderId).first<{ customer_id: number | null; status: string }>();
+  if (!row?.customer_id || row.status === status) return;
+  await env.DB.prepare(
+    "INSERT INTO notifications (customer_id, kind, order_id, status) VALUES (?, 'order_status', ?, ?)",
+  ).bind(row.customer_id, orderId, status).run();
+}
+
+/** Admin e'loni — har mijozga bitta qator, bitta `batch` ichida. */
+export async function broadcastAnnouncement(
+  env: Env, a: { titleUz: string; titleRu: string; bodyUz: string; bodyRu: string; link: string },
+): Promise<number> {
+  const { results } = await env.DB.prepare('SELECT id FROM customers').all<{ id: number }>();
+  if (results.length === 0) return 0;
+  await env.DB.batch(results.map((c) => env.DB.prepare(
+    "INSERT INTO notifications (customer_id, kind, title_uz, title_ru, body_uz, body_ru, link) VALUES (?, 'announce', ?, ?, ?, ?, ?)",
+  ).bind(c.id, a.titleUz, a.titleRu, a.bodyUz, a.bodyRu, a.link)));
+  return results.length;
 }
 
 /** Google `sub` bo'yicha mijozni topadi yoki yaratadi, id qaytaradi. */
