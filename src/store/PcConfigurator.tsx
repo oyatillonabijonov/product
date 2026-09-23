@@ -121,6 +121,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
           const first = i === 0;
           const last = i === slots.length - 1;
           const shape = chevron(first, last);
+          const filled = on || !!picked[k];
           const round = `${first ? 'rounded-l-full' : ''} ${last ? 'rounded-r-full' : ''}`;
           return (
             <button
@@ -129,13 +130,31 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
               onClick={() => setActive(k)}
               aria-pressed={on}
               style={{ clipPath: shape }}
-              className={`press relative inline-flex h-11 shrink-0 items-center gap-2 text-copy outline-none ${round} ${
+              className={`press group/tab relative inline-flex h-11 shrink-0 items-center gap-2 text-copy outline-none ${round} ${
                 first ? 'pl-5' : '-ml-[7px] pl-8'
               } ${last ? 'pr-5' : 'pr-8'} ${
                 on ? 'bg-cta text-primary' : 'bg-line text-muted hover:bg-muted-3 focus-visible:bg-cta'
               }`}
             >
-              <span aria-hidden style={{ clipPath: shape }} className={`absolute inset-[1.5px] bg-bg ${round}`} />
+              {/* Ichki qatlam — sahifa rangida, hover'da `fill-2`. Uning ichida to'ldirma: ochiq va bajarilgan
+                  tablarda to'la, yangi to'lganda chapdan o'ngga sirg'alib kiradi (loading kabi) — qism
+                  tanlanganda keyingi tab ochiladi va progress unga "oqib" o'tadi. Bajarilgan tab to'la
+                  qoladi, shuning uchun ochiqdan bajarilganga o'tishda miltillash yo'q. `press` faqat
+                  tugmaning o'zini o'tkazadi, bu qatlamlarga vaqt alohida beriladi; harakat kamaytirilganda
+                  sirg'alish o'rniga shaffoflik o'zgaradi (transform harakati vestibulyar). Tailwind v4
+                  `scale-x-*` ni `transform` emas, alohida `scale` xususiyati bilan beradi — shuning uchun
+                  `transition-[scale,…]`; `transform` yozilsa to'ldirma animatsiyasiz sakraydi. */}
+              <span
+                aria-hidden
+                style={{ clipPath: shape }}
+                className={`absolute inset-[1.5px] overflow-hidden bg-bg transition-colors duration-160 ease-apple ${round} ${filled ? '' : 'group-hover/tab:bg-fill-2'}`}
+              >
+                <span
+                  className={`absolute inset-0 origin-left bg-fill-2 transition-[scale,opacity] duration-500 ease-apple ${
+                    filled ? 'scale-x-100' : 'scale-x-0 motion-reduce:scale-x-100 motion-reduce:opacity-0'
+                  }`}
+                />
+              </span>
               <S.icon aria-hidden className="relative h-[18px] w-[18px]" strokeWidth={1.6} />
               <span className="relative">{S.label(t)}</span>
               {picked[k] && <Check aria-hidden className="relative h-4 w-4 text-verified" strokeWidth={2.4} />}
