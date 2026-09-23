@@ -160,4 +160,21 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     await api.write(`/api/admin/products/${parsed.id}`, 'PUT', { ...detailToInput(current), imageUrl: parsed.imageUrls[0], images: parsed.imageUrls.slice(1) }, 'product_set_images');
     return text(`Rasmlar yangilandi (${parsed.imageUrls.length} ta): ${opts.adminUrl}/admin/products/${parsed.id}`);
   });
+
+  server.registerTool('product_set_visibility', {
+    description: "Tovarni saytda ko'rsatadi yoki yashiradi. Billz tovarini yashirish vaqtinchalik: sinxronizatsiya har 30 daqiqada ko'rinishni qoldiq va rasmga qarab qayta hisoblaydi va uni qaytarib ochishi mumkin — doimiy yashirish admin panelidan qilinadi. Tovar o'chirilmaydi, faqat ko'rinishi o'zgaradi.",
+    inputSchema: { id: z.string(), visible: z.boolean() },
+  }, async (args: unknown) => {
+    const parsed = args as { id: string; visible: boolean };
+    // Admin panelidagi toggle bilan bir xil endpoint — `PATCH` faqat `is_active`ni yozadi,
+    // shuning uchun to'liq `PUT` dagi kabi boshqa maydonlarni o'chirib yuborish xavfi yo'q.
+    const updated = await api.write<ApiProduct>(`/api/admin/products/${parsed.id}`, 'PATCH', { isActive: parsed.visible }, 'product_set_visibility');
+    const what = parsed.visible ? "Saytda ko'rsatildi" : 'Saytdan yashirildi';
+    // Billz `is_active`ni o'zi boshqaradi (`qoldiq > 0 && rasm bor`), qo'l maydonlari ro'yxatida
+    // `active` yo'q — ya'ni bu yerdagi yashirish keyingi run'gacha yashaydi. Shuni aytib qo'yamiz.
+    const note = updated.billzId && !parsed.visible
+      ? "\nBu Billz tovari — sinxronizatsiya 30 daqiqa ichida uni qaytarib ochishi mumkin (qoldig'i va rasmi bo'lsa). Doimiy yashirish uchun admin panelidan foydalaning."
+      : '';
+    return text(`${what}: ${opts.adminUrl}/admin/products/${parsed.id}${note}`);
+  });
 }
