@@ -60,6 +60,7 @@ const products: Dict<typeof uz> = {
     matchesFilter_many: 'По фильтру: {{count}} товаров.',
     matchesFilter_other: 'По фильтру: {{count}} товара.',
     notFound: 'Товар не найден',
+    toastNoImage: 'Не появился на сайте: у товара нет фото. Появится сам, как только добавите фото.',
   },
   productEdit: {
     refsLoadError: 'Справочники (направление, бренд, тип) не загрузились',

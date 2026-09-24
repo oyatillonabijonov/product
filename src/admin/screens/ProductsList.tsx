@@ -76,8 +76,15 @@ const ProductsList: FC = () => {
     // Optimistik: qator darhol almashadi, xato bo'lsa qaytadi.
     setItems((xs: ApiProduct[] | null) => xs && xs.map((x) => (x.id === p.id ? { ...x, isActive: on } : x)));
     try {
-      await setProductActive(p.id, on);
-      toast(on ? t('common:shownOnSite') : t('common:hidden'));
+      const updated = await setProductActive(p.id, on);
+      // Billz tovarida ko'rinish qoidadan hisoblanadi (rasm bor va yashirilmagan) — so'ralgan
+      // qiymat bilan bir xil bo'lmasligi mumkin, shuning uchun optimistik qatorni serverniki bilan almashtiramiz.
+      setItems((xs: ApiProduct[] | null) => xs && xs.map((x) => (x.id === p.id ? updated : x)));
+      if (on && !updated.isActive) {
+        toast(t('productsList.toastNoImage'), 'error');
+      } else {
+        toast(on ? t('common:shownOnSite') : t('common:hidden'));
+      }
     } catch (err) {
       setItems((xs: ApiProduct[] | null) => xs && xs.map((x) => (x.id === p.id ? { ...x, isActive: !on } : x)));
       toast(errText(err), 'error');

@@ -59,6 +59,7 @@ const products = {
     matchesFilter_many: 'Filtrga mos: {{count}} ta.',
     matchesFilter_other: 'Filtrga mos: {{count}} ta.',
     notFound: 'Mahsulot topilmadi',
+    toastNoImage: "Saytda chiqmadi: tovarda rasm yo'q. Rasm qo'shilsa o'zi chiqadi.",
   },
   productEdit: {
     refsLoadError: "Ma'lumotnomalar (kategoriya, brend, tur) yuklanmadi",
