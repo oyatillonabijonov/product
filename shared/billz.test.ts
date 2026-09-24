@@ -332,7 +332,7 @@ describe('billzUpdateColumns — sinxronizatsiya nimani yozadi', () => {
   const m: import('./billz').MappedProduct = {
     billzId: 'a', name: 'iPhone 17 Pro Sim/E-sim / Silver', slug: 's', categoryId: 'apple', type: 'iphone',
     brandId: 'apple', newBrand: null, cashPriceUzs: 100, oldPriceUzs: 120, stock: 2, description: 'd',
-    specs: [], photos: [], imageUrl: '/a.webp', gallery: [], isActive: true,
+    specs: [], photos: [{ url: 'https://cdn/a.jpg', key: 'products/billz-a.jpg' }], imageUrl: '/a.webp', gallery: [], isActive: true,
   };
   const cols = (locks: import('./billz').ManualField[]) => billzUpdateColumns(m, locks).cols;
 
@@ -347,6 +347,13 @@ describe('billzUpdateColumns — sinxronizatsiya nimani yozadi', () => {
     expect(cols(['name', 'brand', 'images', 'category', 'price', 'description', 'hidden', 'specs'])).toEqual([
       'billz_name=?', 'billz_stock=?', 'is_active=?',
     ]);
+  });
+
+  it("Billz rasmi ishlatilmasa (`syncTarget` photos'ni bo'shatgan) image_url yozilmaydi — run davomida yuklangan rasm o'chmaydi", () => {
+    // `execute` qatorni run boshida o'qiydi; egasi shu orada /yuklash orqali rasm qo'ysa, eski «''» uning ustiga yozilardi.
+    const kept = syncTarget({ ...m, photos: [] }, '', [], new Set());
+    expect(billzUpdateColumns(kept, []).cols).not.toContain('image_url=?');
+    expect(billzUpdateColumns({ ...m, photos: [] }, []).cols).not.toContain('image_url=?');
   });
 
   it("qiymatlar ustunlar bilan bir tartibda", () => {

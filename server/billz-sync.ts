@@ -210,6 +210,17 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     const { downloaded, failed } = await fetchPhotos(merged);
     result.photos = downloaded;
 
+    // Rasm va qulflar yozishdan oldin qayta o'qiladi: sahifalar va rasmlar daqiqalab olinadi, shu orada egasi
+    // admin yoki /yuklash orqali rasm qo'ysa yoki maydonni qulflasa, run boshidagi eski qiymat uning ustiga
+    // yozilardi — rasm o'chib, tovar yashirinib qolardi. Qatorlar `byName`/`byBillzId` bilan umumiy, joyida yangilanadi.
+    const fresh = await env.DB.prepare('SELECT id, image_url, manual_fields FROM products WHERE billz_id IS NOT NULL')
+      .all<{ id: string; image_url: string; manual_fields: string }>();
+    const freshById = new Map(fresh.results.map((f) => [f.id, f]));
+    for (const r of existingRows.results) {
+      const f = freshById.get(r.id);
+      if (f) { r.image_url = f.image_url; r.manual_fields = f.manual_fields; }
+    }
+
     // 4) Yozish — 200 tadan atomik batch.
     const seenRows = new Set<string>(); // shu run'da yozilgan qatorlarning billz_id'si
     for (let i = 0; i < merged.length; i += WRITE_BATCH) {

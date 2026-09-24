@@ -307,7 +307,9 @@ export function billzUpdateColumns(m: MappedProduct, locks: readonly ManualField
   };
   add('name', [['name', m.name]]);
   add('brand', [['brand_id', m.brandId]]);
-  add('images', [['image_url', m.imageUrl]]);
+  // Rasm faqat Billz rasmi ishlatilganda (`syncTarget` saytdagisini qoldirsa `photos` bo'sh): aks holda run
+  // boshida o'qilgan eski qiymat shu orada admin yoki /yuklash qo'ygan rasmning ustiga yozilardi.
+  if (m.photos.length > 0) add('images', [['image_url', m.imageUrl]]);
   add('category', [['category_id', m.categoryId], ['type', m.type]]);
   add('price', [['cash_price_uzs', m.cashPriceUzs], ['old_price_uzs', m.oldPriceUzs]]);
   add('description', [['description', m.description]]);
