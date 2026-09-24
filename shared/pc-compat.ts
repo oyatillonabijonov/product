@@ -138,6 +138,23 @@ function psuWatts(n: string): number | null {
   return null;
 }
 
+/**
+ * Protsessorning o'z grafikasi bormi — ya'ni videokartasiz ekranga tasvir chiqaradimi.
+ * Intel 12–14 avlod va Core Ultra 200: "F"/"KF" qo'shimchasi — grafikasiz. AMD AM5
+ * (7000/8000/9000): "F" — grafikasiz, qolgani oddiy RDNA grafikali. AMD AM4 (3000/4000/5000):
+ * faqat "G"/"GE" grafikali. Tanilmasa — null (ogohlantirilmaydi).
+ */
+export function cpuHasGraphics(name: string): boolean | null {
+  const n = name.toLowerCase().replace(/[™®]/g, '');
+  const ultra = n.match(/ultra\s*[3579]\s*2\d\d([a-z]*)/);
+  if (ultra) return !ultra[1].includes('f');
+  const intel = n.match(/\bi[3579][\s-]*\d{4,5}([a-z]*)/);
+  if (intel) return !intel[1].includes('f');
+  const ryzen = n.match(/ryzen\s*[3579]\b.*?\b([3-9])\d{3}([a-z0-9]*)/);
+  if (ryzen) return Number(ryzen[1]) >= 7 ? !ryzen[2].includes('f') : ryzen[2].startsWith('g');
+  return null;
+}
+
 const asSocket = (v: string | null): PcSocket | null => (PC_SOCKETS as readonly string[]).includes(v ?? '') ? (v as PcSocket) : null;
 const asMemory = (v: string | null): PcMemory | null => (v === 'DDR4' || v === 'DDR5' ? v : null);
 
@@ -165,7 +182,7 @@ export function partAttrs(slot: SlotKey, name: string, override?: PartOverride):
   return { socket: null, memory: null, watts: null };
 }
 
-export interface Issue { slot: SlotKey; level: 'block' | 'warn'; code: 'socket' | 'memory' | 'power'; need: string }
+export interface Issue { slot: SlotKey; level: 'block' | 'warn'; code: 'socket' | 'memory' | 'power' | 'graphics'; need: string }
 export type Picked = Partial<Record<SlotKey, PartAttrs>>;
 
 /** Buyurtma uchun majburiy bo'g'inlar (GPU — integrallashgan grafika bo'lishi mumkin; qolgani mijozda bo'lishi mumkin). */
@@ -219,6 +236,17 @@ export function summaryIssues(picked: Picked): Issue[] {
   }
   // RAM bor, plata yo'q: CPU ↔ RAM xotirasi RAM tomonida allaqachon tekshirildi.
   return out;
+}
+
+/**
+ * Grafikasiz protsessor va videokarta tanlanmagan — bunday kompyuter ekranga hech narsa
+ * chiqarmaydi. Katalogdagi 30 protsessordan 10 tasi grafikasiz (12400F, 7500F, 265F…).
+ * **Ogohlantirish, blok emas:** videokarta ixtiyoriy bo'g'in, u mijozning o'zida bo'lishi
+ * mumkin — blok quvvati kabi, mijoz bilib turib buyurtma bera oladi.
+ */
+export function graphicsIssue(cpuName: string | undefined, hasGpu: boolean): Issue | null {
+  if (!cpuName || hasGpu || cpuHasGraphics(cpuName) !== false) return null;
+  return { slot: 'cpu', level: 'warn', code: 'graphics', need: '' };
 }
 
 export interface CandidateState { block: Issue | null; drops: SlotKey[]; warn: Issue | null }

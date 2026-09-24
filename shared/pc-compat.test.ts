@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { candidateState, hasMatch, issueFor, needsVerify, partAttrs, recommendedWatts, slotForType, summaryIssues, toConfigParts, type ConfigPartRow } from './pc-compat';
+import { candidateState, cpuHasGraphics, graphicsIssue, hasMatch, issueFor, needsVerify, partAttrs, recommendedWatts, slotForType, summaryIssues, toConfigParts, type ConfigPartRow } from './pc-compat';
 
 const a = (slot: Parameters<typeof partAttrs>[0], name: string) => partAttrs(slot, name);
 
@@ -218,5 +218,42 @@ describe('toConfigParts', () => {
       row({ id: 'new', name: 'Asus Z790 Max Gaming WiFi7 / Black', type: 'motherboard', billz_stock: 1 }),
     ]);
     expect(byDupColor.mb?.map((p) => p.id)).toEqual(['new']);
+  });
+});
+
+describe('cpuHasGraphics', () => {
+  it('Intel: F/KF — grafikasiz, qolgani grafikali', () => {
+    expect(cpuHasGraphics('Intel Core i5 12400F')).toBe(false);
+    expect(cpuHasGraphics('Intel Core i5 13600KF')).toBe(false);
+    expect(cpuHasGraphics('CPU Intel Core i5  13400F')).toBe(false);
+    expect(cpuHasGraphics('Intel Core i7 14700f')).toBe(false);
+    expect(cpuHasGraphics('CPU Intel Core i5 14600K')).toBe(true);
+    expect(cpuHasGraphics('Intel Core i3 12100 / Silver')).toBe(true);
+  });
+  it('Core Ultra 200: 265F grafikasiz, 285K grafikali', () => {
+    expect(cpuHasGraphics('Intel Core Ultra 7 265F')).toBe(false);
+    expect(cpuHasGraphics('Intel Ultra 9 285K / Silver')).toBe(true);
+  });
+  it('AMD AM5: faqat F grafikasiz; AM4: faqat G grafikali', () => {
+    expect(cpuHasGraphics('AMD Ryzen 5 7500F')).toBe(false);
+    expect(cpuHasGraphics('CPU AMD Ryzen 7 7800x3D / Silver')).toBe(true);
+    expect(cpuHasGraphics('AMD Ryzen™ 5 Granite Ridge 9600X')).toBe(true);
+    expect(cpuHasGraphics('AMD Ryzen 5 5600X')).toBe(false);
+    expect(cpuHasGraphics('AMD Ryzen 5 5600G')).toBe(true);
+  });
+  it('tanilmagan nom → null', () => {
+    expect(cpuHasGraphics('Noma\'lum protsessor')).toBe(null);
+  });
+});
+
+describe('graphicsIssue', () => {
+  it('grafikasiz protsessor + videokarta yo\'q → ogohlantirish (blok emas)', () => {
+    expect(graphicsIssue('Intel Core i5 12400F', false)).toEqual({ slot: 'cpu', level: 'warn', code: 'graphics', need: '' });
+  });
+  it('videokarta bor, grafikali yoki noma\'lum protsessor, protsessor yo\'q → muammo yo\'q', () => {
+    expect(graphicsIssue('Intel Core i5 12400F', true)).toBe(null);
+    expect(graphicsIssue('Intel Core i5 12400', false)).toBe(null);
+    expect(graphicsIssue('Noma\'lum protsessor', false)).toBe(null);
+    expect(graphicsIssue(undefined, false)).toBe(null);
   });
 });

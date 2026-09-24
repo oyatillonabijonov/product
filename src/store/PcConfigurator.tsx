@@ -5,7 +5,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { Translation } from '../locales';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
 import {
-  PC_SLOTS, REQUIRED_SLOTS, candidateState, hasMatch, issueFor, needsVerify, summaryIssues,
+  PC_SLOTS, REQUIRED_SLOTS, candidateState, graphicsIssue, hasMatch, issueFor, needsVerify, summaryIssues,
   type ConfigPart, type Issue, type Picked, type SlotKey,
 } from '../../shared/pc-compat';
 import { useCart } from './CartContext';
@@ -36,7 +36,9 @@ const chevron = (first: boolean, last: boolean): string => {
 };
 
 const reason = (t: Translation, i: Issue): string =>
-  (i.code === 'socket' ? t.cfgNeedSocket : i.code === 'memory' ? t.cfgNeedMemory : t.cfgNeedPower).replace('{need}', i.need);
+  i.code === 'graphics'
+    ? t.cfgNoGraphics
+    : (i.code === 'socket' ? t.cfgNeedSocket : i.code === 'memory' ? t.cfgNeedMemory : t.cfgNeedPower).replace('{need}', i.need);
 
 /**
  * Kompyuter konfiguratori — hamma Billz PC qismlari: omborda va "Buyurtma asosida" (qoldiq 0, narx taxminiy).
@@ -62,7 +64,10 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
   const attrsOf = (p: Partial<Record<SlotKey, ConfigPart>>): Picked =>
     Object.fromEntries(Object.entries(p).map(([k, v]) => [k, v?.attrs])) as Picked;
   const pickedAttrs = attrsOf(picked);
-  const issues = summaryIssues(pickedAttrs);
+  // Grafikasiz protsessor + videokarta yo'q — ogohlantirish: "Hammasi mos" chiqmaydi, lekin
+  // buyurtma ochiq (videokarta mijozning o'zida bo'lishi mumkin).
+  const gfx = graphicsIssue(picked.cpu?.name, !!picked.gpu);
+  const issues = gfx ? [...summaryIssues(pickedAttrs), gfx] : summaryIssues(pickedAttrs);
   const blocked = issues.some((i) => i.level === 'block');
   const complete = REQUIRED_SLOTS.every((k) => picked[k]) && !blocked;
   const total = slots.reduce((sum, k) => sum + (picked[k]?.priceUzs ?? 0), 0);
@@ -194,6 +199,8 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
               const state = candidateState(active, part.attrs, pickedAttrs);
               const disabled = !!state.block;
               const noBoard = active === 'cpu' && !hasMatch(part.attrs, boards);
+              // Videokarta hali tanlanmagan bo'lsa grafikasiz protsessor tanlashdan oldin ogohlantiriladi.
+              const gfxNote = active === 'cpu' ? graphicsIssue(part.name, !!picked.gpu) : null;
               const dropsNote = state.drops.length > 0
                 ? t.cfgWillDrop.replace('{slots}', state.drops.map((k) => SLOT_UI[k].label(t)).join(', '))
                 : '';
@@ -205,8 +212,10 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
                     ? reason(t, state.warn)
                     : noBoard
                       ? t.cfgNoBoard
-                      : needsVerify(active, part.attrs) ? t.cfgVerify : '';
-              const attention = !state.block && (dropsNote !== '' || !!state.warn);
+                      : gfxNote
+                        ? t.cfgNoGraphics
+                        : needsVerify(active, part.attrs) ? t.cfgVerify : '';
+              const attention = !state.block && (dropsNote !== '' || !!state.warn || (!!gfxNote && !noBoard));
               return (
                 <li key={part.id}>
                   <button
