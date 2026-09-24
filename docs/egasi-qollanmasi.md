@@ -10,13 +10,16 @@ Bosh sahifada faqat harakat talab qiladigan narsa turadi: **Rasm kerak** (rasmi 
 
 ## 2. Tovar saytda qanday paydo bo'ladi
 
-Sayt tovarlarni **Billz**dan oladi (har 30 daqiqada, o'zi). Tovar saytda ko'rinishi uchun Billz'da dastlabki ikkitasi shart, uchinchisi esa uni o'z bo'limiga qo'yadi:
+Sayt tovarlarni **Billz**dan oladi (har 30 daqiqada, o'zi). Tovar saytda ko'rinishi uchun ikkita shart bor:
 
-1. **Rasm** — Billz'da rasmsiz tovar saytga tushadi, lekin ko'rinmaydi. Rasmni Billz'ga yuklang (bir marta) yoki admin → Mahsulotlar → «Rasm kerak» ro'yxatidan saytning o'zida yuklang.
-2. **Qoldiq > 0** — qoldiq nolga tushsa tovar o'zi yashirinadi, qaytsa o'zi chiqadi.
-3. **«Nad Kategoriya»** maydoni: `Apple`, `PC`, `Audio` yoki `Video`. Bo'sh bo'lsa tovar katalog va qidiruvda qoladi, lekin hech qaysi bo'limga tushmaydi. Billz'ni tuzatmoqchi bo'lmasangiz, tovarni admin'da oching → «Ma'lumot» kartasidagi birinchi «Qo'lda tahrirlash»ni yoqib, bo'lim va turni o'zingiz tanlang — sinxronizatsiya keyin unga tegmaydi.
+1. **Rasm** — Billz'da rasmsiz tovar saytga tushadi, lekin ko'rinmaydi. Rasmni Billz'ga yuklang (bir marta) yoki admin → Mahsulotlar → «Rasm kerak» ro'yxatidan saytning o'zida yuklang. Rasm qo'yilishi bilan tovar **darhol** saytda chiqadi — kutish shart emas. **Qoldiq bu yerda shart emas** (2026-09-24): omborda hali kelmagan tovar ham, rasmi bo'lsa, saytda turaveradi — mijoz oldindan ko'rib qo'yishi mumkin.
+2. Siz o'zingiz yashirmagan bo'lishi kerak. Admin'da tovarni «Saytdan yashir» qilsangiz — bu **doimiy**: Billz sinxronizatsiyasi uni endi qaytarib ochmaydi, faqat siz «Saytda ko'rsat» deb qaytarasiz.
 
-Bir xil nomdagi Billz yozuvlari (har dona alohida) saytda **bitta** tovar bo'lib chiqadi, qoldig'i yig'iladi. Shuning uchun nomni bir xil yozing: «MacBook Pro 14" …» va «MacBook Pro 14inch …» ikkita alohida tovar bo'ladi.
+**«Nad Kategoriya»** maydoni (Billz'da) tovarni `Apple`, `PC`, `Audio` yoki `Video` bo'limiga qo'yadi; bo'sh bo'lsa tovar katalog va qidiruvda qoladi, lekin hech qaysi bo'limga tushmaydi. Billz'ni tuzatmoqchi bo'lmasangiz, tovarni admin'da oching — bo'lim yoki turni o'zingiz o'zgartirsangiz, o'sha maydon avtomatik «Qo'lda» belgisini oladi va sinxronizatsiya keyin unga tegmaydi.
+
+**Billz tovarida o'zgartirgan narsangiz qoladi.** Admin'da narx, xususiyat, tavsif, bo'lim/tur, nom, brend yoki rasmni o'zgartirsangiz — o'sha maydon yonida **«Qo'lda»** belgisi chiqadi, sinxronizatsiya endi uni yangilamaydi. Xatoan o'zgartirgan bo'lsangiz, belgi yonidagi **«Billz'ga qaytarish»**ni bosing — qulf yechiladi va keyingi sinxronizatsiyada Billz'dagi qiymat qaytadi. Tegilmagan maydonlar («Billz» belgisi bilan) har doim Billz'dan yangilanaveradi.
+
+Bir xil nomdagi Billz yozuvlari (har dona alohida) saytda **bitta** tovar bo'lib chiqadi, qoldig'i yig'iladi. Shuning uchun nomni bir xil yozing: «MacBook Pro 14" …» va «MacBook Pro 14inch …» ikkita alohida tovar bo'ladi. (Saytdagi nomni admin'da o'zingiz o'zgartirsangiz, u ham «Qo'lda» bo'lib qoladi — moslashtirish Billz'dagi nomdan davom etadi, shuning uchun tovar adashmaydi.)
 
 Billz'dagi kategoriya nomi (iPhone, MacBook, Laptop, Processor, Microphone…) saytdagi **tur**ga aylanadi. Tanimagan nomi bo'lsa tovar bo'limda turadi, lekin tur bo'yicha filtrda chiqmaydi — buni o'zingiz tuzatasiz: **Mahsulotlar → Turlar**'da tegishli turni oching, «Billz aliaslari»ga o'sha nomni yozib Enter bosing, so'ng Saqlash; keyingi sinxronizatsiyada tovar joyiga tushadi.
 
@@ -81,9 +84,14 @@ qo'shish, yetishmayotgan rasm/tavsifni to'ldirish va katalog holatini so'rash mu
 Ulanish admin → Sozlamalar → Integratsiyalar → «MCP tokenlari» ro'yxatida ko'rinadi —
 kerak bo'lsa o'sha yerdan bir bosishda bekor qilinadi.
 
+Telefondan rasm yuborish: chatga tashlagan rasmingizni Claude saytga to'g'ridan-to'g'ri
+uzata olmaydi. Shunday holatda **«rasm yuklash havolasini ber»** deb yozing — Claude
+30 daqiqa ishlaydigan havola beradi, uni bosib galereyadan rasm tanlaysiz, rasmlar
+tovarga o'zi qo'shiladi.
+
 ## 11. Kimga murojaat qilish
 
-- Tovar saytda ko'rinmayapti → 2-bo'limdagi uchta shartni tekshiring.
+- Tovar saytda ko'rinmayapti → 2-bo'limdagi shartlarni tekshiring (rasm bormi, o'zingiz yashirmaganmisiz).
 - Narx noto'g'ri → kurs (3-bo'lim) yoki Billz'dagi narx.
 - Buyurtma Telegramga kelmayapti → bot token va chat id (Sozlamalar → Integratsiyalar); buyurtma baribir admin'da turadi.
 - Matnni o'zgartirdim, saytda eskisi turibdi → 1–5 daqiqa kuting, sahifa keshi shuncha vaqtda yangilanadi.

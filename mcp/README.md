@@ -65,9 +65,15 @@ ulanmaydi (log'da yoziladi) va faqat qo'lda yaratilgan token bilan ishlaydi.
 - **Token — to'liq admin kaliti.** Tool'lar ro'yxati tor (o'chirish va sozlamalar yo'q), lekin
   tokenning o'zi admin API'ning hammasiga kiradi. Uni faqat ishonchli kompyuterda saqlang.
 - Rasm ≤ 5 MB, faqat jpg/jpeg/png/webp. Kattasi rad etiladi (server rasm qayta ishlamaydi).
-- Yangi tovar **yashirin** yaratiladi — saytga chiqarish admin'dagi toggle bilan yoki
-  «shu tovarni saytda ko'rsat» deb aytib.
-- Tovarni saytdan yashirish mumkin, lekin **Billz tovarida vaqtinchalik**: sinxronizatsiya
-  har 30 daqiqada ko'rinishni qoldiq va rasmga qarab qayta hisoblaydi va uni qaytarib
-  ochishi mumkin. Doimiy yashirish uchun admin panelidan foydalaning.
+- Yangi tovar **darhol saytda chiqadi** — yashirish kerak bo'lsa «shu tovarni saytdan yashir»
+  deb ayting yoki admin'dagi toggle'ni o'chiring.
+- Tovarga **chegirma** qo'yish mumkin (eski narx yangi narxdan katta bo'lishi shart), xususiyat
+  qo'shish/o'chirish ham — bor xususiyatlarga tegmasdan.
+- Tovarni saytdan yashirish **doimiy**: Billz sinxronizatsiyasi endi uni qaytarib ochmaydi.
+  Billz tovarida siz o'zgartirgan maydon (narx, nom, brend, rasm, xususiyat, tavsif, yo'nalish/tur)
+  ham shunday qoladi — sinxronizatsiya faqat tegilmagan maydonlarni yangilaydi.
+- Chatga tashlangan rasm faylini tool saytga to'g'ridan-to'g'ri uzata olmaydi. Tovarda rasm
+  kerak bo'lsa yoki egasi telefondan rasm yubormoqchi bo'lsa — «rasm yuklash havolasini ber»
+  deng: `image_upload_link` 30 daqiqa ishlaydigan havola qaytaradi, egasi o'sha havoladan
+  bir necha marta rasm yuklashi mumkin.
 - Tovar o'chirish, sozlamalar va akkaunt tool'lari yo'q.

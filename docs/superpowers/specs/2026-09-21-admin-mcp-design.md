@@ -218,6 +218,7 @@ Har bosqich mustaqil ishlaydigan holatda tugaydi.
    alohida bo'lim yasalmaydi. Bekor qilish ikkalasiga bir xil ishlaydi.
 2. `product_create` **doim yashirin** yaratadi va parametr bilan buni o'zgartirib bo'lmaydi:
    chat orqali kelgan tovar saytga egasi ko'rmasdan chiqmaydi, admin'dagi toggle bir bosish.
+   **2026-09-24 egasi bekor qildi — yangi tovar darhol faol** (`2026-09-24-billz-qulf-va-mcp-kengaytma-design.md`).
 3. `admin_audit` uchun admin ekrani **yo'q** — kerak bo'lganda SQL bilan o'qiladi. Ekran haqiqiy
    ehtiyoj paydo bo'lganda qo'shiladi.
 
