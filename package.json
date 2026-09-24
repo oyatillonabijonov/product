@@ -24,11 +24,13 @@
     "bot-avatars": "^0.1.1",
     "compression": "^1.8.2",
     "express": "^5.2.1",
+    "i18next": "^26.4.2",
     "isbot": "^5",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-i18next": "^17.0.15",
     "react-router": "^7",
     "vite": "^6.2.0",
     "zod": "^4.6.5"

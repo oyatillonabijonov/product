@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { Link } from 'react-router';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ChevronDown, ExternalLink, LogOut, Moon } from 'lucide-react';
+import { ChevronDown, ExternalLink, Languages, LogOut, Moon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo.svg';
 import logoDark from '../assets/hero/wordmark.webp';
 import { SPRING_UI } from '../lib/motion';
@@ -10,6 +11,7 @@ import { adminPath, type AdminRoute, type SectionId } from './lib/admin-path';
 import { SECTIONS, activeTab } from './nav';
 import { useAdminDark } from './theme';
 import { Toggle } from './ui';
+import LangSwitch from './LangSwitch';
 
 /**
  * Qobiq: desktopda chap sidebar (5 bo'lim, har biri ochiladigan-yopiladigan guruh),
@@ -30,6 +32,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
   const tab = activeTab(current, route);
   const reduced = useReducedMotion();
   const [dark, setDark] = useAdminDark();
+  const { t } = useTranslation('shell');
   // Qo'lda ochib-yopilganlar; yozilmagan bo'lim faqat joriy bo'lsa ochiq.
   const [raw, setOpen] = useState({} as Partial<Record<SectionId, boolean>>);
   const open = raw as Partial<Record<SectionId, boolean>>;
@@ -134,6 +137,11 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
             <Moon aria-hidden className="size-[18px]" strokeWidth={1.8} />
             <span className="flex-1">Qorong'i mavzu</span>
             <Toggle on={dark} onChange={setDark} label="Qorong'i mavzu" />
+          </div>
+          <div className="flex h-9 items-center gap-3 px-3 text-para text-muted">
+            <Languages aria-hidden className="size-[18px]" strokeWidth={1.8} />
+            <span className="flex-1">{t('footer.language')}</span>
+            <LangSwitch label={t('footer.language')} />
           </div>
           <button type="button" onClick={onLogout} className={`${ITEM} w-full text-left text-muted hover:text-primary`}>
             <LogOut aria-hidden className="size-[18px]" strokeWidth={1.8} /> Chiqish

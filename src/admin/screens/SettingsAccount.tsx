@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getAccount, updateAccount } from '../api';
 import { errText } from '../errText';
 import SectionTabs from '../SectionTabs';
 import { useAdminDark } from '../theme';
 import { Button, Card, EmptyState, Field, Input, Page, Skeleton, SwitchRow } from '../ui';
 import { useToast } from '../ui/toast';
+import LangSwitch from '../LangSwitch';
 
 /**
  * Sozlamalar → Akkaunt: admin login/paroli va Google bilan kirish. Har o'zgarish joriy parol bilan tasdiqlanadi.
@@ -14,6 +16,7 @@ import { useToast } from '../ui/toast';
 const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }> = ({ defaultPw, onPasswordChanged }) => {
   const toast = useToast();
   const [dark, setDark] = useAdminDark();
+  const { t } = useTranslation('settings');
   const [username, setUsername] = useState('');
   const [googleEmail, setGoogleEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -98,6 +101,10 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
             </Card>
             <Card title="Ko'rinish">
               <SwitchRow label="Qorong'i mavzu" hint="Faqat admin panelda va faqat shu brauzerda — do'kon sahifalari o'zgarmaydi" on={dark} onChange={setDark} />
+              <div className="flex items-center justify-between gap-4 py-3">
+                <p className="text-para text-primary">{t('account.language')}</p>
+                <LangSwitch label={t('account.language')} />
+              </div>
             </Card>
           </div>
         )}

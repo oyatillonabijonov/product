@@ -3,6 +3,7 @@ import { useLocation } from 'react-router';
 import type { ApiDashboard } from '../../shared/types';
 import { getDashboard, getMe, logout } from './api';
 import { parseAdminPath, type AdminRoute } from './lib/admin-path';
+import { restoreAdminLang } from './i18n';
 import { SECTIONS, SEGMENTS, activeTab, type SectionDef, type TabDef } from './nav';
 import AdminShell from './AdminShell';
 import Login from './Login';
@@ -101,6 +102,9 @@ export default function AdminApp() {
   const [dashError, setDashError] = useState(false);
   const location = useLocation();
   const route = parseAdminPath(location.pathname, SEGMENTS);
+
+  // Saqlangan admin tili — server va gidratatsiya o'zbekcha, keyin shu effekt almashtiradi.
+  useEffect(() => restoreAdminLang(), []);
 
   useEffect(() => {
     getMe().then(() => setAuthed(true)).catch(() => setAuthed(false));
