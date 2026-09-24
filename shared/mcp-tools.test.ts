@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import type { ApiProduct, ApiProductDetail } from './types';
 import {
-  catalogStats, imageFilesOf, incompleteProducts, manualFieldsFor, detailToInput,
+  catalogStats, imageFilesOf, incompleteProducts, detailToInput,
   variantPriceGroups, applyVariantPrices, displayedPrice, priceAskText, priceChangeSummary,
+  discountPct, priceText, upsertSpecs,
 } from './mcp-tools';
+import { discountPercent } from '../src/lib/installment';
 
 const p = (over: Partial<ApiProduct>): ApiProduct => ({
   id: 'x', name: 'Tovar', category: 'iphone', condition: 'yangi', conditionNote: null,
@@ -57,19 +59,6 @@ describe('incompleteProducts', () => {
     const second = incompleteProducts(items, { missing: 'any', limit: 2, offset: 2 });
     expect(second.items.map((x) => x.id)).toEqual(['4']);
     expect(second.nextOffset).toBe(null);
-  });
-});
-
-describe('manualFieldsFor', () => {
-  it("tegilgan maydon uchun qulf qo'shadi, mavjudini saqlaydi", () => {
-    expect(manualFieldsFor(['description'], { cashPriceUzs: 100 })).toEqual(['price', 'description']);
-    expect(manualFieldsFor([], { description: 'matn' })).toEqual(['description']);
-    expect(manualFieldsFor([], { specs: [{ label: 'Rang', value: 'Qora' }] })).toEqual(['specs']);
-  });
-
-  it('tegilmagan maydon uchun qulf qo\'shmaydi', () => {
-    expect(manualFieldsFor([], { name: 'Yangi nom' })).toEqual([]);
-    expect(manualFieldsFor(['price'], {})).toEqual(['price']);
   });
 });
 
@@ -145,7 +134,7 @@ describe('variant narxlari', () => {
     it("narx bog'liq bo'lgan tanlov bo'yicha guruhlaydi — 4 variant emas, 2 qator", () => {
       expect(variantPriceGroups(byStorage)).toEqual({
         by: 'Xotira', others: ['Rang'],
-        rows: [{ label: '256GB', price: 100 }, { label: '512GB', price: 200 }],
+        rows: [{ label: '256GB', price: 100, old: null }, { label: '512GB', price: 200, old: null }],
       });
     });
 
@@ -157,8 +146,8 @@ describe('variant narxlari', () => {
       const g = variantPriceGroups(phone([100, 110, 200, 210]));
       expect(g.by).toBeNull();
       expect(g.rows).toEqual([
-        { label: '256GB / Black', price: 100 }, { label: '256GB / Silver', price: 110 },
-        { label: '512GB / Black', price: 200 }, { label: '512GB / Silver', price: 210 },
+        { label: '256GB / Black', price: 100, old: null }, { label: '256GB / Silver', price: 110, old: null },
+        { label: '512GB / Black', price: 200, old: null }, { label: '512GB / Silver', price: 210, old: null },
       ]);
     });
   });
@@ -197,6 +186,23 @@ describe('variant narxlari', () => {
     it("bir xil narx ikki tomondan kelsa ziddiyat emas", () => {
       const d = applyVariantPrices(byStorage, [{ value: '256GB', price: 150 }, { value: 'Black', price: 150 }]);
       expect(prices(d)).toEqual([150, 150, 150, 200]);
+    });
+
+    it("eski narx o'sha qiymatli hamma variantga tushadi, null — chegirmani olib tashlaydi", () => {
+      const d = applyVariantPrices(byStorage, [{ value: '256GB', price: 150, oldPrice: 180 }]);
+      expect(d.variants.map((v) => v.oldPriceUzs)).toEqual([180, 180, null, null]);
+      const cleared = applyVariantPrices(d, [{ value: '256GB', price: 150, oldPrice: null }]);
+      expect(cleared.variants.map((v) => v.oldPriceUzs)).toEqual([null, null, null, null]);
+    });
+
+    it("eski narx berilmasa — mavjudi o'z holicha", () => {
+      const d = applyVariantPrices(applyVariantPrices(byStorage, [{ value: '256GB', price: 150, oldPrice: 180 }]), [{ value: '256GB', price: 160 }]);
+      expect(d.variants.map((v) => v.oldPriceUzs)).toEqual([180, 180, null, null]);
+    });
+
+    it("eski narx yangisidan katta bo'lmasa — xato, sabab sodda", () => {
+      expect(() => applyVariantPrices(byStorage, [{ value: '256GB', price: 150, oldPrice: 150 }]))
+        .toThrow(/eski narx.*katta bo'lishi kerak/);
     });
   });
 
@@ -241,5 +247,60 @@ describe('variant narxlari', () => {
       // 256GB ni qimmatlashtirdi — endi 512GB arzonroq, kartada 200 chiqadi.
       expect(s).toContain("Saytda endi «200 so'm dan» ko'rinadi — eng arzoni: 512GB");
     });
+  });
+});
+
+const byStorageForDiscount = () => ({
+  id: 'ip', name: 'iPhone 18 Pro', description: null, images: [], specs: [], brand: null,
+  options: [
+    { id: 'o1', name: 'Xotira', sortOrder: 0, values: [{ id: 's256', value: '256GB', sortOrder: 0 }, { id: 's512', value: '512GB', sortOrder: 1 }] },
+  ],
+  variants: [
+    { id: 'v0', sku: null, cashPriceUzs: 100, oldPriceUzs: null, imageUrl: null, inStock: true, sortOrder: 0, optionValueIds: ['s256'] },
+    { id: 'v1', sku: null, cashPriceUzs: 200, oldPriceUzs: null, imageUrl: null, inStock: true, sortOrder: 1, optionValueIds: ['s512'] },
+  ],
+}) as unknown as ApiProductDetail;
+
+describe('chegirma', () => {
+  it("discountPct saytdagi discountPercent bilan aynan bir xil", () => {
+    for (const [cash, old] of [[25000000, 28000000], [100, 100], [100, 99], [99, 100], [1, 1000], [18887400, null]] as const) {
+      expect(discountPct(cash, old)).toBe(discountPercent(cash, old));
+    }
+  });
+
+  it('priceText chegirma bo\'lsa foiz va eski narxni aytadi', () => {
+    expect(priceText(25000000, 28000000)).toBe("25 000 000 so'm — chegirma −11% (eski narx 28 000 000)");
+    expect(priceText(25000000, null)).toBe("25 000 000 so'm");
+    expect(priceText(25000000, 25000000)).toBe("25 000 000 so'm");
+  });
+
+  it("variant ro'yxatida chegirma ko'rinadi", () => {
+    const d = applyVariantPrices(byStorageForDiscount(), [{ value: '256GB', price: 100, oldPrice: 120 }]);
+    expect(priceChangeSummary(byStorageForDiscount(), d)).toContain("• 256GB — 100 so'm — chegirma −17% (eski narx 120)");
+  });
+});
+
+describe('upsertSpecs — xususiyatlarni qo\'shish, yangilash, o\'chirish', () => {
+  const cur = [{ label: 'Xotira', value: '256GB' }, { label: 'Rang', value: 'Qora' }];
+
+  it("yangi nom oxiriga qo'shiladi, qolganlariga tegilmaydi", () => {
+    expect(upsertSpecs(cur, [{ label: 'Chip', value: 'A19' }])).toEqual([...cur, { label: 'Chip', value: 'A19' }]);
+  });
+
+  it("bor nom — qiymati yangilanadi, joyi va yozilishi saqlanadi", () => {
+    expect(upsertSpecs(cur, [{ label: 'xotira', value: '512GB' }])).toEqual([{ label: 'Xotira', value: '512GB' }, cur[1]]);
+  });
+
+  it("o'chirish — nom bo'yicha, katta-kichik harfsiz", () => {
+    expect(upsertSpecs(cur, [], ['RANG'])).toEqual([cur[0]]);
+  });
+
+  it("bo'sh nom yoki qiymat tashlanadi", () => {
+    expect(upsertSpecs(cur, [{ label: ' ', value: 'x' }, { label: 'Port', value: '' }])).toEqual(cur);
+  });
+
+  it("asl ro'yxatni o'zgartirmaydi", () => {
+    upsertSpecs(cur, [{ label: 'Xotira', value: '1TB' }]);
+    expect(cur[0].value).toBe('256GB');
   });
 });

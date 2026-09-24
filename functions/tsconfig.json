@@ -12,5 +12,6 @@
     "skipLibCheck": true,
     "esModuleInterop": true
   },
-  "include": ["**/*.ts", "../shared/**/*.ts"]
+  "include": ["**/*.ts", "../shared/**/*.ts"],
+  "exclude": ["../shared/mcp-tools.test.ts"]
 }

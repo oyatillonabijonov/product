@@ -1,9 +1,11 @@
 import { z } from 'zod';
-import type { ApiAdminBrand, ApiCategory, ApiProduct, ApiProductDetail, ApiProductType } from './types.ts';
+import type { ApiAdminBrand, ApiCategory, ApiProduct, ApiProductDetail, ApiProductType, ApiSpec } from './types.ts';
 import {
-  catalogStats, incompleteProducts, manualFieldsFor, detailToInput, type ProductPatch,
-  applyVariantPrices, displayedPrice, priceAskText, priceChangeSummary,
+  catalogStats, incompleteProducts, detailToInput,
+  applyVariantPrices, displayedPrice, priceAskText, priceChangeSummary, priceText, discountPct, upsertSpecs,
+  type VariantPriceUpdate,
 } from './mcp-tools.ts';
+import { applyManualEdits } from './billz.ts';
 import { isSafeImageUrl, tooLarge } from './mcp-image.ts';
 import type { AdminClient } from './mcp-client.ts';
 
@@ -83,7 +85,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
   });
 
   server.registerTool('image_upload_from_url', {
-    description: "Rasmni https havoladan yuklab saytga qo'yadi. Javob — saytdagi rasm manzillari.",
+    description: "Rasmni https havoladan yuklab saytga qo'yadi. Javob — saytdagi rasm manzillari. Chatga tashlangan rasm faylini bu tool ololmaydi — buning uchun `image_upload_link` bilan havola bering.",
     inputSchema: { urls: z.array(z.string().url()).min(1).max(10) },
   }, async (args: unknown) => {
     const parsed = args as { urls: string[] };
@@ -105,12 +107,13 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
   });
 
   server.registerTool('product_create', {
-    description: "Yangi tovar qo'shadi. **Yashirin** yaratiladi — egasi admin'da ko'rib chiqib saytga chiqaradi. `type` ni avval `types_list` dan tanlang.",
+    description: "Yangi tovar qo'shadi va **darhol saytda chiqaradi**. `type` ni avval `types_list` dan tanlang. Rasm bo'lmasa egasiga ayting va `image_upload_link` bilan havola bering.",
     inputSchema: {
       name: z.string().min(2),
       categoryId: z.enum(['apple', 'pc', 'audio', 'video']),
       type: z.string(),
       cashPriceUzs: z.number().int().positive(),
+      oldPriceUzs: z.number().int().positive().optional(),
       description: z.string().optional(),
       brandId: z.string().optional(),
       condition: z.enum(['yangi', 'ishlatilgan']).default('yangi'),
@@ -119,85 +122,123 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     },
   }, async (args: unknown) => {
     const parsed = args as {
-      name: string; categoryId: string; type: string; cashPriceUzs: number;
+      name: string; categoryId: string; type: string; cashPriceUzs: number; oldPriceUzs?: number;
       description?: string; brandId?: string; condition: 'yangi' | 'ishlatilgan';
-      specs?: { label: string; value: string }[]; imageUrls?: string[];
+      specs?: ApiSpec[]; imageUrls?: string[];
     };
+    if (parsed.oldPriceUzs !== undefined && discountPct(parsed.cashPriceUzs, parsed.oldPriceUzs) === null) {
+      throw new Error("Eski narx yangi narxdan katta bo'lishi kerak — aks holda saytda chegirma belgisi chiqmaydi.");
+    }
     const images = parsed.imageUrls ?? [];
     const created = await api.write<{ id: string }>('/api/admin/products', 'POST', {
       name: parsed.name, categoryId: parsed.categoryId, type: parsed.type,
       condition: parsed.condition, conditionNote: null, cashPriceUzs: parsed.cashPriceUzs,
-      oldPriceUzs: null, description: parsed.description ?? null,
-      imageUrl: images[0] ?? '', images: images.slice(1), specs: parsed.specs ?? [],
-      sortOrder: 0, isActive: false, brandId: parsed.brandId ?? null, slug: null,
+      oldPriceUzs: parsed.oldPriceUzs ?? null, description: parsed.description ?? null,
+      imageUrl: images[0] ?? '', images: images.slice(1), specs: upsertSpecs([], parsed.specs ?? []),
+      sortOrder: 0, isActive: true, brandId: parsed.brandId ?? null, slug: null,
       ratingAvg: null, reviewCount: 0, preorder: false, options: [], variants: [], manualFields: [],
     }, 'product_create');
-    return text(`Yaratildi (yashirin holatda): ${opts.adminUrl}/admin/products/${created.id}\nSaytda ko'rinishi uchun admin'da «Saytda ko'rsatish»ni yoqing.`);
+    const link = `${opts.adminUrl}/admin/products/${created.id}`;
+    return text(images.length > 0
+      ? `Qo'shildi va saytda chiqdi. Narx: ${priceText(parsed.cashPriceUzs, parsed.oldPriceUzs ?? null)}\n${link}`
+      : `Qo'shildi va saytda chiqdi, lekin rasmi yo'q — saytda rasmsiz ko'rinadi. Rasm uchun havola bering yoki yuklash havolasini oching.\n${link}`);
   });
 
   server.registerTool('product_update', {
-    description: "Mavjud tovarni yangilaydi. Billz tovarida tegilgan maydon uchun «Qo'lda tahrirlash» qulfi avtomatik yoqiladi, aks holda 30 daqiqada Billz qiymati qaytadi.\n\n"
-      + "NARX: variantsiz tovarda `cashPriceUzs` bilan. **Variantli tovarda** (xotira/rang bo'yicha har xil narx) saytda variant narxi ko'rinadi — "
-      + "`cashPriceUzs` yuborsangiz hech narsa yozilmaydi va tool hozirgi narxlar ro'yxatini qaytaradi: uni egasiga sodda qilib o'qib bering va qaysi variant ekanini so'rang. "
-      + "Javob kelgach `variantPrices` bilan qo'ying, masalan [{ value: '256GB', price: 25000000 }] — narx o'sha qiymatli hamma variantga (hamma rangga) tushadi. "
-      + "Tool javobidagi «Saytda endi … ko'rinadi» qatorini ham albatta aytib bering — egasi natijani oldindan bilishi kerak.",
+    description: "Mavjud tovarni yangilaydi. Billz tovarida o'zgartirilgan maydon qulflanadi — sinxronizatsiya unga boshqa tegmaydi.\n\n"
+      + "NARX: variantsiz tovarda `cashPriceUzs`, chegirma — `oldPriceUzs` (yangi narxdan katta; `null` — chegirmani olib tashlash). "
+      + "**Variantli tovarda** (xotira/rang bo'yicha har xil narx) `cashPriceUzs`/`oldPriceUzs` yuborsangiz hech narsa yozilmaydi va tool hozirgi narxlar ro'yxatini qaytaradi: "
+      + "uni egasiga sodda qilib o'qib bering va qaysi variant ekanini so'rang. Keyin `variantPrices` bilan qo'ying, masalan "
+      + "[{ value: '256GB', price: 25000000, oldPrice: 28000000 }] — o'sha qiymatli hamma variantga (hamma rangga) tushadi. "
+      + "Javobdagi «Saytda endi … ko'rinadi» qatorini albatta aytib bering.\n\n"
+      + "XUSUSIYATLAR: `specs` nom bo'yicha qo'shadi yoki qiymatini yangilaydi, qolganlariga tegmaydi; `removeSpecs` — nom bo'yicha o'chiradi.\n"
+      + "TAVSIF: butun matn almashadi — qo'shimcha kerak bo'lsa avval `product_get` bilan o'qing va to'liq yangi matnni yuboring.",
     inputSchema: {
       id: z.string(),
       name: z.string().optional(),
       description: z.string().optional(),
       cashPriceUzs: z.number().int().positive().optional(),
-      variantPrices: z.array(z.object({ value: z.string(), price: z.number().int().positive() })).min(1).optional(),
+      oldPriceUzs: z.number().int().positive().nullable().optional(),
+      variantPrices: z.array(z.object({
+        value: z.string(), price: z.number().int().positive(), oldPrice: z.number().int().positive().nullable().optional(),
+      })).min(1).optional(),
       specs: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+      removeSpecs: z.array(z.string()).optional(),
     },
   }, async (args: unknown) => {
-    const parsed = args as { id: string; variantPrices?: { value: string; price: number }[] } & ProductPatch;
-    const { id, variantPrices, ...patch } = parsed;
-    const current = await api.get<ApiProductDetail>(`/api/admin/products/${id}`);
+    const a = args as {
+      id: string; name?: string; description?: string; cashPriceUzs?: number; oldPriceUzs?: number | null;
+      variantPrices?: VariantPriceUpdate[]; specs?: ApiSpec[]; removeSpecs?: string[];
+    };
+    const current = await api.get<ApiProductDetail>(`/api/admin/products/${a.id}`);
     const hasVariants = current.variants.length > 0;
+    const pricing = a.cashPriceUzs !== undefined || a.oldPriceUzs !== undefined;
 
-    // Variantli tovarda asosiy narx saytda ko'rinmaydi — uni jimgina yozib «Saqlandi» deyish
-    // mijoz oldida yolg'on muvaffaqiyat edi. Hech narsa yozmaymiz, tanlov beramiz.
-    if (hasVariants && patch.cashPriceUzs !== undefined && !variantPrices) return text(priceAskText(current));
-    if (!hasVariants && variantPrices) {
+    // Variantli tovarda asosiy narx saytda ko'rinmaydi — uni jimgina yozib «Saqlandi» deyish mijoz oldida
+    // yolg'on muvaffaqiyat edi (2026-09-24). Hech narsa yozmaymiz, tanlov beramiz.
+    if (hasVariants && pricing && !a.variantPrices) return text(priceAskText(current));
+    if (!hasVariants && a.variantPrices) {
       throw new Error("Bu tovarda xotira yoki rang variantlari yo'q — narxni `cashPriceUzs` bilan o'zgartiring.");
     }
+    const cash = a.cashPriceUzs ?? current.cashPriceUzs;
+    if (!hasVariants && a.oldPriceUzs != null && a.oldPriceUzs <= cash) {
+      throw new Error(`Eski narx (${priceText(a.oldPriceUzs, null)}) yangi narxdan (${priceText(cash, null)}) katta bo'lishi kerak — aks holda saytda chegirma belgisi chiqmaydi.`);
+    }
 
-    // Variant narxlari: asosiy narx saytdagi «… dan» narxga tenglanadi, `patch.cashPriceUzs` e'tiborga olinmaydi.
-    const next = variantPrices ? applyVariantPrices(current, variantPrices) : current;
-    const effective: ProductPatch = variantPrices ? { ...patch, cashPriceUzs: displayedPrice(next) } : patch;
-    const manualFields = current.billzId ? manualFieldsFor(current.manualFields, effective) : current.manualFields;
-    await api.write(`/api/admin/products/${id}`, 'PUT', { ...detailToInput(next), ...effective, manualFields }, 'product_update');
+    const next = a.variantPrices ? applyVariantPrices(current, a.variantPrices) : current;
+    const before = detailToInput(current);
+    const body = detailToInput(next);
+    if (a.name !== undefined) body.name = a.name;
+    if (a.description !== undefined) body.description = a.description;
+    // Variant narxida asosiy narx saytdagi «… dan» narxga tenglanadi.
+    if (a.variantPrices) body.cashPriceUzs = displayedPrice(next);
+    else if (a.cashPriceUzs !== undefined) body.cashPriceUzs = a.cashPriceUzs;
+    if (!a.variantPrices && a.oldPriceUzs !== undefined) body.oldPriceUzs = a.oldPriceUzs;
+    if (a.specs || a.removeSpecs) body.specs = upsertSpecs(current.specs, a.specs, a.removeSpecs);
+    body.manualFields = current.billzId ? applyManualEdits(current.manualFields, before, body) : current.manualFields;
+    await api.write(`/api/admin/products/${a.id}`, 'PUT', body, 'product_update');
 
-    const link = `${opts.adminUrl}/admin/products/${id}`;
-    if (variantPrices) return text(`${priceChangeSummary(current, next)}\n${link}`);
-    const locked = current.billzId && manualFields.length > current.manualFields.length;
-    return text(`Saqlandi: ${link}${locked ? '\nBillz tovari — tegilgan maydonlar endi qo\'lda boshqariladi.' : ''}`);
+    const link = `${opts.adminUrl}/admin/products/${a.id}`;
+    if (a.variantPrices) return text(`${priceChangeSummary(current, next)}\n${link}`);
+    const lines = ['Saqlandi.'];
+    if (pricing) {
+      lines.push(`Narx: ${priceText(body.cashPriceUzs, body.oldPriceUzs)}`);
+      if (body.oldPriceUzs !== null && discountPct(body.cashPriceUzs, body.oldPriceUzs) === null) {
+        lines.push("Eski narx yangi narxdan katta emas — saytda chegirma belgisi chiqmaydi.");
+      }
+    }
+    if (a.specs || a.removeSpecs) lines.push('Xususiyatlar:', ...body.specs.map((s) => `• ${s.label} — ${s.value}`));
+    if (current.billzId && body.manualFields.length > current.manualFields.length) {
+      lines.push("Billz tovari — bu o'zgarishlar sinxronizatsiyada saqlanadi.");
+    }
+    lines.push(link);
+    return text(lines.join('\n'));
   });
 
   server.registerTool('product_set_images', {
-    description: 'Tovarning rasmlarini almashtiradi: birinchisi asosiy rasm, qolgani galereya.',
+    description: "Tovarning rasmlarini almashtiradi: birinchisi asosiy rasm, qolgani galereya. Billz tovarida rasmlar qulflanadi — Billz rasmi ularni almashtirmaydi.",
     inputSchema: { id: z.string(), imageUrls: z.array(z.string()).min(1) },
   }, async (args: unknown) => {
     const parsed = args as { id: string; imageUrls: string[] };
     const current = await api.get<ApiProductDetail>(`/api/admin/products/${parsed.id}`);
-    await api.write(`/api/admin/products/${parsed.id}`, 'PUT', { ...detailToInput(current), imageUrl: parsed.imageUrls[0], images: parsed.imageUrls.slice(1) }, 'product_set_images');
-    return text(`Rasmlar yangilandi (${parsed.imageUrls.length} ta): ${opts.adminUrl}/admin/products/${parsed.id}`);
+    const before = detailToInput(current);
+    const body = { ...before, imageUrl: parsed.imageUrls[0], images: parsed.imageUrls.slice(1) };
+    body.manualFields = current.billzId ? applyManualEdits(current.manualFields, before, body) : current.manualFields;
+    const saved = await api.write<ApiProduct>(`/api/admin/products/${parsed.id}`, 'PUT', body, 'product_set_images');
+    return text(`Rasmlar yangilandi (${parsed.imageUrls.length} ta). ${saved.isActive ? "Tovar saytda ko'rinadi." : 'Tovar saytda yashirin.'}\n${opts.adminUrl}/admin/products/${parsed.id}`);
   });
 
   server.registerTool('product_set_visibility', {
-    description: "Tovarni saytda ko'rsatadi yoki yashiradi. Billz tovarini yashirish vaqtinchalik: sinxronizatsiya har 30 daqiqada ko'rinishni qoldiq va rasmga qarab qayta hisoblaydi va uni qaytarib ochishi mumkin — doimiy yashirish admin panelidan qilinadi. Tovar o'chirilmaydi, faqat ko'rinishi o'zgaradi.",
+    description: "Tovarni saytda ko'rsatadi yoki yashiradi. Yashirilgan tovar shunday qoladi — Billz uni qaytarib ochmaydi. Tovar o'chirilmaydi. Rasmsiz tovar ko'rsatilmaydi — bunday holda egasiga `image_upload_link` bilan havola bering.",
     inputSchema: { id: z.string(), visible: z.boolean() },
   }, async (args: unknown) => {
     const parsed = args as { id: string; visible: boolean };
-    // Admin panelidagi toggle bilan bir xil endpoint — `PATCH` faqat `is_active`ni yozadi,
-    // shuning uchun to'liq `PUT` dagi kabi boshqa maydonlarni o'chirib yuborish xavfi yo'q.
+    // Admin toggle'i bilan bir xil `PATCH`: faqat `is_active` (va Billz tovarida `hidden` qulfi) yoziladi.
     const updated = await api.write<ApiProduct>(`/api/admin/products/${parsed.id}`, 'PATCH', { isActive: parsed.visible }, 'product_set_visibility');
-    const what = parsed.visible ? "Saytda ko'rsatildi" : 'Saytdan yashirildi';
-    // Billz `is_active`ni o'zi boshqaradi (`qoldiq > 0 && rasm bor`), qo'l maydonlari ro'yxatida
-    // `active` yo'q — ya'ni bu yerdagi yashirish keyingi run'gacha yashaydi. Shuni aytib qo'yamiz.
-    const note = updated.billzId && !parsed.visible
-      ? "\nBu Billz tovari — sinxronizatsiya 30 daqiqa ichida uni qaytarib ochishi mumkin (qoldig'i va rasmi bo'lsa). Doimiy yashirish uchun admin panelidan foydalaning."
-      : '';
-    return text(`${what}: ${opts.adminUrl}/admin/products/${parsed.id}${note}`);
+    const link = `${opts.adminUrl}/admin/products/${parsed.id}`;
+    if (parsed.visible && !updated.isActive) {
+      return text(`Saytda chiqmadi: tovarda rasm yo'q. Rasm qo'shilishi bilan o'zi chiqadi.\n${link}`);
+    }
+    return text(`${parsed.visible ? "Saytda ko'rsatildi" : 'Saytdan yashirildi'}: ${link}`);
   });
 }

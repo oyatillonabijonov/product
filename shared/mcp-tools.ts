@@ -1,4 +1,4 @@
-import { MANUAL_FIELDS, type ManualField } from './billz.ts';
+import type { ManualField } from './billz.ts';
 import type { ApiProduct, ApiProductDetail, ApiSpec } from './types.ts';
 
 /**
@@ -66,32 +66,6 @@ export function incompleteProducts(
   }
   const page = all.slice(offset, offset + limit);
   return { items: page, nextOffset: offset + limit < all.length ? offset + limit : null, total: all.length };
-}
-
-/** `product_update` tegadigan maydonlar — `manual_fields` kalitiga xaritasi. */
-const LOCKS: { key: ManualField; touched: (patch: ProductPatch) => boolean }[] = [
-  { key: 'price', touched: (p) => p.cashPriceUzs !== undefined || p.oldPriceUzs !== undefined },
-  { key: 'specs', touched: (p) => p.specs !== undefined },
-  { key: 'description', touched: (p) => p.description !== undefined },
-];
-
-export interface ProductPatch {
-  name?: string;
-  description?: string;
-  cashPriceUzs?: number;
-  oldPriceUzs?: number | null;
-  specs?: { label: string; value: string }[];
-}
-
-/**
- * Billz tovarida qaysi maydon tegilsa, o'sha maydonning qulfi yoqiladi — aks holda
- * 30 daqiqadan keyin Billz qiymati qaytaradi (`shared/billz.ts`, `manual_fields`).
- * Tartib `MANUAL_FIELDS` bo'yicha barqaror.
- */
-export function manualFieldsFor(current: ManualField[], patch: ProductPatch): ManualField[] {
-  const set = new Set<ManualField>(current);
-  for (const l of LOCKS) if (l.touched(patch)) set.add(l.key);
-  return MANUAL_FIELDS.filter((f) => set.has(f));
 }
 
 const IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.webp'];
@@ -179,7 +153,7 @@ export function detailToInput(d: ApiProductDetail): ProductInputBody {
 // o'zgarmasdi (2026-09-24, iPhone 18 Pro). Quyidagilar narxni variantlar bo'yicha qo'yadi va
 // natijani do'kon egasi mijoz oldida o'qib bera oladigan sodda tilda aytadi.
 
-export interface PriceRow { label: string; price: number }
+export interface PriceRow { label: string; price: number; old: number | null }
 
 export interface PriceGroups {
   /** Narxni yolg'iz o'zi belgilaydigan tanlov ("Xotira"); topilmasa `null` — har variant alohida. */
@@ -202,16 +176,21 @@ export function variantPriceGroups(d: ApiProductDetail): PriceGroups {
     const rows: PriceRow[] = [];
     let determines = true;
     for (const v of sortBy(o.values)) {
-      const prices = new Set(d.variants.filter((x) => x.optionValueIds.includes(v.id)).map((x) => x.cashPriceUzs));
+      const vs = d.variants.filter((x) => x.optionValueIds.includes(v.id));
+      const prices = new Set(vs.map((x) => x.cashPriceUzs));
       if (prices.size === 0) continue;
       if (prices.size > 1) { determines = false; break; }
-      rows.push({ label: v.value, price: [...prices][0] });
+      const olds = new Set(vs.map((x) => x.oldPriceUzs ?? null));
+      rows.push({ label: v.value, price: [...prices][0], old: olds.size === 1 ? [...olds][0] : null });
     }
     if (determines && rows.length > 0) {
       return { by: o.name, others: options.filter((x) => x !== o).map((x) => x.name), rows };
     }
   }
-  return { by: null, others: [], rows: sortBy(d.variants).map((v) => ({ label: variantLabel(d, v.optionValueIds), price: v.cashPriceUzs })) };
+  return {
+    by: null, others: [],
+    rows: sortBy(d.variants).map((v) => ({ label: variantLabel(d, v.optionValueIds), price: v.cashPriceUzs, old: v.oldPriceUzs ?? null })),
+  };
 }
 
 function variantLabel(d: ApiProductDetail, ids: string[]): string {
@@ -226,12 +205,20 @@ function variantLabel(d: ApiProductDetail, ids: string[]): string {
 /** "256 GB" va "256gb" bir narsa — egasi og'zaki aytadi. */
 const norm = (s: string) => s.toLowerCase().replace(/\s+/g, '');
 
+export interface VariantPriceUpdate { value: string; price: number; oldPrice?: number | null }
+
 /**
  * Narxni qiymat bo'yicha qo'yadi: «256GB — 150» shu qiymatli **hamma** variantga (hamma rangga)
- * tushadi. Asl tovar o'zgarmaydi, yangi nusxa qaytadi. Noma'lum qiymat yoki bitta variantga
- * ikki xil narx tushsa — hech narsa qo'yilmaydi, sababi sodda tilda aytiladi.
+ * tushadi. `oldPrice` berilsa chegirma (eski narx) ham qo'yiladi, `null` — chegirma olib tashlanadi,
+ * berilmasa — mavjudi qoladi. Asl tovar o'zgarmaydi. Noma'lum qiymat, ikki xil narx yoki eski narx
+ * yangisidan katta bo'lmasa — hech narsa qo'yilmaydi, sababi sodda tilda aytiladi.
  */
-export function applyVariantPrices(d: ApiProductDetail, updates: { value: string; price: number }[]): ApiProductDetail {
+export function applyVariantPrices(d: ApiProductDetail, updates: VariantPriceUpdate[]): ApiProductDetail {
+  for (const u of updates) {
+    if (u.oldPrice != null && u.oldPrice <= u.price) {
+      throw new Error(`«${u.value}»: eski narx (${thousands(u.oldPrice)}) yangi narxdan (${thousands(u.price)}) katta bo'lishi kerak — aks holda saytda chegirma belgisi chiqmaydi.`);
+    }
+  }
   const matched = updates.map((u) => {
     const ids = d.options.flatMap((o) => o.values).filter((v) => norm(v.value) === norm(u.value)).map((v) => v.id);
     if (ids.length === 0) {
@@ -243,11 +230,13 @@ export function applyVariantPrices(d: ApiProductDetail, updates: { value: string
 
   const variants = d.variants.map((v) => {
     const hits = matched.filter((m) => m.ids.some((id) => v.optionValueIds.includes(id)));
-    const prices = new Set(hits.map((h) => h.price));
-    if (prices.size > 1) {
+    const keys = new Set(hits.map((h) => `${h.price}|${h.oldPrice === undefined ? '~' : String(h.oldPrice)}`));
+    if (keys.size > 1) {
       throw new Error(`«${variantLabel(d, v.optionValueIds)}» ga ikki xil narx to'g'ri keldi (${hits.map((h) => h.value).join(' va ')}). Bittasini ayting.`);
     }
-    return prices.size === 1 ? { ...v, cashPriceUzs: [...prices][0] } : v;
+    if (hits.length === 0) return v;
+    const h = hits[0];
+    return { ...v, cashPriceUzs: h.price, oldPriceUzs: h.oldPrice === undefined ? v.oldPriceUzs : h.oldPrice };
   });
   return { ...d, variants };
 }
@@ -259,7 +248,8 @@ export function displayedPrice(d: ApiProductDetail): number {
   return Math.min(...pool.map((v) => v.cashPriceUzs));
 }
 
-const som = (n: number) => `${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} so'm`;
+const thousands = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const som = (n: number) => `${thousands(n)} so'm`;
 
 /** Variantli tovarga oddiy narx buyurilganda: hech narsa yozilmaydi, egasiga tanlov beriladi. */
 export function priceAskText(d: ApiProductDetail): string {
@@ -267,7 +257,7 @@ export function priceAskText(d: ApiProductDetail): string {
   const lines = [
     "Hech narsa o'zgartirilmadi — avval qaysi variant ekanini aniqlab olaylik.",
     `${d.name} bir nechta variantda sotiladi, har birining o'z narxi bor:`,
-    ...g.rows.map((r) => `• ${r.label} — ${som(r.price)}`),
+    ...g.rows.map((r) => `• ${r.label} — ${priceText(r.price, r.old)}`),
   ];
   if (g.by && g.others.length) lines.push(`${g.others.join(' va ')} narxga ta'sir qilmaydi.`);
   lines.push(`Qaysi ${g.by ? g.by.toLowerCase() : 'variant'}ning narxini o'zgartiray?`);
@@ -280,10 +270,48 @@ export function priceChangeSummary(before: ApiProductDetail, after: ApiProductDe
   const g = variantPriceGroups(after);
   const lines = ["Narx o'zgardi.", ...g.rows.map((r) => {
     const old = was.get(r.label);
-    return `• ${r.label} — ${som(r.price)}${old !== undefined && old !== r.price ? ` (avval ${som(old).replace(" so'm", '')})` : ''}`;
+    return `• ${r.label} — ${priceText(r.price, r.old)}${old !== undefined && old !== r.price ? ` (avval ${thousands(old)})` : ''}`;
   })];
   const shown = displayedPrice(after);
   const cheapest = g.rows.find((r) => r.price === shown);
   lines.push('', `Saytda endi «${som(shown)} dan» ko'rinadi${cheapest ? ` — eng arzoni: ${cheapest.label}` : ''}.`);
   return lines.join('\n');
+}
+
+// ─── Chegirma va xususiyatlar ─────────────────────────────────────────────────
+
+/**
+ * Saytdagi «−N%» belgisi. Formula `src/lib/installment.ts` `discountPercent` bilan **aynan bir xil** —
+ * `shared/` dan `src/` ni import qilib bo'lmaydi (Docker image'da `src/` yo'q), shuning uchun nusxa;
+ * `mcp-tools.test.ts` ikkalasini bir xil javob berishga majburlaydi.
+ */
+export function discountPct(cash: number, old: number | null): number | null {
+  if (old === null || old <= cash) return null;
+  const pct = Math.round(((old - cash) / old) * 100);
+  return pct > 0 ? pct : null;
+}
+
+/** Narx — chegirma bo'lsa saytdagi foiz va eski narx bilan (egasi mijoz oldida aynan shuni ko'radi). */
+export function priceText(cash: number, old: number | null): string {
+  const pct = discountPct(cash, old);
+  return pct === null || old === null ? som(cash) : `${som(cash)} — chegirma −${pct}% (eski narx ${thousands(old)})`;
+}
+
+/**
+ * Xususiyatlar nom bo'yicha: bor bo'lsa qiymati yangilanadi (joyi va yozilishi saqlanadi), yo'q bo'lsa oxiriga
+ * qo'shiladi, `remove` — o'chiriladi; qolganlariga tegilmaydi. Ilgari `specs` butun ro'yxatni almashtirardi:
+ * «Xotira qo'sh» deyilsa Claude bitta qator yuborib qolgan hammasini o'chirib yuborishi mumkin edi.
+ */
+export function upsertSpecs(current: ApiSpec[], set: ApiSpec[] = [], remove: string[] = []): ApiSpec[] {
+  const drop = new Set(remove.map(norm));
+  const out = current.filter((s) => !drop.has(norm(s.label))).map((s) => ({ ...s }));
+  for (const u of set) {
+    const label = u.label.trim();
+    const value = u.value.trim();
+    if (!label || !value) continue;
+    const i = out.findIndex((s) => norm(s.label) === norm(label));
+    if (i >= 0) out[i] = { label: out[i].label, value };
+    else out.push({ label, value });
+  }
+  return out;
 }
