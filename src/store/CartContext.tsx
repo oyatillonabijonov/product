@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
+import { ymEcommerce } from '../lib/metrica';
 import { addItem, removeItem, setQty, cartCount, parseCart, serializeCart, CART_KEY, type CartItem } from '../lib/cart';
 
 interface CartApi {
@@ -44,8 +45,15 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const api: CartApi = {
     items,
     count: cartCount(items),
-    add: (item) => setItems((xs) => addItem(xs, item)),
-    remove: (productId, variantId) => setItems((xs) => removeItem(xs, productId, variantId)),
+    add: (item) => {
+      setItems((xs) => addItem(xs, item));
+      ymEcommerce('add', [{ id: item.productId, name: item.name, price: item.priceUzs, variant: item.variantLabel, quantity: item.qty }]);
+    },
+    remove: (productId, variantId) => {
+      const it = items.find((x) => x.productId === productId && x.variantId === variantId);
+      if (it) ymEcommerce('remove', [{ id: it.productId, name: it.name, price: it.priceUzs, variant: it.variantLabel, quantity: it.qty }]);
+      setItems((xs) => removeItem(xs, productId, variantId));
+    },
     changeQty: (productId, variantId, qty) => setItems((xs) => setQty(xs, productId, variantId, qty)),
     clear: () => setItems([]),
   };

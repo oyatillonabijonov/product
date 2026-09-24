@@ -51,7 +51,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     }
   }
 
-  await env.DB.prepare(
+  const res = await env.DB.prepare(
     'INSERT INTO orders (name, phone, note, payment_kind, term_months, down_payment_uzs, monthly_uzs, total_uzs, items_json, source, telegram_sent, customer_id, address_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
   )
     .bind(
@@ -61,5 +61,6 @@ export async function action({ request, context }: Route.ActionArgs) {
     )
     .run();
 
-  return json({ ok: true });
+  // id — Metrica e-commerce `purchase` voqeasi uchun (admin'dagi №{id} bilan bir xil).
+  return json({ ok: true, id: Number(res.meta.last_row_id) });
 }

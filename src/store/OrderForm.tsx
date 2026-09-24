@@ -6,7 +6,7 @@ import type { Translation } from '../locales';
 import type { OrderInput } from '../../shared/types';
 import type { StoreContext } from './StoreLayout';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
-import { ymGoal } from '../lib/metrica';
+import { ymEcommerce, ymGoal } from '../lib/metrica';
 import { safeHref } from '../../shared/safe-href';
 import Modal from './Modal';
 import { useCurrency } from './CurrencyContext';
@@ -103,6 +103,8 @@ const OrderForm: FC<{
       if (!res.ok) throw new Error();
       setDone(true);
       ymGoal(config.yandexMetricaId, 'order_submit');
+      const { id } = (await res.json()) as { id?: number };
+      if (id) ymEcommerce('purchase', draft.items.map((it) => ({ id: it.productId, name: it.name, price: it.priceUzs, variant: it.variantLabel, quantity: it.qty })), id);
     } catch {
       setErr(t.orderError);
     } finally {

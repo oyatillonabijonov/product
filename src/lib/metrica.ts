@@ -28,3 +28,28 @@ export function ymGoal(counterId: string, goal: string): void {
     /* analitika xatosi UX'ga ta'sir qilmasin */
   }
 }
+
+export interface YmProduct {
+  id: string;
+  name: string;
+  price: number;
+  variant?: string;
+  quantity?: number;
+}
+
+/** Metrica e-commerce: `dataLayer`ga voqea. Hisoblagich yo'q bo'lsa massiv shunchaki
+ * hech kim o'qimaydigan ro'yxat bo'lib qoladi — tekshiruv shart emas.
+ * `purchase` bu yerda to'lov emas, buyurtma arizasi (operator telefonda tasdiqlaydi). */
+export function ymEcommerce(action: 'detail' | 'add' | 'remove' | 'purchase', products: YmProduct[], orderId?: number): void {
+  try {
+    const w = window as unknown as { dataLayer?: unknown[] };
+    (w.dataLayer ??= []).push({
+      ecommerce: {
+        currencyCode: 'UZS',
+        [action]: orderId === undefined ? { products } : { actionField: { id: String(orderId) }, products },
+      },
+    });
+  } catch {
+    /* analitika xatosi UX'ga ta'sir qilmasin */
+  }
+}

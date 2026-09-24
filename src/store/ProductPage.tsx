@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { ShieldCheck, ChevronRight, Truck, ShoppingCart, Wallet } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
@@ -9,6 +9,7 @@ import { calcInstallment, discountPercent } from '../lib/installment';
 import { SWATCHES } from '../lib/swatches';
 import { defaultSelection, resolveVariant, isValueAvailable, selectionLabel, valuePrice, type VariantSelection } from '../lib/variants';
 import { safeHref } from '../../shared/safe-href';
+import { ymEcommerce } from '../lib/metrica';
 import { useCart } from './CartContext';
 import { useCurrency } from './CurrencyContext';
 import Expandable from './Expandable';
@@ -80,6 +81,11 @@ const ProductPage: FC<{
   const galleryImages = variant?.imageUrl
     ? [variant.imageUrl, ...product.images.filter((i) => i !== variant.imageUrl)]
     : product.images;
+
+  // Metrica e-commerce: mahsulot ko'rildi (sahifa ochilganda bir marta, variant almashishi emas).
+  useEffect(() => {
+    ymEcommerce('detail', [{ id: product.id, name: product.name, price: product.minPriceUzs }]);
+  }, [product.id]);
 
   const [draft, setDraft] = useState<OrderDraft | null>(null);
   function openOrder(paymentKind: 'cash' | 'installment') {
