@@ -7,7 +7,7 @@ import type { ApiOrder, OrderStatus } from '../../../shared/types';
 import { listOrders, setOrderStatus } from '../api';
 import { errText } from '../errText';
 import { formatDateTime, formatSum } from '../lib/format';
-import { ORDER_STATUS, itemsTotal, orderSource, telHref } from '../lib/inbox';
+import { orderStatusLabels, itemsTotal, orderSource, telHref } from '../lib/inbox';
 import { StatusCard } from '../StatusControls';
 import { Button, Card, EmptyState, Page, Rows, Skeleton } from '../ui';
 import { useToast } from '../ui/toast';
@@ -22,6 +22,8 @@ type LoadState = 'loading' | 'ready' | 'missing' | 'error';
  */
 const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCountsChange }) => {
   const sum = useTranslation('common').t('sum');
+  const { t } = useTranslation(['orders', 'common']);
+  const labels = orderStatusLabels();
   const location = useLocation();
   const search = (location.state as { search?: string } | null)?.search;
   const backTo = search ? `${LIST}?${search}` : LIST;
@@ -48,7 +50,7 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
     setOrder({ ...order, status: next });
     try {
       await setOrderStatus(order.id, next);
-      toast(`Holat: ${ORDER_STATUS[next]}`);
+      toast(t('shared.statusToast', { status: labels[next] }));
       onCountsChange();
     } catch (e) {
       setOrder(order);
@@ -58,20 +60,20 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
 
   if (load !== 'ready' || !order) {
     return (
-      <Page title="Buyurtma" back={backTo}>
+      <Page title={t('orderDetail.title')} back={backTo}>
         {load === 'loading' ? (
           <Skeleton rows={4} />
         ) : load === 'missing' ? (
           <EmptyState
-            title="Buyurtma topilmadi"
-            text="Faqat oxirgi 200 ta buyurtma ochiladi."
-            action={<Button variant="secondary" to={LIST}>Buyurtmalarga qaytish</Button>}
+            title={t('orderDetail.missingTitle')}
+            text={t('orderDetail.missingText')}
+            action={<Button variant="secondary" to={LIST}>{t('orderDetail.backToList')}</Button>}
           />
         ) : (
           <EmptyState
-            title="Ma'lumot yuklanmadi"
-            text="Tarmoq yoki server xatosi — qayta urinib ko'ring."
-            action={<Button variant="secondary" onClick={fetchOrder}>Qayta urinish</Button>}
+            title={t('shared.loadErrorTitle')}
+            text={t('shared.networkErrorText')}
+            action={<Button variant="secondary" onClick={fetchOrder}>{t('common:retry')}</Button>}
           />
         )}
       </Page>
@@ -84,23 +86,23 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
       title={order.name}
       description={`№${order.id} · ${formatDateTime(order.createdAt)}`}
       back={backTo}
-      actions={<Button variant="secondary" href={telHref(order.phone)}><Phone aria-hidden className="size-4" /> Qo'ng'iroq</Button>}
+      actions={<Button variant="secondary" href={telHref(order.phone)}><Phone aria-hidden className="size-4" /> {t('shared.call')}</Button>}
     >
       <div className="flex flex-col gap-4">
-        <StatusCard value={order.status} labels={ORDER_STATUS} onChange={changeStatus} telegramSent={order.telegramSent} />
-        <Card title="Mijoz">
+        <StatusCard value={order.status} labels={labels} onChange={changeStatus} telegramSent={order.telegramSent} />
+        <Card title={t('shared.customer')}>
           <Rows
             rows={[
-              { k: 'Ism', v: order.name },
-              { k: 'Telefon', v: <a href={telHref(order.phone)} className="press text-link">{order.phone}</a> },
-              { k: 'Manba', v: orderSource(order) },
-              ...(order.addressText ? [{ k: 'Manzil', v: <span className="whitespace-pre-line">{order.addressText}</span> }] : []),
-              ...(order.note ? [{ k: 'Izoh', v: <span className="whitespace-pre-line">{order.note}</span> }] : []),
+              { k: t('shared.nameLabel'), v: order.name },
+              { k: t('shared.phoneLabel'), v: <a href={telHref(order.phone)} className="press text-link">{order.phone}</a> },
+              { k: t('orderDetail.sourceLabel'), v: orderSource(order) },
+              ...(order.addressText ? [{ k: t('orderDetail.addressLabel'), v: <span className="whitespace-pre-line">{order.addressText}</span> }] : []),
+              ...(order.note ? [{ k: t('orderDetail.noteLabel'), v: <span className="whitespace-pre-line">{order.note}</span> }] : []),
             ]}
           />
         </Card>
         {order.items.length > 0 && (
-          <Card title="Tarkib" padded={false}>
+          <Card title={t('shared.items')} padded={false}>
             <ul className="mt-2 divide-y divide-line-3 px-5">
               {order.items.map((it, i) => (
                 <li key={`${i}-${it.productId}`} className="flex items-start justify-between gap-4 py-3 text-para">
@@ -116,19 +118,19 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
               ))}
             </ul>
             <div className="flex items-center justify-between gap-4 border-t border-line px-5 py-3 text-para font-semibold text-primary">
-              <span>{installment ? 'Naqd narxi' : 'Jami'}</span>
+              <span>{t(installment ? 'orderDetail.cashTotal' : 'orderDetail.total')}</span>
               <span className="tabular-nums">{formatSum(itemsTotal(order.items), sum)}</span>
             </div>
           </Card>
         )}
         {installment && (
-          <Card title="Muddatli to'lov">
+          <Card title={t('orderDetail.installmentCard')}>
             <Rows
               rows={[
-                { k: 'Muddat', v: order.termMonths ? `${order.termMonths} oy` : '—' },
-                { k: "Boshlang'ich to'lov", v: formatSum(order.downPaymentUzs, sum) },
-                { k: "Oylik to'lov", v: formatSum(order.monthlyUzs, sum) },
-                { k: 'Jami', v: formatSum(order.totalUzs, sum) },
+                { k: t('orderDetail.termLabel'), v: order.termMonths ? t('orderDetail.months', { count: order.termMonths }) : '—' },
+                { k: t('orderDetail.downPaymentLabel'), v: formatSum(order.downPaymentUzs, sum) },
+                { k: t('orderDetail.monthlyLabel'), v: formatSum(order.monthlyUzs, sum) },
+                { k: t('orderDetail.total'), v: formatSum(order.totalUzs, sum) },
               ]}
             />
           </Card>

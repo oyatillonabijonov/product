@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { ExternalLink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ApiJobApplication, OrderStatus } from '../../../shared/types';
 import { safeHref } from '../../../shared/safe-href';
 import { listJobApplications, setJobApplicationStatus } from '../api';
 import { errText } from '../errText';
 import { formatDateTime } from '../lib/format';
-import { APPLICATION_STATUS, filterInbox, parseStatus, statusSegments, telHref } from '../lib/inbox';
+import { applicationStatusLabels, filterInbox, parseStatus, statusSegments, telHref } from '../lib/inbox';
 import { StatusSelect } from '../StatusControls';
 import { Badge, Button, Card, DataTable, EmptyState, Pagination, SearchInput, Segmented, Skeleton, type Column } from '../ui';
 import { useToast } from '../ui/toast';
@@ -21,6 +22,8 @@ const LIST = '/admin/orders/applications';
  * ponytail: API oxirgi 200 ta arizani beradi.
  */
 const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
+  const { t } = useTranslation(['orders', 'common']);
+  const labels = applicationStatusLabels();
   const navigate = useNavigate();
   const toast = useToast();
   const [params, setParams] = useSearchParams();
@@ -34,7 +37,7 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
 
   function load() {
     setError('');
-    listJobApplications().then(setItems).catch(() => setError('Yuklashda xatolik'));
+    listJobApplications().then(setItems).catch(() => setError(t('shared.loadError')));
   }
   useEffect(load, []);
 
@@ -59,7 +62,7 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
     put(next);
     try {
       await setJobApplicationStatus(a.id, next);
-      toast(`${a.name} — ${APPLICATION_STATUS[next]}`);
+      toast(`${a.name} — ${labels[next]}`);
       onCountsChange();
     } catch (e) {
       put(a.status);
@@ -69,35 +72,35 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
 
   const columns: Column<ApiJobApplication>[] = [
     {
-      id: 'who', label: 'Nomzod', mobile: 'title',
+      id: 'who', label: t('shared.candidate'), mobile: 'title',
       cell: (a) => (
         <span className="flex min-w-0 flex-col gap-1">
           <span className="truncate text-primary md:max-w-48">{a.name}</span>
           <span className="flex flex-wrap items-center gap-1.5">
             <a href={telHref(a.phone)} className="press whitespace-nowrap text-label text-link">{a.phone}</a>
-            {!a.telegramSent && <Badge tone="danger">TG yuborilmadi</Badge>}
+            {!a.telegramSent && <Badge tone="danger">{t('shared.tgNotSent')}</Badge>}
           </span>
         </span>
       ),
     },
-    { id: 'position', label: 'Lavozim', cell: (a) => <span className="block max-w-56 truncate text-muted">{a.position}</span> },
+    { id: 'position', label: t('shared.position'), cell: (a) => <span className="block max-w-56 truncate text-muted">{a.position}</span> },
     {
-      id: 'resume', label: 'Rezyume', className: 'hidden xl:table-cell',
+      id: 'resume', label: t('shared.resumeLabel'), className: 'hidden xl:table-cell',
       cell: (a) => {
         const href = safeHref(a.resumeUrl);
         return href ? (
           <a href={href} target="_blank" rel="noopener noreferrer" className="press inline-flex items-center gap-1 text-label text-link">
-            Ochish <ExternalLink aria-hidden className="size-3.5" />
+            {t('applicationsList.open')} <ExternalLink aria-hidden className="size-3.5" />
           </a>
         ) : (
           <span className="text-muted-2">—</span>
         );
       },
     },
-    { id: 'date', label: 'Sana', cell: (a) => <span className="whitespace-nowrap text-label text-muted">{formatDateTime(a.createdAt)}</span> },
+    { id: 'date', label: t('shared.date'), cell: (a) => <span className="whitespace-nowrap text-label text-muted">{formatDateTime(a.createdAt)}</span> },
     {
-      id: 'status', label: 'Holat',
-      cell: (a) => <StatusSelect value={a.status} labels={APPLICATION_STATUS} onChange={(s) => changeStatus(a, s)} ariaLabel={`${a.name} — holat`} />,
+      id: 'status', label: t('shared.status'),
+      cell: (a) => <StatusSelect value={a.status} labels={labels} onChange={(s) => changeStatus(a, s)} ariaLabel={t('shared.statusAria', { name: a.name })} />,
     },
   ];
 
@@ -105,18 +108,18 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
   if (q) {
     empty = (
       <EmptyState
-        title="Hech narsa topilmadi"
-        text="Ism yoki telefon raqamini tekshiring."
-        action={<Button variant="secondary" onClick={() => update('q', '')}>Qidiruvni tozalash</Button>}
+        title={t('shared.notFoundTitle')}
+        text={t('shared.notFoundText')}
+        action={<Button variant="secondary" onClick={() => update('q', '')}>{t('shared.clearSearch')}</Button>}
       />
     );
   } else if (status === 'all') {
-    empty = <EmptyState title="Hozircha ariza yo'q" text="«Vakansiyalar» sahifasidan yuborilgan arizalar shu yerda saqlanadi." />;
+    empty = <EmptyState title={t('applicationsList.emptyAllTitle')} text={t('applicationsList.emptyAllText')} />;
   } else {
     empty = (
       <EmptyState
-        title={status === 'new' ? "Yangi ariza yo'q" : "Bu holatda ariza yo'q"}
-        action={<Button variant="secondary" onClick={() => update('status', 'all')}>Hammasini ko'rish</Button>}
+        title={status === 'new' ? t('applicationsList.emptyNewTitle') : t('applicationsList.emptyStatusTitle')}
+        action={<Button variant="secondary" onClick={() => update('status', 'all')}>{t('shared.showAll')}</Button>}
       />
     );
   }
@@ -125,23 +128,23 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
         <Segmented
-          label="Holat"
+          label={t('shared.status')}
           value={status}
           onChange={(v) => update('status', v === 'new' ? '' : v)}
-          options={statusSegments(APPLICATION_STATUS, newCount)}
+          options={statusSegments(labels, newCount)}
         />
         <div className="lg:w-64">
-          <SearchInput value={q} onChange={(v) => update('q', v)} placeholder="Ism yoki telefon…" />
+          <SearchInput value={q} onChange={(v) => update('q', v)} placeholder={t('shared.searchPlaceholder')} />
         </div>
       </div>
 
       {error ? (
-        <EmptyState title="Ma'lumot yuklanmadi" text={error} action={<Button variant="secondary" onClick={load}>Qayta urinish</Button>} />
+        <EmptyState title={t('shared.loadErrorTitle')} text={error} action={<Button variant="secondary" onClick={load}>{t('common:retry')}</Button>} />
       ) : !items ? (
         <Skeleton rows={8} />
       ) : (
         <>
-          <p className="text-label text-muted">{filtered.length} ta ariza</p>
+          <p className="text-label text-muted">{t('applicationsList.count', { count: filtered.length })}</p>
           <Card padded={false}>
             <div className="px-2 py-1">
               <DataTable

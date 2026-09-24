@@ -1,3 +1,4 @@
+import { i18n } from '../i18n';
 import type { ApiOrder, OrderItemInput, OrderStatus } from '../../../shared/types';
 
 /** Holat filtri (URL `status`): `new` — sukut, ro'yxat kiruvchi quti bo'lib ochiladi; `all` — hammasi. */
@@ -5,9 +6,13 @@ export type StatusFilter = OrderStatus | 'all';
 
 export const STATUSES: OrderStatus[] = ['new', 'contacted', 'done'];
 
-export const ORDER_STATUS: Record<OrderStatus, string> = { new: 'Yangi', contacted: "Bog'lanildi", done: 'Bajarildi' };
+export function orderStatusLabels(): Record<OrderStatus, string> {
+  return { new: i18n.t('orders:status.new'), contacted: i18n.t('orders:status.contacted'), done: i18n.t('orders:status.done') };
+}
 /** Nomzod arizasi "bajarilmaydi" — yopiladi (eski ekrandagi so'z). */
-export const APPLICATION_STATUS: Record<OrderStatus, string> = { new: 'Yangi', contacted: "Bog'lanildi", done: 'Yopildi' };
+export function applicationStatusLabels(): Record<OrderStatus, string> {
+  return { new: i18n.t('orders:status.new'), contacted: i18n.t('orders:status.contacted'), done: i18n.t('orders:status.closed') };
+}
 
 /** URL qiymati → filtr; bo'sh yoki noma'lum qiymat → `new`. */
 export function parseStatus(raw: string | null): StatusFilter {
@@ -20,7 +25,7 @@ export function statusSegments(labels: Record<OrderStatus, string>, newCount: nu
     { id: 'new', label: newCount > 0 ? `${labels.new} ${newCount}` : labels.new },
     { id: 'contacted', label: labels.contacted },
     { id: 'done', label: labels.done },
-    { id: 'all', label: 'Hammasi' },
+    { id: 'all', label: i18n.t('orders:status.all') },
   ];
 }
 
@@ -50,8 +55,8 @@ export function itemsTotal(items: OrderItemInput[]): number {
 
 /** Manba: konsultatsiya arizasi (mahsulotsiz) yoki to'lov turi. */
 export function orderSource(o: Pick<ApiOrder, 'source' | 'paymentKind'>): string {
-  if (o.source === 'consult') return 'Konsultatsiya';
-  return o.paymentKind === 'installment' ? 'Muddatli' : 'Naqd';
+  if (o.source === 'consult') return i18n.t('orders:source.consult');
+  return o.paymentKind === 'installment' ? i18n.t('orders:source.installment') : i18n.t('orders:source.cash');
 }
 
 /** Qatordagi tarkib: birinchi tovar (variant, soni) va «+ yana N»; konsultatsiyada mavzular/izoh. */
@@ -60,7 +65,7 @@ export function orderSummary(o: Pick<ApiOrder, 'source' | 'items' | 'note'>): st
   if (o.source === 'consult' || !first) return o.note || '—';
   let label = first.variantLabel ? `${first.name} (${first.variantLabel})` : first.name;
   if (first.qty > 1) label += ` ×${first.qty}`;
-  return o.items.length > 1 ? `${label} + yana ${o.items.length - 1}` : label;
+  return o.items.length > 1 ? `${label} ${i18n.t('orders:summary.more', { count: o.items.length - 1 })}` : label;
 }
 
 /**

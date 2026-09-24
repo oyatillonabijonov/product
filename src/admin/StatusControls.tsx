@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { OrderStatus } from '../../shared/types';
 import { STATUSES } from './lib/inbox';
 import { Card, Dot, Segmented, Select, type Tone } from './ui';
@@ -23,18 +24,21 @@ export const StatusSelect: FC<{ value: OrderStatus; labels: Record<OrderStatus, 
 /** Tafsilot sahifasidagi holat kartasi: segment darhol saqlanadi; Telegram'ga ketmagan bo'lsa ogohlantiradi. */
 export const StatusCard: FC<{ value: OrderStatus; labels: Record<OrderStatus, string>; onChange: (s: OrderStatus) => void; telegramSent: boolean }> = ({
   value, labels, onChange, telegramSent,
-}) => (
-  <Card title="Holat">
-    <Segmented
-      label="Holat"
-      value={value}
-      onChange={(v) => onChange(v as OrderStatus)}
-      options={STATUSES.map((s) => ({ id: s, label: labels[s] }))}
-    />
-    {!telegramSent && (
-      <p className="mt-3 text-para text-danger">
-        Telegram guruhiga yuborilmagan — Sozlamalar'da bot tokeni va guruh ID'sini tekshiring.
-      </p>
-    )}
-  </Card>
-);
+}) => {
+  const { t } = useTranslation('orders');
+  return (
+    <Card title={t('shared.status')}>
+      <Segmented
+        label={t('shared.status')}
+        value={value}
+        onChange={(v) => onChange(v as OrderStatus)}
+        options={STATUSES.map((s) => ({ id: s, label: labels[s] }))}
+      />
+      {!telegramSent && (
+        <p className="mt-3 text-para text-danger">
+          {t('shared.telegramWarning')}
+        </p>
+      )}
+    </Card>
+  );
+};

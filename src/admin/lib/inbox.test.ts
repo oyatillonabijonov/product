@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ApiOrder, OrderItemInput } from '../../../shared/types';
 import {
-  APPLICATION_STATUS, ORDER_STATUS, filterInbox, itemsTotal, orderSource, orderSummary, orderTotal, parseStatus, statusSegments, telHref,
+  applicationStatusLabels, orderStatusLabels, filterInbox, itemsTotal, orderSource, orderSummary, orderTotal, parseStatus, statusSegments, telHref,
 } from './inbox';
 
 const order = (over: Partial<ApiOrder> = {}): ApiOrder => ({
@@ -27,9 +27,9 @@ describe('parseStatus', () => {
 
 describe('statusSegments', () => {
   it("yangi soni faqat 0 dan katta bo'lsa yoziladi, Hammasi oxirida", () => {
-    expect(statusSegments(ORDER_STATUS, 3).map((s) => s.label)).toEqual(['Yangi 3', "Bog'lanildi", 'Bajarildi', 'Hammasi']);
-    expect(statusSegments(APPLICATION_STATUS, 0).map((s) => s.label)).toEqual(['Yangi', "Bog'lanildi", 'Yopildi', 'Hammasi']);
-    expect(statusSegments(ORDER_STATUS, 0).map((s) => s.id)).toEqual(['new', 'contacted', 'done', 'all']);
+    expect(statusSegments(orderStatusLabels(), 3).map((s) => s.label)).toEqual(['Yangi 3', "Bog'lanildi", 'Bajarildi', 'Hammasi']);
+    expect(statusSegments(applicationStatusLabels(), 0).map((s) => s.label)).toEqual(['Yangi', "Bog'lanildi", 'Yopildi', 'Hammasi']);
+    expect(statusSegments(orderStatusLabels(), 0).map((s) => s.id)).toEqual(['new', 'contacted', 'done', 'all']);
   });
 });
 
