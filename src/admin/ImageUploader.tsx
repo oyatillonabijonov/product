@@ -129,7 +129,7 @@ const ImageUploader: FC<{
         onDragOver={(e: React.DragEvent) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onZoneDrop}
-        className={`flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xs border-2 border-dashed px-4 py-5 ${dragOver ? 'border-cta bg-cta/5 text-cta' : 'border-line text-muted'}`}
+        className={`flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xs border-2 border-dashed px-4 py-5 ${dragOver ? 'border-link bg-link/5 text-link' : 'border-line text-muted'}`}
       >
         <Upload size={20} />
         <span className="text-label">{video ? 'Video (MP4) tashlang yoki tanlang' : 'Rasm tashlang yoki tanlang'}</span>

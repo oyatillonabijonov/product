@@ -74,7 +74,7 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
         <span className="flex min-w-0 flex-col gap-1">
           <span className="truncate text-primary md:max-w-48">{a.name}</span>
           <span className="flex flex-wrap items-center gap-1.5">
-            <a href={telHref(a.phone)} className="press whitespace-nowrap text-label text-cta">{a.phone}</a>
+            <a href={telHref(a.phone)} className="press whitespace-nowrap text-label text-link">{a.phone}</a>
             {!a.telegramSent && <Badge tone="danger">TG yuborilmadi</Badge>}
           </span>
         </span>
@@ -86,7 +86,7 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
       cell: (a) => {
         const href = safeHref(a.resumeUrl);
         return href ? (
-          <a href={href} target="_blank" rel="noopener noreferrer" className="press inline-flex items-center gap-1 text-label text-cta">
+          <a href={href} target="_blank" rel="noopener noreferrer" className="press inline-flex items-center gap-1 text-label text-link">
             Ochish <ExternalLink aria-hidden className="size-3.5" />
           </a>
         ) : (

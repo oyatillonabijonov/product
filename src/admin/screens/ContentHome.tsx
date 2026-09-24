@@ -13,11 +13,11 @@ const ContentHome: FC = () => (
     footer={(
       <p className="text-para text-muted">
         Bannerlar, yangiliklar va brend logotiplari o'z bo'limlarida:{' '}
-        <Link to="/admin/content/banners" className="press text-cta">Bannerlar</Link>
+        <Link to="/admin/content/banners" className="press text-link">Bannerlar</Link>
         {' · '}
-        <Link to="/admin/content/news" className="press text-cta">Yangiliklar</Link>
+        <Link to="/admin/content/news" className="press text-link">Yangiliklar</Link>
         {' · '}
-        <Link to="/admin/products/brands" className="press text-cta">Brendlar</Link>
+        <Link to="/admin/products/brands" className="press text-link">Brendlar</Link>
       </p>
     )}
   />

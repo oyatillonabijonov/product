@@ -33,8 +33,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href={favicon} type={favicon.endsWith('.svg') ? 'image/svg+xml' : undefined} />
-        {/* Tanlangan tema paint'dan oldin qo'yiladi — aks holda yorug'/qorong'i "chaqnashi" ko'rinadi. */}
-        <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}" }} />
+        {/* Tanlangan tema paint'dan oldin qo'yiladi — aks holda yorug'/qorong'i "chaqnashi" ko'rinadi.
+            Admin mavzusi saytnikidan alohida — `adminTheme` (`src/admin/theme.ts`). */}
+        <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem(/^\\/admin(\\/|$)/.test(location.pathname)?'adminTheme':'theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}" }} />
         {storeData && (
           <>
             {hreflangLinks(location.pathname, storeData.origin ?? '').map((link) => (

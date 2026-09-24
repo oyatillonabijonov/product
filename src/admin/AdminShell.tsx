@@ -2,23 +2,25 @@ import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { Link } from 'react-router';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ChevronDown, ExternalLink, LogOut } from 'lucide-react';
+import { ChevronDown, ExternalLink, LogOut, Moon } from 'lucide-react';
 import logo from '../assets/logo.svg';
 import logoDark from '../assets/hero/wordmark.webp';
 import { SPRING_UI } from '../lib/motion';
 import { adminPath, type AdminRoute, type SectionId } from './lib/admin-path';
 import { SECTIONS, activeTab } from './nav';
+import { useAdminDark } from './theme';
+import { Toggle } from './ui';
 
 /**
  * Qobiq: desktopda chap sidebar (5 bo'lim, har biri ochiladigan-yopiladigan guruh),
  * telefonda iOS pastki tab bar. App Store Connect / macOS Settings naqshi: sidebar `bg-surface`,
- * o'ng hairline. Sukut yorug'; egasi saytda qorong'ini tanlagan bo'lsa tokenlar orqali o'zi
- * qorong'i bo'ladi — shuning uchun `bg-white` yo'q.
+ * o'ng hairline. Sukut yorug'; qorong'i — admin'ning o'z almashtirgichi (sidebar pastida va
+ * Akkaunt'da, `theme.ts`), tokenlar orqali — shuning uchun `bg-white` yo'q.
  *
  * Guruh (2026-09-16, egasining talabi): sukut bo'yicha faqat joriy bo'lim ochiq, qolganlari
  * yig'ilgan; chevron mustaqil ochadi/yopadi, bo'lim nomi esa bo'limga o'tadi va uni ochadi.
  * Ochiq guruh — bitta yaxlit blok (`bg-fill-2/40`): sub-bandlar ota qator bilan bir konteynerda,
- * joriy sub-band `bg-surface` pill + chap chetida `cta` chizig'i. Yopiq holat eslab qolinmaydi.
+ * joriy sub-band `bg-raised` pill + chap chetida `cta` chizig'i. Yopiq holat eslab qolinmaydi.
  */
 const ITEM = 'press flex h-9 items-center gap-3 rounded-xs px-3 text-para';
 const BADGE = 'rounded-full bg-new px-1.5 text-label leading-5 text-bg';
@@ -27,6 +29,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
   const current = SECTIONS.find((s) => s.id === route.section) ?? SECTIONS[0];
   const tab = activeTab(current, route);
   const reduced = useReducedMotion();
+  const [dark, setDark] = useAdminDark();
   // Qo'lda ochib-yopilganlar; yozilmagan bo'lim faqat joriy bo'lsa ochiq.
   const [raw, setOpen] = useState({} as Partial<Record<SectionId, boolean>>);
   const open = raw as Partial<Record<SectionId, boolean>>;
@@ -104,7 +107,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                                   to={adminPath(s.id, t.segment)}
                                   aria-current={on ? 'page' : undefined}
                                   className={`press relative flex h-8 items-center gap-3 rounded-xs pl-2 pr-3 text-label ${
-                                    on ? 'bg-surface text-primary' : 'text-muted hover:text-primary'
+                                    on ? 'bg-raised text-primary' : 'text-muted hover:text-primary'
                                   }`}
                                 >
                                   {on && <span aria-hidden className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-cta" />}
@@ -127,6 +130,11 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
           <a href="/" target="_blank" rel="noopener noreferrer" className={`${ITEM} text-muted hover:text-primary`}>
             <ExternalLink aria-hidden className="size-[18px]" strokeWidth={1.8} /> Saytni ochish
           </a>
+          <div className="flex h-9 items-center gap-3 px-3 text-para text-muted">
+            <Moon aria-hidden className="size-[18px]" strokeWidth={1.8} />
+            <span className="flex-1">Qorong'i mavzu</span>
+            <Toggle on={dark} onChange={setDark} label="Qorong'i mavzu" />
+          </div>
           <button type="button" onClick={onLogout} className={`${ITEM} w-full text-left text-muted hover:text-primary`}>
             <LogOut aria-hidden className="size-[18px]" strokeWidth={1.8} /> Chiqish
           </button>
@@ -148,7 +156,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                 <Link
                   to={adminPath(s.id)}
                   aria-current={active ? 'page' : undefined}
-                  className={`press relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 ${active ? 'text-cta' : 'text-muted'}`}
+                  className={`press relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 ${active ? 'text-link' : 'text-muted'}`}
                 >
                   <Icon aria-hidden className="size-6" strokeWidth={active ? 2 : 1.8} />
                   <span className="text-label leading-none">{s.short}</span>

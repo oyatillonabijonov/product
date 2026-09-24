@@ -90,7 +90,7 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
           <Rows
             rows={[
               { k: 'Ism', v: order.name },
-              { k: 'Telefon', v: <a href={telHref(order.phone)} className="press text-cta">{order.phone}</a> },
+              { k: 'Telefon', v: <a href={telHref(order.phone)} className="press text-link">{order.phone}</a> },
               { k: 'Manba', v: orderSource(order) },
               ...(order.addressText ? [{ k: 'Manzil', v: <span className="whitespace-pre-line">{order.addressText}</span> }] : []),
               ...(order.note ? [{ k: 'Izoh', v: <span className="whitespace-pre-line">{order.note}</span> }] : []),
@@ -103,7 +103,7 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
               {order.items.map((it, i) => (
                 <li key={`${i}-${it.productId}`} className="flex items-start justify-between gap-4 py-3 text-para">
                   <div className="min-w-0">
-                    <Link to={`/admin/products/${it.productId}`} className="press inline-block text-primary hover:text-cta">{it.name}</Link>
+                    <Link to={`/admin/products/${it.productId}`} className="press inline-block text-primary hover:text-link">{it.name}</Link>
                     {it.variantLabel && <p className="text-label text-muted-2">{it.variantLabel}</p>}
                   </div>
                   <div className="shrink-0 text-right tabular-nums">

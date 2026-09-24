@@ -3,12 +3,17 @@ import type { FC } from 'react';
 import { getAccount, updateAccount } from '../api';
 import { errText } from '../errText';
 import SectionTabs from '../SectionTabs';
-import { Button, Card, EmptyState, Field, Input, Page, Skeleton } from '../ui';
+import { useAdminDark } from '../theme';
+import { Button, Card, EmptyState, Field, Input, Page, Skeleton, SwitchRow } from '../ui';
 import { useToast } from '../ui/toast';
 
-/** Sozlamalar → Akkaunt: admin login/paroli va Google bilan kirish. Har o'zgarish joriy parol bilan tasdiqlanadi. */
+/**
+ * Sozlamalar → Akkaunt: admin login/paroli va Google bilan kirish. Har o'zgarish joriy parol bilan tasdiqlanadi.
+ * «Ko'rinish» kartasi formaga kirmaydi — darhol qo'llanadi (telefonda sidebar yo'q, almashtirgich shu yerda).
+ */
 const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }> = ({ defaultPw, onPasswordChanged }) => {
   const toast = useToast();
+  const [dark, setDark] = useAdminDark();
   const [username, setUsername] = useState('');
   const [googleEmail, setGoogleEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -90,6 +95,9 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
                   <Input type="password" value={currentPassword as string} onChange={setCurrentPassword} autoComplete="current-password" />
                 </Field>
               </div>
+            </Card>
+            <Card title="Ko'rinish">
+              <SwitchRow label="Qorong'i mavzu" hint="Faqat admin panelda va faqat shu brauzerda — do'kon sahifalari o'zgarmaydi" on={dark} onChange={setDark} />
             </Card>
           </div>
         )}

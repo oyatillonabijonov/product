@@ -47,12 +47,12 @@ const VacanciesList: FC = () => {
         description="Vakansiyalar sahifasidagi sarlavha, matnlar va 2 ta foto."
         actions={<Button variant="secondary" to={`${LIST}/${VACANCIES_TEXT_ID}`}>Tahrirlash</Button>}
       >
-        <a href="/vakansiyalar" target="_blank" rel="noopener noreferrer" className="press text-para text-cta">Saytda ko'rish</a>
+        <a href="/vakansiyalar" target="_blank" rel="noopener noreferrer" className="press text-para text-link">Saytda ko'rish</a>
       </Card>
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-para text-muted">
           Faol vakansiyalar saytda tartib bo'yicha chiqadi; bittasi ham bo'lmasa umumiy ariza formasi turadi. Nomzodlar arizalari —{' '}
-          <Link to="/admin/orders/applications" className="press text-cta">Ish arizalari</Link>.
+          <Link to="/admin/orders/applications" className="press text-link">Ish arizalari</Link>.
         </p>
         <div className="sm:ml-auto">
           <Button to={`${LIST}/new`}>Yangi vakansiya</Button>

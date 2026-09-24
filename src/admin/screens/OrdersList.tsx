@@ -73,7 +73,7 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
         <span className="flex min-w-0 flex-col gap-1">
           <span className="truncate text-primary md:max-w-48">{o.name}</span>
           <span className="flex flex-wrap items-center gap-1.5">
-            <a href={telHref(o.phone)} className="press whitespace-nowrap text-label text-cta">{o.phone}</a>
+            <a href={telHref(o.phone)} className="press whitespace-nowrap text-label text-link">{o.phone}</a>
             {o.source === 'consult' && <Badge>Konsultatsiya</Badge>}
             {o.source !== 'consult' && o.paymentKind === 'installment' && <Badge tone="info">Muddatli</Badge>}
             {!o.telegramSent && <Badge tone="danger">TG yuborilmadi</Badge>}

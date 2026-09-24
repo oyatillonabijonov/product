@@ -12,10 +12,11 @@ export type ButtonSize = 'md' | 'lg';
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary: 'bg-cta text-white hover:bg-cta-hover',
-  secondary: 'bg-fill-2 text-primary hover:bg-segment',
+  // Hover bir pog'ona: yorug'da to'qlashadi, qorong'ida yorug'lashadi (`segment` yorug'da `fill-2`ga teng, qorong'ida qora edi).
+  secondary: 'bg-fill-2 text-primary hover:bg-divider',
   // Qorong'ida `danger` och qizil — oq matn 2.78:1; `bg` (yorug'da oqish, qorong'ida qora) ikkala mavzuda ≥ 5:1.
   destructive: 'bg-danger text-bg hover:opacity-90',
-  quiet: 'text-cta hover:bg-fill-2',
+  quiet: 'text-link hover:bg-fill-2',
 };
 const SIZE: Record<ButtonSize, string> = {
   md: 'h-11 md:h-9 px-4 rounded-xs text-para',
@@ -62,7 +63,7 @@ const TONE: Record<Tone, string> = {
   attention: 'bg-new/10 text-new',
   ok: 'bg-verified/10 text-verified',
   danger: 'bg-danger/10 text-danger',
-  info: 'bg-cta/10 text-cta',
+  info: 'bg-link/10 text-link',
 };
 const DOT: Record<Tone, string> = {
   neutral: 'bg-muted-3',
@@ -123,7 +124,7 @@ export const Segmented: FC<{
           role="radio"
           aria-checked={o.id === value}
           onClick={() => { if (o.id !== value) onChange(o.id); }}
-          className={`press h-11 whitespace-nowrap rounded-xs px-3.5 text-para md:h-9 ${o.id === value ? 'bg-surface text-primary' : 'text-muted hover:text-primary'}`}
+          className={`press h-11 whitespace-nowrap rounded-xs px-3.5 text-para md:h-9 ${o.id === value ? 'bg-raised text-primary' : 'text-muted hover:text-primary'}`}
         >
           {o.label}
         </button>

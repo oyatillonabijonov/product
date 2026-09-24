@@ -87,12 +87,12 @@ const ApplicationDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id,
           <Rows
             rows={[
               { k: 'Ism', v: item.name },
-              { k: 'Telefon', v: <a href={telHref(item.phone)} className="press text-cta">{item.phone}</a> },
+              { k: 'Telefon', v: <a href={telHref(item.phone)} className="press text-link">{item.phone}</a> },
               { k: 'Lavozim', v: item.position },
               {
                 k: 'Rezyume',
                 v: resume
-                  ? <a href={resume} target="_blank" rel="noopener noreferrer" className="press break-all text-cta">{item.resumeUrl}</a>
+                  ? <a href={resume} target="_blank" rel="noopener noreferrer" className="press break-all text-link">{item.resumeUrl}</a>
                   : '—',
               },
             ]}

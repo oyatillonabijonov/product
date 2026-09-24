@@ -401,7 +401,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                       <PriceInput placeholder="Narx" className={INPUT_CLS} value={v.cashPriceUzs} onChange={(n) => updateVariant(i, { cashPriceUzs: n })} />
                     </div>
                     {v.imageUrl && <img src={v.imageUrl} alt="" className="size-10 rounded-xs border border-line bg-white object-contain" />}
-                    <label className={`press cursor-pointer text-label ${busyRow === i ? 'text-muted' : 'text-cta'}`}>
+                    <label className={`press cursor-pointer text-label ${busyRow === i ? 'text-muted' : 'text-link'}`}>
                       {busyRow === i ? 'Yuklanmoqda…' : v.imageUrl ? 'Rasmni almashtirish' : '+ rasm'}
                       <input
                         type="file"

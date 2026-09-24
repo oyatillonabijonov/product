@@ -45,7 +45,7 @@ export const Page: FC<{
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             {back && (
-              <Link to={back} className="press mb-1 inline-flex items-center gap-0.5 text-label text-cta">
+              <Link to={back} className="press mb-1 inline-flex items-center gap-0.5 text-label text-link">
                 <ChevronLeft aria-hidden className="size-4" /> Orqaga
               </Link>
             )}
@@ -103,7 +103,7 @@ export const Tabs: FC<{ items: { id: string; label: string; to: string }[]; acti
             to={it.to}
             aria-current={it.id === active ? 'page' : undefined}
             className={`press flex h-11 items-center whitespace-nowrap rounded-xs px-3.5 text-para md:h-9 ${
-              it.id === active ? 'bg-surface text-primary' : 'text-muted hover:text-primary'
+              it.id === active ? 'bg-raised text-primary' : 'text-muted hover:text-primary'
             }`}
           >
             {it.label}

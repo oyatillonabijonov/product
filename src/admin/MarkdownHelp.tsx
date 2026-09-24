@@ -13,7 +13,7 @@ const ROWS: [string, string][] = [
 /** Markdown maydoni ostidagi yig'ma yordam. */
 const MarkdownHelp: FC = () => (
   <details className="text-label text-muted">
-    <summary className="press w-fit cursor-pointer text-cta">Matn qanday yoziladi</summary>
+    <summary className="press w-fit cursor-pointer text-link">Matn qanday yoziladi</summary>
     <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
       {ROWS.map(([code, text]) => (
         <div key={code} className="contents">

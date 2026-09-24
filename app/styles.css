@@ -80,6 +80,8 @@
      ~1.19 — oq karta ustida ham, sahifada ham ko'rinadi. */
   --color-row-alt: #E1E4EA;
   --color-fill-2: #E3E6EC;
+  /* `fill-2` ustidagi tanlov: segment, tab, sidebar joriy bandi — yorug'da oq plitka. */
+  --color-raised: #FFFFFF;
   --color-line: #DCDFE4;
   --color-line-2: #E6E9EE;
   --color-line-3: #EDEFF2;
@@ -143,6 +145,9 @@
   --color-trust-soft: #2F2F31;
   --color-row-alt: #28282A;
   --color-fill-2: #2C2C2E;       /* iOS tertiarySystemBackground — hover to'ldirmasi */
+  /* iOS segment tanlovi (systemGray3). `surface` bu yerda `fill-2`dan to'q — tanlov
+     unda "chuqurcha" bo'lib qolardi; tanlov ikkala mavzuda ham fondan ko'tariladi. */
+  --color-raised: #48484A;
   /* Chiziqlar zinapoyasi karta ustida (dL): line-3 0.030 · line-2 0.082 ·
      divider 0.102 · line 0.137. Hammasi kartadan **yorug'roq** — to'q fonda
      hairline faqat shunda ko'rinadi. */
