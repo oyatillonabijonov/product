@@ -170,3 +170,120 @@ export function detailToInput(d: ApiProductDetail): ProductInputBody {
     manualFields: d.manualFields,
   };
 }
+
+// ─── Variant narxlari ─────────────────────────────────────────────────────────
+//
+// Variantli tovarda saytda **variant narxi** ko'rinadi (`minPriceUzs` = mavjud variantlarning
+// eng arzoni), tovarning asosiy `cashPriceUzs`i esa faqat zaxira. Ilgari `product_update`
+// faqat asosiy narxni o'zgartirardi — yozuv muvaffaqiyatli bo'lardi-yu, saytda hech narsa
+// o'zgarmasdi (2026-09-24, iPhone 18 Pro). Quyidagilar narxni variantlar bo'yicha qo'yadi va
+// natijani do'kon egasi mijoz oldida o'qib bera oladigan sodda tilda aytadi.
+
+export interface PriceRow { label: string; price: number }
+
+export interface PriceGroups {
+  /** Narxni yolg'iz o'zi belgilaydigan tanlov ("Xotira"); topilmasa `null` — har variant alohida. */
+  by: string | null;
+  /** Narxga ta'sir qilmaydigan qolgan tanlovlar ("Rang"). */
+  others: string[];
+  rows: PriceRow[];
+}
+
+const sortBy = <T extends { sortOrder: number }>(xs: readonly T[]): T[] => [...xs].sort((a, b) => a.sortOrder - b.sortOrder);
+
+/**
+ * Narxni qaysi tanlov belgilashini topadi: shu tanlovning har qiymatidagi hamma variant bir xil
+ * narxda bo'lsa, o'sha qiymatlar bo'yicha qator chiqariladi — 16 variant o'rniga 4 qator.
+ * Bunday tanlov yo'q bo'lsa har variant «256GB / Black» ko'rinishida alohida.
+ */
+export function variantPriceGroups(d: ApiProductDetail): PriceGroups {
+  const options = sortBy(d.options);
+  for (const o of options) {
+    const rows: PriceRow[] = [];
+    let determines = true;
+    for (const v of sortBy(o.values)) {
+      const prices = new Set(d.variants.filter((x) => x.optionValueIds.includes(v.id)).map((x) => x.cashPriceUzs));
+      if (prices.size === 0) continue;
+      if (prices.size > 1) { determines = false; break; }
+      rows.push({ label: v.value, price: [...prices][0] });
+    }
+    if (determines && rows.length > 0) {
+      return { by: o.name, others: options.filter((x) => x !== o).map((x) => x.name), rows };
+    }
+  }
+  return { by: null, others: [], rows: sortBy(d.variants).map((v) => ({ label: variantLabel(d, v.optionValueIds), price: v.cashPriceUzs })) };
+}
+
+function variantLabel(d: ApiProductDetail, ids: string[]): string {
+  const parts: string[] = [];
+  for (const o of sortBy(d.options)) {
+    const hit = o.values.find((v) => ids.includes(v.id));
+    if (hit) parts.push(hit.value);
+  }
+  return parts.join(' / ');
+}
+
+/** "256 GB" va "256gb" bir narsa — egasi og'zaki aytadi. */
+const norm = (s: string) => s.toLowerCase().replace(/\s+/g, '');
+
+/**
+ * Narxni qiymat bo'yicha qo'yadi: «256GB — 150» shu qiymatli **hamma** variantga (hamma rangga)
+ * tushadi. Asl tovar o'zgarmaydi, yangi nusxa qaytadi. Noma'lum qiymat yoki bitta variantga
+ * ikki xil narx tushsa — hech narsa qo'yilmaydi, sababi sodda tilda aytiladi.
+ */
+export function applyVariantPrices(d: ApiProductDetail, updates: { value: string; price: number }[]): ApiProductDetail {
+  const matched = updates.map((u) => {
+    const ids = d.options.flatMap((o) => o.values).filter((v) => norm(v.value) === norm(u.value)).map((v) => v.id);
+    if (ids.length === 0) {
+      const have = sortBy(d.options).map((o) => `${o.name}: ${sortBy(o.values).map((v) => v.value).join(', ')}`).join('; ');
+      throw new Error(`«${u.value}» topilmadi. Bu tovarda bor variantlar — ${have}.`);
+    }
+    return { ...u, ids };
+  });
+
+  const variants = d.variants.map((v) => {
+    const hits = matched.filter((m) => m.ids.some((id) => v.optionValueIds.includes(id)));
+    const prices = new Set(hits.map((h) => h.price));
+    if (prices.size > 1) {
+      throw new Error(`«${variantLabel(d, v.optionValueIds)}» ga ikki xil narx to'g'ri keldi (${hits.map((h) => h.value).join(' va ')}). Bittasini ayting.`);
+    }
+    return prices.size === 1 ? { ...v, cashPriceUzs: [...prices][0] } : v;
+  });
+  return { ...d, variants };
+}
+
+/** Saytdagi «… dan» narx: mavjud variantlarning eng arzoni, hammasi tugagan bo'lsa — hammasining. */
+export function displayedPrice(d: ApiProductDetail): number {
+  const inStock = d.variants.filter((v) => v.inStock);
+  const pool = inStock.length > 0 ? inStock : d.variants;
+  return Math.min(...pool.map((v) => v.cashPriceUzs));
+}
+
+const som = (n: number) => `${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} so'm`;
+
+/** Variantli tovarga oddiy narx buyurilganda: hech narsa yozilmaydi, egasiga tanlov beriladi. */
+export function priceAskText(d: ApiProductDetail): string {
+  const g = variantPriceGroups(d);
+  const lines = [
+    "Hech narsa o'zgartirilmadi — avval qaysi variant ekanini aniqlab olaylik.",
+    `${d.name} bir nechta variantda sotiladi, har birining o'z narxi bor:`,
+    ...g.rows.map((r) => `• ${r.label} — ${som(r.price)}`),
+  ];
+  if (g.by && g.others.length) lines.push(`${g.others.join(' va ')} narxga ta'sir qilmaydi.`);
+  lines.push(`Qaysi ${g.by ? g.by.toLowerCase() : 'variant'}ning narxini o'zgartiray?`);
+  return lines.join('\n');
+}
+
+/** Narx qo'yilgandan keyin: nima o'zgargani va saytda endi nima ko'rinishi — kutilmagan narsa bo'lmasin. */
+export function priceChangeSummary(before: ApiProductDetail, after: ApiProductDetail): string {
+  const was = new Map(variantPriceGroups(before).rows.map((r) => [r.label, r.price]));
+  const g = variantPriceGroups(after);
+  const lines = ["Narx o'zgardi.", ...g.rows.map((r) => {
+    const old = was.get(r.label);
+    return `• ${r.label} — ${som(r.price)}${old !== undefined && old !== r.price ? ` (avval ${som(old).replace(" so'm", '')})` : ''}`;
+  })];
+  const shown = displayedPrice(after);
+  const cheapest = g.rows.find((r) => r.price === shown);
+  lines.push('', `Saytda endi «${som(shown)} dan» ko'rinadi${cheapest ? ` — eng arzoni: ${cheapest.label}` : ''}.`);
+  return lines.join('\n');
+}

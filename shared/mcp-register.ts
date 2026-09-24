@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import type { ApiAdminBrand, ApiCategory, ApiProduct, ApiProductDetail, ApiProductType } from './types.ts';
-import { catalogStats, incompleteProducts, manualFieldsFor, detailToInput, type ProductPatch } from './mcp-tools.ts';
+import {
+  catalogStats, incompleteProducts, manualFieldsFor, detailToInput, type ProductPatch,
+  applyVariantPrices, displayedPrice, priceAskText, priceChangeSummary,
+} from './mcp-tools.ts';
 import { isSafeImageUrl, tooLarge } from './mcp-image.ts';
 import type { AdminClient } from './mcp-client.ts';
 
@@ -133,22 +136,42 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
   });
 
   server.registerTool('product_update', {
-    description: "Mavjud tovarni yangilaydi. Billz tovarida tegilgan maydon uchun «Qo'lda tahrirlash» qulfi avtomatik yoqiladi, aks holda 30 daqiqada Billz qiymati qaytadi.",
+    description: "Mavjud tovarni yangilaydi. Billz tovarida tegilgan maydon uchun «Qo'lda tahrirlash» qulfi avtomatik yoqiladi, aks holda 30 daqiqada Billz qiymati qaytadi.\n\n"
+      + "NARX: variantsiz tovarda `cashPriceUzs` bilan. **Variantli tovarda** (xotira/rang bo'yicha har xil narx) saytda variant narxi ko'rinadi — "
+      + "`cashPriceUzs` yuborsangiz hech narsa yozilmaydi va tool hozirgi narxlar ro'yxatini qaytaradi: uni egasiga sodda qilib o'qib bering va qaysi variant ekanini so'rang. "
+      + "Javob kelgach `variantPrices` bilan qo'ying, masalan [{ value: '256GB', price: 25000000 }] — narx o'sha qiymatli hamma variantga (hamma rangga) tushadi. "
+      + "Tool javobidagi «Saytda endi … ko'rinadi» qatorini ham albatta aytib bering — egasi natijani oldindan bilishi kerak.",
     inputSchema: {
       id: z.string(),
       name: z.string().optional(),
       description: z.string().optional(),
       cashPriceUzs: z.number().int().positive().optional(),
+      variantPrices: z.array(z.object({ value: z.string(), price: z.number().int().positive() })).min(1).optional(),
       specs: z.array(z.object({ label: z.string(), value: z.string() })).optional(),
     },
   }, async (args: unknown) => {
-    const parsed = args as { id: string } & ProductPatch;
-    const { id, ...patch } = parsed;
+    const parsed = args as { id: string; variantPrices?: { value: string; price: number }[] } & ProductPatch;
+    const { id, variantPrices, ...patch } = parsed;
     const current = await api.get<ApiProductDetail>(`/api/admin/products/${id}`);
-    const manualFields = current.billzId ? manualFieldsFor(current.manualFields, patch) : current.manualFields;
-    await api.write(`/api/admin/products/${id}`, 'PUT', { ...detailToInput(current), ...patch, manualFields }, 'product_update');
+    const hasVariants = current.variants.length > 0;
+
+    // Variantli tovarda asosiy narx saytda ko'rinmaydi — uni jimgina yozib «Saqlandi» deyish
+    // mijoz oldida yolg'on muvaffaqiyat edi. Hech narsa yozmaymiz, tanlov beramiz.
+    if (hasVariants && patch.cashPriceUzs !== undefined && !variantPrices) return text(priceAskText(current));
+    if (!hasVariants && variantPrices) {
+      throw new Error("Bu tovarda xotira yoki rang variantlari yo'q — narxni `cashPriceUzs` bilan o'zgartiring.");
+    }
+
+    // Variant narxlari: asosiy narx saytdagi «… dan» narxga tenglanadi, `patch.cashPriceUzs` e'tiborga olinmaydi.
+    const next = variantPrices ? applyVariantPrices(current, variantPrices) : current;
+    const effective: ProductPatch = variantPrices ? { ...patch, cashPriceUzs: displayedPrice(next) } : patch;
+    const manualFields = current.billzId ? manualFieldsFor(current.manualFields, effective) : current.manualFields;
+    await api.write(`/api/admin/products/${id}`, 'PUT', { ...detailToInput(next), ...effective, manualFields }, 'product_update');
+
+    const link = `${opts.adminUrl}/admin/products/${id}`;
+    if (variantPrices) return text(`${priceChangeSummary(current, next)}\n${link}`);
     const locked = current.billzId && manualFields.length > current.manualFields.length;
-    return text(`Saqlandi: ${opts.adminUrl}/admin/products/${id}${locked ? '\nBillz tovari — tegilgan maydonlar endi qo\'lda boshqariladi.' : ''}`);
+    return text(`Saqlandi: ${link}${locked ? '\nBillz tovari — tegilgan maydonlar endi qo\'lda boshqariladi.' : ''}`);
   });
 
   server.registerTool('product_set_images', {
