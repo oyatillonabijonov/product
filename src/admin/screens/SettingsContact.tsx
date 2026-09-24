@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ContentFields, useSiteContent } from '../ContentFields';
 import { errText } from '../errText';
 import { phoneFromDisplay } from '../../lib/phone';
@@ -10,6 +11,7 @@ import { useToast } from '../ui/toast';
 
 /** Sozlamalar → Aloqa: telefon, ijtimoiy havolalar, xarita koordinatasi va manzil/ish vaqti matnlari (`contact` guruhi). */
 const SettingsContact: FC = () => {
+  const { t } = useTranslation('settings');
   const cfg = useSiteConfig();
   const content = useSiteContent('contact');
   const toast = useToast();
@@ -21,7 +23,7 @@ const SettingsContact: FC = () => {
     try {
       if (cfg.dirty) await cfg.save();
       if (content.dirty) await content.save();
-      toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
+      toast(t('shared.savedLive'));
     } catch (e) {
       toast(errText(e), 'error');
     } finally {
@@ -41,35 +43,35 @@ const SettingsContact: FC = () => {
 
   return (
     <Page
-      title="Aloqa"
-      description="Footer va aloqa tugmalarida chiqadigan ma'lumotlar. Matn maydoni bo'shatilsa standart qaytadi."
+      title={t('contact.title')}
+      description={t('contact.description')}
       dirty={dirty}
-      actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
+      actions={<Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>}
     >
       <SectionTabs section="settings" active="contact" />
-      {error ? <EmptyState title="Sozlamalar yuklanmadi" text={error} />
+      {error ? <EmptyState title={t('shared.loadErrorTitle')} text={error} />
         : !config || !content.loaded ? <Skeleton rows={8} />
         : (
           <div className="flex flex-col gap-4">
-            <Card title="Telefon va ijtimoiy tarmoqlar" description="Bo'sh qoldirilgan havola saytda chiqmaydi.">
+            <Card title={t('contact.social.title')} description={t('contact.social.description')}>
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Telefon" required error={config.phone === '' ? 'Telefon majburiy' : undefined} hint={`Saytda shunday chiqadi; bosilganda ${config.phone || '—'} raqamiga qo'ng'iroq ochiladi`}>
+                <Field label={t('contact.phone.label')} required error={config.phone === '' ? t('contact.phone.required') : undefined} hint={t('contact.phone.hint', { phone: config.phone || '—' })}>
                   <Input value={config.phoneDisplay} onChange={setPhone} placeholder="+998 (90) 123-45-67" />
                 </Field>
-                <Field label="Telegram" hint="https://t.me/… yoki / bilan boshlanadigan yo'l">
+                <Field label="Telegram" hint={t('contact.telegram.hint')}>
                   <Input value={config.telegram} onChange={(v) => cfg.set('telegram', v)} placeholder="https://t.me/username" />
                 </Field>
                 <Field label="Instagram">
                   <Input value={config.instagram} onChange={(v) => cfg.set('instagram', v)} placeholder="https://instagram.com/username" />
                 </Field>
-                <Field label="WhatsApp" hint="To'ldirilsa mobil aloqa tugmasida WhatsApp chiqadi">
+                <Field label="WhatsApp" hint={t('contact.whatsapp.hint')}>
                   <Input value={config.whatsapp} onChange={(v) => cfg.set('whatsapp', v)} placeholder="https://wa.me/998901234567" />
                 </Field>
               </div>
             </Card>
-            <Card title="Xarita" description="Footer'dagi «Xaritada ko'rish» havolasi shu koordinataga olib boradi.">
+            <Card title={t('contact.map.title')} description={t('contact.map.description')}>
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Koordinata" hint="Yandex Xaritada do'konni toping → o'ng tugma → koordinatani nusxalang (lon,lat)">
+                <Field label={t('contact.map.coordLabel')} hint={t('contact.map.coordHint')}>
                   <Input value={config.mapLl} onChange={(v) => cfg.set('mapLl', v)} placeholder="69.240562,41.311081" />
                 </Field>
               </div>

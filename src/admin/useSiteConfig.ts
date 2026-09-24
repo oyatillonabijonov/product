@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ApiSiteConfig } from '../../shared/types';
 import { getSiteConfig, updateSiteConfig } from './api';
 
@@ -19,6 +20,7 @@ export interface SiteConfigState {
  * Bitta admin nazarda tutilgan: ikki tabda (yoki ikki qurilmada) parallel tahrirda oxirgi saqlash butun qatorni yozadi.
  */
 export function useSiteConfig(): SiteConfigState {
+  const { t } = useTranslation('settings');
   const [rawConfig, setConfig] = useState(null as ApiSiteConfig | null);
   const config = rawConfig as ApiSiteConfig | null;
   // Saqlangan holat — `dirty` shu bilan solishtirishdan chiqadi, aks holda qiymat asliga qaytsa ham "o'zgargan" bo'lib qolardi.
@@ -29,7 +31,7 @@ export function useSiteConfig(): SiteConfigState {
   useEffect(() => {
     getSiteConfig()
       .then((c) => { setConfig(c); setSaved(JSON.stringify(c)); })
-      .catch(() => setError("Sahifani yangilab qayta urinib ko'ring"));
+      .catch(() => setError(t('shared.retryLoad')));
   }, []);
 
   return {

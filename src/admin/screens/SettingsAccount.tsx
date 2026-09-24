@@ -35,7 +35,7 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
         setBase({ username: a.username, googleEmail: a.adminGoogleEmail });
         setLoaded(true);
       })
-      .catch(() => setError("Sahifani yangilab qayta urinib ko'ring"));
+      .catch(() => setError(t('shared.retryLoad')));
   }, []);
 
   async function save() {
@@ -52,7 +52,7 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
       setNewPassword('');
       // Server bo'sh loginni o'tkazib yuboradi va emailni kichik harfga o'tkazadi — asl qiymat ham shunday bo'lsin.
       setBase({ username: (username as string).trim() || base.username, googleEmail: (googleEmail as string).trim().toLowerCase() });
-      toast('Saqlandi · keyingi kirishda yangi maʼlumotlardan foydalaning');
+      toast(t('account.saved'));
       if (changedPassword) onPasswordChanged();
     } catch (e) {
       toast(errText(e), 'error');
@@ -68,39 +68,39 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
 
   return (
     <Page
-      title="Akkaunt"
-      description="Admin panelga kirish maʼlumotlari. O'zgartirish uchun joriy parolni kiriting."
+      title={t('account.title')}
+      description={t('account.description')}
       dirty={dirty}
-      actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
+      actions={<Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>}
     >
       <SectionTabs section="settings" active="account" />
-      {error ? <EmptyState title="Ma'lumot yuklanmadi" text={error} />
+      {error ? <EmptyState title={t('account.loadErrorTitle')} text={error} />
         : !loaded ? <Skeleton rows={5} />
         : (
           <div className="flex flex-col gap-4">
             {defaultPw && (
-              <Card title="Standart parol ishlatilmoqda" description="Panelga «admin» paroli bilan kirilgan — hoziroq yangi parol qo'ying.">
-                <p className="text-para text-danger">Parol o'zgartirilgach barcha ochiq sessiyalar bekor bo'ladi.</p>
+              <Card title={t('account.defaultPw.title')} description={t('account.defaultPw.description')}>
+                <p className="text-para text-danger">{t('account.defaultPw.warning')}</p>
               </Card>
             )}
-            <Card title="Kirish maʼlumotlari">
+            <Card title={t('account.credentials.title')}>
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Login" hint="Kamida 3 belgi">
+                <Field label={t('account.credentials.loginLabel')} hint={t('account.credentials.loginHint')}>
                   <Input value={username as string} onChange={setUsername} autoComplete="username" />
                 </Field>
-                <Field label="Yangi parol" hint="Bo'sh qoldirsangiz parol o'zgarmaydi; kamida 8 belgi">
+                <Field label={t('account.credentials.newPasswordLabel')} hint={t('account.credentials.newPasswordHint')}>
                   <Input type="password" value={newPassword as string} onChange={setNewPassword} autoComplete="new-password" placeholder="••••••" />
                 </Field>
-                <Field label="Google email" hint="Shu Google akkaunt «Google bilan kirish» orqali panelga kira oladi; bo'sh qolsa o'chiq">
-                  <Input type="email" value={googleEmail as string} onChange={setGoogleEmail} placeholder="siz@gmail.com" />
+                <Field label={t('account.credentials.googleEmailLabel')} hint={t('account.credentials.googleEmailHint')}>
+                  <Input type="email" value={googleEmail as string} onChange={setGoogleEmail} placeholder={t('account.credentials.googleEmailPlaceholder')} />
                 </Field>
-                <Field label="Joriy parol" required hint="Har qanday o'zgarishni tasdiqlaydi">
+                <Field label={t('account.credentials.currentPasswordLabel')} required hint={t('account.credentials.currentPasswordHint')}>
                   <Input type="password" value={currentPassword as string} onChange={setCurrentPassword} autoComplete="current-password" />
                 </Field>
               </div>
             </Card>
-            <Card title="Ko'rinish">
-              <SwitchRow label="Qorong'i mavzu" hint="Faqat admin panelda va faqat shu brauzerda — do'kon sahifalari o'zgarmaydi" on={dark} onChange={setDark} />
+            <Card title={t('account.appearance.title')}>
+              <SwitchRow label={t('account.darkTheme')} hint={t('account.darkThemeHint')} on={dark} onChange={setDark} />
               <div className="flex items-center justify-between gap-4 py-3">
                 <p className="text-para text-primary">{t('account.language')}</p>
                 <LangSwitch label={t('account.language')} />

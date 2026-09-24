@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import type { FC } from 'react';
+import type { ParseKeys } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import type { PaymentMode } from '../../../shared/types';
 import { ContentFields, useSiteContent } from '../ContentFields';
 import { errText } from '../errText';
@@ -8,14 +10,15 @@ import { useSiteConfig } from '../useSiteConfig';
 import { Button, Card, EmptyState, Field, Input, Page, Segmented, Skeleton } from '../ui';
 import { useToast } from '../ui/toast';
 
-const MODES = [
-  { id: 'cash', label: 'Faqat naqd' },
-  { id: 'both', label: "Naqd + muddatli" },
-  { id: 'installment', label: 'Faqat muddatli' },
+const MODES: { id: string; labelKey: ParseKeys<'settings'> }[] = [
+  { id: 'cash', labelKey: 'store.modes.cash' },
+  { id: 'both', labelKey: 'store.modes.both' },
+  { id: 'installment', labelKey: 'store.modes.installment' },
 ];
 
 /** Sozlamalar → Do'kon: nom, narx rejimi, logolar va favicon, mahsulot sahifasidagi va'dalar (`store` guruhi). */
 const SettingsStore: FC = () => {
+  const { t } = useTranslation('settings');
   const cfg = useSiteConfig();
   const content = useSiteContent('store');
   const toast = useToast();
@@ -27,7 +30,7 @@ const SettingsStore: FC = () => {
     try {
       if (cfg.dirty) await cfg.save();
       if (content.dirty) await content.save();
-      toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
+      toast(t('shared.savedLive'));
     } catch (e) {
       toast(errText(e), 'error');
     } finally {
@@ -41,35 +44,35 @@ const SettingsStore: FC = () => {
 
   return (
     <Page
-      title="Do'kon"
-      description="Do'kon nomi, narx rejimi, logolar va mahsulot sahifasidagi va'dalar. Matn maydoni bo'shatilsa standart qaytadi."
+      title={t('store.title')}
+      description={t('store.description')}
       dirty={dirty}
-      actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
+      actions={<Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>}
     >
       <SectionTabs section="settings" active="store" />
-      {error ? <EmptyState title="Sozlamalar yuklanmadi" text={error} />
+      {error ? <EmptyState title={t('shared.loadErrorTitle')} text={error} />
         : !config || !content.loaded ? <Skeleton rows={8} />
         : (
           <div className="flex flex-col gap-4">
-            <Card title="Do'kon">
+            <Card title={t('store.title')}>
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Do'kon nomi" required error={config.name.trim() === '' ? "Nomi majburiy" : undefined} hint="Sayt sarlavhasida, footer'da va Telegram xabarlarida chiqadi">
+                <Field label={t('store.name.label')} required error={config.name.trim() === '' ? t('store.name.required') : undefined} hint={t('store.name.hint')}>
                   <Input value={config.name} onChange={(v) => cfg.set('name', v)} />
                 </Field>
               </div>
               <div className="mt-4">
-                <p className="mb-1.5 text-label font-medium text-muted">Narx ko'rsatish rejimi</p>
+                <p className="mb-1.5 text-label font-medium text-muted">{t('store.paymentMode.label')}</p>
                 <Segmented
-                  label="Narx ko'rsatish rejimi"
+                  label={t('store.paymentMode.label')}
                   value={config.paymentMode}
                   onChange={(v) => cfg.set('paymentMode', v as PaymentMode)}
-                  options={MODES}
+                  options={MODES.map((m) => ({ id: m.id, label: t(m.labelKey) }))}
                 />
-                <p className="mt-1 text-label text-muted-2">Mahsulot narxi qanday ko'rsatiladi. «Faqat naqd» — oylik to'lov qatori va muddatli tugma chiqmaydi.</p>
+                <p className="mt-1 text-label text-muted-2">{t('store.paymentMode.hint')}</p>
               </div>
             </Card>
-            <ContentFields content={content} only={['Logo va favicon']} />
-            <ContentFields content={content} only={['Mahsulot sahifasi', 'Buyurtma va cookie']} />
+            <ContentFields content={content} only={['logo']} />
+            <ContentFields content={content} only={['productPage', 'orderCookie']} />
           </div>
         )}
     </Page>

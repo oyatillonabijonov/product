@@ -10,6 +10,7 @@ const common = {
   ruHint: "Bo'sh qolsa o'zbekchasi chiqadi",
   shownOnSite: "Saytda ko'rsatildi",
   hidden: 'Yashirildi',
+  errorGeneric: 'Xatolik yuz berdi',
   unsavedChanges: {
     title: "Saqlanmagan o'zgarishlar bor",
     message: "Chiqilsa o'zgarishlar yo'qoladi.",

@@ -12,6 +12,7 @@ const common: Dict<typeof uz> = {
   ruHint: 'Если оставить пустым — будет показан узбекский текст',
   shownOnSite: 'Показано на сайте',
   hidden: 'Скрыто',
+  errorGeneric: 'Произошла ошибка',
   unsavedChanges: {
     title: 'Есть несохранённые изменения',
     message: 'При выходе изменения будут потеряны.',

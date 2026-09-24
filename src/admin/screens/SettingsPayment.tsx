@@ -17,7 +17,7 @@ const SAMPLE = 10_000_000;
 
 /** Sozlamalar → To'lov va kurs: boshlang'ich to'lov, muddatlar va ustama, dollar kursi. */
 const SettingsPayment: FC = () => {
-  const sum = useTranslation('common').t('sum');
+  const { t } = useTranslation(['settings', 'common']);
   const toast = useToast();
   const [rawSettings, setSettings] = useState(null as ApiSettings | null);
   const settings = rawSettings as ApiSettings | null;
@@ -26,7 +26,7 @@ const SettingsPayment: FC = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    getSettings().then(setSettings).catch(() => setError("Sahifani yangilab qayta urinib ko'ring"));
+    getSettings().then(setSettings).catch(() => setError(t('shared.retryLoad')));
   }, []);
 
   const patch = (fn: (prev: ApiSettings) => ApiSettings) => {
@@ -34,7 +34,7 @@ const SettingsPayment: FC = () => {
     setDirty(true);
   };
   const setTerm = (i: number, key: keyof Term, value: number) =>
-    patch((prev) => ({ ...prev, terms: prev.terms.map((t, j) => (j === i ? { ...t, [key]: value } : t)) }));
+    patch((prev) => ({ ...prev, terms: prev.terms.map((term, j) => (j === i ? { ...term, [key]: value } : term)) }));
 
   async function save() {
     if (!settings) return;
@@ -43,7 +43,7 @@ const SettingsPayment: FC = () => {
       // Kursni server hisoblaydi (ustama kiritilgan bo'lsa) — formaga saqlangan holat qaytadi.
       setSettings(await updateSettings(settings));
       setDirty(false);
-      toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
+      toast(t('shared.savedLive'));
     } catch (e) {
       toast(errText(e), 'error');
     } finally {
@@ -55,80 +55,82 @@ const SettingsPayment: FC = () => {
 
   return (
     <Page
-      title="To'lov va kurs"
-      description="Muddatli to'lov kalkulyatori va Billz narxlari uchun dollar kursi."
+      title={t('payment.title')}
+      description={t('payment.description')}
       dirty={dirty as boolean}
-      actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
+      actions={<Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>}
     >
       <SectionTabs section="settings" active="payment" />
-      {error ? <EmptyState title="Sozlamalar yuklanmadi" text={error} />
+      {error ? <EmptyState title={t('shared.loadErrorTitle')} text={error} />
         : !settings ? <Skeleton rows={8} />
         : (
           <div className="flex flex-col gap-4">
-            <Card title="Boshlang'ich to'lov" description="Mahsulot sahifasidagi slayder shu oraliqda suriladi.">
+            <Card title={t('payment.down.title')} description={t('payment.down.description')}>
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Eng kam (%)" hint="Sukut bo'yicha shu foiz hisoblanadi">
+                <Field label={t('payment.down.minLabel')} hint={t('payment.down.minHint')}>
                   <Input type="number" value={String(settings.downPaymentPercent)} onChange={(v) => patch((p) => ({ ...p, downPaymentPercent: Number(v) || 0 }))} />
                 </Field>
-                <Field label="Eng ko'p (%)" hint="Eng kamdan katta va 100 dan kichik bo'lsin">
+                <Field label={t('payment.down.maxLabel')} hint={t('payment.down.maxHint')}>
                   <Input type="number" value={String(settings.downPaymentMaxPercent)} onChange={(v) => patch((p) => ({ ...p, downPaymentMaxPercent: Number(v) || 0 }))} />
                 </Field>
               </div>
             </Card>
 
-            <Card title="Muddatlar va ustama" description={`Oylik to'lov namunasi ${formatSum(SAMPLE, sum)} narxli mahsulot uchun.`}>
+            <Card title={t('payment.terms.title')} description={t('payment.sampleNote', { price: formatSum(SAMPLE, t('common:sum')) })}>
               <div className="flex flex-col gap-3">
-                {settings.terms.map((t, i) => (
+                {settings.terms.map((term, i) => (
                   <div key={i} className="flex flex-wrap items-center gap-3">
                     <label className="flex items-center gap-2 text-para text-muted">
-                      <span className="w-14">Muddat</span>
-                      <span className="w-24"><Input type="number" value={String(t.months)} onChange={(v) => setTerm(i, 'months', Number(v) || 0)} /></span>
-                      oy
+                      <span className="w-14">{t('payment.terms.monthsLabel')}</span>
+                      <span className="w-24"><Input type="number" value={String(term.months)} onChange={(v) => setTerm(i, 'months', Number(v) || 0)} /></span>
+                      {t('payment.terms.monthsUnit')}
                     </label>
                     <label className="flex items-center gap-2 text-para text-muted">
-                      <span className="w-14">Ustama</span>
-                      <span className="w-24"><Input type="number" value={String(Math.round(t.markup * 100))} onChange={(v) => setTerm(i, 'markup', (Number(v) || 0) / 100)} /></span>
+                      <span className="w-14">{t('payment.terms.markupLabel')}</span>
+                      <span className="w-24"><Input type="number" value={String(Math.round(term.markup * 100))} onChange={(v) => setTerm(i, 'markup', (Number(v) || 0) / 100)} /></span>
                       %
                     </label>
-                    <span className="text-para text-primary">{formatSum(monthlyPayment(SAMPLE, t, SAMPLE * (settings.downPaymentPercent / 100)), sum)}/oy</span>
+                    <span className="text-para text-primary">
+                      {t('payment.perMonth', { sum: formatSum(monthlyPayment(SAMPLE, term, SAMPLE * (settings.downPaymentPercent / 100)), t('common:sum')) })}
+                    </span>
                     <span className="ml-auto">
-                      <Button variant="quiet" ariaLabel={`${t.months} oylik muddatni o'chirish`} onClick={() => patch((p) => ({ ...p, terms: p.terms.filter((_, j) => j !== i) }))}>
+                      <Button variant="quiet" ariaLabel={t('payment.terms.removeAria', { months: term.months })} onClick={() => patch((p) => ({ ...p, terms: p.terms.filter((_, j) => j !== i) }))}>
                         <X aria-hidden className="size-4" />
                       </Button>
                     </span>
                   </div>
                 ))}
-                {settings.terms.length === 0 && <p className="text-para text-danger">Kamida bitta muddat kerak — aks holda saqlab bo'lmaydi.</p>}
+                {settings.terms.length === 0 && <p className="text-para text-danger">{t('payment.terms.emptyWarning')}</p>}
                 <div>
-                  <Button variant="secondary" onClick={() => patch((p) => ({ ...p, terms: [...p.terms, { months: 12, markup: 0 }] }))}>Muddat qo'shish</Button>
+                  <Button variant="secondary" onClick={() => patch((p) => ({ ...p, terms: [...p.terms, { months: 12, markup: 0 }] }))}>{t('payment.terms.add')}</Button>
                 </div>
               </div>
             </Card>
 
-            <Card title="Dollar kursi" description="Billz narxlari USD'da keladi; saytdagi so'm narxlar shu kurs bilan hisoblanadi.">
+            <Card title={t('payment.usd.title')} description={t('payment.usd.description')}>
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Ustama (%)" hint="Bo'sh qoldirsangiz kurs qo'lda kiritiladi; kiritilsa Markaziy bank kursiga qo'shiladi va har 6 soatda yangilanadi">
+                <Field label={t('payment.usd.markupLabel')} hint={t('payment.usd.markupHint')}>
                   <Input
                     type="number"
                     value={settings.usdMarkupPercent === null ? '' : String(settings.usdMarkupPercent)}
                     onChange={(v) => patch((p) => ({ ...p, usdMarkupPercent: v === '' ? null : Number(v) || 0 }))}
-                    placeholder="o'chiq"
+                    placeholder={t('payment.usd.markupPlaceholder')}
                   />
                 </Field>
                 {settings.usdMarkupPercent === null || settings.usdCbuRate === null ? (
-                  <Field label="Kurs (so'm)" hint="1 dollar necha so'm">
+                  <Field label={t('payment.usd.manualLabel')} hint={t('payment.usd.manualHint')}>
                     <Input type="number" value={String(settings.usdToUzs)} onChange={(v) => patch((p) => ({ ...p, usdToUzs: Number(v) || 0 }))} />
                   </Field>
                 ) : (
-                  <Field label="Do'kon kursi" hint="Markaziy bank kursi + ustama; avtomatik yangilanadi">
-                    <Input value={formatSum(storeRate(settings.usdCbuRate, settings.usdMarkupPercent), sum)} onChange={() => {}} disabled />
+                  <Field label={t('payment.usd.storeLabel')} hint={t('payment.usd.storeHint')}>
+                    <Input value={formatSum(storeRate(settings.usdCbuRate, settings.usdMarkupPercent), t('common:sum'))} onChange={() => {}} disabled />
                   </Field>
                 )}
               </div>
               <p className="mt-2 text-label text-muted-2">
                 {settings.usdCbuRate !== null
-                  ? `Markaziy bank: ${formatSum(settings.usdCbuRate, sum)} (${settings.usdRateDate})`
-                  : 'Markaziy bank kursi hali olinmadi.'}
+                  ? t('payment.cbRate', { rate: formatSum(settings.usdCbuRate, t('common:sum')), date: settings.usdRateDate })
+                  : t('payment.usd.noCbRate')}
               </p>
             </Card>
           </div>

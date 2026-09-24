@@ -1,4 +1,4 @@
-const MESSAGES: Record<string, string> = {
+export const ERR_MESSAGES = {
   imageUrl_required: 'Rasm majburiy',
   title_required: 'Sarlavha majburiy',
   link_invalid: "Link '/' yoki 'https://' bilan boshlanishi kerak",
@@ -73,7 +73,10 @@ const MESSAGES: Record<string, string> = {
   method_not_allowed: "Bu amal qo'llab-quvvatlanmaydi",
   token_label_required: "Nom 2–40 belgi bo'lishi kerak",
   cookie_only: 'Bu amalni faqat admin panelidan bajarish mumkin',
-};
+} as const;
+
+/** Qidiruv uchun keng tip: server istalgan kod qaytarishi mumkin. */
+const MESSAGES: Record<string, string> = ERR_MESSAGES;
 
 export function errText(e: unknown): string {
   const code = e instanceof Error ? e.message : '';

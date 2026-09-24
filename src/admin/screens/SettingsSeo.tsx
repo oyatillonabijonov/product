@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ContentFields, useSiteContent } from '../ContentFields';
 import { errText } from '../errText';
 import ImageUploader from '../ImageUploader';
@@ -10,6 +11,7 @@ import { useToast } from '../ui/toast';
 
 /** Sozlamalar → SEO: qidiruv tizimlari uchun sarlavha/tavsif, ulashish rasmi va katalog tavsif shabloni (`seo` guruhi). */
 const SettingsSeo: FC = () => {
+  const { t } = useTranslation('settings');
   const cfg = useSiteConfig();
   const content = useSiteContent('seo');
   const toast = useToast();
@@ -21,7 +23,7 @@ const SettingsSeo: FC = () => {
     try {
       if (cfg.dirty) await cfg.save();
       if (content.dirty) await content.save();
-      toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
+      toast(t('shared.savedLive'));
     } catch (e) {
       toast(errText(e), 'error');
     } finally {
@@ -35,34 +37,34 @@ const SettingsSeo: FC = () => {
   return (
     <Page
       title="SEO"
-      description="Qidiruv tizimlari va ijtimoiy tarmoqlarda sayt qanday ko'rinadi."
+      description={t('seo.description')}
       dirty={dirty}
-      actions={<Button onClick={save} disabled={!dirty || busy}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
+      actions={<Button onClick={save} disabled={!dirty || busy}>{busy ? t('shared.saving') : t('shared.save')}</Button>}
     >
       <SectionTabs section="settings" active="seo" />
-      {error ? <EmptyState title="Sozlamalar yuklanmadi" text={error} />
+      {error ? <EmptyState title={t('shared.loadErrorTitle')} text={error} />
         : !config || !content.loaded ? <Skeleton rows={8} />
         : (
           <div className="flex flex-col gap-4">
-            <Card title="Sarlavha va tavsif">
+            <Card title={t('seo.meta.title')}>
               <div className="flex flex-col gap-4">
-                <Field label="Sarlavha qo'shimchasi" hint="Har bir sahifa sarlavhasi oxiriga qo'shiladi; bo'sh qolsa do'kon nomi ishlatiladi">
+                <Field label={t('seo.meta.suffixLabel')} hint={t('seo.meta.suffixHint')}>
                   <Input value={config.seoTitleSuffix} onChange={(v) => cfg.set('seoTitleSuffix', v)} />
                 </Field>
-                <Field label="Bosh sahifa tavsifi" hint="Google natijalarida sayt ostidagi matn">
+                <Field label={t('seo.meta.descLabel')} hint={t('seo.meta.descHint')}>
                   <Textarea value={config.seoDescription} onChange={(v) => cfg.set('seoDescription', v)} rows={3} />
                 </Field>
               </div>
             </Card>
-            <Card title="Ulashish rasmi" description="Bosh sahifa havolasi Telegram, WhatsApp yoki ijtimoiy tarmoqda tashlanganda shu rasm chiqadi (mahsulot havolasida mahsulot rasmi). 1200×630, PNG yoki JPG — rasm o'zgarishsiz yuklanadi.">
+            <Card title={t('seo.ogImage.title')} description={t('seo.ogImage.description')}>
               <ImageUploader
-                label="Ulashish rasmi"
+                label={t('seo.ogImage.title')}
                 images={config.ogImage ? [config.ogImage] : []}
                 onChange={(next) => cfg.set('ogImage', next[0] ?? '')}
                 normalize={false}
                 accept="image/png,image/jpeg"
               />
-              <p className="mt-1 text-label text-muted-2">Bo'sh qolsa ulashishda rasm ko'rsatilmaydi.</p>
+              <p className="mt-1 text-label text-muted-2">{t('seo.ogImage.hint')}</p>
             </Card>
             <ContentFields content={content} />
           </div>
