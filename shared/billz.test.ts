@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { ProductTypeRow } from './product-types';
 import {
   toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct, nameKey, mergeDuplicates,
-  syncTarget, applyManualEdits, withHiddenLock, billzVisible, billzNameKey,
+  syncTarget, applyManualEdits, withHiddenLock, billzVisible, billzNameKey, billzUpdateColumns,
   type BillzProduct, type MapContext, type LockSnapshot,
   parseManualFields,
   serializeManualFields,
@@ -325,5 +325,33 @@ describe('manual fields', () => {
     expect(serializeManualFields(['price', 'price'])).toBe('price');
     expect(serializeManualFields(['nom'])).toBe('');
     expect(serializeManualFields(null)).toBe('');
+  });
+});
+
+describe('billzUpdateColumns — sinxronizatsiya nimani yozadi', () => {
+  const m: import('./billz').MappedProduct = {
+    billzId: 'a', name: 'iPhone 17 Pro Sim/E-sim / Silver', slug: 's', categoryId: 'apple', type: 'iphone',
+    brandId: 'apple', newBrand: null, cashPriceUzs: 100, oldPriceUzs: 120, stock: 2, description: 'd',
+    specs: [], photos: [], imageUrl: '/a.webp', gallery: [], isActive: true,
+  };
+  const cols = (locks: import('./billz').ManualField[]) => billzUpdateColumns(m, locks).cols;
+
+  it("qulf yo'q — hamma Billz ustuni yoziladi", () => {
+    expect(cols([])).toEqual([
+      'billz_name=?', 'billz_stock=?', 'is_active=?', 'name=?', 'brand_id=?', 'image_url=?',
+      'category_id=?', 'type=?', 'cash_price_uzs=?', 'old_price_uzs=?', 'description=?',
+    ]);
+  });
+
+  it("qulflangan guruh butunlay chiqariladi, Billz nomi, qoldiq va ko'rinish doim yoziladi", () => {
+    expect(cols(['name', 'brand', 'images', 'category', 'price', 'description', 'hidden', 'specs'])).toEqual([
+      'billz_name=?', 'billz_stock=?', 'is_active=?',
+    ]);
+  });
+
+  it("qiymatlar ustunlar bilan bir tartibda", () => {
+    const r = billzUpdateColumns(m, ['images', 'category', 'price', 'description']);
+    expect(r.cols).toEqual(['billz_name=?', 'billz_stock=?', 'is_active=?', 'name=?', 'brand_id=?']);
+    expect(r.vals).toEqual(['iPhone 17 Pro Sim/E-sim / Silver', 2, 1, 'iPhone 17 Pro Sim/E-sim / Silver', 'apple']);
   });
 });

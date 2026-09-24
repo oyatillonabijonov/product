@@ -293,6 +293,28 @@ export function billzNameKey(r: { name: string; billz_name: string | null }): st
 }
 
 /**
+ * Sinxronizatsiya mavjud Billz qatoriga yozadigan ustunlar (`UPDATE … SET`). Qulflangan guruh butunlay
+ * chiqariladi. `billz_name` (moslashtirish kaliti), qoldiq va ko'rinish (`syncTarget` hisoblagan) doim
+ * yoziladi. Egasining ustunlari (slug, holat, tartib, reyting) bu yerda umuman yo'q. Xususiyatlar va
+ * galereya alohida jadvalda — runner ularni `specs` qulfi va `photos` bo'yicha o'zi hal qiladi.
+ */
+export function billzUpdateColumns(m: MappedProduct, locks: readonly ManualField[]): { cols: string[]; vals: unknown[] } {
+  const cols = ['billz_name=?', 'billz_stock=?', 'is_active=?'];
+  const vals: unknown[] = [m.name, m.stock, m.isActive ? 1 : 0];
+  const add = (lock: ManualField, pairs: [string, unknown][]) => {
+    if (locks.includes(lock)) return;
+    for (const [c, v] of pairs) { cols.push(`${c}=?`); vals.push(v); }
+  };
+  add('name', [['name', m.name]]);
+  add('brand', [['brand_id', m.brandId]]);
+  add('images', [['image_url', m.imageUrl]]);
+  add('category', [['category_id', m.categoryId], ['type', m.type]]);
+  add('price', [['cash_price_uzs', m.cashPriceUzs], ['old_price_uzs', m.oldPriceUzs]]);
+  add('description', [['description', m.description]]);
+  return { cols, vals };
+}
+
+/**
  * Billz tovarining **qo'lda o'zgartirilgan** maydonlari (`products.manual_fields`). Ro'yxatdagi guruhga
  * sinxronizatsiya tegmaydi — egasi admin'da yoki MCP orqali nima o'zgartirsa, shunday qoladi
  * (2026-09-24, egasining standarti: «30 daqiqada eski holatga qaytsa — cringe»). `price` naqd va eski
