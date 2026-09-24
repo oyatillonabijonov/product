@@ -268,9 +268,16 @@ export function priceAskText(d: ApiProductDetail): string {
 export function priceChangeSummary(before: ApiProductDetail, after: ApiProductDetail): string {
   const was = new Map(variantPriceGroups(before).rows.map((r) => [r.label, r.price]));
   const g = variantPriceGroups(after);
-  const lines = ["Narx o'zgardi.", ...g.rows.map((r) => {
+  // Sarlavha variantlar bo'yicha solishtiriladi (id'lar `applyVariantPrices`da saqlanadi) — faqat chegirma
+  // o'zgarganda «Narx o'zgardi» deyish yolg'on edi.
+  const prev = new Map(before.variants.map((v) => [v.id, v]));
+  const priceMoved = after.variants.some((v) => prev.get(v.id)?.cashPriceUzs !== v.cashPriceUzs);
+  const oldMoved = after.variants.some((v) => (prev.get(v.id)?.oldPriceUzs ?? null) !== (v.oldPriceUzs ?? null));
+  const head = priceMoved ? "Narx o'zgardi." : oldMoved ? 'Chegirma yangilandi.' : "Hech narsa o'zgarmadi — narxlar avvalgidek.";
+  // Avvalgi narx chegirmadan **oldin** turadi: oxirida «(eski narx …) (avval …)» ikki xil «eski» narx bo'lib o'qilardi.
+  const lines = [head, ...g.rows.map((r) => {
     const old = was.get(r.label);
-    return `• ${r.label} — ${priceText(r.price, r.old)}${old !== undefined && old !== r.price ? ` (avval ${thousands(old)})` : ''}`;
+    return `• ${r.label} — ${som(r.price)}${old !== undefined && old !== r.price ? ` (avval ${thousands(old)} edi)` : ''}${discountText(r.price, r.old)}`;
   })];
   const shown = displayedPrice(after);
   const cheapest = g.rows.find((r) => r.price === shown);
@@ -291,10 +298,14 @@ export function discountPct(cash: number, old: number | null): number | null {
   return pct > 0 ? pct : null;
 }
 
+const discountText = (cash: number, old: number | null): string => {
+  const pct = discountPct(cash, old);
+  return pct === null || old === null ? '' : ` — chegirma −${pct}% (eski narx ${thousands(old)})`;
+};
+
 /** Narx — chegirma bo'lsa saytdagi foiz va eski narx bilan (egasi mijoz oldida aynan shuni ko'radi). */
 export function priceText(cash: number, old: number | null): string {
-  const pct = discountPct(cash, old);
-  return pct === null || old === null ? som(cash) : `${som(cash)} — chegirma −${pct}% (eski narx ${thousands(old)})`;
+  return `${som(cash)}${discountText(cash, old)}`;
 }
 
 /**

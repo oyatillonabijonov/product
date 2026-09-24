@@ -240,7 +240,8 @@ describe('variant narxlari', () => {
     const after = applyVariantPrices(byStorage, [{ value: '256GB', price: 300 }]);
     const s = priceChangeSummary(byStorage, after);
     it("o'zgargan qatorda avvalgi narx, o'zgarmaganida yo'q", () => {
-      expect(s).toContain('• 256GB — 300 so\'m (avval 100)');
+      expect(s.split('\n')[0]).toBe("Narx o'zgardi.");
+      expect(s).toContain('• 256GB — 300 so\'m (avval 100 edi)');
       expect(s).toContain('• 512GB — 200 so\'m\n');
     });
     it("saytda nima ko'rinishini va eng arzoni qaysi ekanini aytadi", () => {
@@ -274,9 +275,23 @@ describe('chegirma', () => {
     expect(priceText(25000000, 25000000)).toBe("25 000 000 so'm");
   });
 
-  it("variant ro'yxatida chegirma ko'rinadi", () => {
+  it("variant ro'yxatida chegirma ko'rinadi; faqat chegirma o'zgarsa sarlavha shuni aytadi", () => {
     const d = applyVariantPrices(byStorageForDiscount(), [{ value: '256GB', price: 100, oldPrice: 120 }]);
-    expect(priceChangeSummary(byStorageForDiscount(), d)).toContain("• 256GB — 100 so'm — chegirma −17% (eski narx 120)");
+    const s = priceChangeSummary(byStorageForDiscount(), d);
+    expect(s.split('\n')[0]).toBe('Chegirma yangilandi.');
+    expect(s).toContain("• 256GB — 100 so'm — chegirma −17% (eski narx 120)\n");
+  });
+
+  it("narx ham, chegirma ham o'zgarsa — avvalgi narx chegirmadan oldin, bitta «eski» bilan", () => {
+    const d = applyVariantPrices(byStorageForDiscount(), [{ value: '256GB', price: 110, oldPrice: 130 }]);
+    const s = priceChangeSummary(byStorageForDiscount(), d);
+    expect(s.split('\n')[0]).toBe("Narx o'zgardi.");
+    expect(s).toContain("• 256GB — 110 so'm (avval 100 edi) — chegirma −15% (eski narx 130)\n");
+  });
+
+  it("hech narsa o'zgarmasa — shuni aytadi", () => {
+    const d = applyVariantPrices(byStorageForDiscount(), [{ value: '256GB', price: 100 }]);
+    expect(priceChangeSummary(byStorageForDiscount(), d).split('\n')[0]).toBe("Hech narsa o'zgarmadi — narxlar avvalgidek.");
   });
 });
 

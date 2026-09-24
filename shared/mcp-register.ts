@@ -31,7 +31,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
   const products = () => api.get<ApiProduct[]>('/api/admin/products');
 
   server.registerTool('catalog_stats', {
-    description: "Katalog holati: jami tovar, faol/yashirin, rasmi yo'q, tavsifi yo'q, qoldiq 0, Billz va qo'lda kiritilganlar soni. Hamma tovar bo'yicha sanaydi — admin panelidagi «Rasm kerak» esa faqat qoldig'i bor Billz tovarlarini ko'rsatadi, shuning uchun sonlar farq qiladi.",
+    description: "Katalog holati: jami tovar, faol/yashirin, rasmi yo'q, tavsifi yo'q, qoldiq 0, Billz va qo'lda kiritilganlar soni. Bu yerda hamma tovar sanaladi, qo'lda kiritilganlari ham — admin panelidagi «Rasm kerak» esa faqat rasmi yo'q Billz tovarlarini sanaydi, shuning uchun sonlar farq qilishi mumkin.",
     inputSchema: {},
   }, async () => text(JSON.stringify(catalogStats(await products()), null, 2)));
 
@@ -141,7 +141,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     const link = `${opts.adminUrl}/admin/products/${created.id}`;
     return text(images.length > 0
       ? `Qo'shildi va saytda chiqdi. Narx: ${priceText(parsed.cashPriceUzs, parsed.oldPriceUzs ?? null)}\n${link}`
-      : `Qo'shildi va saytda chiqdi, lekin rasmi yo'q — saytda rasmsiz ko'rinadi. Rasm uchun havola bering yoki yuklash havolasini oching.\n${link}`);
+      : `Qo'shildi va saytda chiqdi, lekin rasmi yo'q — saytda rasmsiz ko'rinadi. Rasm qo'shish uchun \`image_upload_link\` bilan egasiga havola bering yoki rasm manzilini so'rang.\n${link}`);
   });
 
   server.registerTool('product_update', {
@@ -229,7 +229,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
   });
 
   server.registerTool('product_set_visibility', {
-    description: "Tovarni saytda ko'rsatadi yoki yashiradi. Yashirilgan tovar shunday qoladi — Billz uni qaytarib ochmaydi. Tovar o'chirilmaydi. Rasmsiz tovar ko'rsatilmaydi — bunday holda egasiga `image_upload_link` bilan havola bering.",
+    description: "Tovarni saytda ko'rsatadi yoki yashiradi. Yashirilgan tovar shunday qoladi — Billz uni qaytarib ochmaydi. Tovar o'chirilmaydi. Billz tovari rasmsiz ko'rsatilmaydi — bunday holda egasiga `image_upload_link` bilan havola bering; qo'lda kiritilgan tovar rasmsiz ham ko'rsatiladi.",
     inputSchema: { id: z.string(), visible: z.boolean() },
   }, async (args: unknown) => {
     const parsed = args as { id: string; visible: boolean };
@@ -243,7 +243,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
   });
 
   server.registerTool('image_upload_link', {
-    description: "Telefondan rasm yuklash uchun bir martalik havola: 30 daqiqa, faqat shu tovar uchun. Chatga tashlangan rasmni saytga uzatib bo'lmaydi — egasi rasm yubormoqchi bo'lsa yoki tovarda rasm yo'q bo'lsa shu havolani bering. Bosadi, galereyadan tanlaydi, rasmlar tovarga o'zi qo'shiladi; Billz tovari rasm qo'shilishi bilan saytda chiqadi.",
+    description: "Telefondan rasm yuklash havolasi: faqat shu tovar uchun, 30 daqiqa davomida istalgancha ochish mumkin. Chatga tashlangan rasmni saytga uzatib bo'lmaydi — egasi rasm yubormoqchi bo'lsa yoki tovarda rasm yo'q bo'lsa shu havolani bering. Bosadi, galereyadan tanlaydi, rasmlar tovarga o'zi qo'shiladi. Rasmsiz Billz tovari rasm qo'shilgach saytda chiqadi — egasi uni yashirgan bo'lsa, yashirinligicha qoladi.",
     inputSchema: { id: z.string() },
   }, async (args: unknown) => {
     const { id } = args as { id: string };
