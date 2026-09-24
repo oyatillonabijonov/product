@@ -12,7 +12,7 @@ import {
 } from '../../functions/lib/db';
 import { parseProductInput } from '../../functions/lib/validate';
 import { requireAdmin, parseBody } from './api.admin.guard';
-import { serializeManualFields } from '../../shared/billz';
+import { billzVisible, parseManualFields, serializeManualFields, withHiddenLock } from '../../shared/billz';
 
 /** Tahrirlash formasi uchun to'liq mahsulot (galereya, xususiyatlar, variantlar) — nofaol ham. */
 export async function loader({ request, context, params }: Route.LoaderArgs) {
@@ -36,6 +36,12 @@ export async function action({ request, context, params }: Route.ActionArgs) {
     if (input instanceof Response) return input;
     if (!(await typeExists(env, input.categoryId, input.type))) return json({ error: 'type_invalid' }, { status: 400 });
     if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
+    const cur = await env.DB.prepare('SELECT billz_id FROM products WHERE id = ?').bind(id).first<{ billz_id: string | null }>();
+    // Billz tovarida ko'rinishni forma emas, qoida belgilaydi (spec 2026-09-24 §4): rasm bor va qo'lda
+    // yashirilmagan. Shuning uchun Billz tovariga rasm qo'shilsa u darhol saytda chiqadi, 30 daqiqa kutmaydi.
+    const isActive = cur?.billz_id
+      ? billzVisible({ hasImage: input.imageUrl !== '', hiddenLocked: input.manualFields.includes('hidden') })
+      : input.isActive;
     const update = env.DB.prepare(
       `UPDATE products SET name=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, type=?, old_price_uzs=?, description=?, brand_id=?, slug=?, rating_avg=?, review_count=?, preorder=?, manual_fields=?, pc_hidden=?, pc_socket=?, pc_memory=?, pc_watts=? WHERE id=?`,
     ).bind(
@@ -45,7 +51,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       input.cashPriceUzs,
       input.imageUrl,
       input.sortOrder,
-      input.isActive ? 1 : 0,
+      isActive ? 1 : 0,
       input.categoryId,
       input.type,
       input.oldPriceUzs,
@@ -80,9 +86,23 @@ export async function action({ request, context, params }: Route.ActionArgs) {
     if (!body || typeof body.isActive !== 'boolean') {
       return json({ error: 'is_active_required' }, { status: 400 });
     }
-    await env.DB.prepare('UPDATE products SET is_active = ? WHERE id = ?')
-      .bind(body.isActive ? 1 : 0, id)
-      .run();
+    const row0 = await env.DB.prepare('SELECT billz_id, image_url, manual_fields FROM products WHERE id = ?')
+      .bind(id)
+      .first<{ billz_id: string | null; image_url: string | null; manual_fields: string | null }>();
+    if (!row0) return json({ error: 'not_found' }, { status: 404 });
+    if (row0.billz_id) {
+      // Yashirish qulflaydi (Billz qaytarib ochmaydi), ko'rsatish qulfni yechadi — ko'rinish qoidadan:
+      // rasmsiz Billz tovarini «ko'rsat» qilsangiz ham u rasm qo'yilmaguncha yashirin qoladi.
+      const locks = withHiddenLock(parseManualFields(row0.manual_fields), body.isActive);
+      const visible = billzVisible({ hasImage: Boolean(row0.image_url), hiddenLocked: locks.includes('hidden') });
+      await env.DB.prepare('UPDATE products SET is_active = ?, manual_fields = ? WHERE id = ?')
+        .bind(visible ? 1 : 0, serializeManualFields(locks), id)
+        .run();
+    } else {
+      await env.DB.prepare('UPDATE products SET is_active = ? WHERE id = ?')
+        .bind(body.isActive ? 1 : 0, id)
+        .run();
+    }
     const row = await env.DB.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE id = ?`).bind(id).first<ProductRow>();
     if (!row) return json({ error: 'not_found' }, { status: 404 });
     return json(rowToProduct(row));
