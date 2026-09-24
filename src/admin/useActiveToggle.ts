@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { errText } from './errText';
 import { useToast } from './ui/toast';
 
@@ -9,12 +10,13 @@ type Setter<T> = (update: (items: T[] | null) => T[] | null) => void;
  */
 export function useActiveToggle<T extends { id: string; isActive: boolean }>(setItems: Setter<T>, save: (item: T) => Promise<unknown>) {
   const toast = useToast();
+  const { t } = useTranslation('common');
   return async (item: T, on: boolean) => {
     const flip = (v: boolean) => setItems((xs) => xs && xs.map((x) => (x.id === item.id ? { ...x, isActive: v } : x)));
     flip(on);
     try {
       await save({ ...item, isActive: on });
-      toast(on ? "Saytda ko'rsatildi" : 'Yashirildi');
+      toast(on ? t('shownOnSite') : t('hidden'));
     } catch (e) {
       flip(!on);
       toast(errText(e), 'error');

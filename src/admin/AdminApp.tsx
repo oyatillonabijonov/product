@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import type { ApiDashboard } from '../../shared/types';
 import { getDashboard, getMe, logout } from './api';
 import { parseAdminPath, type AdminRoute } from './lib/admin-path';
@@ -80,12 +81,13 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
 
 /** Bo'lim sahifasi: sarlavha + (mobilda) tab segmenti + ekran. Desktopda tablar sidebar'da. */
 function SectionPage({ section, tab, route, clearDefaultPw, defaultPw, refreshCounts }: { section: SectionDef; tab: TabDef; route: AdminRoute; clearDefaultPw: () => void; defaultPw: boolean; refreshCounts: () => void }) {
+  const { t } = useTranslation('shell');
   // `key` — tab almashganda eski ekran holati (ochiq forma) qolib ketmasin.
   const screen = <div key={`${section.id}/${tab.id}/${route.id ?? ''}`}>{screenFor(`${section.id}/${tab.id}`, clearDefaultPw, defaultPw, route.id, refreshCounts)}</div>;
   // Id ekranlari va forma-tablar (landing muharriri) o'z Page'ini chizadi — sarlavha ikki marta chiqmasin.
   if ((route.id !== null && tab.detail) || (route.id === null && tab.ownPage)) return screen;
   return (
-    <Page title={tab.label}>
+    <Page title={t(tab.labelKey)}>
       <SectionTabs section={section.id} active={tab.id} />
       {screen}
     </Page>
@@ -93,6 +95,7 @@ function SectionPage({ section, tab, route, clearDefaultPw, defaultPw, refreshCo
 }
 
 export default function AdminApp() {
+  const { t } = useTranslation('common');
   const [authed, setAuthed] = useState(null as boolean | null);
   const [defaultPw, setDefaultPw] = useState(
     () => typeof window !== 'undefined' && sessionStorage.getItem(DEFAULT_PW_KEY) === '1',
@@ -118,7 +121,7 @@ export default function AdminApp() {
   }, []);
   useEffect(() => { if (authed) refreshDash(); }, [authed, location.pathname, refreshDash]);
 
-  if (authed === null) return <div className="p-8 text-para text-muted">Yuklanmoqda…</div>;
+  if (authed === null) return <div className="p-8 text-para text-muted">{t('loading')}</div>;
   if (!authed) {
     return (
       <Login

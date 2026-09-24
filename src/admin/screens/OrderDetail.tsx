@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { Link, useLocation } from 'react-router';
 import { Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ApiOrder, OrderStatus } from '../../../shared/types';
 import { listOrders, setOrderStatus } from '../api';
 import { errText } from '../errText';
@@ -20,6 +21,7 @@ type LoadState = 'loading' | 'ready' | 'missing' | 'error';
  * saqlaydi (`location.state.search`).
  */
 const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCountsChange }) => {
+  const sum = useTranslation('common').t('sum');
   const location = useLocation();
   const search = (location.state as { search?: string } | null)?.search;
   const backTo = search ? `${LIST}?${search}` : LIST;
@@ -107,15 +109,15 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
                     {it.variantLabel && <p className="text-label text-muted-2">{it.variantLabel}</p>}
                   </div>
                   <div className="shrink-0 text-right tabular-nums">
-                    <p className="text-primary">{formatSum(it.priceUzs * it.qty)}</p>
-                    {it.qty > 1 && <p className="text-label text-muted-2">{it.qty} × {formatSum(it.priceUzs)}</p>}
+                    <p className="text-primary">{formatSum(it.priceUzs * it.qty, sum)}</p>
+                    {it.qty > 1 && <p className="text-label text-muted-2">{it.qty} × {formatSum(it.priceUzs, sum)}</p>}
                   </div>
                 </li>
               ))}
             </ul>
             <div className="flex items-center justify-between gap-4 border-t border-line px-5 py-3 text-para font-semibold text-primary">
               <span>{installment ? 'Naqd narxi' : 'Jami'}</span>
-              <span className="tabular-nums">{formatSum(itemsTotal(order.items))}</span>
+              <span className="tabular-nums">{formatSum(itemsTotal(order.items), sum)}</span>
             </div>
           </Card>
         )}
@@ -124,9 +126,9 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
             <Rows
               rows={[
                 { k: 'Muddat', v: order.termMonths ? `${order.termMonths} oy` : '—' },
-                { k: "Boshlang'ich to'lov", v: formatSum(order.downPaymentUzs) },
-                { k: "Oylik to'lov", v: formatSum(order.monthlyUzs) },
-                { k: 'Jami', v: formatSum(order.totalUzs) },
+                { k: "Boshlang'ich to'lov", v: formatSum(order.downPaymentUzs, sum) },
+                { k: "Oylik to'lov", v: formatSum(order.monthlyUzs, sum) },
+                { k: 'Jami', v: formatSum(order.totalUzs, sum) },
               ]}
             />
           </Card>

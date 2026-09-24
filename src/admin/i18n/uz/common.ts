@@ -1,4 +1,57 @@
 /** Umumiy: UI-kit, yuklagich, summa qo'shimchasi. */
-const common = {} as const;
+const common = {
+  back: 'Orqaga',
+  confirm: 'Tasdiqlash',
+  cancel: 'Bekor qilish',
+  retry: 'Qayta urinish',
+  sum: "so'm",
+  default: 'Standart',
+  loading: 'Yuklanmoqda…',
+  ruHint: "Bo'sh qolsa o'zbekchasi chiqadi",
+  shownOnSite: "Saytda ko'rsatildi",
+  hidden: 'Yashirildi',
+  unsavedChanges: {
+    title: "Saqlanmagan o'zgarishlar bor",
+    message: "Chiqilsa o'zgarishlar yo'qoladi.",
+    leave: 'Chiqish',
+  },
+  aria: {
+    tabs: 'Tablar',
+    loading: 'Yuklanmoqda',
+    pagination: 'Sahifalash',
+    prevPage: 'Oldingi sahifa',
+    nextPage: 'Keyingi sahifa',
+  },
+  upload: {
+    onlyType: 'Faqat {{types}} qabul qilinadi',
+    onlyVideo: 'Faqat MP4 video qabul qilinadi',
+    onlyImage: 'Faqat rasm qabul qilinadi',
+    videoTooLarge: 'Video {{size}} MB dan katta — kichikroq fayl tanlang',
+    videoFailed: 'Video yuklanmadi',
+    imageFailed: 'Rasm yuklanmadi',
+    removeVideo: "Videoni o'chirish",
+    removeImage: "Rasmni o'chirish",
+    dropVideo: 'Video (MP4) tashlang yoki tanlang',
+    dropImage: 'Rasm tashlang yoki tanlang',
+  },
+  markdownHelp: {
+    toggle: 'Matn qanday yoziladi',
+    note: "Ketma-ket qatorlar bitta xatboshi bo'ladi; yangi xatboshi — bo'sh qator.",
+    heading: "Bo'lim sarlavhasi",
+    subheading: 'Kichik sarlavha',
+    list: "Ro'yxat",
+    orderedList: "Raqamli ro'yxat (raqamdan keyin nuqta va bo'shliq)",
+    bold: 'Qalin matn',
+    link: 'Havola — / yoki https:// bilan',
+    sample: {
+      heading: '## Sarlavha',
+      subheading: '### Kichik sarlavha',
+      list: '- Band',
+      orderedList: '1. Band',
+      bold: '**qalin**',
+      link: '[matn](/katalog)',
+    },
+  },
+} as const;
 
 export default common;

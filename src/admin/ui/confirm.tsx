@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useState } from 'react';
 import type { FC, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import Modal from '../../store/Modal';
 import { Button } from './controls';
 
@@ -21,6 +22,7 @@ export function useConfirm(): Ask {
 }
 
 export const ConfirmProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const { t } = useTranslation('common');
   const [raw, setPending] = useState(null as Pending | null);
   const pending = raw as Pending | null;
   const [open, setOpen] = useState(false);
@@ -40,15 +42,15 @@ export const ConfirmProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <ConfirmCtx.Provider value={ask}>
       {children}
-      <Modal open={open} label={pending?.opts.title ?? 'Tasdiqlash'} onClose={close} onExited={() => setPending(null)} panelClass="max-w-sm">
+      <Modal open={open} label={pending?.opts.title ?? t('confirm')} onClose={close} onExited={() => setPending(null)} panelClass="max-w-sm">
         {pending && (
           <div className="p-6">
             <h2 className="text-copy font-semibold text-primary">{pending.opts.title}</h2>
             {pending.opts.message && <p className="mt-2 text-para text-muted">{pending.opts.message}</p>}
             <div className="mt-6 flex justify-end gap-2">
-              <Button variant="secondary" onClick={close}>Bekor qilish</Button>
+              <Button variant="secondary" onClick={close}>{t('cancel')}</Button>
               <Button variant={pending.opts.destructive ? 'destructive' : 'primary'} onClick={() => finish(true)}>
-                {pending.opts.confirmLabel ?? 'Tasdiqlash'}
+                {pending.opts.confirmLabel ?? t('confirm')}
               </Button>
             </div>
           </div>

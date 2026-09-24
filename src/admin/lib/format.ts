@@ -17,8 +17,8 @@ export function formatDateTime(sec: number): string {
   return `${p(d.getUTCDate())}.${p(d.getUTCMonth() + 1)}.${d.getUTCFullYear()} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
 }
 
-/** So'mdagi summa; yo'q bo'lsa «—». 0 — «0 so'm» (masalan, boshlang'ich to'lovsiz muddatli). */
-export function formatSum(n: number | null): string {
+/** So'mdagi summa; yo'q bo'lsa «—». 0 — «0 so'm». Qo'shimchani chaqiruvchi beradi: `t('common:sum')` (saytdagi `formatUzs(value, t.sum)` naqshi). */
+export function formatSum(n: number | null, sum: string): string {
   if (n == null) return '—';
-  return `${formatThousands(n) || '0'} so'm`;
+  return `${formatThousands(n) || '0'} ${sum}`;
 }

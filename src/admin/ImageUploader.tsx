@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { FC } from 'react';
 import { Upload, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { uploadImage } from './api';
 import { acceptLabel, acceptsType } from './lib/content-form';
 import { normalizeImage, type NormalizeOptions } from './lib/image-normalize';
@@ -25,6 +26,7 @@ const ImageUploader: FC<{
   kind?: 'image' | 'video';
   fallback?: string;
 }> = ({ label, images, onChange, multiple = false, reorderable = false, normalize, accept, kind = 'image', fallback }) => {
+  const { t } = useTranslation('common');
   const video = kind === 'video';
   const [uploading, setUploading] = useState(0);
   const [dragOver, setDragOver] = useState(false);
@@ -40,12 +42,14 @@ const ImageUploader: FC<{
     let files = Array.from(fileList).filter((f) => f.type.startsWith(video ? 'video/' : 'image/') && acceptsType(accept, f.type));
     if (!files.length) {
       // Jim qolmaydi: tanlangan fayl bor, lekin turi to'g'ri kelmadi.
-      if (fileList.length > 0) setError(video ? 'Faqat MP4 video qabul qilinadi' : `Faqat ${accept ? acceptLabel(accept) : 'rasm'} qabul qilinadi`);
+      if (fileList.length > 0) {
+        setError(video ? t('upload.onlyVideo') : accept ? t('upload.onlyType', { types: acceptLabel(accept) }) : t('upload.onlyImage'));
+      }
       return;
     }
     if (!multiple) files = files.slice(0, 1);
     if (video && files.some((f) => f.size > VIDEO_MAX)) {
-      setError('Video 40 MB dan katta — kichikroq fayl tanlang');
+      setError(t('upload.videoTooLarge', { size: VIDEO_MAX / (1024 * 1024) }));
       return;
     }
     setError('');
@@ -57,7 +61,7 @@ const ImageUploader: FC<{
           const { imageUrl } = await uploadImage(body);
           return imageUrl;
         } catch {
-          setError(video ? 'Video yuklanmadi' : 'Rasm yuklanmadi');
+          setError(video ? t('upload.videoFailed') : t('upload.imageFailed'));
           return null;
         } finally {
           setUploading((n) => n - 1);
@@ -105,7 +109,7 @@ const ImageUploader: FC<{
               <button
                 type="button"
                 onClick={() => onChange(images.filter((_, j) => j !== i))}
-                aria-label={video ? "Videoni o'chirish" : "Rasmni o'chirish"}
+                aria-label={video ? t('upload.removeVideo') : t('upload.removeImage')}
                 className="press absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-danger text-bg opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
               >
                 <X size={12} strokeWidth={2.5} />
@@ -121,7 +125,7 @@ const ImageUploader: FC<{
       {images.length === 0 && uploading === 0 && fallback && (
         <div className="mb-2 flex items-center gap-3">
           <div className={`${tile} overflow-hidden rounded-xs bg-fill-2`}>{preview(fallback)}</div>
-          <span className="text-label text-muted-2">Standart</span>
+          <span className="text-label text-muted-2">{t('default')}</span>
         </div>
       )}
 
@@ -132,7 +136,7 @@ const ImageUploader: FC<{
         className={`flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xs border-2 border-dashed px-4 py-5 ${dragOver ? 'border-link bg-link/5 text-link' : 'border-line text-muted'}`}
       >
         <Upload size={20} />
-        <span className="text-label">{video ? 'Video (MP4) tashlang yoki tanlang' : 'Rasm tashlang yoki tanlang'}</span>
+        <span className="text-label">{video ? t('upload.dropVideo') : t('upload.dropImage')}</span>
         <input
           type="file"
           accept={accept ?? (video ? 'video/mp4' : 'image/png,image/jpeg,image/webp')}

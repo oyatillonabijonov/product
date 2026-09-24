@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { login, getLoginOptions } from './api';
 import logo from '../assets/logo.svg';
 import logoDark from '../assets/hero/wordmark.webp';
@@ -14,15 +16,16 @@ const GoogleG = () => (
   </svg>
 );
 
-function oauthError(code: string | null): string {
-  if (code === 'google_denied') return 'Bu Google akkaunt admin sifatida ruxsat etilmagan.';
-  if (code === 'google_off') return 'Google kirishi sozlanmagan.';
-  if (code === 'state') return 'Sessiya muddati tugadi — qayta urining.';
-  if (code === 'google') return 'Google kirishida xatolik yuz berdi.';
+function oauthError(code: string | null, t: TFunction<'shell'>): string {
+  if (code === 'google_denied') return t('login.errors.googleDenied');
+  if (code === 'google_off') return t('login.errors.googleOff');
+  if (code === 'state') return t('login.errors.state');
+  if (code === 'google') return t('login.errors.google');
   return '';
 }
 
 export default function Login({ onSuccess }: { onSuccess: (defaultPassword: boolean) => void }) {
+  const { t } = useTranslation('shell');
   const location = useLocation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -31,9 +34,9 @@ export default function Login({ onSuccess }: { onSuccess: (defaultPassword: bool
   const [googleAvailable, setGoogleAvailable] = useState(false);
 
   useEffect(() => {
-    const e = oauthError(new URLSearchParams(location.search).get('e'));
+    const e = oauthError(new URLSearchParams(location.search).get('e'), t);
     if (e) setError(e);
-  }, [location.search]);
+  }, [location.search, t]);
 
   useEffect(() => {
     getLoginOptions().then((o) => setGoogleAvailable(o.google)).catch(() => {});
@@ -49,8 +52,8 @@ export default function Login({ onSuccess }: { onSuccess: (defaultPassword: bool
     } catch (e) {
       setError(
         e instanceof Error && e.message === 'too_many_attempts'
-          ? "Urinishlar ko'payib ketdi — birozdan so'ng qayta urining"
-          : "Login yoki parol noto'g'ri",
+          ? t('login.tooManyAttempts')
+          : t('login.invalidCredentials'),
       );
     } finally {
       setBusy(false);
@@ -63,28 +66,28 @@ export default function Login({ onSuccess }: { onSuccess: (defaultPassword: bool
         <div className="mb-6 flex flex-col items-center gap-2.5">
           <img src={logo} alt="ProDuct" className="logo-light h-9 w-auto" />
           <img src={logoDark} alt="" aria-hidden className="logo-dark h-9 w-auto" />
-          <p className="text-label text-muted-2">Admin panel</p>
+          <p className="text-label text-muted-2">{t('login.title')}</p>
         </div>
 
         <form onSubmit={submit} className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-7">
-          <Field label="Login">
+          <Field label={t('login.usernameLabel')}>
             <Input value={username} onChange={setUsername} autoComplete="username" />
           </Field>
-          <Field label="Parol" error={error || undefined}>
+          <Field label={t('login.passwordLabel')} error={error || undefined}>
             <Input type="password" value={password} onChange={setPassword} autoComplete="current-password" invalid={Boolean(error)} />
           </Field>
 
           <Button type="submit" size="lg" disabled={busy} className="w-full">
-            {busy ? 'Kirilmoqda…' : 'Kirish'}
+            {busy ? t('login.submitting') : t('login.submit')}
           </Button>
 
           {googleAvailable && (
             <>
               <div className="my-0.5 flex items-center gap-3 text-label text-muted-2">
-                <span className="h-px flex-1 bg-line" />yoki<span className="h-px flex-1 bg-line" />
+                <span className="h-px flex-1 bg-line" />{t('login.or')}<span className="h-px flex-1 bg-line" />
               </div>
               <Button variant="secondary" size="lg" href="/admin/auth/google" className="w-full">
-                <GoogleG /> Google bilan kirish
+                <GoogleG /> {t('login.google')}
               </Button>
             </>
           )}

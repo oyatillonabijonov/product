@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import type { ApiOrder, OrderStatus } from '../../../shared/types';
 import { listOrders, setOrderStatus } from '../api';
 import { errText } from '../errText';
@@ -21,6 +22,7 @@ const LIST = '/admin/orders';
  * ponytail: API oxirgi 200 ta buyurtmani beradi — ko'proq kerak bo'lsa server tomonda sahifalash.
  */
 const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
+  const sum = useTranslation('common').t('sum');
   const navigate = useNavigate();
   const toast = useToast();
   const [params, setParams] = useSearchParams();
@@ -85,7 +87,7 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
       id: 'items', label: 'Tarkib', className: 'hidden xl:table-cell',
       cell: (o) => <span className="block max-w-56 truncate text-muted">{orderSummary(o)}</span>,
     },
-    { id: 'sum', label: 'Summa', align: 'right', cell: (o) => <span className="whitespace-nowrap tabular-nums">{formatSum(orderTotal(o))}</span> },
+    { id: 'sum', label: 'Summa', align: 'right', cell: (o) => <span className="whitespace-nowrap tabular-nums">{formatSum(orderTotal(o), sum)}</span> },
     { id: 'date', label: 'Sana', cell: (o) => <span className="whitespace-nowrap text-label text-muted">{formatDateTime(o.createdAt)}</span> },
     {
       id: 'status', label: 'Holat',

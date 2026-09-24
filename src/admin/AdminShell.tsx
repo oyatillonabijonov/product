@@ -29,7 +29,7 @@ const BADGE = 'rounded-full bg-new px-1.5 text-label leading-5 text-bg';
 
 const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; children: ReactNode }> = ({ route, badge, onLogout, children }) => {
   const current = SECTIONS.find((s) => s.id === route.section) ?? SECTIONS[0];
-  const tab = activeTab(current, route);
+  const activeTabDef = activeTab(current, route);
   const reduced = useReducedMotion();
   const [dark, setDark] = useAdminDark();
   const { t } = useTranslation('shell');
@@ -51,9 +51,9 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
         <Link to="/admin" className="press flex h-16 items-center gap-2 px-5">
           <img src={logo} alt="ProDuct" className="logo-light h-6" />
           <img src={logoDark} alt="" aria-hidden className="logo-dark h-6" />
-          <span className="text-label text-muted">Admin</span>
+          <span className="text-label text-muted">{t('brand')}</span>
         </Link>
-        <nav aria-label="Bo'limlar" className="flex-1 overflow-y-auto px-3 py-2">
+        <nav aria-label={t('nav.aria')} className="flex-1 overflow-y-auto px-3 py-2">
           <ul className="flex flex-col gap-1">
             {SECTIONS.map((s) => {
               const active = s.id === route.section;
@@ -71,7 +71,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                       }`}
                     >
                       <Icon aria-hidden className="size-[18px] shrink-0 text-muted" strokeWidth={1.8} />
-                      <span className="flex-1 truncate">{s.label}</span>
+                      <span className="flex-1 truncate">{t(s.labelKey)}</span>
                       {s.id === 'orders' && badge > 0 && <span className={BADGE}>{badge}</span>}
                     </Link>
                     {hasTabs && (
@@ -80,7 +80,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                         onClick={() => toggle(s.id)}
                         aria-expanded={expanded}
                         aria-controls={`nav-${s.id}`}
-                        aria-label={`${s.label} — ${expanded ? 'yopish' : 'ochish'}`}
+                        aria-label={t(expanded ? 'nav.collapse' : 'nav.expand', { name: t(s.labelKey) })}
                         className="press flex size-9 shrink-0 items-center justify-center rounded-xs text-muted-2 hover:text-primary"
                       >
                         {/* Chevron ikonkasi buriladi — `press` tugmaning o'zida, ichki span'da emas. */}
@@ -100,14 +100,14 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                         className="overflow-hidden"
                       >
                         <ul className="flex flex-col gap-0.5 px-1 pb-1.5">
-                          {s.tabs.map((t) => {
-                            const on = active && tab?.id === t.id;
-                            const TabIcon = t.Icon;
+                          {s.tabs.map((tab) => {
+                            const on = active && activeTabDef?.id === tab.id;
+                            const TabIcon = tab.Icon;
                             return (
-                              <li key={t.id}>
+                              <li key={tab.id}>
                                 {/* Ikonka ota qatordagi ikonka ustunida (px-1 + pl-2 = 12px). */}
                                 <Link
-                                  to={adminPath(s.id, t.segment)}
+                                  to={adminPath(s.id, tab.segment)}
                                   aria-current={on ? 'page' : undefined}
                                   className={`press relative flex h-8 items-center gap-3 rounded-xs pl-2 pr-3 text-label ${
                                     on ? 'bg-raised text-primary' : 'text-muted hover:text-primary'
@@ -115,7 +115,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                                 >
                                   {on && <span aria-hidden className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-cta" />}
                                   <TabIcon aria-hidden className={`size-4 shrink-0 ${on ? 'text-primary' : 'text-muted-2'}`} strokeWidth={1.8} />
-                                  {t.label}
+                                  {t(tab.labelKey)}
                                 </Link>
                               </li>
                             );
@@ -131,12 +131,12 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
         </nav>
         <div className="flex flex-col gap-1 border-t border-line px-3 py-3">
           <a href="/" target="_blank" rel="noopener noreferrer" className={`${ITEM} text-muted hover:text-primary`}>
-            <ExternalLink aria-hidden className="size-[18px]" strokeWidth={1.8} /> Saytni ochish
+            <ExternalLink aria-hidden className="size-[18px]" strokeWidth={1.8} /> {t('footer.openSite')}
           </a>
           <div className="flex h-9 items-center gap-3 px-3 text-para text-muted">
             <Moon aria-hidden className="size-[18px]" strokeWidth={1.8} />
-            <span className="flex-1">Qorong'i mavzu</span>
-            <Toggle on={dark} onChange={setDark} label="Qorong'i mavzu" />
+            <span className="flex-1">{t('footer.darkTheme')}</span>
+            <Toggle on={dark} onChange={setDark} label={t('footer.darkTheme')} />
           </div>
           <div className="flex h-9 items-center gap-3 px-3 text-para text-muted">
             <Languages aria-hidden className="size-[18px]" strokeWidth={1.8} />
@@ -144,7 +144,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
             <LangSwitch label={t('footer.language')} />
           </div>
           <button type="button" onClick={onLogout} className={`${ITEM} w-full text-left text-muted hover:text-primary`}>
-            <LogOut aria-hidden className="size-[18px]" strokeWidth={1.8} /> Chiqish
+            <LogOut aria-hidden className="size-[18px]" strokeWidth={1.8} /> {t('footer.logout')}
           </button>
         </div>
       </aside>
@@ -154,7 +154,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
         <div className="mx-auto max-w-[1100px] px-4 pb-28 md:px-8 md:pb-10">{children}</div>
       </main>
 
-      <nav aria-label="Bo'limlar" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav aria-label={t('nav.aria')} className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
         <ul className="flex">
           {SECTIONS.map((s) => {
             const active = s.id === route.section;
@@ -167,7 +167,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                   className={`press relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 ${active ? 'text-link' : 'text-muted'}`}
                 >
                   <Icon aria-hidden className="size-6" strokeWidth={active ? 2 : 1.8} />
-                  <span className="text-label leading-none">{s.short}</span>
+                  <span className="text-label leading-none">{t(s.shortKey)}</span>
                   {s.id === 'orders' && badge > 0 && <span className={`absolute left-1/2 top-1 ml-1 ${BADGE}`}>{badge}</span>}
                 </Link>
               </li>

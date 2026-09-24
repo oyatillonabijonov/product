@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Toggle } from './controls';
 
 /** Input ko'rinishi bitta joyda; `text-control` (16px) — iOS Safari kichik inputni fokusda zoom qiladi. */
@@ -144,13 +145,16 @@ export const LangPair: FC<{
   mono?: boolean;
   required?: boolean;
   error?: string;
-}> = ({ label, uz, ru, onUz, onRu, kind = 'text', rows, hint, ruHint = "Bo'sh qolsa o'zbekchasi chiqadi", mono, required, error }) => (
-  <div className="grid gap-3 md:grid-cols-2">
-    <Field label={label} hint={hint} error={error} required={required}>
-      {kind === 'textarea' ? <Textarea value={uz} onChange={onUz} rows={rows} mono={mono} invalid={Boolean(error)} /> : <Input value={uz} onChange={onUz} invalid={Boolean(error)} />}
-    </Field>
-    <Field label={`${label} (ru)`} hint={ruHint}>
-      {kind === 'textarea' ? <Textarea value={ru} onChange={onRu} rows={rows} mono={mono} /> : <Input value={ru} onChange={onRu} />}
-    </Field>
-  </div>
-);
+}> = ({ label, uz, ru, onUz, onRu, kind = 'text', rows, hint, ruHint, mono, required, error }) => {
+  const { t } = useTranslation('common');
+  return (
+    <div className="grid gap-3 md:grid-cols-2">
+      <Field label={label} hint={hint} error={error} required={required}>
+        {kind === 'textarea' ? <Textarea value={uz} onChange={onUz} rows={rows} mono={mono} invalid={Boolean(error)} /> : <Input value={uz} onChange={onUz} invalid={Boolean(error)} />}
+      </Field>
+      <Field label={`${label} (ru)`} hint={ruHint ?? t('ruHint')}>
+        {kind === 'textarea' ? <Textarea value={ru} onChange={onRu} rows={rows} mono={mono} /> : <Input value={ru} onChange={onRu} />}
+      </Field>
+    </div>
+  );
+};

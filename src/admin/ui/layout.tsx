@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import type { FC, ReactNode } from 'react';
 import { Link, useBlocker } from 'react-router';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './controls';
 import { useConfirm } from './confirm';
 
@@ -18,6 +19,7 @@ export const Page: FC<{
   dirty?: boolean;
   children: ReactNode;
 }> = ({ title, back, description, actions, dirty, children }) => {
+  const { t } = useTranslation('common');
   const confirm = useConfirm();
   // Saqlash/o'chirishdan keyingi dasturiy o'tish `state.leave` bilan belgilanadi — u bloklanmaydi
   // (predicate effect'da ro'yxatga olinadi, shu sababli sinxron `navigate` hali `dirty=true`ni ko'radi).
@@ -27,7 +29,7 @@ export const Page: FC<{
   });
   useEffect(() => {
     if (blocker.state !== 'blocked') return;
-    confirm({ title: "Saqlanmagan o'zgarishlar bor", message: "Chiqilsa o'zgarishlar yo'qoladi.", confirmLabel: 'Chiqish', destructive: true })
+    confirm({ title: t('unsavedChanges.title'), message: t('unsavedChanges.message'), confirmLabel: t('unsavedChanges.leave'), destructive: true })
       .then((ok) => { if (ok) blocker.proceed(); else blocker.reset(); });
   }, [blocker.state]);
 
@@ -46,7 +48,7 @@ export const Page: FC<{
           <div className="min-w-0">
             {back && (
               <Link to={back} className="press mb-1 inline-flex items-center gap-0.5 text-label text-link">
-                <ChevronLeft aria-hidden className="size-4" /> Orqaga
+                <ChevronLeft aria-hidden className="size-4" /> {t('back')}
               </Link>
             )}
             <h1 className="truncate text-subhead font-semibold text-primary md:text-heading">{title}</h1>
@@ -94,25 +96,28 @@ export const Rows: FC<{ rows: { k: string; v: ReactNode }[] }> = ({ rows }) => (
 );
 
 /** Segment-kontrol (URL'ga bog'liq): konteyner 12px, ichki 8px — konsentrik. Mobilda yonga suriladi, tugma 44px (tegish maydoni), `md`dan 36px. */
-export const Tabs: FC<{ items: { id: string; label: string; to: string }[]; active: string; className?: string }> = ({ items, active, className = '' }) => (
-  <nav aria-label="Tablar" className={`no-scrollbar -mx-4 overflow-x-auto px-4 md:mx-0 md:px-0 ${className}`}>
-    <ul className="inline-flex gap-1 rounded-sm bg-fill-2 p-1">
-      {items.map((it) => (
-        <li key={it.id}>
-          <Link
-            to={it.to}
-            aria-current={it.id === active ? 'page' : undefined}
-            className={`press flex h-11 items-center whitespace-nowrap rounded-xs px-3.5 text-para md:h-9 ${
-              it.id === active ? 'bg-raised text-primary' : 'text-muted hover:text-primary'
-            }`}
-          >
-            {it.label}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  </nav>
-);
+export const Tabs: FC<{ items: { id: string; label: string; to: string }[]; active: string; className?: string }> = ({ items, active, className = '' }) => {
+  const { t } = useTranslation('common');
+  return (
+    <nav aria-label={t('aria.tabs')} className={`no-scrollbar -mx-4 overflow-x-auto px-4 md:mx-0 md:px-0 ${className}`}>
+      <ul className="inline-flex gap-1 rounded-sm bg-fill-2 p-1">
+        {items.map((it) => (
+          <li key={it.id}>
+            <Link
+              to={it.to}
+              aria-current={it.id === active ? 'page' : undefined}
+              className={`press flex h-11 items-center whitespace-nowrap rounded-xs px-3.5 text-para md:h-9 ${
+                it.id === active ? 'bg-raised text-primary' : 'text-muted hover:text-primary'
+              }`}
+            >
+              {it.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+};
 
 /** Bo'sh holat — bitta amal bilan ("Hali yangilik yo'q — Qo'shish"). */
 export const EmptyState: FC<{ title: string; text?: string; action?: ReactNode }> = ({ title, text, action }) => (
@@ -124,24 +129,28 @@ export const EmptyState: FC<{ title: string; text?: string; action?: ReactNode }
 );
 
 /** Yuklanish — skelet qatorlar ("Yuklanmoqda…" matni o'rniga). */
-export const Skeleton: FC<{ rows?: number }> = ({ rows = 5 }) => (
-  <div aria-busy="true" aria-label="Yuklanmoqda" className="flex flex-col gap-3">
-    {Array.from({ length: rows }, (_, i) => (
-      <div key={i} className="h-11 animate-pulse rounded-xs bg-fill-2" />
-    ))}
-  </div>
-);
+export const Skeleton: FC<{ rows?: number }> = ({ rows = 5 }) => {
+  const { t } = useTranslation('common');
+  return (
+    <div aria-busy="true" aria-label={t('aria.loading')} className="flex flex-col gap-3">
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="h-11 animate-pulse rounded-xs bg-fill-2" />
+      ))}
+    </div>
+  );
+};
 
 /** Sahifalash «‹ 3 / 80 ›» — raqam tugmalari o'rniga (80 ta tugma chizilardi). Bitta sahifa bo'lsa chizilmaydi. */
 export const Pagination: FC<{ page: number; pageCount: number; onChange: (page: number) => void }> = ({ page, pageCount, onChange }) => {
+  const { t } = useTranslation('common');
   if (pageCount <= 1) return null;
   return (
-    <nav aria-label="Sahifalash" className="flex items-center justify-center gap-1 text-para text-primary">
-      <Button variant="quiet" ariaLabel="Oldingi sahifa" disabled={page <= 1} onClick={() => onChange(page - 1)}>
+    <nav aria-label={t('aria.pagination')} className="flex items-center justify-center gap-1 text-para text-primary">
+      <Button variant="quiet" ariaLabel={t('aria.prevPage')} disabled={page <= 1} onClick={() => onChange(page - 1)}>
         <ChevronLeft aria-hidden className="size-4" />
       </Button>
       <span className="tabular-nums">{page} / {pageCount}</span>
-      <Button variant="quiet" ariaLabel="Keyingi sahifa" disabled={page >= pageCount} onClick={() => onChange(page + 1)}>
+      <Button variant="quiet" ariaLabel={t('aria.nextPage')} disabled={page >= pageCount} onClick={() => onChange(page + 1)}>
         <ChevronRight aria-hidden className="size-4" />
       </Button>
     </nav>

@@ -46,11 +46,12 @@ describe('formatDateTime', () => {
 });
 
 describe('formatSum', () => {
-  it("ming bo'lib, so'm bilan", () => {
-    expect(formatSum(12_500_000)).toBe("12 500 000 so'm");
+  it("ming bo'lib, qo'shimcha bilan", () => {
+    expect(formatSum(12_500_000, "so'm")).toBe("12 500 000 so'm");
+    expect(formatSum(12_500_000, 'сум')).toBe('12 500 000 сум');
   });
   it("null — tire, 0 — «0 so'm»", () => {
-    expect(formatSum(null)).toBe('—');
-    expect(formatSum(0)).toBe("0 so'm");
+    expect(formatSum(null, "so'm")).toBe('—');
+    expect(formatSum(0, "so'm")).toBe("0 so'm");
   });
 });

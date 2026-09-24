@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ApiSettings, Term } from '../../../shared/types';
 import { storeRate } from '../../../shared/usd-rate';
 import { monthlyPayment } from '../../lib/installment';
@@ -16,6 +17,7 @@ const SAMPLE = 10_000_000;
 
 /** Sozlamalar → To'lov va kurs: boshlang'ich to'lov, muddatlar va ustama, dollar kursi. */
 const SettingsPayment: FC = () => {
+  const sum = useTranslation('common').t('sum');
   const toast = useToast();
   const [rawSettings, setSettings] = useState(null as ApiSettings | null);
   const settings = rawSettings as ApiSettings | null;
@@ -74,7 +76,7 @@ const SettingsPayment: FC = () => {
               </div>
             </Card>
 
-            <Card title="Muddatlar va ustama" description={`Oylik to'lov namunasi ${formatSum(SAMPLE)} narxli mahsulot uchun.`}>
+            <Card title="Muddatlar va ustama" description={`Oylik to'lov namunasi ${formatSum(SAMPLE, sum)} narxli mahsulot uchun.`}>
               <div className="flex flex-col gap-3">
                 {settings.terms.map((t, i) => (
                   <div key={i} className="flex flex-wrap items-center gap-3">
@@ -88,7 +90,7 @@ const SettingsPayment: FC = () => {
                       <span className="w-24"><Input type="number" value={String(Math.round(t.markup * 100))} onChange={(v) => setTerm(i, 'markup', (Number(v) || 0) / 100)} /></span>
                       %
                     </label>
-                    <span className="text-para text-primary">{formatSum(monthlyPayment(SAMPLE, t, SAMPLE * (settings.downPaymentPercent / 100)))}/oy</span>
+                    <span className="text-para text-primary">{formatSum(monthlyPayment(SAMPLE, t, SAMPLE * (settings.downPaymentPercent / 100)), sum)}/oy</span>
                     <span className="ml-auto">
                       <Button variant="quiet" ariaLabel={`${t.months} oylik muddatni o'chirish`} onClick={() => patch((p) => ({ ...p, terms: p.terms.filter((_, j) => j !== i) }))}>
                         <X aria-hidden className="size-4" />
@@ -119,13 +121,13 @@ const SettingsPayment: FC = () => {
                   </Field>
                 ) : (
                   <Field label="Do'kon kursi" hint="Markaziy bank kursi + ustama; avtomatik yangilanadi">
-                    <Input value={formatSum(storeRate(settings.usdCbuRate, settings.usdMarkupPercent))} onChange={() => {}} disabled />
+                    <Input value={formatSum(storeRate(settings.usdCbuRate, settings.usdMarkupPercent), sum)} onChange={() => {}} disabled />
                   </Field>
                 )}
               </div>
               <p className="mt-2 text-label text-muted-2">
                 {settings.usdCbuRate !== null
-                  ? `Markaziy bank: ${formatSum(settings.usdCbuRate)} (${settings.usdRateDate})`
+                  ? `Markaziy bank: ${formatSum(settings.usdCbuRate, sum)} (${settings.usdRateDate})`
                   : 'Markaziy bank kursi hali olinmadi.'}
               </p>
             </Card>
