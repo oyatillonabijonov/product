@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel, ApiProductType } from '../../../shared/types';
-import type { ManualField } from '../../../shared/billz';
+import { withHiddenLock, type ManualField } from '../../../shared/billz';
 import { PC_SOCKETS, partAttrs, slotForType } from '../../../shared/pc-compat';
 import {
   createProduct, deleteProduct, getProductDetail, listBrands, listCategories, listDeviceModels, listTypes, updateProduct, uploadImage,
@@ -190,7 +190,10 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
         setForm(fresh);
         setLoaded(fresh);
         setDirty(false);
-        toast(t('shared.savedLive'));
+        // Billz tovari rasmsiz yoki yashirilgan bo'lsa saytda chiqmaydi — «ko'rinadi» deyish yolg'on bo'lardi.
+        toast(fresh.billzId !== null && !fresh.isActive
+          ? t(fresh.imageUrl ? 'productEdit.toastSavedHidden' : 'productEdit.toastSavedHiddenNoImage')
+          : t('shared.savedLive'));
       }
     } catch (err) {
       const msg = errText(err); setError(msg); toast(msg, 'error');
@@ -224,6 +227,9 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
   const locks = formLocks(form, loaded);
   const unlock = (f: ManualField) => { if (loaded) patch((x) => revertField(x, loaded, f)); };
   const tag = (f: ManualField) => (billz ? <SourceTag manual={locks.includes(f)} onUnlock={() => unlock(f)} /> : null);
+  // Billz tovarida switch egasining niyati (`hidden` qulfi), haqiqiy ko'rinish esa qoidadan (rasm bor va yashirilmagan):
+  // `isActive`ga bog'lansa, allaqachon ko'rinmaydigan rasmsiz tovarni yashirib qulflab bo'lmasdi.
+  const shown = billz ? !form.manualFields.includes('hidden') : form.isActive;
   const title = isNew ? t('shared.newProduct') : form.name || t('shared.product');
   const canSave = dirty && !busy && loadState === 'ready';
   const storage = form.options.find((o) => o.name === 'Xotira')?.values ?? [];
@@ -269,12 +275,19 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
 
         <Card title={t('productEdit.status.title')} actions={tag('hidden')}>
           <div className="divide-y divide-line">
-            <SwitchRow
-              label={t('productEdit.status.activeLabel')}
-              hint={billz ? t('productEdit.status.activeBillzHint') : undefined}
-              on={form.isActive}
-              onChange={(v) => set('isActive', v)}
-            />
+            <div>
+              <SwitchRow
+                label={t('productEdit.status.activeLabel')}
+                hint={billz ? t('productEdit.status.activeBillzHint') : undefined}
+                on={shown}
+                onChange={(v) => (billz ? patch((f) => ({ ...f, manualFields: withHiddenLock(f.manualFields, v) })) : set('isActive', v))}
+              />
+              {billz && shown && !form.isActive && (
+                <p className="-mt-1 pb-3 text-label text-new">
+                  {form.imageUrl ? t('productEdit.status.notShownNow') : t('productEdit.status.notShownNoImage')}
+                </p>
+              )}
+            </div>
             <SwitchRow
               label={t('productEdit.status.preorderLabel')}
               hint={t('productEdit.status.preorderHint')}

@@ -64,6 +64,8 @@ const products = {
   productEdit: {
     refsLoadError: "Ma'lumotnomalar (kategoriya, brend, tur) yuklanmadi",
     toastCreated: "Mahsulot qo'shildi",
+    toastSavedHidden: "Saqlandi · tovar saytda ko'rinmaydi",
+    toastSavedHiddenNoImage: "Saqlandi · tovar saytda ko'rinmaydi — rasmi yo'q",
     confirmDelete: "«{{name}}» ni o'chirish",
     confirmDeleteMessage: "Mahsulot, rasmlari va variantlari o'chiriladi. Qaytarib bo'lmaydi.",
     toastDeleted: "Mahsulot o'chirildi",
@@ -87,6 +89,8 @@ const products = {
       title: 'Holat',
       activeLabel: "Saytda ko'rsatilsin",
       activeBillzHint: "Yashirsangiz shunday qoladi. Ko'rsatsangiz — rasmi bo'lsa saytda chiqadi.",
+      notShownNow: "Hozir saytda ko'rinmaydi.",
+      notShownNoImage: "Hozir saytda ko'rinmaydi — rasm qo'shilsa chiqadi.",
       preorderLabel: 'Pre-order',
       preorderHint: "Sotuvga hali chiqmagan: saytda «Pre-order» yorlig'i, tugma — «Oldindan buyurtma berish».",
       conditionLabel: 'Holati',

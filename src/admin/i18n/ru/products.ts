@@ -65,6 +65,8 @@ const products: Dict<typeof uz> = {
   productEdit: {
     refsLoadError: 'Справочники (направление, бренд, тип) не загрузились',
     toastCreated: 'Товар добавлен',
+    toastSavedHidden: 'Сохранено · товар не отображается на сайте',
+    toastSavedHiddenNoImage: 'Сохранено · товар не отображается на сайте — нет фото',
     confirmDelete: 'Удалить «{{name}}»',
     confirmDeleteMessage: 'Товар, его фото и варианты будут удалены. Отменить нельзя.',
     toastDeleted: 'Товар удалён',
@@ -87,6 +89,8 @@ const products: Dict<typeof uz> = {
       title: 'Статус',
       activeLabel: 'Показывать на сайте',
       activeBillzHint: 'Если вы скроете товар, он так и останется скрытым. Если покажете — появится на сайте, когда у него есть фото.',
+      notShownNow: 'Сейчас не отображается на сайте.',
+      notShownNoImage: 'Сейчас не отображается на сайте — появится, когда добавите фото.',
       preorderLabel: 'Предзаказ',
       preorderHint: 'Ещё не поступил в продажу: на сайте будет значок «Предзаказ», кнопка — «Оформить предзаказ».',
       conditionLabel: 'Состояние',

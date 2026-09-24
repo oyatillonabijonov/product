@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { AdminProductDetail } from '../api';
+import { withHiddenLock } from '../../../shared/billz';
 import { EMPTY_FORM, addAxisValue, detailToForm, formToPayload, setAxisValues, toggleAxisValue, validateForm, variantLabel, formLocks, revertField } from './product-form';
 import { i18n } from '../i18n';
 
@@ -148,6 +149,18 @@ describe('formLocks — saqlashda qo\'yiladigan qulflar', () => {
   it("ko'rinishni o'chirish — hidden", () => {
     const f = billz();
     expect(formLocks({ ...f, isActive: false }, f)).toEqual(['hidden']);
+  });
+
+  it("allaqachon ko'rinmaydigan (rasmsiz) Billz tovarini ham yashirib qulflash mumkin — switch `manualFields`ni o'zgartiradi", () => {
+    const loaded = detailToForm(detail({ billzId: 'b-1', options: [], variants: [], manualFields: [], imageUrl: '', images: [], isActive: false }));
+    // Eski yo'l: `isActive` false→false — o'zgarish yo'q, qulf qo'yilmasdi va Billz rasm qo'shganda tovar chiqib ketardi.
+    expect(formLocks({ ...loaded, isActive: false }, loaded)).toEqual([]);
+    const hidden = { ...loaded, manualFields: withHiddenLock(loaded.manualFields, false) };
+    expect(formLocks(hidden, loaded)).toEqual(['hidden']);
+    const shown = { ...hidden, manualFields: withHiddenLock(hidden.manualFields, true) };
+    expect(formLocks(shown, loaded)).toEqual([]);
+    // «Billz'ga qaytarish» — qulf yechiladi, switch yana «ko'rsatilsin» holatida.
+    expect(revertField(hidden, loaded, 'hidden').manualFields).not.toContain('hidden');
   });
 });
 
