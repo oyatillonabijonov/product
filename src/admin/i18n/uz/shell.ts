@@ -41,7 +41,7 @@ const shell = {
     loadErrorText: "Internet yoki server bilan aloqa yo'q — qayta urinib ko'ring.",
     needsImage: {
       label: 'Rasm kutayotgan tovarlar',
-      note: "Qoldig'i bor, lekin rasmi yo'q — shuning uchun saytda ko'rinmayapti.",
+      note: "Rasmi yo'q — shuning uchun saytda ko'rinmayapti. Rasm qo'yilishi bilan o'zi chiqadi.",
       zero: 'Hammasining rasmi bor.',
       action: "Ro'yxatni ochish",
     },

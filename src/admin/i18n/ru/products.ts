@@ -12,8 +12,8 @@ const products: Dict<typeof uz> = {
     hidden: 'скрыто {{count}}',
     reason: 'Причина: {{list}}',
     noImage: 'без фото — {{count}}',
-    noStock: 'нет остатка — {{count}}',
     byHand: 'скрыты вручную — {{count}}',
+    gone: 'больше нет в Billz — {{count}}',
   },
   form: {
     nameRequired: 'Введите название товара.',

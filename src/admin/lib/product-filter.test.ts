@@ -9,7 +9,7 @@ function p(over: Partial<ApiProduct>): ApiProduct {
   return {
     id: over.id ?? 'x', name: 'Item', category: 'iphone', condition: 'yangi',
     conditionNote: null, cashPriceUzs: 100, imageUrl: '', isActive: true,
-    categoryId: null, brandId: null, minPriceUzs: 100, billzId: null, billzStock: null, ...over,
+    categoryId: null, brandId: null, minPriceUzs: 100, billzId: null, billzStock: null, manualFields: [], ...over,
   } as ApiProduct;
 }
 
@@ -78,12 +78,18 @@ describe('summaryText', () => {
   it("sabablar takrorlanmaydi va yig'indisi ko'rinmayotganlarga teng", () => {
     const items = [
       p({ id: '1', isActive: true, imageUrl: '/a.webp' }),
-      p({ id: '2', isActive: false, billzId: 'b', imageUrl: '', billzStock: 0 }),
-      p({ id: '3', isActive: false, billzId: 'c', imageUrl: '/a.webp', billzStock: 0 }),
-      p({ id: '4', isActive: false, billzId: 'd', imageUrl: '/a.webp', billzStock: 7 }),
+      p({ id: '2', isActive: false, billzId: 'b', imageUrl: '' }),
+      p({ id: '3', isActive: false, billzId: 'c', imageUrl: '/a.webp', manualFields: ['hidden'] }),
+      p({ id: '4', isActive: false, imageUrl: '/a.webp' }),
+      p({ id: '5', isActive: false, billzId: 'd', imageUrl: '/a.webp' }),
     ];
     expect(summaryText(items, tUz)).toBe(
-      "Jami 4 ta tovar: 1 tasi saytda e'lon qilingan, 3 tasi ko'rinmaydi. Sababi: 1 tasida rasm yo'q, 1 tasining qoldig'i tugagan, 1 tasini qo'lda yashirgansiz.",
+      "Jami 5 ta tovar: 1 tasi saytda e'lon qilingan, 4 tasi ko'rinmaydi. Sababi: 1 tasida rasm yo'q, 2 tasini qo'lda yashirgansiz, 1 tasi Billz'da endi yo'q.",
     );
+  });
+
+  it("qoldig'i tugagani sabab emas — bunday tovar saytda ko'rinadi", () => {
+    const items = [p({ id: '1', isActive: true, billzId: 'b', imageUrl: '/a.webp', billzStock: 0 })];
+    expect(summaryText(items, tUz)).toBe("Jami 1 ta tovar: 1 tasi saytda e'lon qilingan.");
   });
 });

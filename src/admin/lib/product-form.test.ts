@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { AdminProductDetail } from '../api';
-import { EMPTY_FORM, addAxisValue, detailToForm, formToPayload, setAxisValues, toggleAxisValue, validateForm, variantLabel } from './product-form';
+import { EMPTY_FORM, addAxisValue, detailToForm, formToPayload, setAxisValues, toggleAxisValue, validateForm, variantLabel, formLocks, revertField } from './product-form';
 import { i18n } from '../i18n';
 
 const tUz = i18n.getFixedT('uz', 'products');
@@ -122,5 +122,55 @@ describe("Billz qo'l maydonlari", () => {
     const f = detailToForm(d);
     expect(f.manualFields).toEqual(['description', 'price']);
     expect(formToPayload(f).manualFields).toEqual(['description', 'price']);
+  });
+});
+
+describe('formLocks — saqlashda qo\'yiladigan qulflar', () => {
+  const billz = () => detailToForm(detail({ billzId: 'b-1', billzStock: 2, options: [], variants: [], manualFields: [] }));
+
+  it("oddiy tovarda qulf hisoblanmaydi", () => {
+    const f = detailToForm(detail());
+    expect(formLocks({ ...f, name: 'Boshqa' }, f)).toEqual([]);
+  });
+
+  it("yuklanmagan bo'lsa (loaded null) — formadagi qulflar o'z holicha", () => {
+    const f = { ...billz(), manualFields: ['price' as const] };
+    expect(formLocks(f, null)).toEqual(['price']);
+  });
+
+  it("Billz tovarida tahrirlangan maydon qulflanadi", () => {
+    const f = billz();
+    expect(formLocks({ ...f, name: 'iPhone 17' }, f)).toEqual([]);
+    expect(formLocks({ ...f, name: 'iPhone 17 (yangi)' }, f)).toEqual(['name']);
+    expect(formLocks({ ...f, brandId: 'samsung', images: [] }, f)).toEqual(['brand', 'images']);
+  });
+
+  it("ko'rinishni o'chirish — hidden", () => {
+    const f = billz();
+    expect(formLocks({ ...f, isActive: false }, f)).toEqual(['hidden']);
+  });
+});
+
+describe('revertField — «Billz\'ga qaytarish»', () => {
+  const loaded = detailToForm(detail({ billzId: 'b-1', options: [], variants: [], manualFields: ['name'] }));
+
+  it("qulfni yechadi va shu seansdagi o'zgarishni bekor qiladi", () => {
+    const edited = { ...loaded, name: 'Tahrirlangan', description: 'Yangi tavsif' };
+    const out = revertField(edited, loaded, 'name');
+    expect(out.manualFields).toEqual([]);
+    expect(out.name).toBe(loaded.name);
+    expect(out.description).toBe('Yangi tavsif'); // boshqa maydonga tegilmaydi
+  });
+
+  it('rasmlar guruhi asosiy rasm va galereyani birga qaytaradi', () => {
+    const edited = { ...loaded, imageUrl: '/x.webp', images: [] };
+    const out = revertField(edited, loaded, 'images');
+    expect(out.imageUrl).toBe(loaded.imageUrl);
+    expect(out.images).toEqual(loaded.images);
+  });
+
+  it("qaytarilgan maydon endi qulf sifatida hisoblanmaydi", () => {
+    const edited = { ...loaded, name: 'Tahrirlangan' };
+    expect(formLocks(revertField(edited, loaded, 'name'), loaded)).toEqual([]);
   });
 });

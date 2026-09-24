@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next';
 import type { ApiSpec, Condition } from '../../../shared/types';
 import type { AdminProductDetail, AdminProductInput, AdminVariantInput } from '../api';
 import { generateVariants, type OptionDraft } from './variant-gen';
-import type { ManualField } from '../../../shared/billz';
+import { applyManualEdits, type LockSnapshot, type ManualField } from '../../../shared/billz.ts';
 
 // i18n: ma'lumot — tarjima qilinmaydi (variant qiymati bo'lib bazaga yoziladi va saytda chip bo'lib chiqadi)
 /** Variant o'qlari — chiplar shu qiymatlardan; boshqa rang qo'lda yoziladi. */
@@ -40,10 +40,10 @@ export interface ProductFormState {
   pcWatts: number | null;
   options: OptionDraft[];
   variants: AdminVariantInput[];
-  /** Billz tovari — sinxron maydonlar faqat o'qiladi, o'chirilmaydi. */
+  /** Billz tovari — ham to'liq tahrirlanadi; o'zgartirilgan guruh `manualFields`ga qulflanadi. */
   billzId: string | null;
   billzStock: number | null;
-  /** Billz tovarida qo'lda tahrirlanadigan (sinxronizatsiya tegmaydigan) maydonlar. */
+  /** Billz tovarida qo'lda o'zgartirilgan (sinxronizatsiya tegmaydigan) guruhlar. */
   manualFields: ManualField[];
 }
 
@@ -136,4 +136,47 @@ export function addAxisValue(f: ProductFormState, axis: string, value: string): 
   const current = f.options.find((o) => o.name === axis)?.values ?? [];
   if (!v || current.includes(v)) return f;
   return setAxisValues(f, axis, [...current, v]);
+}
+
+/** Forma → qulf solishtiruvi uchun holat (`formToPayload` bilan bir xil normallashtirish). */
+function lockSnapshot(f: ProductFormState): LockSnapshot {
+  const p = formToPayload(f);
+  return {
+    name: f.name, brandId: f.brandId, categoryId: f.categoryId, type: f.type,
+    description: p.description ?? null, cashPriceUzs: p.cashPriceUzs ?? 0, oldPriceUzs: p.oldPriceUzs ?? null,
+    specs: p.specs ?? [], imageUrl: f.imageUrl, images: f.images, isActive: f.isActive,
+  };
+}
+
+/**
+ * Saqlashda qo'yiladigan qulflar — belgi («Billz» / «Qo'lda») ham shu bilan jonli ko'rsatiladi, ya'ni egasi
+ * nima qulflanishini saqlashdan oldin ko'radi. Faqat Billz tovarida; oddiy tovarga sinxronizatsiya tegmaydi.
+ */
+export function formLocks(f: ProductFormState, loaded: ProductFormState | null): ManualField[] {
+  if (f.billzId === null || loaded === null) return f.manualFields;
+  return applyManualEdits(f.manualFields, lockSnapshot(loaded), lockSnapshot(f));
+}
+
+/** Qulf guruhi → forma maydonlari (`shared/billz.ts` `GROUPS` bilan bir xil guruhlash). */
+const GROUP_FIELDS: Record<ManualField, (keyof ProductFormState)[]> = {
+  price: ['cashPriceUzs', 'oldPriceUzs'],
+  specs: ['specs'],
+  description: ['description'],
+  category: ['categoryId', 'type'],
+  name: ['name'],
+  brand: ['brandId'],
+  images: ['imageUrl', 'images'],
+  hidden: ['isActive'],
+};
+
+/**
+ * «Billz'ga qaytarish»: qulf yechiladi va shu seansdagi o'zgarish bekor qilinadi (maydon yuklangan qiymatga
+ * qaytadi) — aks holda saqlashda o'sha o'zgarish qulfni qayta qo'yardi. Billz qiymatining o'zi keyingi
+ * sinxronizatsiyada (30 daqiqagacha) keladi.
+ */
+export function revertField(f: ProductFormState, loaded: ProductFormState, field: ManualField): ProductFormState {
+  const next = { ...f, manualFields: f.manualFields.filter((x) => x !== field) } as unknown as Record<string, unknown>;
+  const src = loaded as unknown as Record<string, unknown>;
+  for (const k of GROUP_FIELDS[field]) next[k] = src[k];
+  return next as unknown as ProductFormState;
 }

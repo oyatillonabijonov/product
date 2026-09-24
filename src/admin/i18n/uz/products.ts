@@ -10,8 +10,8 @@ const products = {
     hidden: "{{count}} tasi ko'rinmaydi",
     reason: 'Sababi: {{list}}',
     noImage: "{{count}} tasida rasm yo'q",
-    noStock: "{{count}} tasining qoldig'i tugagan",
     byHand: "{{count}} tasini qo'lda yashirgansiz",
+    gone: "{{count}} tasi Billz'da endi yo'q",
   },
   form: {
     nameRequired: 'Mahsulot nomini kiriting.',

@@ -53,10 +53,10 @@ export function filterProducts(items: ApiProduct[], f: ProductFilter): ApiProduc
 }
 
 /**
- * Ro'yxat ustidagi xulosa — raqam emas, holat: nechtasi saytda va ko'rinmayotganlari
- * nega ko'rinmayapti. Sabablar **bir-birini takrorlamaydi**: har tovar birinchi mos
- * sababga qo'shiladi (rasm → qoldiq → qo'lda yashirilgan), shuning uchun ularning
- * yig'indisi ko'rinmayotganlar soniga teng.
+ * Ro'yxat ustidagi xulosa — raqam emas, holat: nechtasi saytda va ko'rinmayotganlari nega ko'rinmayapti.
+ * Sabablar **bir-birini takrorlamaydi**: har tovar birinchi mos sababga qo'shiladi (rasm → qo'lda →
+ * Billz'da yo'q), shuning uchun yig'indisi ko'rinmayotganlar soniga teng. Qoldiq sabab emas (2026-09-24):
+ * rasmi bor Billz tovari faqat qo'lda yashirilgan yoki Billz'dan o'chirilgan bo'lsa ko'rinmaydi.
  */
 export function summaryText(items: ApiProduct[], t: TFunction<'products'>): string {
   const total = items.length;
@@ -66,12 +66,12 @@ export function summaryText(items: ApiProduct[], t: TFunction<'products'>): stri
   if (hidden.length === 0) return `${head}.`;
 
   const noImage = hidden.filter((p) => !p.imageUrl).length;
-  const noStock = hidden.filter((p) => p.imageUrl && p.billzStock === 0).length;
-  const byHand = hidden.length - noImage - noStock;
+  const byHand = hidden.filter((p) => p.imageUrl && (!p.billzId || p.manualFields.includes('hidden'))).length;
+  const gone = hidden.length - noImage - byHand;
   const why = [
     noImage > 0 ? t('filter.noImage', { count: noImage }) : '',
-    noStock > 0 ? t('filter.noStock', { count: noStock }) : '',
     byHand > 0 ? t('filter.byHand', { count: byHand }) : '',
+    gone > 0 ? t('filter.gone', { count: gone }) : '',
   ].filter(Boolean);
   return `${head}, ${t('filter.hidden', { count: hidden.length })}. ${t('filter.reason', { list: why.join(', ') })}.`;
 }
