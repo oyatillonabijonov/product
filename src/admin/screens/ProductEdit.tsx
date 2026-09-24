@@ -54,7 +54,9 @@ const SourceTag: FC<{ manual: boolean; onUnlock: () => void }> = ({ manual, onUn
         type="button"
         onClick={onUnlock}
         title={t('productEdit.source.revertTitle')}
-        className="press text-link"
+        // Tegish maydoni 44px (16 + 20 + 8), manfiy margin bilan joylashuv 20px qatorda qoladi. Tepaga ko'proq:
+        // maydon yorlig'i ostidagi input 6px pastda boshlanadi, tepada esa 16px bo'shliq (grid `gap-4`, karta paddingi).
+        className="press -mb-2 -mt-4 pb-2 pt-4 text-link"
       >
         {t('productEdit.source.revert')}
       </button>
