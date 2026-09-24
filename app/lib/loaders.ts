@@ -134,7 +134,8 @@ export async function loadProductsBy(
 
 /**
  * PC konfiguratori qismlari — saytda yashirin bo'lsa ham (qoldiq 0 → "Buyurtma asosida"; rasmsiz qoldiqli).
- * Qo'lda kiritilgan (billz_id yo'q) nofaol mahsulotlar — namuna ma'lumot, chiqmaydi. Xato → {} (bo'lim chiqmaydi).
+ * Qo'lda kiritilgan (billz_id yo'q) nofaol mahsulotlar — namuna ma'lumot, chiqmaydi. Egasi yashirgan Billz qismi
+ * (`manual_fields`da `hidden`) ham chiqmaydi — admin «Yashirsangiz shunday qoladi» deydi. Xato → {} (bo'lim chiqmaydi).
  */
 export async function loadConfiguratorParts(env: Env): Promise<Partial<Record<SlotKey, ConfigPart[]>>> {
   try {
@@ -146,7 +147,8 @@ export async function loadConfiguratorParts(env: Env): Promise<Partial<Record<Sl
        billz_id, billz_stock, is_active, pc_socket, pc_memory, pc_watts
        FROM products
        WHERE category_id = 'pc' AND type IN (${types.map(() => '?').join(', ')}) AND pc_hidden = 0
-         AND cash_price_uzs > 0 AND (is_active = 1 OR billz_id IS NOT NULL)`,
+         AND cash_price_uzs > 0 AND (is_active = 1 OR billz_id IS NOT NULL)
+         AND instr(',' || COALESCE(manual_fields, '') || ',', ',hidden,') = 0`,
     ).bind(...types).all<ConfigPartRow>();
     return toConfigParts(results);
   } catch (err) {
