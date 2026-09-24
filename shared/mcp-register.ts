@@ -241,4 +241,13 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     }
     return text(`${parsed.visible ? "Saytda ko'rsatildi" : 'Saytdan yashirildi'}: ${link}`);
   });
+
+  server.registerTool('image_upload_link', {
+    description: "Telefondan rasm yuklash uchun bir martalik havola: 30 daqiqa, faqat shu tovar uchun. Chatga tashlangan rasmni saytga uzatib bo'lmaydi — egasi rasm yubormoqchi bo'lsa yoki tovarda rasm yo'q bo'lsa shu havolani bering. Bosadi, galereyadan tanlaydi, rasmlar tovarga o'zi qo'shiladi; Billz tovari rasm qo'shilishi bilan saytda chiqadi.",
+    inputSchema: { id: z.string() },
+  }, async (args: unknown) => {
+    const { id } = args as { id: string };
+    const r = await api.write<{ url: string; expiresAt: number }>(`/api/admin/products/${id}/upload-link`, 'POST', {}, 'image_upload_link');
+    return text(`Rasm yuklash havolasi (30 daqiqa ishlaydi):\n${r.url}\n\nBosing → «Rasm tanlash» → galereyadan rasmlarni tanlang. Rasmlar tovarga o'zi qo'shiladi.`);
+  });
 }

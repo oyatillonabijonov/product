@@ -12,6 +12,7 @@ export function loader({ request }: Route.LoaderArgs) {
     'Disallow: /register',
     'Disallow: /revoke',
     'Disallow: /oauth',
+    'Disallow: /yuklash',
     '',
     `Sitemap: ${origin}/sitemap.xml`,
     '',

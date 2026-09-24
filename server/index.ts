@@ -45,7 +45,7 @@ app.use((_req, res, next) => {
 
 // Storefront sahifalari uchun qisqa kesh + stale-while-revalidate. Keshlashni
 // oldindagi proxy bajaradi; dinamik va shaxsiy sahifalar keshlanmaydi.
-const NO_CACHE = ['/admin', '/api/', '/auth/', '/images/', '/assets/', '/mcp', '/oauth/', '/authorize', '/token', '/register', '/revoke', '/.well-known/'];
+const NO_CACHE = ['/admin', '/api/', '/auth/', '/images/', '/assets/', '/mcp', '/oauth/', '/authorize', '/token', '/register', '/revoke', '/.well-known/', '/yuklash'];
 const NO_CACHE_EXACT = ['/search', '/savat', '/kirish', '/kabinet'];
 app.use((req, res, next) => {
   if (req.method !== 'GET') return next();
