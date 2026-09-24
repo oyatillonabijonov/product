@@ -156,7 +156,7 @@ export interface MappedProduct {
   photos: { url: string; key: string }[];
   imageUrl: string;
   gallery: string[];
-  /** Ko'rinish qoidasi: qoldiq bor va rasm bor. */
+  /** Ko'rinish: rasm bor bo'lsa (qoldiqqa qaramaydi, 2026-09-24); qulflar `syncTarget`da qo'llanadi. */
   isActive: boolean;
 }
 
@@ -230,7 +230,7 @@ export function mapBillzProduct(raw: BillzProduct, ctx: MapContext): MappedProdu
     photos,
     imageUrl,
     gallery,
-    isActive: stock > 0 && imageUrl !== '',
+    isActive: billzVisible({ hasImage: imageUrl !== '', hiddenLocked: false }),
   };
 }
 
@@ -257,32 +257,50 @@ export function mergeDuplicates(items: MappedProduct[]): MappedProduct[] {
   for (const g of groups.values()) {
     const rep = g.find((m) => m.photos.length > 0) ?? g[0];
     const stock = g.reduce((s, m) => s + m.stock, 0);
-    out.push({ ...rep, stock, isActive: stock > 0 && rep.imageUrl !== '' });
+    out.push({ ...rep, stock, isActive: billzVisible({ hasImage: rep.imageUrl !== '', hiddenLocked: false }) });
   }
   return out;
 }
 
 /**
- * Billz'da rasm bo'lmasa (yoki CDN'dan yuklab bo'lmasa) saytdagi rasm qoladi va
- * ko'rinish o'sha rasm bo'yicha hisoblanadi. Aks holda Billz'ning bo'sh `image_url`i
- * admin/MCP yuklagan rasmni har 30 daqiqada o'chirib, tovarni yana yashirar edi
- * (galereya allaqachon shunday himoyalangan, asosiy rasm esa qolib ketgan edi).
+ * Ko'rinish qoidasi (spec §4): rasm bor va egasi qo'lda yashirmagan. Qoldiq e'tiborga olinmaydi —
+ * egasi tovarni omborda bo'lmasa ham tez olib keladi (2026-09-24). Sinxronizatsiya ham, admin `PUT`/`PATCH`
+ * ham shu funksiyani ishlatadi — ikkalasi bir xil natija bermasa, rasm qo'yilgan tovar 30 daqiqa kutardi.
  */
-export function keepSiteImage(m: MappedProduct, existingImage: string | null, failed: Set<string>): MappedProduct {
-  if (m.photos.length > 0 && !failed.has(m.photos[0].key)) return m;
-  const imageUrl = existingImage ?? '';
-  return { ...m, photos: [], imageUrl, gallery: [], isActive: m.stock > 0 && imageUrl !== '' };
+export function billzVisible(o: { hasImage: boolean; hiddenLocked: boolean }): boolean {
+  return o.hasImage && !o.hiddenLocked;
 }
 
 /**
- * Billz tovarining **qo'lda tahrirlanadigan** maydonlari. Billz'da tavsif va xususiyatlar
- * ko'pincha to'liq emas, `Nad Kategoriya` maydoni esa to'ldirilmay qolishi mumkin —
- * shuning uchun egasi ularni admin'da yozishi mumkin: shu ro'yxatga tushgan maydonga
- * sinxronizatsiya boshqa tegmaydi (`products.manual_fields` ustuni). `category` yo'nalish
- * va turni birga qulflaydi (tur yo'nalish ichidan tanlanadi).
- * Qolgan ustunlar avvalgidek Billz'niki — nom, qoldiq, ko'rinish, rasm, brend.
+ * Sinxronizatsiya yozadigan yakuniy tovar. Saytdagi rasm qoladi, agar rasmlar qo'lda qulflangan bo'lsa yoki
+ * Billz'da rasm yo'q / CDN'dan yuklab bo'lmasa — aks holda admin/MCP yuklagan rasm har 30 daqiqada o'chardi.
+ * `photos: []` bo'lgani uchun galereya ham yozilmaydi. Ko'rinish — `billzVisible`.
  */
-export const MANUAL_FIELDS = ['price', 'specs', 'description', 'category'] as const;
+export function syncTarget(m: MappedProduct, existingImage: string | null, locks: readonly ManualField[], failed: Set<string>): MappedProduct {
+  const siteImage = locks.includes('images') || m.photos.length === 0 || failed.has(m.photos[0].key);
+  const base = siteImage ? { ...m, photos: [], imageUrl: existingImage ?? '', gallery: [] } : m;
+  return { ...base, isActive: billzVisible({ hasImage: base.imageUrl !== '', hiddenLocked: locks.includes('hidden') }) };
+}
+
+/**
+ * Sinxronizatsiya mavjud qatorni **Billz'dagi nom** bo'yicha topadi (`products.billz_name`), saytdagi `name`
+ * bo'yicha emas: nom endi qulflanadi. Busiz «… / Silver» ni «iPhone 17 Pro» deb qayta nomlasangiz, Billz'dagi
+ * boshqa «iPhone 17 Pro» tovarining narx va qoldig'i sizning tovaringizga yozilardi. `billz_name` hali bo'sh
+ * bo'lsa (migratsiyadan oldingi qator) — saytdagi nom, u o'sha paytda Billz nomi bilan bir xil edi.
+ */
+export function billzNameKey(r: { name: string; billz_name: string | null }): string {
+  return nameKey(r.billz_name ?? r.name);
+}
+
+/**
+ * Billz tovarining **qo'lda o'zgartirilgan** maydonlari (`products.manual_fields`). Ro'yxatdagi guruhga
+ * sinxronizatsiya tegmaydi — egasi admin'da yoki MCP orqali nima o'zgartirsa, shunday qoladi
+ * (2026-09-24, egasining standarti: «30 daqiqada eski holatga qaytsa — cringe»). `price` naqd va eski
+ * narxni, `category` yo'nalish va turni, `images` asosiy rasm va galereyani birga qulflaydi; `hidden` —
+ * egasi yashirgan (ko'rsatish qulfni yechadi). Qoldiq hech qachon qulflanmaydi — u ombordan keladi.
+ * Yangi kalitlar oxiriga qo'shiladi: bazadagi eski satrlar (`price,specs`) o'zgarishsiz o'qiladi.
+ */
+export const MANUAL_FIELDS = ['price', 'specs', 'description', 'category', 'name', 'brand', 'images', 'hidden'] as const;
 export type ManualField = (typeof MANUAL_FIELDS)[number];
 
 /** Bazadagi vergulli satrni ro'yxatga aylantiradi; notanish kalit va takror tashlanadi. */
@@ -296,4 +314,52 @@ export function parseManualFields(raw: string | null | undefined): ManualField[]
 export function serializeManualFields(fields: readonly string[] | null | undefined): string {
   if (!fields) return '';
   return MANUAL_FIELDS.filter((f) => fields.includes(f)).join(',');
+}
+
+/** Qulf solishtiriladigan holat — admin formasi ham, MCP tanasi ham shu shaklga keladi. */
+export interface LockSnapshot {
+  name: string;
+  brandId: string | null;
+  categoryId: string | null;
+  type: string | null;
+  description: string | null;
+  cashPriceUzs: number;
+  oldPriceUzs: number | null;
+  specs: { label: string; value: string }[];
+  imageUrl: string;
+  images: string[];
+  isActive: boolean;
+}
+
+const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+const trimmed = (s: string | null) => (s ?? '').trim();
+
+const GROUPS: { key: ManualField; touched: (a: LockSnapshot, b: LockSnapshot) => boolean }[] = [
+  { key: 'price', touched: (a, b) => a.cashPriceUzs !== b.cashPriceUzs || (a.oldPriceUzs ?? null) !== (b.oldPriceUzs ?? null) },
+  { key: 'specs', touched: (a, b) => !sameJson(a.specs.map((s) => [s.label, s.value]), b.specs.map((s) => [s.label, s.value])) },
+  { key: 'description', touched: (a, b) => trimmed(a.description) !== trimmed(b.description) },
+  { key: 'category', touched: (a, b) => a.categoryId !== b.categoryId || a.type !== b.type },
+  { key: 'name', touched: (a, b) => a.name.trim() !== b.name.trim() },
+  { key: 'brand', touched: (a, b) => a.brandId !== b.brandId },
+  { key: 'images', touched: (a, b) => a.imageUrl !== b.imageUrl || !sameJson(a.images, b.images) },
+];
+
+/** Ko'rinish qulfi: yashirish `hidden` qo'yadi (Billz qaytarib ochmaydi), ko'rsatish uni yechadi. */
+export function withHiddenLock(locks: readonly ManualField[], visible: boolean): ManualField[] {
+  const set = new Set<ManualField>(locks);
+  if (visible) set.delete('hidden'); else set.add('hidden');
+  return MANUAL_FIELDS.filter((f) => set.has(f));
+}
+
+/**
+ * Saqlashda qo'yiladigan qulflar: `before` — foydalanuvchi ko'rgan holat, `after` — saqlanayotgani.
+ * **Mijoz tomonida** hisoblanadi, server farqi bo'yicha emas: sinxronizatsiya tahrir paytida narxni
+ * yangilasa, forma eski narxni ham yuboradi — server uni «o'zgartirilgan» deb ko'rib eski narxni abadiy
+ * qulflardi (spec §3). Tegilmagan maydon qulflanmaydi va keyingi sinxronizatsiya uni o'zi tuzatadi.
+ */
+export function applyManualEdits(locks: readonly ManualField[], before: LockSnapshot, after: LockSnapshot): ManualField[] {
+  const set = new Set<ManualField>(locks);
+  for (const g of GROUPS) if (g.touched(before, after)) set.add(g.key);
+  const out = MANUAL_FIELDS.filter((f) => set.has(f));
+  return before.isActive === after.isActive ? out : withHiddenLock(out, after.isActive);
 }

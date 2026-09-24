@@ -1,6 +1,6 @@
 import type { Env, SqlStatement } from '../shared/runtime';
 import {
-  BILLZ_BASE, productsUrl, hiddenIds, keepSiteImage, mapBillzProduct, mergeDuplicates, nameKey,
+  BILLZ_BASE, productsUrl, hiddenIds, syncTarget, mapBillzProduct, mergeDuplicates, nameKey,
   type BillzProduct, type BillzProductsPage, type BillzShop, type BillzSyncResult, type BillzSyncStatus, type MapContext, type MappedProduct,
   parseManualFields,
 } from '../shared/billz.ts';
@@ -235,8 +235,8 @@ export function createBillzSync(env: Env): BillzSyncHandle {
           brandsByName.set(m.newBrand.name.toLowerCase(), m.newBrand.id);
         }
         const ex = findRow(m.billzId, m.name);
-        // Billz'da rasm yo'q yoki yuklanmadi — saytdagi rasm qoladi (bo'sh bo'lsa tovar ko'rinmaydi).
-        const eff = keepSiteImage(m, ex?.image_url ?? null, failed);
+        // Qulflar bo'yicha yakuniy tovar: saytdagi rasm (qulf yoki Billz'da yo'q), ko'rinish — rasm va `hidden`.
+        const eff = syncTarget(m, ex?.image_url ?? null, parseManualFields(ex?.manual_fields), failed);
         const { stmts: s, id } = upsertStatements(eff, ex?.id, ex?.manual_fields);
         stmts.push(...s);
         if (ex) { result.updated++; seenRows.add(ex.billz_id); }

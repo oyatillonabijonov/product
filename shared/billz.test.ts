@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import type { ProductTypeRow } from './product-types';
 import {
-  toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct, nameKey, mergeDuplicates, keepSiteImage,
-  type BillzProduct, type MapContext,
+  toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct, nameKey, mergeDuplicates,
+  syncTarget, applyManualEdits, withHiddenLock, billzVisible, billzNameKey,
+  type BillzProduct, type MapContext, type LockSnapshot,
   parseManualFields,
   serializeManualFields,
 } from './billz';
@@ -129,7 +130,8 @@ describe('mapBillzProduct', () => {
     expect(kept?.imageUrl).toBe('/images/products/admin.webp');
     expect(kept?.isActive).toBe(true);
     const noStock = mapBillzProduct(raw({ shop_measurement_values: [{ shop_id: SHOP, active_measurement_value: 0 }] }), { ...ctx, existingImage: '/x.jpg' });
-    expect(noStock?.isActive).toBe(false);
+    // 2026-09-24: qoldig'i 0 tovar ham ko'rinadi — egasi uni tez olib keladi.
+    expect(noStock?.isActive).toBe(true);
   });
   it("do'kon narxi yo'q / nom bo'sh → null", () => {
     expect(mapBillzProduct(raw({ shop_prices: [{ shop_id: 'other', retail_price: 1, retail_currency: 'USD', promo_price: 0 }] }), ctx)).toBeNull();
@@ -187,45 +189,135 @@ describe('dublikatlarni birlashtirish', () => {
   });
 });
 
-describe('saytdagi rasmni saqlash', () => {
+describe('syncTarget — sinxronizatsiya yozadigan yakuniy tovar', () => {
   const photo = { url: 'https://fra1.digitaloceanspaces.com/b/x.jpg', key: 'products/billz-x.jpg' };
   const base = (over: Partial<import('./billz').MappedProduct> = {}): import('./billz').MappedProduct => ({
     billzId: 'a', name: 'MacBook Air', slug: 'macbook-air-a', categoryId: 'apple', type: 'macbook',
     brandId: 'apple', newBrand: null, cashPriceUzs: 1, oldPriceUzs: null, stock: 3, description: null, specs: [],
     photos: [], imageUrl: '', gallery: [], isActive: false, ...over,
   });
+  const withBillzPhoto = base({ photos: [photo], imageUrl: '/images/products/billz-x.jpg', gallery: ['/images/products/g.jpg'] });
 
-  it("Billz'da rasm yo'q — admin yuklagani qoladi va tovar ko'rinadi", () => {
-    const out = keepSiteImage(base(), '/images/products/uploaded.jpg', new Set());
+  it("Billz'da rasm yo'q — saytdagi rasm qoladi va tovar ko'rinadi", () => {
+    const out = syncTarget(base(), '/images/products/uploaded.jpg', [], new Set());
     expect(out.imageUrl).toBe('/images/products/uploaded.jpg');
     expect(out.isActive).toBe(true);
     expect(out.gallery).toEqual([]);
   });
 
-  it('rasm yuklab bo\'lmadi — saytdagi rasm qoladi', () => {
-    const out = keepSiteImage(base({ photos: [photo], imageUrl: '/images/products/billz-x.jpg' }), '/images/products/uploaded.jpg', new Set([photo.key]));
+  it("rasm yuklab bo'lmadi — saytdagi rasm qoladi", () => {
+    const out = syncTarget(withBillzPhoto, '/images/products/uploaded.jpg', [], new Set([photo.key]));
     expect(out.imageUrl).toBe('/images/products/uploaded.jpg');
     expect(out.photos).toEqual([]);
   });
 
-  it("Billz rasmi yuklandi — Billz'niki yozadi", () => {
-    const m = base({ photos: [photo], imageUrl: '/images/products/billz-x.jpg', isActive: true });
-    expect(keepSiteImage(m, '/images/products/uploaded.jpg', new Set())).toBe(m);
+  it("Billz rasmi yuklandi va qulf yo'q — Billz'niki yoziladi", () => {
+    const out = syncTarget(withBillzPhoto, '/images/products/uploaded.jpg', [], new Set());
+    expect(out.imageUrl).toBe('/images/products/billz-x.jpg');
+    expect(out.photos).toEqual([photo]);
+    expect(out.gallery).toEqual(['/images/products/g.jpg']);
+    expect(out.isActive).toBe(true);
+  });
+
+  it("rasmlar qulflangan — Billz'da rasm bo'lsa ham saytdagisi qoladi, galereya yozilmaydi", () => {
+    const out = syncTarget(withBillzPhoto, '/images/products/uploaded.jpg', ['images'], new Set());
+    expect(out.imageUrl).toBe('/images/products/uploaded.jpg');
+    expect(out.photos).toEqual([]);
+    expect(out.gallery).toEqual([]);
+  });
+
+  it("qo'lda yashirilgan — rasm bo'lsa ham ko'rinmaydi", () => {
+    expect(syncTarget(withBillzPhoto, null, ['hidden'], new Set()).isActive).toBe(false);
+  });
+
+  it("qoldig'i 0, rasmi bor — ko'rinadi", () => {
+    expect(syncTarget(base({ stock: 0 }), '/images/products/uploaded.jpg', [], new Set()).isActive).toBe(true);
   });
 
   it("ikkala tomonda ham rasm yo'q — ko'rinmaydi", () => {
-    expect(keepSiteImage(base(), null, new Set()).isActive).toBe(false);
+    expect(syncTarget(base(), null, [], new Set()).isActive).toBe(false);
+  });
+});
+
+describe('qo\'lda o\'zgartirish qulflari', () => {
+  const snap = (over: Partial<LockSnapshot> = {}): LockSnapshot => ({
+    name: 'iPhone 17 Pro Sim/E-sim / Silver', brandId: 'apple', categoryId: 'apple', type: 'iphone',
+    description: 'Tavsif', cashPriceUzs: 100, oldPriceUzs: null,
+    specs: [{ label: 'Xotira', value: '256GB' }], imageUrl: '/a.webp', images: ['/b.webp'], isActive: true, ...over,
+  });
+
+  it("hech narsa o'zgarmasa qulflar o'z holicha", () => {
+    expect(applyManualEdits(['price'], snap(), snap())).toEqual(['price']);
+  });
+
+  it('har guruh o\'z qulfini qo\'yadi', () => {
+    expect(applyManualEdits([], snap(), snap({ name: 'iPhone 17 Pro' }))).toEqual(['name']);
+    expect(applyManualEdits([], snap(), snap({ brandId: 'samsung' }))).toEqual(['brand']);
+    expect(applyManualEdits([], snap(), snap({ type: 'ipad' }))).toEqual(['category']);
+    expect(applyManualEdits([], snap(), snap({ description: 'Yangi' }))).toEqual(['description']);
+    expect(applyManualEdits([], snap(), snap({ oldPriceUzs: 120 }))).toEqual(['price']);
+    expect(applyManualEdits([], snap(), snap({ specs: [{ label: 'Xotira', value: '512GB' }] }))).toEqual(['specs']);
+    expect(applyManualEdits([], snap(), snap({ images: [] }))).toEqual(['images']);
+  });
+
+  it("tavsifdagi faqat bo'shliq o'zgarishi tahrir emas", () => {
+    expect(applyManualEdits([], snap({ description: 'Tavsif' }), snap({ description: '  Tavsif \n' }))).toEqual([]);
+    expect(applyManualEdits([], snap({ description: null }), snap({ description: '' }))).toEqual([]);
+  });
+
+  it('galereya tartibini almashtirish ham tahrir', () => {
+    const b = snap({ images: ['/b.webp', '/c.webp'] });
+    expect(applyManualEdits([], b, snap({ images: ['/c.webp', '/b.webp'] }))).toEqual(['images']);
+  });
+
+  it("yashirish qulf qo'yadi, ko'rsatish yechadi", () => {
+    expect(applyManualEdits([], snap({ isActive: true }), snap({ isActive: false }))).toEqual(['hidden']);
+    expect(applyManualEdits(['hidden', 'price'], snap({ isActive: false }), snap({ isActive: true }))).toEqual(['price']);
+  });
+
+  it("sinxronizatsiya tahrir paytida narxni o'zgartirgan bo'lsa ham — foydalanuvchi tegmagan narx qulflanmaydi", () => {
+    // Egasi 10:00 da narx 100 ni ko'rdi, 10:15 da bazada 120 bo'ldi, 10:20 da faqat tavsifni o'zgartirdi.
+    // Forma narxni 100 deb yuboradi, lekin foydalanuvchi uni ko'rgan holatdan o'zgartirmagan.
+    expect(applyManualEdits([], snap({ cashPriceUzs: 100 }), snap({ cashPriceUzs: 100, description: 'Yangi' }))).toEqual(['description']);
+  });
+
+  it('tartib doim MANUAL_FIELDS bo\'yicha', () => {
+    expect(applyManualEdits(['hidden'], snap(), snap({ name: 'X', cashPriceUzs: 5 }))).toEqual(['price', 'name', 'hidden']);
+  });
+
+  it('withHiddenLock takrorlansa ham bir xil natija', () => {
+    expect(withHiddenLock(['price'], false)).toEqual(['price', 'hidden']);
+    expect(withHiddenLock(['price', 'hidden'], false)).toEqual(['price', 'hidden']);
+    expect(withHiddenLock(['price', 'hidden'], true)).toEqual(['price']);
+    expect(withHiddenLock([], true)).toEqual([]);
+  });
+});
+
+describe('billzVisible', () => {
+  it('rasm bor va qo\'lda yashirilmagan bo\'lsagina ko\'rinadi', () => {
+    expect(billzVisible({ hasImage: true, hiddenLocked: false })).toBe(true);
+    expect(billzVisible({ hasImage: true, hiddenLocked: true })).toBe(false);
+    expect(billzVisible({ hasImage: false, hiddenLocked: false })).toBe(false);
+    expect(billzVisible({ hasImage: false, hiddenLocked: true })).toBe(false);
+  });
+});
+
+describe('billzNameKey', () => {
+  it("tovar Billz'dagi nomi bo'yicha topiladi, saytdagi nom bo'yicha emas", () => {
+    const renamed = { name: 'iPhone 17 Pro', billz_name: 'iPhone 17 Pro Sim/E-sim / Silver' };
+    expect(billzNameKey(renamed)).toBe(nameKey('iPhone 17 Pro Sim/E-sim / Silver'));
+    // Billz'dagi boshqa «iPhone 17 Pro» tovari qayta nomlangan tovarga mos kelmaydi.
+    expect(billzNameKey(renamed)).not.toBe(nameKey('iPhone 17 Pro'));
+  });
+  it("billz_name hali bo'sh bo'lsa (migratsiyadan oldingi qator) saytdagi nom", () => {
+    expect(billzNameKey({ name: 'HomePod', billz_name: null })).toBe('homepod');
   });
 });
 
 describe('manual fields', () => {
   it("bazadagi satrni ro'yxatga aylantiradi, notanish kalitni tashlaydi", () => {
-    expect(parseManualFields('description')).toEqual(['description']);
-    expect(parseManualFields('specs, price')).toEqual(['price', 'specs']);
-    expect(parseManualFields('name,description')).toEqual(['description']);
-    expect(parseManualFields('category,price')).toEqual(['price', 'category']);
-    expect(parseManualFields('')).toEqual([]);
-    expect(parseManualFields(null)).toEqual([]);
+    expect(parseManualFields('nom,description')).toEqual(['description']);
+    expect(parseManualFields('hidden,name,images,brand')).toEqual(['name', 'brand', 'images', 'hidden']);
   });
 
   it('tartib va to\'plam doim bir xil satr beradi', () => {
