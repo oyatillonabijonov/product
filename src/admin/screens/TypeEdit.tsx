@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ApiCategory, ApiProductType } from '../../../shared/types';
 import { createType, deleteType, listCategories, listTypes, updateType, type AdminTypeInput } from '../api';
 import { errText } from '../errText';
@@ -22,6 +23,7 @@ const EMPTY: Form = { categoryId: '', id: '', label: '', labelRu: '', iconUrl: '
 
 /** Tur tahriri. `id` = 'new' yoki `${categoryId}/${typeId}` (yaratilgandan keyin id/yo'nalish o'zgarmaydi). */
 const TypeEdit: FC<{ id: string }> = ({ id }) => {
+  const { t } = useTranslation(['products', 'common']);
   const isNew = id === 'new';
   const [catParam, typeParam] = isNew ? ['', ''] : id.split('/');
   const navigate = useNavigate();
@@ -40,15 +42,15 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
   const [alias, setAlias] = useState('');
 
   useEffect(() => {
-    listCategories().then(setCats).catch(() => setError('Yo\'nalishlar yuklanmadi'));
+    listCategories().then(setCats).catch(() => setError(t('typeEdit.categoriesLoadError')));
     if (isNew) return;
     listTypes().then((all) => {
-      const t = all.find((x) => x.categoryId === catParam && x.id === typeParam);
-      if (!t) { setError('Tur topilmadi'); return; }
-      setCurrent(t);
-      setForm({ categoryId: t.categoryId, id: t.id, label: t.label, labelRu: t.labelRu, iconUrl: t.iconUrl, billzAliases: t.billzAliases, sortOrder: t.sortOrder });
+      const found = all.find((x) => x.categoryId === catParam && x.id === typeParam);
+      if (!found) { setError(t('typeEdit.notFound')); return; }
+      setCurrent(found);
+      setForm({ categoryId: found.categoryId, id: found.id, label: found.label, labelRu: found.labelRu, iconUrl: found.iconUrl, billzAliases: found.billzAliases, sortOrder: found.sortOrder });
       setLoaded(true);
-    }).catch(() => setError('Yuklashda xatolik'));
+    }).catch(() => setError(t('shared.loadError')));
   }, [isNew, catParam, typeParam]);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => { setForm((f: Form) => ({ ...f, [k]: v })); setDirty(true); };
@@ -70,13 +72,13 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
       if (isNew) {
         const created = await createType(body);
         setDirty(false);
-        toast('Tur qo\'shildi');
+        toast(t('typeEdit.toastCreated'));
         navigate(`${LIST}/${created.categoryId}/${created.id}`, { replace: true, state: { leave: true } });
       } else {
         const saved = await updateType(catParam, typeParam, body);
         setCurrent(saved);
         setDirty(false);
-        toast('Saqlandi · saytda 1–5 daqiqada ko\'rinadi');
+        toast(t('shared.savedLive'));
       }
     } catch (e) {
       setError(errText(e));
@@ -89,22 +91,22 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
     if (!current) return;
     const n = current.productCount;
     const ok = await confirm({
-      title: `«${current.label}» turini o'chirish`,
-      message: n > 0 ? `${n} ta mahsulot tursiz qoladi — katalogda ko'rinadi, tur qatorida chiqmaydi.` : 'Bu turda mahsulot yo\'q.',
-      confirmLabel: "O'chirish", destructive: true,
+      title: t('typeEdit.confirmDelete', { name: current.label }),
+      message: n > 0 ? t('typeEdit.confirmDeleteWithProducts', { count: n }) : t('typeEdit.confirmDeleteEmpty'),
+      confirmLabel: t('shared.delete'), destructive: true,
     });
     if (!ok) return;
     try {
       await deleteType(catParam, typeParam);
       setDirty(false);
-      toast('Tur o\'chirildi');
+      toast(t('typeEdit.toastDeleted'));
       navigate(LIST, { state: { leave: true } });
     } catch (e) {
       toast(errText(e), 'error');
     }
   }
 
-  const title = isNew ? 'Yangi tur' : current?.label ?? 'Tur';
+  const title = isNew ? t('typeEdit.newType') : current?.label ?? t('typeEdit.fallbackTitle');
   const canSave = dirty && !busy && form.label.trim() !== '' && form.categoryId !== '' && form.iconUrl !== '';
 
   return (
@@ -112,37 +114,37 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
       title={title}
       back={LIST}
       dirty={dirty}
-      actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
+      actions={<Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>}
     >
       {!loaded && !error ? <Skeleton rows={4} /> : (
         <div className="flex flex-col gap-4">
           {error && <p className="text-para text-danger">{error}</p>}
-          <Card title="Asosiy">
+          <Card title={t('shared.basicInfo')}>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Yo'nalish" required>
+              <Field label={t('typeEdit.categoryFieldLabel')} required>
                 <Select value={form.categoryId} onChange={(v) => set('categoryId', v)} disabled={!isNew}>
-                  <option value="">— tanlang —</option>
+                  <option value="">{t('shared.selectPlaceholder')}</option>
                   {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </Select>
               </Field>
-              <Field label="ID" hint={isNew ? "Bo'sh qolsa nomdan yasaladi; keyin o'zgarmaydi" : 'Yaratilgandan keyin o\'zgarmaydi'} required>
+              <Field label="ID" hint={isNew ? t('typeEdit.idHintNew') : t('typeEdit.idHintExisting')} required>
                 <Input value={form.id} onChange={(v) => set('id', v)} placeholder={slugId(form.label)} disabled={!isNew} />
               </Field>
-              <Field label="Nomi" required>
+              <Field label={t('shared.name')} required>
                 <Input value={form.label} onChange={(v) => set('label', v)} />
               </Field>
-              <Field label="Nomi (ru)" hint="Bo'sh qolsa o'zbekchasi chiqadi">
+              <Field label={t('typeEdit.nameRuLabel')} hint={t('common:ruHint')}>
                 <Input value={form.labelRu} onChange={(v) => set('labelRu', v)} />
               </Field>
-              <Field label="Tartib" hint="Tur qatoridagi o'rni — kichigi oldin">
+              <Field label={t('shared.sortOrder')} hint={t('typeEdit.sortHint')}>
                 <Input type="number" value={String(form.sortOrder)} onChange={(v) => set('sortOrder', Number(v) || 0)} />
               </Field>
             </div>
           </Card>
 
-          <Card title="Ikonka" description="Shaffof PNG; yuklashda 220×136 qutiga sig'diriladi (sayt yarim o'lchamda chizadi).">
+          <Card title={t('typeEdit.icon.title')} description={t('typeEdit.icon.desc')}>
             <ImageUploader
-              label="Ikonka"
+              label={t('typeEdit.icon.title')}
               images={form.iconUrl ? [form.iconUrl] : []}
               onChange={(next) => set('iconUrl', next[0] ?? '')}
               normalize={{ maxSize: 220, maxHeight: 136, quality: 0.8 }}
@@ -150,12 +152,12 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
             />
           </Card>
 
-          <Card title="Billz aliaslari" description="Billz'dagi kategoriya nomlari — sinxronizatsiya shu nomdagi tovarni shu turga qo'yadi (tur nomi ham mos keladi).">
+          <Card title={t('shared.billzAliases')} description={t('typeEdit.aliasesDesc')}>
             <div className="flex flex-wrap gap-2">
               {form.billzAliases.map((a) => (
                 <span key={a} className="inline-flex items-center gap-1">
                   <Badge>{a}</Badge>
-                  <button type="button" aria-label={`${a} — olib tashlash`} onClick={() => set('billzAliases', form.billzAliases.filter((x) => x !== a))} className="press rounded-full p-1 text-muted-2 hover:text-primary">
+                  <button type="button" aria-label={t('typeEdit.aliasRemoveLabel', { alias: a })} onClick={() => set('billzAliases', form.billzAliases.filter((x) => x !== a))} className="press rounded-full p-1 text-muted-2 hover:text-primary">
                     <X aria-hidden className="size-3.5" />
                   </button>
                 </span>
@@ -167,16 +169,16 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
                 value={alias}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAlias(e.target.value)}
                 onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') { e.preventDefault(); addAlias(); } }}
-                placeholder="Masalan: DDR5 — Enter"
+                placeholder={t('typeEdit.aliasPlaceholder')}
                 className={INPUT_CLS}
               />
-              <Button variant="secondary" onClick={addAlias}>Qo'shish</Button>
+              <Button variant="secondary" onClick={addAlias}>{t('typeEdit.addAliasButton')}</Button>
             </div>
           </Card>
 
           {!isNew && current && (
-            <Card title="Xavfli zona" description="Tur o'chirilsa shu turdagi mahsulotlar tursiz qoladi.">
-              <Button variant="destructive" onClick={remove}>Turni o'chirish</Button>
+            <Card title={t('shared.dangerZone')} description={t('typeEdit.dangerDesc')}>
+              <Button variant="destructive" onClick={remove}>{t('typeEdit.deleteButton')}</Button>
             </Card>
           )}
         </div>

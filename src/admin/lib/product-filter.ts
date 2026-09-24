@@ -1,3 +1,4 @@
+import type { ParseKeys, TFunction } from 'i18next';
 import type { ApiProduct } from '../../../shared/types';
 
 /**
@@ -6,13 +7,13 @@ import type { ApiProduct } from '../../../shared/types';
  */
 export type QuickFilter = '' | 'active' | 'hidden' | 'needs_image' | 'stock0' | 'manual';
 
-export const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
-  { id: '', label: 'Hammasi' },
-  { id: 'active', label: 'Saytda bor' },
-  { id: 'hidden', label: "Saytda yo'q" },
-  { id: 'needs_image', label: 'Rasm kerak' },
-  { id: 'stock0', label: 'Qoldiq tugagan' },
-  { id: 'manual', label: "Qo'lda kiritilgan" },
+export const QUICK_FILTERS: { id: QuickFilter; labelKey: ParseKeys<'products'> }[] = [
+  { id: '', labelKey: 'filter.quick.all' },
+  { id: 'active', labelKey: 'filter.quick.active' },
+  { id: 'hidden', labelKey: 'filter.quick.hidden' },
+  { id: 'needs_image', labelKey: 'filter.quick.needsImage' },
+  { id: 'stock0', labelKey: 'filter.quick.stock0' },
+  { id: 'manual', labelKey: 'filter.quick.manual' },
 ];
 
 export interface ProductFilter {
@@ -57,20 +58,20 @@ export function filterProducts(items: ApiProduct[], f: ProductFilter): ApiProduc
  * sababga qo'shiladi (rasm → qoldiq → qo'lda yashirilgan), shuning uchun ularning
  * yig'indisi ko'rinmayotganlar soniga teng.
  */
-export function summaryText(items: ApiProduct[]): string {
+export function summaryText(items: ApiProduct[], t: TFunction<'products'>): string {
   const total = items.length;
-  if (total === 0) return "Hali tovar yo'q.";
+  if (total === 0) return t('filter.empty');
   const hidden = items.filter((p) => !p.isActive);
-  const head = `Jami ${total} ta tovar: ${total - hidden.length} tasi saytda e'lon qilingan`;
+  const head = t('filter.total', { count: total, active: total - hidden.length });
   if (hidden.length === 0) return `${head}.`;
 
   const noImage = hidden.filter((p) => !p.imageUrl).length;
   const noStock = hidden.filter((p) => p.imageUrl && p.billzStock === 0).length;
   const byHand = hidden.length - noImage - noStock;
   const why = [
-    noImage > 0 ? `${noImage} tasida rasm yo'q` : '',
-    noStock > 0 ? `${noStock} tasining qoldig'i tugagan` : '',
-    byHand > 0 ? `${byHand} tasini qo'lda yashirgansiz` : '',
+    noImage > 0 ? t('filter.noImage', { count: noImage }) : '',
+    noStock > 0 ? t('filter.noStock', { count: noStock }) : '',
+    byHand > 0 ? t('filter.byHand', { count: byHand }) : '',
   ].filter(Boolean);
-  return `${head}, ${hidden.length} tasi ko'rinmaydi. Sababi: ${why.join(', ')}.`;
+  return `${head}, ${t('filter.hidden', { count: hidden.length })}. ${t('filter.reason', { list: why.join(', ') })}.`;
 }

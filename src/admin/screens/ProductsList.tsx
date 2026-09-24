@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand, ApiCategory, ApiProduct, ApiProductType } from '../../../shared/types';
 import { listBrands, listCategories, listProducts, listTypes, setProductActive } from '../api';
 import { errText } from '../errText';
-import { formatThousands } from '../lib/format';
+import { formatSum } from '../lib/format';
 import { QUICK_FILTERS, filterProducts, summaryText, type QuickFilter } from '../lib/product-filter';
 import { Badge, Button, Card, DataTable, EmptyState, Pagination, SearchInput, Segmented, Select, Skeleton, Toggle, type Column } from '../ui';
 import { useToast } from '../ui/toast';
@@ -20,6 +21,8 @@ const QUICK_IDS: string[] = QUICK_FILTERS.map((q) => q.id);
  * o'chirish yo'q — Billz tovari o'chirilmaydi (sinxronizatsiya qaytaradi), qo'lda kiritilgani tahrirda.
  */
 const ProductsList: FC = () => {
+  const { t } = useTranslation(['products', 'common']);
+  const sum = t('common:sum');
   const navigate = useNavigate();
   const toast = useToast();
   const [params, setParams] = useSearchParams();
@@ -44,8 +47,8 @@ const ProductsList: FC = () => {
   function load() {
     setError('');
     Promise.all([listProducts(), listCategories(), listBrands(), listTypes()])
-      .then(([p, c, b, t]) => { setItems(p); setCats(c); setBrands(b); setTypes(t); })
-      .catch(() => setError('Yuklashda xatolik'));
+      .then(([p, c, b, ts]) => { setItems(p); setCats(c); setBrands(b); setTypes(ts); })
+      .catch(() => setError(t('shared.loadError')));
   }
   useEffect(load, []);
 
@@ -74,7 +77,7 @@ const ProductsList: FC = () => {
     setItems((xs: ApiProduct[] | null) => xs && xs.map((x) => (x.id === p.id ? { ...x, isActive: on } : x)));
     try {
       await setProductActive(p.id, on);
-      toast(on ? "Saytda ko'rsatildi" : 'Yashirildi');
+      toast(on ? t('common:shownOnSite') : t('common:hidden'));
     } catch (err) {
       setItems((xs: ApiProduct[] | null) => xs && xs.map((x) => (x.id === p.id ? { ...x, isActive: !on } : x)));
       toast(errText(err), 'error');
@@ -89,65 +92,67 @@ const ProductsList: FC = () => {
         : <span className="block size-11 rounded-xs bg-fill-2" />),
     },
     {
-      id: 'name', label: 'Nomi', mobile: 'title',
+      id: 'name', label: t('shared.name'), mobile: 'title',
       cell: (p) => (
         <span className="flex min-w-0 max-w-sm flex-col gap-1">
           <span className={`truncate ${p.isActive ? 'text-primary' : 'text-muted'}`}>{p.name}</span>
           <span className="flex flex-wrap items-center gap-1.5 text-label text-muted-2">
             {p.billzId && <Badge>Billz</Badge>}
-            {p.billzId && !p.imageUrl && <Badge tone="attention">Rasm kerak</Badge>}
-            {p.condition === 'ishlatilgan' && <Badge tone="info">Ishlatilgan</Badge>}
+            {p.billzId && !p.imageUrl && <Badge tone="attention">{t('filter.quick.needsImage')}</Badge>}
+            {/* i18n: ma'lumot — tarjima qilinmaydi (server bilan solishtiriladigan Condition qiymati) */}
+            {p.condition === 'ishlatilgan' && <Badge tone="info">{t('shared.conditionUsed')}</Badge>}
             {typeLabel(p) && <span>{typeLabel(p)}</span>}
           </span>
         </span>
       ),
     },
-    { id: 'cat', label: 'Kategoriya', cell: (p) => <span className="text-muted">{catName(p.categoryId)}</span> },
-    { id: 'price', label: 'Narx', align: 'right', cell: (p) => <span className="whitespace-nowrap tabular-nums">{formatThousands(p.minPriceUzs)} so'm</span> },
-    { id: 'stock', label: 'Qoldiq', align: 'right', className: 'w-20', cell: (p) => <span className={p.billzStock === 0 ? 'text-muted-2' : 'text-muted'}>{p.billzStock ?? '—'}</span> },
-    { id: 'active', label: 'Saytda', align: 'right', className: 'w-20', cell: (p) => <Toggle on={p.isActive} onChange={(v) => toggle(p, v)} label={`${p.name} — saytda ko'rsatish`} /> },
+    { id: 'cat', label: t('shared.category'), cell: (p) => <span className="text-muted">{catName(p.categoryId)}</span> },
+    { id: 'price', label: t('shared.price'), align: 'right', cell: (p) => <span className="whitespace-nowrap tabular-nums">{formatSum(p.minPriceUzs, sum)}</span> },
+    { id: 'stock', label: t('shared.stock'), align: 'right', className: 'w-20', cell: (p) => <span className={p.billzStock === 0 ? 'text-muted-2' : 'text-muted'}>{p.billzStock ?? '—'}</span> },
+    { id: 'active', label: t('productsList.onSiteColumn'), align: 'right', className: 'w-20', cell: (p) => <Toggle on={p.isActive} onChange={(v) => toggle(p, v)} label={t('productsList.toggleAria', { name: p.name })} /> },
   ];
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <div className="w-full sm:w-64">
-          <SearchInput value={q} onChange={(v) => update('q', v)} placeholder="Nom bo'yicha qidirish…" />
+          <SearchInput value={q} onChange={(v) => update('q', v)} placeholder={t('shared.searchByName')} />
         </div>
         <div className="w-full sm:w-44">
           <Select value={cat} onChange={(v) => update('cat', v)}>
-            <option value="">Barcha kategoriya</option>
+            <option value="">{t('shared.allCategories')}</option>
             {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </Select>
         </div>
         <div className="w-full sm:w-44">
           <Select value={brand} onChange={(v) => update('brand', v)}>
-            <option value="">Barcha brend</option>
+            <option value="">{t('shared.allBrands')}</option>
             {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
           </Select>
         </div>
         <div className="w-full sm:w-36">
           <Select value={cond} onChange={(v) => update('cond', v)}>
-            <option value="">Holati</option>
-            <option value="yangi">Yangi</option>
-            <option value="ishlatilgan">Ishlatilgan</option>
+            <option value="">{t('productsList.conditionPlaceholder')}</option>
+            {/* i18n: ma'lumot — tarjima qilinmaydi ('yangi'/'ishlatilgan' server bilan solishtiriladigan qiymat) */}
+            <option value="yangi">{t('shared.conditionNew')}</option>
+            <option value="ishlatilgan">{t('shared.conditionUsed')}</option>
           </Select>
         </div>
         <div className="sm:ml-auto">
-          <Button to={`${LIST}/new`}>Yangi mahsulot</Button>
+          <Button to={`${LIST}/new`}>{t('shared.newProduct')}</Button>
         </div>
       </div>
-      <Segmented label="Tez filtr" value={f} onChange={(v) => update('f', v)} options={QUICK_FILTERS} />
+      <Segmented label={t('productsList.quickFilterLabel')} value={f} onChange={(v) => update('f', v)} options={QUICK_FILTERS.map((qf) => ({ id: qf.id, label: t(qf.labelKey) }))} />
 
       {error ? (
-        <EmptyState title="Ma'lumot yuklanmadi" text={error} action={<Button variant="secondary" onClick={load}>Qayta urinish</Button>} />
+        <EmptyState title={t('shared.loadErrorTitle')} text={error} action={<Button variant="secondary" onClick={load}>{t('common:retry')}</Button>} />
       ) : !items ? (
         <Skeleton rows={8} />
       ) : (
         <>
           <p className="text-para text-muted">
-            {summaryText(items)}
-            {hasFilter && <span className="text-primary">{` Filtrga mos: ${filtered.length} ta.`}</span>}
+            {summaryText(items, t)}
+            {hasFilter && <span className="text-primary"> {t('productsList.matchesFilter', { count: filtered.length })}</span>}
           </p>
           <Card padded={false}>
             <div className="px-2 py-1">
@@ -158,10 +163,10 @@ const ProductsList: FC = () => {
                 onRowClick={(p) => navigate(`${LIST}/${p.id}`, { state: { search: params.toString() } })}
                 empty={
                   <EmptyState
-                    title="Mahsulot topilmadi"
+                    title={t('productsList.notFound')}
                     action={hasFilter
-                      ? <Button variant="secondary" onClick={() => setParams({}, { replace: true })}>Filtrni tozalash</Button>
-                      : <Button to={`${LIST}/new`}>Yangi mahsulot</Button>}
+                      ? <Button variant="secondary" onClick={() => setParams({}, { replace: true })}>{t('shared.clearFilter')}</Button>
+                      : <Button to={`${LIST}/new`}>{t('shared.newProduct')}</Button>}
                   />
                 }
               />

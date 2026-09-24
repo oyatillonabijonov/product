@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { filterProducts, quickFilter, summaryText } from './product-filter';
 import type { ApiProduct } from '../../../shared/types';
+import { i18n } from '../i18n';
+
+const tUz = i18n.getFixedT('uz', 'products');
 
 function p(over: Partial<ApiProduct>): ApiProduct {
   return {
@@ -65,11 +68,11 @@ describe('quickFilter', () => {
 
 describe('summaryText', () => {
   it("bo'sh ro'yxat", () => {
-    expect(summaryText([])).toBe("Hali tovar yo'q.");
+    expect(summaryText([], tUz)).toBe("Hali tovar yo'q.");
   });
 
   it('hammasi saytda — sabab qatori yo\'q', () => {
-    expect(summaryText([p({ id: '1', isActive: true })])).toBe("Jami 1 ta tovar: 1 tasi saytda e'lon qilingan.");
+    expect(summaryText([p({ id: '1', isActive: true })], tUz)).toBe("Jami 1 ta tovar: 1 tasi saytda e'lon qilingan.");
   });
 
   it("sabablar takrorlanmaydi va yig'indisi ko'rinmayotganlarga teng", () => {
@@ -79,7 +82,7 @@ describe('summaryText', () => {
       p({ id: '3', isActive: false, billzId: 'c', imageUrl: '/a.webp', billzStock: 0 }),
       p({ id: '4', isActive: false, billzId: 'd', imageUrl: '/a.webp', billzStock: 7 }),
     ];
-    expect(summaryText(items)).toBe(
+    expect(summaryText(items, tUz)).toBe(
       "Jami 4 ta tovar: 1 tasi saytda e'lon qilingan, 3 tasi ko'rinmaydi. Sababi: 1 tasida rasm yo'q, 1 tasining qoldig'i tugagan, 1 tasini qo'lda yashirgansiz.",
     );
   });

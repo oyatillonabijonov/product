@@ -1,11 +1,14 @@
+import type { TFunction } from 'i18next';
 import type { ApiSpec, Condition } from '../../../shared/types';
 import type { AdminProductDetail, AdminProductInput, AdminVariantInput } from '../api';
 import { generateVariants, type OptionDraft } from './variant-gen';
 import type { ManualField } from '../../../shared/billz';
 
+// i18n: ma'lumot — tarjima qilinmaydi (variant qiymati bo'lib bazaga yoziladi va saytda chip bo'lib chiqadi)
 /** Variant o'qlari — chiplar shu qiymatlardan; boshqa rang qo'lda yoziladi. */
 export const STORAGE_VALUES = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB'];
 export const COLOR_VALUES = ['Qora', 'Oq', 'Kulrang', "Ko'k", 'Yashil', 'Qizil', 'Tillarang', 'Pushti'];
+// i18n: ma'lumot — tarjima qilinmaydi (option nomi sifatida saqlanadi va butun faylda shu qiymat bilan solishtiriladi)
 /** Variant yorlig'i — o'qlar doim shu tartibda (Xotira · Rang). */
 const AXES = ['Xotira', 'Rang'];
 
@@ -44,6 +47,7 @@ export interface ProductFormState {
   manualFields: ManualField[];
 }
 
+// i18n: ma'lumot — tarjima qilinmaydi ('yangi'/'ishlatilgan' server bilan solishtiriladigan qiymat)
 export const EMPTY_FORM: ProductFormState = {
   name: '', categoryId: null, type: null, condition: 'yangi', conditionNote: '',
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
@@ -81,12 +85,12 @@ export function detailToForm(d: AdminProductDetail): ProductFormState {
 }
 
 /** Saqlashdan oldingi tekshiruv — xato matni yoki null. */
-export function validateForm(f: ProductFormState): string | null {
-  if (!f.name.trim()) return 'Mahsulot nomini kiriting.';
-  if (!(f.cashPriceUzs > 0 || f.variants.some((v) => v.cashPriceUzs > 0))) return 'Naqd narx yoki kamida bitta variant narxini kiriting.';
+export function validateForm(f: ProductFormState, t: TFunction<'products'>): string | null {
+  if (!f.name.trim()) return t('form.nameRequired');
+  if (!(f.cashPriceUzs > 0 || f.variants.some((v) => v.cashPriceUzs > 0))) return t('form.priceRequired');
   // O'lchov bor-u, birorta variant narxlanmagan bo'lsa — mahsulot sahifasida ishlamaydigan chiplar chiqadi; jim saqlamaymiz.
   if (f.options.some((o) => o.name.trim() && o.values.length) && !f.variants.some((v) => v.cashPriceUzs > 0)) {
-    return "Variant narxlarini kiriting yoki o'lchovlarni olib tashlang.";
+    return t('form.variantPriceRequired');
   }
   return null;
 }

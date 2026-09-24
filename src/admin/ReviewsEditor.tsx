@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ApiReview } from '../../shared/types';
 import { createReview, deleteReview, listReviews } from './api';
 import { errText } from './errText';
@@ -16,6 +17,7 @@ const today = () => new Date().toISOString().slice(0, 10);
  * qayta hisoblaydi; `onChanged` forma maydonlarini (reyting, soni) yangilaydi.
  */
 const ReviewsEditor: FC<{ productId: string; onChanged: (avg: number, count: number) => void }> = ({ productId, onChanged }) => {
+  const { t } = useTranslation('products');
   const confirm = useConfirm();
   const [rawItems, setItems] = useState([] as ApiReview[]);
   const items = rawItems as ApiReview[];
@@ -46,7 +48,7 @@ const ReviewsEditor: FC<{ productId: string; onChanged: (avg: number, count: num
     finally { setBusy(false); }
   }
   async function remove(r: ApiReview) {
-    const ok = await confirm({ title: "Sharhni o'chirish", message: `${r.author} · ${'★'.repeat(r.rating)}`, confirmLabel: "O'chirish", destructive: true });
+    const ok = await confirm({ title: t('reviewsEditor.confirmDeleteTitle'), message: `${r.author} · ${'★'.repeat(r.rating)}`, confirmLabel: t('shared.delete'), destructive: true });
     if (!ok) return;
     try { await deleteReview(r.id); publish(items.filter((x) => x.id !== r.id)); }
     catch (e) { setError(errText(e)); }
@@ -54,7 +56,7 @@ const ReviewsEditor: FC<{ productId: string; onChanged: (avg: number, count: num
 
   return (
     <div className="mt-6 border-t border-line pt-5">
-      <p className="mb-3 text-label font-medium text-muted">Sharhlar ({items.length})</p>
+      <p className="mb-3 text-label font-medium text-muted">{t('reviewsEditor.title', { count: items.length })}</p>
       {items.length > 0 && (
         <ul className="mb-4 flex flex-col gap-2">
           {items.map((r) => (
@@ -66,24 +68,24 @@ const ReviewsEditor: FC<{ productId: string; onChanged: (avg: number, count: num
                 </p>
                 <p className="whitespace-pre-line text-para text-body">{r.body}</p>
               </div>
-              <IconAction Icon={Trash2} label="O'chir" onClick={() => remove(r)} danger />
+              <IconAction Icon={Trash2} label={t('reviewsEditor.removeLabel')} onClick={() => remove(r)} danger />
             </li>
           ))}
         </ul>
       )}
       <div className="grid gap-3 md:grid-cols-[1fr_120px_170px]">
-        <Field label="Muallif"><Input value={author} onChange={setAuthor} /></Field>
-        <Field label="Baho">
+        <Field label={t('reviewsEditor.authorLabel')}><Input value={author} onChange={setAuthor} /></Field>
+        <Field label={t('reviewsEditor.ratingLabel')}>
           <Select value={String(rating)} onChange={(v) => setRating(Number(v))}>
             {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n} ★</option>)}
           </Select>
         </Field>
-        <Field label="Sana"><Input type="date" value={date} onChange={setDate} /></Field>
+        <Field label={t('reviewsEditor.dateLabel')}><Input type="date" value={date} onChange={setDate} /></Field>
       </div>
-      <div className="mt-3"><Field label="Sharh matni"><Textarea value={body} onChange={setBody} rows={3} /></Field></div>
+      <div className="mt-3"><Field label={t('reviewsEditor.bodyLabel')}><Textarea value={body} onChange={setBody} rows={3} /></Field></div>
       {error && <p className="mt-2 text-label text-danger">{error}</p>}
       <div className="mt-3">
-        <Button variant="secondary" onClick={add} disabled={busy || !author.trim() || !body.trim()}>+ Sharh qo'shish</Button>
+        <Button variant="secondary" onClick={add} disabled={busy || !author.trim() || !body.trim()}>{t('reviewsEditor.addButton')}</Button>
       </div>
     </div>
   );

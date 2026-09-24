@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand } from '../../../shared/types';
 import { createBrand, deleteBrand, listBrands, updateBrand } from '../api';
 import { errText } from '../errText';
@@ -16,6 +17,7 @@ const EMPTY: Form = { name: '', slug: '', sortOrder: 0, logoUrl: '' };
 
 /** Brend tahriri. `id` = 'new' yoki brend id'si (server slug'dan yasaydi). */
 const BrandEdit: FC<{ id: string }> = ({ id }) => {
+  const { t } = useTranslation('products');
   const isNew = id === 'new';
   const navigate = useNavigate();
   const toast = useToast();
@@ -33,11 +35,11 @@ const BrandEdit: FC<{ id: string }> = ({ id }) => {
     if (isNew) return;
     listBrands().then((all) => {
       const b = all.find((x) => x.id === id);
-      if (!b) { setError('Brend topilmadi'); return; }
+      if (!b) { setError(t('brandEdit.notFound')); return; }
       setInitial(b);
       setForm({ name: b.name, slug: b.slug, sortOrder: b.sortOrder, logoUrl: b.logoUrl });
       setLoaded(true);
-    }).catch(() => setError('Yuklashda xatolik'));
+    }).catch(() => setError(t('shared.loadError')));
   }, [id, isNew]);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => { setForm((f: Form) => ({ ...f, [k]: v })); setDirty(true); };
@@ -49,12 +51,12 @@ const BrandEdit: FC<{ id: string }> = ({ id }) => {
       if (isNew) {
         await createBrand(body);
         setDirty(false);
-        toast("Brend qo'shildi");
+        toast(t('brandEdit.toastCreated'));
         navigate(LIST, { state: { leave: true } });
       } else {
         await updateBrand(id, body);
         setDirty(false);
-        toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
+        toast(t('shared.savedLive'));
       }
     } catch (e) {
       setError(errText(e));
@@ -66,15 +68,15 @@ const BrandEdit: FC<{ id: string }> = ({ id }) => {
   async function remove() {
     if (!initial) return;
     const ok = await confirm({
-      title: `«${initial.name}» brendini o'chirish`,
-      message: `${initial.productCount} ta mahsulot brendsiz qoladi. Billz tovari bo'lsa keyingi sinxronizatsiya brendni qayta yaratadi.`,
-      confirmLabel: "O'chirish", destructive: true,
+      title: t('brandEdit.confirmDelete', { name: initial.name }),
+      message: t('brandEdit.confirmDeleteMessage', { count: initial.productCount }),
+      confirmLabel: t('shared.delete'), destructive: true,
     });
     if (!ok) return;
     try {
       await deleteBrand(id);
       setDirty(false);
-      toast("Brend o'chirildi");
+      toast(t('brandEdit.toastDeleted'));
       navigate(LIST, { state: { leave: true } });
     } catch (e) {
       toast(errText(e), 'error');
@@ -85,33 +87,33 @@ const BrandEdit: FC<{ id: string }> = ({ id }) => {
 
   return (
     <Page
-      title={isNew ? 'Yangi brend' : form.name || initial?.name || 'Brend'}
+      title={isNew ? t('shared.newBrand') : form.name || initial?.name || t('shared.brand')}
       back={LIST}
       dirty={dirty}
-      actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
+      actions={<Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>}
     >
       {!loaded && !error ? <Skeleton rows={4} /> : (
         <div className="flex flex-col gap-4">
           {error && <p className="text-para text-danger">{error}</p>}
-          <Card title="Asosiy">
+          <Card title={t('shared.basicInfo')}>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Nomi" required>
+              <Field label={t('shared.name')} required>
                 <Input value={form.name} onChange={(v) => set('name', v)} />
               </Field>
-              <Field label="Slug" hint="Saytdagi /brand/<slug> manzili; bo'sh qolsa nomdan yasaladi">
+              <Field label={t('brandEdit.slugLabel')} hint={t('brandEdit.slugHint')}>
                 <Input value={form.slug} onChange={(v) => set('slug', v)} />
               </Field>
-              <Field label="Tartib" hint="Tasmadagi va ro'yxatdagi o'rni — kichigi oldin">
+              <Field label={t('shared.sortOrder')} hint={t('brandEdit.sortHint')}>
                 <Input type="number" value={String(form.sortOrder)} onChange={(v) => set('sortOrder', Number(v) || 0)} />
               </Field>
             </div>
           </Card>
-          <Card title="Logotip" description="Shaffof fonli PNG. Yuklansa bosh sahifadagi brendlar tasmasida chiqadi — tasmada bir rangga (qora/oq) keltiriladi; bo'sh qolsa tasmada chiqmaydi.">
-            <ImageUploader label="Logo" images={form.logoUrl ? [form.logoUrl] : []} onChange={(next) => set('logoUrl', next[0] ?? '')} accept="image/png,image/webp" />
+          <Card title={t('brandEdit.logo.title')} description={t('brandEdit.logo.desc')}>
+            <ImageUploader label={t('brandEdit.logo.uploaderLabel')} images={form.logoUrl ? [form.logoUrl] : []} onChange={(next) => set('logoUrl', next[0] ?? '')} accept="image/png,image/webp" />
           </Card>
           {!isNew && initial && (
-            <Card title="Xavfli zona" description="Brend o'chirilsa mahsulotlar brendsiz qoladi.">
-              <Button variant="destructive" onClick={remove}>Brendni o'chirish</Button>
+            <Card title={t('shared.dangerZone')} description={t('brandEdit.dangerDesc')}>
+              <Button variant="destructive" onClick={remove}>{t('brandEdit.deleteButton')}</Button>
             </Card>
           )}
         </div>

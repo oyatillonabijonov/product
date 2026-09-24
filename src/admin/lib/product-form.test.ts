@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import type { AdminProductDetail } from '../api';
 import { EMPTY_FORM, addAxisValue, detailToForm, formToPayload, setAxisValues, toggleAxisValue, validateForm, variantLabel } from './product-form';
+import { i18n } from '../i18n';
+
+const tUz = i18n.getFixedT('uz', 'products');
 
 function detail(over: Partial<AdminProductDetail> = {}): AdminProductDetail {
   return {
@@ -61,11 +64,11 @@ describe('formToPayload', () => {
 
 describe('validateForm', () => {
   it('nom, narx va variant narxi qoidalari', () => {
-    expect(validateForm(EMPTY_FORM)).toMatch(/nomini/);
-    expect(validateForm({ ...EMPTY_FORM, name: 'X' })).toMatch(/narx/i);
+    expect(validateForm(EMPTY_FORM, tUz)).toMatch(/nomini/);
+    expect(validateForm({ ...EMPTY_FORM, name: 'X' }, tUz)).toMatch(/narx/i);
     const withOpt = { ...EMPTY_FORM, name: 'X', cashPriceUzs: 100, options: [{ name: 'Rang', values: ['Qora'] }], variants: [{ cashPriceUzs: 0, inStock: true, optionValues: [{ optionName: 'Rang', value: 'Qora' }] }] };
-    expect(validateForm(withOpt)).toMatch(/Variant/);
-    expect(validateForm({ ...EMPTY_FORM, name: 'X', cashPriceUzs: 100 })).toBeNull();
+    expect(validateForm(withOpt, tUz)).toMatch(/Variant/);
+    expect(validateForm({ ...EMPTY_FORM, name: 'X', cashPriceUzs: 100 }, tUz)).toBeNull();
   });
 });
 
