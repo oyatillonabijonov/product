@@ -15,14 +15,13 @@ import ImageUploader from '../ImageUploader';
 import ModelCombobox from '../ModelCombobox';
 import PriceInput from '../PriceInput';
 import ReviewsEditor from '../ReviewsEditor';
-import { formatSum } from '../lib/format';
 import { normalizeImage } from '../lib/image-normalize';
 import { mergeSpecs, modelToSpecs } from '../lib/models';
 import {
-  COLOR_VALUES, EMPTY_FORM, STORAGE_VALUES, addAxisValue, detailToForm, formToPayload, toggleAxisValue, validateForm, variantLabel,
+  COLOR_VALUES, EMPTY_FORM, STORAGE_VALUES, addAxisValue, detailToForm, formLocks, formToPayload, revertField, toggleAxisValue, validateForm, variantLabel,
   type ProductFormState,
 } from '../lib/product-form';
-import { Button, Card, EmptyState, Field, INPUT_CLS, Input, Page, Rows, Segmented, Select, Skeleton, SwitchRow, Textarea } from '../ui';
+import { Button, Card, EmptyState, Field, INPUT_CLS, Input, Page, Segmented, Select, Skeleton, SwitchRow, Textarea } from '../ui';
 import { useConfirm } from '../ui/confirm';
 import { useToast } from '../ui/toast';
 
@@ -42,14 +41,49 @@ const Chip: FC<{ on: boolean; onClick: () => void; children: ReactNode }> = ({ o
 );
 
 /**
+ * Billz tovari maydonining manbasi: «Billz» — sinxronizatsiya yangilaydi; «Qo'lda» — siz o'zgartirgansiz,
+ * Billz tegmaydi. «Billz'ga qaytarish» qulfni yechadi — keyingi sinxronizatsiyada Billz qiymati keladi.
+ */
+const SourceTag: FC<{ manual: boolean; onUnlock: () => void }> = ({ manual, onUnlock }) => {
+  const { t } = useTranslation('products');
+  return manual ? (
+    <span className="flex items-center gap-1.5 text-label">
+      <span className="font-medium text-primary">{t('productEdit.source.manual')}</span>
+      <span aria-hidden className="text-muted-3">·</span>
+      <button
+        type="button"
+        onClick={onUnlock}
+        title={t('productEdit.source.revertTitle')}
+        className="press text-link"
+      >
+        {t('productEdit.source.revert')}
+      </button>
+    </span>
+  ) : (
+    <span className="text-label text-muted-2">{t('productEdit.source.billz')}</span>
+  );
+};
+
+/**
+ * Maydon + o'ng tepada manba belgisi. Belgi `<label>` dan **tashqarida**: `Field` o'zi `<label>`, uning ichidagi
+ * tugma HTML qoidasiga ko'ra yorliq bosilganda ham bosilardi — ya'ni maydon nomiga bosish qulfni jimgina yechardi.
+ */
+const Tagged: FC<{ tag: ReactNode; className?: string; children: ReactNode }> = ({ tag, className = '', children }) => (
+  <div className={`relative ${className}`}>
+    {tag && <div className="absolute right-0 top-0">{tag}</div>}
+    {children}
+  </div>
+);
+
+/**
  * Mahsulot tahriri — bitta ustun, kartalar muhimlik tartibida (spec §5): Rasmlar → Holat → Ma'lumot → Narx →
  * Variantlar → Xususiyatlar → Reyting va sharhlar → Xavfli zona. `id` = 'new' yoki mahsulot id'si.
- * Billz tovarida sinxron ustunlar (nom, brend, kategoriya, tur, tavsif, narx, xususiyatlar) faqat o'qiladi —
- * keyingi sinxronizatsiya baribir qayta yozadi; o'chirish yo'q (sinxronizatsiya qaytaradi), faqat yashirish.
+ * Billz tovari ham oddiy tovardek tahrirlanadi: o'zgartirilgan guruh «Qo'lda» bo'ladi va sinxronizatsiya unga
+ * tegmaydi (`products.manual_fields`, spec 2026-09-24 §3); «Billz'ga qaytarish» qulfni yechadi.
+ * O'chirish yo'q (sinxronizatsiya qaytaradi), faqat yashirish.
  */
 const ProductEdit: FC<{ id: string }> = ({ id }) => {
   const { t } = useTranslation(['products', 'common']);
-  const sum = t('common:sum');
   const isNew = id === 'new';
   const navigate = useNavigate();
   const location = useLocation();
@@ -74,6 +108,9 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  // Yuklangan holat — Billz tovarida «nima o'zgardi»ni shu bilan solishtiramiz (qulflar, spec 2026-09-24 §3).
+  const [rawLoaded, setLoaded] = useState(null as ProductFormState | null);
+  const loaded = rawLoaded as ProductFormState | null;
   const [colorDraft, setColorDraft] = useState('');
   const [rawBusyRow, setBusyRow] = useState(null as number | null);
   const busyRow = rawBusyRow as number | null;
@@ -89,7 +126,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
     let stale = false; // tez ketma-ket ochilganda eski javob formani to'ldirmasin
     setLoad('loading');
     getProductDetail(id)
-      .then((d) => { if (stale) return; setForm(detailToForm(d)); setLoad('ready'); })
+      .then((d) => { if (stale) return; const f = detailToForm(d); setForm(f); setLoaded(f); setLoad('ready'); })
       .catch(() => { if (!stale) setLoad('error'); });
     return () => { stale = true; };
   }, [id, isNew, retry]);
@@ -146,7 +183,12 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
         toast(t('productEdit.toastCreated'));
         navigate(backTo, { state: { leave: true } });
       } else {
-        await updateProduct(id, formToPayload(form));
+        await updateProduct(id, { ...formToPayload(form), manualFields: formLocks(form, loaded) });
+        // Billz tovarida ko'rinish va qulflar serverda hisoblanadi — formani haqiqat bilan yangilaymiz,
+        // aks holda toggle «ko'rsatilgan» deb tursa-yu, rasmsiz tovar saytda yashirin bo'lardi.
+        const fresh = detailToForm(await getProductDetail(id));
+        setForm(fresh);
+        setLoaded(fresh);
         setDirty(false);
         toast(t('shared.savedLive'));
       }
@@ -178,43 +220,14 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
   // PC bo'g'in turlarida — konfigurator kartasi; "Avtomatik" qiymatlar tuzatishsiz, faqat nomdan.
   const pcSlot = form.categoryId === 'pc' ? slotForType(form.type) : null;
   const autoAttrs = pcSlot ? partAttrs(pcSlot, form.name) : { socket: null, memory: null, watts: null };
-  // Billz tovarida narx/xususiyat/tavsifni qo'lda olish mumkin: yoqilgan maydonga
-  // sinxronizatsiya tegmaydi (`products.manual_fields`), qolgani avvalgidek Billz'niki.
-  const manual = (f: ManualField) => form.manualFields.includes(f);
-  const manualRow = (f: ManualField, hint: string) => (
-    <div className="mb-4 border-b border-line">
-      <SwitchRow
-        label={t('productEdit.manualEditLabel')}
-        hint={hint}
-        on={manual(f)}
-        onChange={(on) => set('manualFields', on ? [...form.manualFields, f] : form.manualFields.filter((x) => x !== f))}
-      />
-    </div>
-  );
-  // Kategoriya va tur — Billz tovarida ham (qulf yoqilganda) shu ikki maydon ishlatiladi.
-  const catFields = (
-    <>
-      <Field label={t('shared.category')}>
-        <Select value={form.categoryId ?? ''} onChange={(v) => setCategory(v || null)}>
-          <option value="">{t('shared.selectPlaceholder')}</option>
-          {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </Select>
-      </Field>
-      <Field label={t('productEdit.info.typeLabel')} hint={t('productEdit.info.typeHint')}>
-        <Select value={form.type ?? ''} disabled={form.categoryId === null} onChange={(v) => set('type', v || null)}>
-          <option value="">{form.categoryId === null ? t('productEdit.info.typeNeedsCategory') : t('shared.selectPlaceholder')}</option>
-          {types.filter((type) => type.categoryId === form.categoryId).map((type) => <option key={type.id} value={type.id}>{type.label}</option>)}
-        </Select>
-      </Field>
-    </>
-  );
+  // Billz tovarida har maydon manbasini ko'rsatamiz; qaysi qulf qo'yilishi saqlashdan oldin jonli hisoblanadi.
+  const locks = formLocks(form, loaded);
+  const unlock = (f: ManualField) => { if (loaded) patch((x) => revertField(x, loaded, f)); };
+  const tag = (f: ManualField) => (billz ? <SourceTag manual={locks.includes(f)} onUnlock={() => unlock(f)} /> : null);
   const title = isNew ? t('shared.newProduct') : form.name || t('shared.product');
   const canSave = dirty && !busy && loadState === 'ready';
   const storage = form.options.find((o) => o.name === 'Xotira')?.values ?? [];
   const colors = form.options.find((o) => o.name === 'Rang')?.values ?? [];
-  const brandName = brands.find((b) => b.id === form.brandId)?.name ?? '—';
-  const catName = cats.find((c) => c.id === form.categoryId)?.name ?? '—';
-  const typeLabel = types.find((t) => t.categoryId === form.categoryId && t.id === form.type)?.label ?? '—';
 
   if (loadState !== 'ready') {
     return (
@@ -247,14 +260,14 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
       <div className="flex flex-col gap-4">
         {error && <p className="text-para text-danger">{error}</p>}
 
-        <Card title={t('productEdit.images.title')} description={billz ? t('productEdit.images.billzHint') : undefined}>
+        <Card title={t('productEdit.images.title')} actions={tag('images')} description={billz ? t('productEdit.images.billzHint') : undefined}>
           <ImageUploader label={t('productEdit.images.main')} images={form.imageUrl ? [form.imageUrl] : []} onChange={(next) => set('imageUrl', next[0] ?? '')} />
           <div className="mt-4">
             <ImageUploader label={t('productEdit.images.gallery')} images={form.images} onChange={(next) => set('images', next)} multiple reorderable />
           </div>
         </Card>
 
-        <Card title={t('productEdit.status.title')}>
+        <Card title={t('productEdit.status.title')} actions={tag('hidden')}>
           <div className="divide-y divide-line">
             <SwitchRow
               label={t('productEdit.status.activeLabel')}
@@ -293,82 +306,64 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
           title={t('productEdit.info.title')}
           description={billz ? t('productEdit.info.billzHint') : undefined}
         >
-          {billz ? (
-            <>
-              {manualRow('category', t('productEdit.info.manualCategoryHint'))}
-              {manualRow('description', t('productEdit.info.manualDescriptionHint'))}
-              <Rows rows={[
-                { k: t('shared.name'), v: form.name }, { k: t('shared.brand'), v: brandName },
-                ...(manual('category') ? [] : [{ k: t('shared.category'), v: catName }, { k: t('productEdit.info.typeLabel'), v: typeLabel }]),
-                ...(manual('description') ? [] : [{ k: t('productEdit.info.descriptionLabel'), v: form.description || '—' }]),
-              ]} />
-              {manual('category') && <div className="mt-4 grid gap-4 md:grid-cols-2">{catFields}</div>}
-              {manual('description') && (
-                <Field label={t('productEdit.info.descriptionLabel')} className="mt-4">
-                  <Textarea value={form.description} onChange={(v) => set('description', v)} rows={5} />
+          <div className="grid gap-4 md:grid-cols-2">
+            <Tagged tag={tag('name')} className="md:col-span-2">
+              {billz ? (
+                // Billz tovarida model qidiruvi yo'q: model tanlash nom, brend, kategoriya va xususiyatlarni birdaniga
+                // to'ldiradi — to'rttasini bir bosishda jimgina qulflab qo'yardi.
+                <Field label={t('shared.name')} required>
+                  <Input value={form.name} onChange={(v) => set('name', v)} />
+                </Field>
+              ) : (
+                <Field label={t('productEdit.info.nameSearchLabel')} required hint={t('productEdit.info.nameSearchHint')}>
+                  <ModelCombobox models={models} value={form.name} onChange={(v) => set('name', v)} onPick={pickModel} className={INPUT_CLS} />
                 </Field>
               )}
-            </>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label={t('productEdit.info.nameSearchLabel')} required hint={t('productEdit.info.nameSearchHint')} className="md:col-span-2">
-                <ModelCombobox models={models} value={form.name} onChange={(v) => set('name', v)} onPick={pickModel} className={INPUT_CLS} />
-              </Field>
+            </Tagged>
+            <Tagged tag={tag('brand')}>
               <Field label={t('shared.brand')}>
                 <Select value={form.brandId ?? ''} onChange={(v) => set('brandId', v || null)}>
                   <option value="">{t('shared.selectPlaceholder')}</option>
                   {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </Select>
               </Field>
-              {catFields}
-              <Field label={t('productEdit.info.descriptionLabel')} className="md:col-span-2">
+            </Tagged>
+            <Tagged tag={tag('category')}>
+              <Field label={t('shared.category')}>
+                <Select value={form.categoryId ?? ''} onChange={(v) => setCategory(v || null)}>
+                  <option value="">{t('shared.selectPlaceholder')}</option>
+                  {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </Select>
+              </Field>
+            </Tagged>
+            <Field label={t('productEdit.info.typeLabel')} hint={t('productEdit.info.typeHint')}>
+              <Select value={form.type ?? ''} disabled={form.categoryId === null} onChange={(v) => set('type', v || null)}>
+                <option value="">{form.categoryId === null ? t('productEdit.info.typeNeedsCategory') : t('shared.selectPlaceholder')}</option>
+                {types.filter((type) => type.categoryId === form.categoryId).map((type) => <option key={type.id} value={type.id}>{type.label}</option>)}
+              </Select>
+            </Field>
+            <Tagged tag={tag('description')} className="md:col-span-2">
+              <Field label={t('productEdit.info.descriptionLabel')}>
                 <Textarea value={form.description} onChange={(v) => set('description', v)} rows={5} />
               </Field>
-            </div>
-          )}
+            </Tagged>
+          </div>
         </Card>
 
         <Card
           title={t('shared.price')}
-          description={billz
-            ? (manual('price')
-              ? t('productEdit.price.manualDesc')
-              : t('productEdit.price.syncDesc'))
-            : undefined}
+          actions={tag('price')}
+          description={billz ? t('productEdit.price.billzDesc') : undefined}
         >
-          {billz ? (
-            <>
-              {manualRow('price', t('productEdit.price.manualHint'))}
-              {manual('price') ? (
-                <>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <Field label={t('productEdit.price.cashFieldLabel')} required>
-                      <PriceInput className={INPUT_CLS} value={form.cashPriceUzs} onChange={(v) => set('cashPriceUzs', v)} />
-                    </Field>
-                    <Field label={t('productEdit.price.oldFieldLabel')} hint={t('productEdit.price.oldFieldHint')}>
-                      <PriceInput className={INPUT_CLS} value={form.oldPriceUzs} onChange={(v) => set('oldPriceUzs', v)} />
-                    </Field>
-                  </div>
-                  <p className="mt-3 text-label text-muted-2">{t('productEdit.price.billzStockNote', { count: form.billzStock ?? 0 })}</p>
-                </>
-              ) : (
-                <Rows rows={[
-                  { k: t('productEdit.price.cashRowLabel'), v: formatSum(form.cashPriceUzs, sum) },
-                  { k: t('productEdit.price.oldRowLabel'), v: form.oldPriceUzs > 0 ? formatSum(form.oldPriceUzs, sum) : '—' },
-                  { k: t('shared.stock'), v: String(form.billzStock ?? 0) },
-                ]} />
-              )}
-            </>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label={t('productEdit.price.cashFieldLabel')} required={form.variants.length === 0} hint={form.variants.length > 0 ? t('productEdit.price.cashHintVariants') : undefined}>
-                <PriceInput className={INPUT_CLS} value={form.cashPriceUzs} onChange={(v) => set('cashPriceUzs', v)} />
-              </Field>
-              <Field label={t('productEdit.price.oldFieldLabel')} hint={t('productEdit.price.oldFieldHint')}>
-                <PriceInput className={INPUT_CLS} value={form.oldPriceUzs} onChange={(v) => set('oldPriceUzs', v)} />
-              </Field>
-            </div>
-          )}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label={t('productEdit.price.cashFieldLabel')} required={form.variants.length === 0} hint={form.variants.length > 0 ? t('productEdit.price.cashHintVariants') : undefined}>
+              <PriceInput className={INPUT_CLS} value={form.cashPriceUzs} onChange={(v) => set('cashPriceUzs', v)} />
+            </Field>
+            <Field label={t('productEdit.price.oldFieldLabel')} hint={t('productEdit.price.oldFieldHint')}>
+              <PriceInput className={INPUT_CLS} value={form.oldPriceUzs} onChange={(v) => set('oldPriceUzs', v)} />
+            </Field>
+          </div>
+          {billz && <p className="mt-3 text-label text-muted-2">{t('productEdit.price.billzStockNote', { count: form.billzStock ?? 0 })}</p>}
         </Card>
 
         {/* i18n: ma'lumot — tarjima qilinmaydi (o'q nomi "Xotira"/"Rang" va chip qiymatlari — AXES/STORAGE_VALUES/COLOR_VALUES, product-form.ts) */}
@@ -425,36 +420,28 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
 
         <Card
           title={t('shared.specs')}
-          description={billz
-            ? (manual('specs') ? t('productEdit.specs.manualDesc') : t('productEdit.specs.syncDesc'))
-            : t('productEdit.specs.plainDesc')}
+          actions={tag('specs')}
+          description={billz ? t('productEdit.specs.billzDesc') : t('productEdit.specs.plainDesc')}
         >
-          {billz && manualRow('specs', t('productEdit.specs.manualHint'))}
-          {billz && !manual('specs') ? (
-            form.specs.length > 0
-              ? <Rows rows={form.specs.map((s) => ({ k: s.label, v: s.value }))} />
-              : <p className="text-para text-muted">{t('productEdit.specs.empty')}</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {form.specs.map((s, i) => (
-                <div key={i} className="flex gap-2">
-                  <Input placeholder={t('productEdit.specs.namePlaceholder')} value={s.label} onChange={(v) => set('specs', form.specs.map((x, j) => (j === i ? { ...x, label: v } : x)))} />
-                  <Input placeholder={t('productEdit.specs.valuePlaceholder')} value={s.value} onChange={(v) => set('specs', form.specs.map((x, j) => (j === i ? { ...x, value: v } : x)))} />
-                  <button
-                    type="button"
-                    aria-label={t('productEdit.specs.removeLabel')}
-                    onClick={() => set('specs', form.specs.filter((_, j) => j !== i))}
-                    className="press shrink-0 rounded-xs px-2 text-muted-2 hover:text-danger"
-                  >
-                    <X aria-hidden className="size-4" />
-                  </button>
-                </div>
-              ))}
-              <div>
-                <Button variant="quiet" onClick={() => set('specs', [...form.specs, { label: '', value: '' }])}>{t('productEdit.specs.addButton')}</Button>
+          <div className="flex flex-col gap-2">
+            {form.specs.map((s, i) => (
+              <div key={i} className="flex gap-2">
+                <Input placeholder={t('productEdit.specs.namePlaceholder')} value={s.label} onChange={(v) => set('specs', form.specs.map((x, j) => (j === i ? { ...x, label: v } : x)))} />
+                <Input placeholder={t('productEdit.specs.valuePlaceholder')} value={s.value} onChange={(v) => set('specs', form.specs.map((x, j) => (j === i ? { ...x, value: v } : x)))} />
+                <button
+                  type="button"
+                  aria-label={t('productEdit.specs.removeLabel')}
+                  onClick={() => set('specs', form.specs.filter((_, j) => j !== i))}
+                  className="press shrink-0 rounded-xs px-2 text-muted-2 hover:text-danger"
+                >
+                  <X aria-hidden className="size-4" />
+                </button>
               </div>
+            ))}
+            <div>
+              <Button variant="quiet" onClick={() => set('specs', [...form.specs, { label: '', value: '' }])}>{t('productEdit.specs.addButton')}</Button>
             </div>
-          )}
+          </div>
         </Card>
 
         {pcSlot && (
