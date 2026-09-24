@@ -7,16 +7,16 @@ const fields: TextFieldDef[] = TEXT_FIELDS.map((f) => ({ ...f, defaults: { uz: `
 describe('contentSections', () => {
   it("landing: yo'nalish kartalari matni va rasmlari bilan, keyin xizmatlar, konsultatsiya, sarlavhalar", () => {
     const s = contentSections('home', fields, ASSET_FIELDS);
-    expect(s.map((x) => x.title)).toEqual(['Apple kartasi', 'PC kartasi', 'Audio kartasi', 'Video kartasi', "Xizmat va'dalari", 'Konsultatsiya', 'Sarlavhalar']);
+    expect(s.map((x) => x.id)).toEqual(['heroApple', 'heroPc', 'heroAudio', 'heroVideo', 'services', 'consult', 'homeTitles']);
     expect(s[1].texts.map((f) => f.key)).toEqual(['heroPc']);
     expect(s[1].assets.map((f) => f.key)).toEqual(['hero.pc.image', 'hero.pc.poster', 'hero.pc.video1', 'hero.pc.video2']);
     expect(s[5].assets.map((f) => f.key)).toEqual(['consult.image']);
   });
   it("faqat rasmli bo'lim oxirida; kalit filtri", () => {
     const about = contentSections('about', fields, ASSET_FIELDS);
-    expect(about[about.length - 1].title).toBe('Rasmlar');
+    expect(about[about.length - 1].id).toBe('images');
     expect(contentSections('legal', fields, ASSET_FIELDS, ['legalLedeOferta'])).toEqual([
-      { title: 'Sarlavha ostidagi izoh', texts: [fields.find((f) => f.key === 'legalLedeOferta')], assets: [] },
+      { id: 'legal', texts: [fields.find((f) => f.key === 'legalLedeOferta')], assets: [] },
     ]);
     expect(contentSections('legal', fields, ASSET_FIELDS, [])).toEqual([]);
   });

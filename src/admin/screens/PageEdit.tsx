@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import type { ApiPage } from '../../../shared/types';
 import { ABOUT_SLUG, LEGAL_LEDE_KEYS } from '../../lib/page-slugs';
 import { createPage, deletePage, listPages, updatePage } from '../api';
@@ -25,6 +26,7 @@ function toForm(p: ApiPage): Form {
  * ostidagi izoh (sayt matni). Shablon saqlangan slug'ga bog'liq — maxsus sahifaning slug'i o'zgarmaydi, o'chirilmaydi.
  */
 const PageEdit: FC<{ id: string }> = ({ id }) => {
+  const { t } = useTranslation('content');
   const isNew = id === 'new';
   const navigate = useNavigate();
   const toast = useToast();
@@ -49,11 +51,11 @@ const PageEdit: FC<{ id: string }> = ({ id }) => {
     if (isNew) return;
     listPages().then((all) => {
       const p = all.find((x) => x.id === id);
-      if (!p) { setError('Sahifa topilmadi'); return; }
+      if (!p) { setError(t('pageEdit.notFound')); return; }
       setInitial(p);
       setForm(toForm(p));
       setLoaded(true);
-    }).catch(() => setError('Yuklashda xatolik'));
+    }).catch(() => setError(t('shared.loadError')));
   }, [id, isNew]);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => { setForm((f: Form) => ({ ...f, [k]: v })); setDirty(true); };
@@ -73,7 +75,7 @@ const PageEdit: FC<{ id: string }> = ({ id }) => {
       if (isNew) {
         await createPage(payload);
         setDirty(false);
-        toast("Sahifa qo'shildi");
+        toast(t('pageEdit.toastCreated'));
         navigate(LIST, { state: { leave: true } });
         return;
       }
@@ -84,7 +86,7 @@ const PageEdit: FC<{ id: string }> = ({ id }) => {
         setDirty(false);
       }
       if (content.dirty) await content.save();
-      toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
+      toast(t('shared.savedLive'));
     } catch (e) {
       setError(errText(e));
     } finally {
@@ -95,15 +97,15 @@ const PageEdit: FC<{ id: string }> = ({ id }) => {
   async function remove() {
     if (!initial) return;
     const ok = await confirm({
-      title: `«${initial.title.uz}» sahifasini o'chirish`,
-      message: "Sahifa saytdan va footer'dan olib tashlanadi. Faqat yashirish kerak bo'lsa «Saytda ko'rsatilsin»ni o'chiring.",
-      confirmLabel: "O'chirish", destructive: true,
+      title: t('pageEdit.confirmDelete', { name: initial.title.uz }),
+      message: t('pageEdit.confirmDeleteMessage'),
+      confirmLabel: t('shared.delete'), destructive: true,
     });
     if (!ok) return;
     try {
       await deletePage(id);
       setDirty(false);
-      toast("Sahifa o'chirildi");
+      toast(t('pageEdit.toastDeleted'));
       navigate(LIST, { state: { leave: true } });
     } catch (e) {
       toast(errText(e), 'error');
@@ -114,47 +116,48 @@ const PageEdit: FC<{ id: string }> = ({ id }) => {
 
   return (
     <Page
-      title={isNew ? 'Yangi sahifa' : form.titleUz || initial?.title.uz || 'Sahifa'}
+      title={isNew ? t('pageEdit.newTitle') : form.titleUz || initial?.title.uz || t('pageEdit.untitled')}
       back={LIST}
       dirty={dirty || content.dirty}
       actions={(
         <>
-          {initial?.isActive && <Button variant="quiet" href={`/page/${savedSlug}`} external>Saytda ko'rish</Button>}
-          <Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>
+          {initial?.isActive && <Button variant="quiet" href={`/page/${savedSlug}`} external>{t('shared.viewOnSite')}</Button>}
+          <Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>
         </>
       )}
     >
       {!loaded && !error ? <Skeleton rows={6} /> : (
         <div className="flex flex-col gap-4">
           {error && <p className="text-para text-danger">{error}</p>}
-          <Card title="Sarlavha" description={isAbout ? 'Sahifa tepasida va footer havolasida chiqadi; matn va fotolar quyida.' : undefined}>
-            <LangPair label="Sarlavha" required uz={form.titleUz} ru={form.titleRu} onUz={(v) => set('titleUz', v)} onRu={(v) => set('titleRu', v)} />
+          <Card title={t('shared.title')} description={isAbout ? t('pageEdit.aboutTitleHint') : undefined}>
+            <LangPair label={t('shared.title')} required uz={form.titleUz} ru={form.titleRu} onUz={(v) => set('titleUz', v)} onRu={(v) => set('titleRu', v)} />
           </Card>
           {special && <ContentFields content={content} />}
           {!isAbout && (
-            <Card title="Matn" description="Sahifaning asosiy matni.">
+            <Card title={t('shared.text')} description={t('pageEdit.contentDescription')}>
               <div className="flex flex-col gap-3">
-                <LangPair label="Matn" kind="textarea" rows={16} mono uz={form.contentUz} ru={form.contentRu} onUz={(v) => set('contentUz', v)} onRu={(v) => set('contentRu', v)} />
+                <LangPair label={t('shared.text')} kind="textarea" rows={16} mono uz={form.contentUz} ru={form.contentRu} onUz={(v) => set('contentUz', v)} onRu={(v) => set('contentRu', v)} />
                 <MarkdownHelp />
               </div>
             </Card>
           )}
-          <Card title="Manzil va ko'rinish">
+          <Card title={t('shared.slugAndVisibility')}>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Slug" required hint={special ? "Maxsus sahifa — manzili o'zgarmaydi" : "Saytdagi /page/<slug> manzili: kichik lotin harflari, raqam va «-»"}>
+              <Field label={t('shared.slug')} required hint={special ? t('pageEdit.slugRequiredHint') : t('pageEdit.slugHint')}>
+                {/* i18n: ma'lumot — tarjima qilinmaydi (placeholder — saytdagi haqiqiy sahifa slug'i) */}
                 <Input value={form.slug} onChange={(v) => set('slug', v)} disabled={special} placeholder="qaytarish" />
               </Field>
-              <Field label="Tartib" hint="Footer'dagi o'rni — kichigi oldin">
+              <Field label={t('shared.sortOrder')} hint={t('pageEdit.sortHint')}>
                 <Input type="number" value={String(form.sortOrder)} onChange={(v) => set('sortOrder', Number(v) || 0)} />
               </Field>
             </div>
             <div className="mt-2 divide-y divide-line">
-              <SwitchRow label="Saytda ko'rsatilsin" hint="O'chirilsa sahifa ochilmaydi va footer'da chiqmaydi" on={form.isActive} onChange={(v) => set('isActive', v)} />
+              <SwitchRow label={t('shared.showOnSite')} hint={t('pageEdit.visibilityHint')} on={form.isActive} onChange={(v) => set('isActive', v)} />
             </div>
           </Card>
           {!isNew && !special && (
-            <Card title="Xavfli zona">
-              <Button variant="destructive" onClick={remove}>Sahifani o'chirish</Button>
+            <Card title={t('shared.dangerZone')}>
+              <Button variant="destructive" onClick={remove}>{t('pageEdit.deleteButton')}</Button>
             </Card>
           )}
         </div>

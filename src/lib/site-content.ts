@@ -4,156 +4,161 @@ import type { Translation } from '../locales';
 /**
  * Sayt kontenti registri (spec §6) — admin'da tahrirlanadigan matnlar (`site_texts`) va rasm/videolar
  * (`site_assets`). Registr tartibi = admin'dagi maydon tartibi; `group` — admin sahifasi, `section` — shu
- * sahifadagi karta sarlavhasi. Matn kaliti `locales.ts`dagi `Translation` kaliti: u yerda kalit o'chsa, lint
+ * sahifadagi karta id'si. Matn kaliti `locales.ts`dagi `Translation` kaliti: u yerda kalit o'chsa, lint
  * registrni ham yiqitadi — etim kalit qolmaydi. Registrga qator qo'shish = matnni tahrirlanadigan qilish.
+ * Maydon nomlari, izohlar va karta sarlavhalari admin tarjimasida (`src/admin/i18n/{uz,ru}/site.ts`), bu yerda
+ * faqat tuzilma.
  */
 export type TextKey = keyof Translation;
 export type ContentGroup = 'home' | 'store' | 'contact' | 'about' | 'careers' | 'legal' | 'seo';
+export type SiteSection =
+  | 'heroApple' | 'heroPc' | 'heroAudio' | 'heroVideo' | 'services' | 'consult' | 'homeTitles'
+  | 'productPage' | 'orderCookie' | 'logo' | 'contact'
+  | 'aboutIntro' | 'aboutExperts' | 'aboutWarranty' | 'aboutBuy' | 'aboutPersonal' | 'aboutNear' | 'aboutNews'
+  | 'careersSeo' | 'careersHero' | 'careersWork' | 'careersLife' | 'careersWhy' | 'careersRoles'
+  | 'images' | 'legal' | 'seo';
 
 export interface TextField {
   key: TextKey;
   group: ContentGroup;
-  section: string;
-  label: string;
+  section: SiteSection;
   kind: 'text' | 'textarea';
-  hint?: string;
 }
 
-const inSection = (group: ContentGroup, section: string) =>
-  (key: TextKey, label: string, kind: TextField['kind'] = 'text', hint?: string): TextField => ({ key, group, section, label, kind, hint });
-
-const NEW_LINE = 'Enter — yangi qator';
-const TOPIC = 'Konsultatsiya formasidagi mavzu tugmasi';
-const MUTED = 'Och rangda chiqadi';
+const inSection = (group: ContentGroup, section: SiteSection) =>
+  (key: TextKey, kind: TextField['kind'] = 'text'): TextField => ({ key, group, section, kind });
 
 /** Landing'dagi har yo'nalish kartasi admin'da alohida karta: nom, rasm, poster, 2 video. */
-const heroCard = (name: string) => inSection('home', `${name} kartasi`);
-const services = inSection('home', "Xizmat va'dalari");
-const consult = inSection('home', 'Konsultatsiya');
-const homeTitles = inSection('home', 'Sarlavhalar');
-const productPage = inSection('store', 'Mahsulot sahifasi');
-const orderCookie = inSection('store', 'Buyurtma va cookie');
-const contact = inSection('contact', 'Manzil va ish vaqti');
-const aboutIntro = inSection('about', 'Kirish');
-const aboutExperts = inSection('about', 'Mutaxassislar');
-const aboutWarranty = inSection('about', 'Kafolat va servis');
-const aboutBuy = inSection('about', 'Qulay xarid');
-const aboutPersonal = inSection('about', 'Shaxsiy yondashuv');
-const aboutNear = inSection('about', 'Doim yaqinda');
-const aboutNews = inSection('about', 'Yangiliklar');
-const careersSeo = inSection('careers', 'Qidiruv tizimlari');
-const careersHero = inSection('careers', 'Hero va kirish');
-const careersWork = inSection('careers', "ProDuct'da ishlash");
-const careersLife = inSection('careers', 'Jamoadagi hayot');
-const careersWhy = inSection('careers', 'Bizda ish qanday');
-const careersRoles = inSection('careers', 'Vakansiyalar va ariza');
-const legal = inSection('legal', 'Sarlavha ostidagi izoh');
-const seo = inSection('seo', 'Katalog sahifalari');
+const heroApple = inSection('home', 'heroApple');
+const heroPc = inSection('home', 'heroPc');
+const heroAudio = inSection('home', 'heroAudio');
+const heroVideo = inSection('home', 'heroVideo');
+const services = inSection('home', 'services');
+const consult = inSection('home', 'consult');
+const homeTitles = inSection('home', 'homeTitles');
+const productPage = inSection('store', 'productPage');
+const orderCookie = inSection('store', 'orderCookie');
+const contact = inSection('contact', 'contact');
+const aboutIntro = inSection('about', 'aboutIntro');
+const aboutExperts = inSection('about', 'aboutExperts');
+const aboutWarranty = inSection('about', 'aboutWarranty');
+const aboutBuy = inSection('about', 'aboutBuy');
+const aboutPersonal = inSection('about', 'aboutPersonal');
+const aboutNear = inSection('about', 'aboutNear');
+const aboutNews = inSection('about', 'aboutNews');
+const careersSeo = inSection('careers', 'careersSeo');
+const careersHero = inSection('careers', 'careersHero');
+const careersWork = inSection('careers', 'careersWork');
+const careersLife = inSection('careers', 'careersLife');
+const careersWhy = inSection('careers', 'careersWhy');
+const careersRoles = inSection('careers', 'careersRoles');
+const legal = inSection('legal', 'legal');
+const seo = inSection('seo', 'seo');
 
 export const TEXT_FIELDS: TextField[] = [
-  heroCard('Apple')('heroApple', 'Nomi', 'textarea', NEW_LINE),
-  heroCard('PC')('heroPc', 'Nomi', 'textarea', NEW_LINE),
-  heroCard('Audio')('heroAudio', 'Nomi', 'textarea', NEW_LINE),
-  heroCard('Video')('heroVideo', 'Nomi', 'textarea', NEW_LINE),
+  heroApple('heroApple', 'textarea'),
+  heroPc('heroPc', 'textarea'),
+  heroAudio('heroAudio', 'textarea'),
+  heroVideo('heroVideo', 'textarea'),
 
-  services('svcTitle', "Bo'lim sarlavhasi"),
-  services('svcPrompt', 'Sarlavha davomi (och rangda)'),
-  services('heroCtaPrimary', 'Katalog tugmasi', 'text', 'Sarlavha yonidagi tugma'),
-  services('svcWarrantyCard', 'Kafolat — sarlavha'),
-  services('svcWarrantyDesc', 'Kafolat — matn', 'textarea'),
-  services('svcDeliveryCard', 'Yetkazib berish — sarlavha'),
-  services('svcDeliveryDesc', 'Yetkazib berish — matn', 'textarea'),
-  services('svcServiceCard', 'Servis — sarlavha'),
-  services('svcServiceDesc', 'Servis — matn', 'textarea'),
+  services('svcTitle'),
+  services('svcPrompt'),
+  services('heroCtaPrimary'),
+  services('svcWarrantyCard'),
+  services('svcWarrantyDesc', 'textarea'),
+  services('svcDeliveryCard'),
+  services('svcDeliveryDesc', 'textarea'),
+  services('svcServiceCard'),
+  services('svcServiceDesc', 'textarea'),
 
-  consult('consultTitle', 'Sarlavha'),
-  consult('consultLead', 'Izoh', 'textarea'),
-  consult('consultTopicApple', '1-mavzu', 'text', TOPIC),
-  consult('consultTopicPc', '2-mavzu', 'text', TOPIC),
-  consult('consultTopicAudio', '3-mavzu', 'text', TOPIC),
-  consult('consultTopicVideo', '4-mavzu', 'text', TOPIC),
-  consult('consultTopicService', '5-mavzu', 'text', TOPIC),
-  consult('consultTopicOther', '6-mavzu', 'text', TOPIC),
-  consult('consultDoneTitle', 'Yuborilgandan keyin — sarlavha'),
-  consult('consultDoneText', 'Yuborilgandan keyin — matn', 'textarea'),
+  consult('consultTitle'),
+  consult('consultLead', 'textarea'),
+  consult('consultTopicApple'),
+  consult('consultTopicPc'),
+  consult('consultTopicAudio'),
+  consult('consultTopicVideo'),
+  consult('consultTopicService'),
+  consult('consultTopicOther'),
+  consult('consultDoneTitle'),
+  consult('consultDoneText', 'textarea'),
 
-  homeTitles('proTitle', 'Shior', 'text', "Yo'nalish sahifasida nomdan keyin chiqadi: «PC — Professional yondashuv»"),
-  homeTitles('newsTitle', "Yangiliklar bo'limi"),
-  homeTitles('homeBrands', 'Brendlar tasmasi'),
+  homeTitles('proTitle'),
+  homeTitles('newsTitle'),
+  homeTitles('homeBrands'),
 
-  productPage('svcDeliveryTitle', 'Yetkazish — nom'),
-  productPage('svcDeliveryFact', 'Yetkazish — muddat'),
-  productPage('feature3', 'Yetkazish — izoh'),
-  productPage('svcWarrantyTitle', 'Kafolat — nom'),
-  productPage('svcWarrantyFact', 'Kafolat — muddat'),
-  productPage('feature2', 'Kafolat — izoh'),
-  productPage('trustShort', "Muddatli to'lov qatori", 'text', "Faqat muddatli to'lov yoqilganda chiqadi"),
-  productPage('setupTitle', 'Apple sozlash — sarlavha', 'text', 'Faqat Apple mahsulotlarida, sahifa oxirida'),
-  productPage('setupText', 'Apple sozlash — matn', 'textarea'),
-  productPage('setupCta', 'Apple sozlash — tugma'),
+  productPage('svcDeliveryTitle'),
+  productPage('svcDeliveryFact'),
+  productPage('feature3'),
+  productPage('svcWarrantyTitle'),
+  productPage('svcWarrantyFact'),
+  productPage('feature2'),
+  productPage('trustShort'),
+  productPage('setupTitle'),
+  productPage('setupText', 'textarea'),
+  productPage('setupCta'),
 
-  orderCookie('orderSuccessNote', 'Buyurtmadan keyingi xabar', 'textarea', "Qo'ng'iroq muddati va'dasi shu yerda"),
-  orderCookie('cookieText', 'Cookie ogohlantirishi', 'textarea'),
-  orderCookie('cookieAccept', 'Cookie tugmasi'),
+  orderCookie('orderSuccessNote', 'textarea'),
+  orderCookie('cookieText', 'textarea'),
+  orderCookie('cookieAccept'),
 
-  contact('footerAddressText1', 'Manzil — 1-qator', 'text', "Masalan: O'zbekiston, Toshkent shahar,"),
-  contact('footerAddressText2', 'Manzil — 2-qator'),
-  contact('footerTime', 'Ish vaqti', 'text', 'Saytda shunday chiqadi: Du–Yak, 10:00–21:00'),
-  contact('seoOpeningHours', 'Google uchun ish vaqti', 'text', 'Format: Mo-Su 10:00-21:00 — ikkala tilda bir xil'),
+  contact('footerAddressText1'),
+  contact('footerAddressText2'),
+  contact('footerTime'),
+  contact('seoOpeningHours'),
 
-  aboutIntro('aboutLede', 'Hero izohi', 'textarea', 'Qidiruv tizimlaridagi tavsif ham shu'),
-  aboutIntro('aboutWhyTitle', "Bo'lim sarlavhasi"),
-  aboutIntro('aboutWhyMuted', 'Sarlavha davomi', 'text', MUTED),
-  aboutExperts('aboutExpertsLabel', 'Yorliq'),
-  aboutExperts('aboutExpertsTitle', 'Sarlavha'),
-  aboutExperts('aboutExpertsText', 'Matn', 'textarea'),
-  aboutWarranty('aboutWarrantyTitle', 'Sarlavha'),
-  aboutWarranty('aboutWarrantyText', 'Matn', 'textarea'),
-  aboutBuy('aboutBuyTitle', 'Sarlavha'),
-  aboutBuy('aboutBuyText', 'Matn', 'textarea'),
-  aboutBuy('aboutTradeInLink', 'Trade-In havolasi'),
-  aboutPersonal('aboutPersonalTitle', 'Sarlavha'),
-  aboutPersonal('aboutPersonalText', 'Matn', 'textarea'),
-  aboutNear('aboutNearTitle', 'Sarlavha'),
-  aboutNear('aboutNearText', 'Matn', 'textarea'),
-  aboutNews('aboutNewsTitle', 'Sarlavha'),
-  aboutNews('aboutNewsText', 'Matn', 'textarea'),
-  aboutNews('aboutBlogLink', 'Blog havolasi'),
+  aboutIntro('aboutLede', 'textarea'),
+  aboutIntro('aboutWhyTitle'),
+  aboutIntro('aboutWhyMuted'),
+  aboutExperts('aboutExpertsLabel'),
+  aboutExperts('aboutExpertsTitle'),
+  aboutExperts('aboutExpertsText', 'textarea'),
+  aboutWarranty('aboutWarrantyTitle'),
+  aboutWarranty('aboutWarrantyText', 'textarea'),
+  aboutBuy('aboutBuyTitle'),
+  aboutBuy('aboutBuyText', 'textarea'),
+  aboutBuy('aboutTradeInLink'),
+  aboutPersonal('aboutPersonalTitle'),
+  aboutPersonal('aboutPersonalText', 'textarea'),
+  aboutNear('aboutNearTitle'),
+  aboutNear('aboutNearText', 'textarea'),
+  aboutNews('aboutNewsTitle'),
+  aboutNews('aboutNewsText', 'textarea'),
+  aboutNews('aboutBlogLink'),
 
-  careersSeo('careersMetaDesc', 'Qidiruv tavsifi', 'textarea', "{store} o'z joyida qoladi — do'kon nomiga almashadi"),
-  careersHero('careersHeroTitle', 'Sarlavha'),
-  careersHero('careersHeroCta', 'Tugma'),
-  careersHero('careersIntro', 'Kirish matni', 'textarea'),
-  careersWork('careersWorkEyebrow', 'Yorliq'),
-  careersWork('careersWorkTitle', 'Sarlavha'),
-  careersWork('careersWorkText', 'Matn', 'textarea'),
-  careersWork('careersWorkQuote', 'Iqtibos'),
-  careersWork('careersQuoteBy', 'Iqtibos muallifi'),
-  careersLife('careersLifeEyebrow', 'Yorliq'),
-  careersLife('careersLifeTitle', 'Sarlavha'),
-  careersLife('careersLifeText', 'Matn', 'textarea'),
-  careersLife('careersLifeCard', 'Rasm ustidagi matn'),
-  careersWhy('careersWhyTitle', 'Sarlavha'),
-  careersWhy('careersWhyMuted', 'Sarlavha davomi', 'text', MUTED),
-  careersWhy('careersWhyTechTitle', '1-karta — sarlavha'),
-  careersWhy('careersWhyTechText', '1-karta — matn', 'textarea'),
-  careersWhy('careersWhyClientTitle', '2-karta — sarlavha'),
-  careersWhy('careersWhyClientText', '2-karta — matn', 'textarea'),
-  careersWhy('careersWhyServiceTitle', '3-karta — sarlavha'),
-  careersWhy('careersWhyServiceText', '3-karta — matn', 'textarea'),
-  careersWhy('careersWhyTeamTitle', '4-karta — sarlavha'),
-  careersWhy('careersWhyTeamText', '4-karta — matn', 'textarea'),
-  careersRoles('careersRolesTitle', "Ro'yxat sarlavhasi"),
-  careersRoles('careersRolesEmpty', "Vakansiya yo'q bo'lsa", 'textarea'),
-  careersRoles('careersDoneTitle', 'Arizadan keyin — sarlavha'),
-  careersRoles('careersDoneText', 'Arizadan keyin — matn', 'textarea'),
+  careersSeo('careersMetaDesc', 'textarea'),
+  careersHero('careersHeroTitle'),
+  careersHero('careersHeroCta'),
+  careersHero('careersIntro', 'textarea'),
+  careersWork('careersWorkEyebrow'),
+  careersWork('careersWorkTitle'),
+  careersWork('careersWorkText', 'textarea'),
+  careersWork('careersWorkQuote'),
+  careersWork('careersQuoteBy'),
+  careersLife('careersLifeEyebrow'),
+  careersLife('careersLifeTitle'),
+  careersLife('careersLifeText', 'textarea'),
+  careersLife('careersLifeCard'),
+  careersWhy('careersWhyTitle'),
+  careersWhy('careersWhyMuted'),
+  careersWhy('careersWhyTechTitle'),
+  careersWhy('careersWhyTechText', 'textarea'),
+  careersWhy('careersWhyClientTitle'),
+  careersWhy('careersWhyClientText', 'textarea'),
+  careersWhy('careersWhyServiceTitle'),
+  careersWhy('careersWhyServiceText', 'textarea'),
+  careersWhy('careersWhyTeamTitle'),
+  careersWhy('careersWhyTeamText', 'textarea'),
+  careersRoles('careersRolesTitle'),
+  careersRoles('careersRolesEmpty', 'textarea'),
+  careersRoles('careersDoneTitle'),
+  careersRoles('careersDoneText', 'textarea'),
 
-  legal('legalLedeOferta', 'Ommaviy oferta'),
-  legal('legalLedePrivacy', 'Maxfiylik siyosati'),
-  legal('legalLedeReturns', 'Qaytarish va almashtirish'),
-  legal('termsLede', 'Shartlar', 'text', 'Sahifa: /page/muddatli-tolov'),
+  legal('legalLedeOferta'),
+  legal('legalLedePrivacy'),
+  legal('legalLedeReturns'),
+  legal('termsLede'),
 
-  seo('metaCatalogDesc', 'Tavsif shabloni', 'textarea', "{title} — sahifa nomi, {store} — do'kon nomi; ikkalasi o'z joyida qoladi"),
+  seo('metaCatalogDesc', 'textarea'),
 ];
 
 export const ASSET_KEYS = [
@@ -171,39 +176,37 @@ export type AssetKey = (typeof ASSET_KEYS)[number];
 export interface AssetField {
   key: AssetKey;
   group: ContentGroup;
-  section: string;
-  label: string;
+  section: SiteSection;
   kind: 'image' | 'video';
-  hint?: string;
 }
 
-const VIDEO_HINT = "Landing kartasida emas — yo'nalish sahifasining cover'ida aylanadi; bo'lmasa cover'da rasm turadi. MP4, 40 MB gacha; tavsiya — 10 soniyagacha, 1080p, iloji boricha 8 MB dan kichik (sahifa mobilda ham videoni to'liq yuklaydi)";
+const HERO_SECTION = { apple: 'heroApple', pc: 'heroPc', audio: 'heroAudio', video: 'heroVideo' } as const;
 
-function heroAssetFields(id: 'apple' | 'pc' | 'audio' | 'video', name: string): AssetField[] {
-  const section = `${name} kartasi`;
+function heroAssetFields(id: 'apple' | 'pc' | 'audio' | 'video'): AssetField[] {
+  const section = HERO_SECTION[id];
   return [
-    { key: `hero.${id}.image`, group: 'home', section, label: 'Rasm', kind: 'image', hint: "Landing kartasi va yo'nalish sahifasining cover'i" },
-    { key: `hero.${id}.poster`, group: 'home', section, label: 'Video posteri', kind: 'image', hint: 'Video yuklanguncha turadigan kadr' },
-    { key: `hero.${id}.video1`, group: 'home', section, label: '1-video', kind: 'video', hint: VIDEO_HINT },
-    { key: `hero.${id}.video2`, group: 'home', section, label: '2-video', kind: 'video', hint: VIDEO_HINT },
+    { key: `hero.${id}.image`, group: 'home', section, kind: 'image' },
+    { key: `hero.${id}.poster`, group: 'home', section, kind: 'image' },
+    { key: `hero.${id}.video1`, group: 'home', section, kind: 'video' },
+    { key: `hero.${id}.video2`, group: 'home', section, kind: 'video' },
   ];
 }
 
 export const ASSET_FIELDS: AssetField[] = [
-  { key: 'logo', group: 'store', section: 'Logo va favicon', label: "Logo — yorug' fon uchun", kind: 'image', hint: 'Shaffof PNG; header va kirish oynasida' },
-  { key: 'logoDark', group: 'store', section: 'Logo va favicon', label: "Logo — qorong'i fon uchun", kind: 'image', hint: "Shaffof PNG; qorong'i mavzu, bosh sahifa va vakansiyalar" },
-  { key: 'favicon', group: 'store', section: 'Logo va favicon', label: 'Favicon', kind: 'image', hint: 'Kvadrat PNG, kamida 512×512' },
-  ...heroAssetFields('apple', 'Apple'),
-  ...heroAssetFields('pc', 'PC'),
-  ...heroAssetFields('audio', 'Audio'),
-  ...heroAssetFields('video', 'Video'),
-  { key: 'consult.image', group: 'home', section: 'Konsultatsiya', label: 'Rasm', kind: 'image' },
-  { key: 'about.hero', group: 'about', section: 'Rasmlar', label: 'Hero foni', kind: 'image', hint: "Huquqiy sahifalar hero'sida ham; qorong'i mavzuda ranglari teskari aylanadi" },
-  { key: 'about.experts', group: 'about', section: 'Rasmlar', label: 'Mutaxassislar fotosi', kind: 'image' },
-  { key: 'about.delivery', group: 'about', section: 'Rasmlar', label: '«Doim yaqinda» fotosi', kind: 'image' },
-  { key: 'about.news', group: 'about', section: 'Rasmlar', label: 'Yangiliklar rasmi', kind: 'image', hint: 'Shaffof PNG' },
-  { key: 'careers.work', group: 'careers', section: 'Rasmlar', label: "«ProDuct'da ishlash» fotosi", kind: 'image' },
-  { key: 'careers.life', group: 'careers', section: 'Rasmlar', label: '«Jamoadagi hayot» foni', kind: 'image', hint: "Qorong'i mavzuda ranglari teskari aylanadi" },
+  { key: 'logo', group: 'store', section: 'logo', kind: 'image' },
+  { key: 'logoDark', group: 'store', section: 'logo', kind: 'image' },
+  { key: 'favicon', group: 'store', section: 'logo', kind: 'image' },
+  ...heroAssetFields('apple'),
+  ...heroAssetFields('pc'),
+  ...heroAssetFields('audio'),
+  ...heroAssetFields('video'),
+  { key: 'consult.image', group: 'home', section: 'consult', kind: 'image' },
+  { key: 'about.hero', group: 'about', section: 'images', kind: 'image' },
+  { key: 'about.experts', group: 'about', section: 'images', kind: 'image' },
+  { key: 'about.delivery', group: 'about', section: 'images', kind: 'image' },
+  { key: 'about.news', group: 'about', section: 'images', kind: 'image' },
+  { key: 'careers.work', group: 'careers', section: 'images', kind: 'image' },
+  { key: 'careers.life', group: 'careers', section: 'images', kind: 'image' },
 ];
 
 /** `site_texts` qatorlari: kalit → ikkala til. */

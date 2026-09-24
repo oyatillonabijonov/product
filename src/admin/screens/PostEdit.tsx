@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import type { ApiPost } from '../../../shared/types';
 import { createPost, deletePost, listPosts, updatePost } from '../api';
 import { errText } from '../errText';
@@ -27,6 +28,7 @@ function today(): string {
 
 /** Blog maqolasi tahriri. `id` = 'new' yoki maqola id'si. */
 const PostEdit: FC<{ id: string }> = ({ id }) => {
+  const { t } = useTranslation('content');
   const isNew = id === 'new';
   const navigate = useNavigate();
   const toast = useToast();
@@ -44,11 +46,11 @@ const PostEdit: FC<{ id: string }> = ({ id }) => {
     if (isNew) return;
     listPosts().then((all) => {
       const p = all.find((x) => x.id === id);
-      if (!p) { setError('Maqola topilmadi'); return; }
+      if (!p) { setError(t('postEdit.notFound')); return; }
       setForm(withoutId(p));
       setSavedSlug(p.slug);
       setLoaded(true);
-    }).catch(() => setError('Yuklashda xatolik'));
+    }).catch(() => setError(t('shared.loadError')));
   }, [id, isNew]);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => { setForm((f: Form) => ({ ...f, [k]: v })); setDirty(true); };
@@ -59,7 +61,7 @@ const PostEdit: FC<{ id: string }> = ({ id }) => {
       if (isNew) {
         await createPost(form);
         setDirty(false);
-        toast("Maqola qo'shildi");
+        toast(t('postEdit.toastCreated'));
         navigate(LIST, { state: { leave: true } });
       } else {
         // Server bo'sh slug'ni sarlavhadan yasaydi — forma saqlangan qiymatni oladi.
@@ -67,7 +69,7 @@ const PostEdit: FC<{ id: string }> = ({ id }) => {
         setForm(withoutId(saved));
         setSavedSlug(saved.slug);
         setDirty(false);
-        toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
+        toast(t('shared.savedLive'));
       }
     } catch (e) {
       setError(errText(e));
@@ -78,15 +80,15 @@ const PostEdit: FC<{ id: string }> = ({ id }) => {
 
   async function remove() {
     const ok = await confirm({
-      title: `«${form.title}» maqolasini o'chirish`,
-      message: "Maqola blogdan olib tashlanadi. Faqat yashirish kerak bo'lsa «Saytda ko'rsatilsin»ni o'chiring.",
-      confirmLabel: "O'chirish", destructive: true,
+      title: t('postEdit.confirmDelete', { name: form.title }),
+      message: t('postEdit.confirmDeleteMessage'),
+      confirmLabel: t('shared.delete'), destructive: true,
     });
     if (!ok) return;
     try {
       await deletePost(id);
       setDirty(false);
-      toast("Maqola o'chirildi");
+      toast(t('postEdit.toastDeleted'));
       navigate(LIST, { state: { leave: true } });
     } catch (e) {
       toast(errText(e), 'error');
@@ -97,53 +99,53 @@ const PostEdit: FC<{ id: string }> = ({ id }) => {
 
   return (
     <Page
-      title={isNew ? 'Yangi maqola' : form.title || 'Maqola'}
+      title={isNew ? t('postEdit.newTitle') : form.title || t('postEdit.untitled')}
       back={LIST}
       dirty={dirty}
       actions={(
         <>
-          {!isNew && form.isActive && savedSlug && <Button variant="quiet" href={`/blog/${savedSlug}`} external>Saytda ko'rish</Button>}
-          <Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>
+          {!isNew && form.isActive && savedSlug && <Button variant="quiet" href={`/blog/${savedSlug}`} external>{t('shared.viewOnSite')}</Button>}
+          <Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>
         </>
       )}
     >
       {!loaded && !error ? <Skeleton rows={6} /> : (
         <div className="flex flex-col gap-4">
           {error && <p className="text-para text-danger">{error}</p>}
-          <Card title="Muqova" description="Blog ro'yxatidagi kartada va maqola tepasida chiqadi.">
-            <ImageUploader label="Muqova rasmi" images={form.coverUrl ? [form.coverUrl] : []} onChange={(next) => set('coverUrl', next[0] ?? '')} normalize={PHOTO_UPLOAD} />
+          <Card title={t('postEdit.cover.title')} description={t('postEdit.cover.description')}>
+            <ImageUploader label={t('postEdit.cover.label')} images={form.coverUrl ? [form.coverUrl] : []} onChange={(next) => set('coverUrl', next[0] ?? '')} normalize={PHOTO_UPLOAD} />
           </Card>
-          <Card title="Sarlavha va qisqa matn">
+          <Card title={t('postEdit.heading.title')}>
             <div className="flex flex-col gap-4">
-              <LangPair label="Sarlavha" required uz={form.title} ru={form.titleRu} onUz={(v) => set('title', v)} onRu={(v) => set('titleRu', v)} />
-              <LangPair label="Qisqa matn" kind="textarea" rows={2} hint="Ro'yxatdagi kartada chiqadi" uz={form.excerpt} ru={form.excerptRu} onUz={(v) => set('excerpt', v)} onRu={(v) => set('excerptRu', v)} />
+              <LangPair label={t('shared.title')} required uz={form.title} ru={form.titleRu} onUz={(v) => set('title', v)} onRu={(v) => set('titleRu', v)} />
+              <LangPair label={t('postEdit.heading.excerptLabel')} kind="textarea" rows={2} hint={t('postEdit.heading.excerptHint')} uz={form.excerpt} ru={form.excerptRu} onUz={(v) => set('excerpt', v)} onRu={(v) => set('excerptRu', v)} />
             </div>
           </Card>
-          <Card title="Matn">
+          <Card title={t('shared.text')}>
             <div className="flex flex-col gap-3">
-              <LangPair label="Matn" kind="textarea" rows={14} mono uz={form.content} ru={form.contentRu} onUz={(v) => set('content', v)} onRu={(v) => set('contentRu', v)} />
+              <LangPair label={t('shared.text')} kind="textarea" rows={14} mono uz={form.content} ru={form.contentRu} onUz={(v) => set('content', v)} onRu={(v) => set('contentRu', v)} />
               <MarkdownHelp />
             </div>
           </Card>
-          <Card title="Manzil va ko'rinish">
+          <Card title={t('shared.slugAndVisibility')}>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Slug" hint="Saytdagi /blog/<slug> manzili; bo'sh qolsa sarlavhadan yasaladi">
-                <Input value={form.slug} onChange={(v) => set('slug', v)} placeholder="montaj-uchun-pc" />
+              <Field label={t('shared.slug')} hint={t('postEdit.slugHint')}>
+                <Input value={form.slug} onChange={(v) => set('slug', v)} placeholder={t('postEdit.slugPlaceholder')} />
               </Field>
-              <Field label="Sana" hint="Bo'sh bo'lsa sana ko'rsatilmaydi; blog yangisidan boshlanadi">
+              <Field label={t('shared.date')} hint={t('postEdit.dateHint')}>
                 <Input type="date" value={form.publishedAt} onChange={(v) => set('publishedAt', v)} />
               </Field>
-              <Field label="Tartib" hint="Bir kundagi maqolalar orasida — kichiki oldin">
+              <Field label={t('shared.sortOrder')} hint={t('postEdit.sortHint')}>
                 <Input type="number" value={String(form.sortOrder)} onChange={(v) => set('sortOrder', Number(v) || 0)} />
               </Field>
             </div>
             <div className="mt-2 divide-y divide-line">
-              <SwitchRow label="Saytda ko'rsatilsin" on={form.isActive} onChange={(v) => set('isActive', v)} />
+              <SwitchRow label={t('shared.showOnSite')} on={form.isActive} onChange={(v) => set('isActive', v)} />
             </div>
           </Card>
           {!isNew && (
-            <Card title="Xavfli zona">
-              <Button variant="destructive" onClick={remove}>Maqolani o'chirish</Button>
+            <Card title={t('shared.dangerZone')}>
+              <Button variant="destructive" onClick={remove}>{t('postEdit.deleteButton')}</Button>
             </Card>
           )}
         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import type { ApiBanner } from '../../../shared/types';
 import { createBanner, deleteBanner, listBanners, updateBanner } from '../api';
 import { errText } from '../errText';
@@ -17,6 +18,7 @@ const EMPTY: Form = { imageUrl: '', linkUrl: '', altText: '', sortOrder: 0, isAc
 
 /** Banner tahriri. `id` = 'new' yoki banner id'si. */
 const BannerEdit: FC<{ id: string }> = ({ id }) => {
+  const { t } = useTranslation('content');
   const isNew = id === 'new';
   const navigate = useNavigate();
   const toast = useToast();
@@ -32,10 +34,10 @@ const BannerEdit: FC<{ id: string }> = ({ id }) => {
     if (isNew) return;
     listBanners().then((all) => {
       const b = all.find((x) => x.id === id);
-      if (!b) { setError('Banner topilmadi'); return; }
+      if (!b) { setError(t('bannerEdit.notFound')); return; }
       setForm(withoutId(b));
       setLoaded(true);
-    }).catch(() => setError('Yuklashda xatolik'));
+    }).catch(() => setError(t('shared.loadError')));
   }, [id, isNew]);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => { setForm((f: Form) => ({ ...f, [k]: v })); setDirty(true); };
@@ -46,12 +48,12 @@ const BannerEdit: FC<{ id: string }> = ({ id }) => {
       if (isNew) {
         await createBanner(form);
         setDirty(false);
-        toast("Banner qo'shildi");
+        toast(t('bannerEdit.toastCreated'));
         navigate(LIST, { state: { leave: true } });
       } else {
         await updateBanner(id, form);
         setDirty(false);
-        toast("Saqlandi · saytda 1–5 daqiqada ko'rinadi");
+        toast(t('shared.savedLive'));
       }
     } catch (e) {
       setError(errText(e));
@@ -62,15 +64,15 @@ const BannerEdit: FC<{ id: string }> = ({ id }) => {
 
   async function remove() {
     const ok = await confirm({
-      title: "Bannerni o'chirish",
-      message: "Banner slayderdan olib tashlanadi. Faqat yashirish kerak bo'lsa «Saytda ko'rsatilsin»ni o'chiring.",
-      confirmLabel: "O'chirish", destructive: true,
+      title: t('bannerEdit.confirmDelete'),
+      message: t('bannerEdit.confirmDeleteMessage'),
+      confirmLabel: t('shared.delete'), destructive: true,
     });
     if (!ok) return;
     try {
       await deleteBanner(id);
       setDirty(false);
-      toast("Banner o'chirildi");
+      toast(t('bannerEdit.toastDeleted'));
       navigate(LIST, { state: { leave: true } });
     } catch (e) {
       toast(errText(e), 'error');
@@ -81,36 +83,36 @@ const BannerEdit: FC<{ id: string }> = ({ id }) => {
 
   return (
     <Page
-      title={isNew ? 'Yangi banner' : form.altText || 'Banner'}
+      title={isNew ? t('bannerEdit.newTitle') : form.altText || t('bannerEdit.untitled')}
       back={LIST}
       dirty={dirty}
-      actions={<Button onClick={save} disabled={!canSave}>{busy ? 'Saqlanmoqda…' : 'Saqlash'}</Button>}
+      actions={<Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>}
     >
       {!loaded && !error ? <Skeleton rows={4} /> : (
         <div className="flex flex-col gap-4">
           {error && <p className="text-para text-danger">{error}</p>}
-          <Card title="Rasm" description="Keng rasm, 3:1 (masalan 2400×800); mobilda chetlari biroz kesiladi. Rasm majburiy.">
-            <ImageUploader label="Banner rasmi" images={form.imageUrl ? [form.imageUrl] : []} onChange={(next) => set('imageUrl', next[0] ?? '')} normalize={PHOTO_UPLOAD} />
+          <Card title={t('shared.image')} description={t('bannerEdit.image.description')}>
+            <ImageUploader label={t('bannerEdit.image.label')} images={form.imageUrl ? [form.imageUrl] : []} onChange={(next) => set('imageUrl', next[0] ?? '')} normalize={PHOTO_UPLOAD} />
           </Card>
-          <Card title="Ma'lumot">
+          <Card title={t('bannerEdit.info.title')}>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Havola" hint="/chegirmalar yoki https://… — bo'sh bo'lsa banner bosilmaydi">
+              <Field label={t('shared.link')} hint={t('bannerEdit.info.linkHint')}>
                 <Input value={form.linkUrl} onChange={(v) => set('linkUrl', v)} placeholder="/chegirmalar" />
               </Field>
-              <Field label="Rasm tavsifi" hint="Ko'rmaydiganlar va qidiruv tizimlari uchun; ro'yxatda nom bo'lib chiqadi">
+              <Field label={t('bannerEdit.info.altLabel')} hint={t('bannerEdit.info.altHint')}>
                 <Input value={form.altText} onChange={(v) => set('altText', v)} />
               </Field>
-              <Field label="Tartib" hint="Kichigi oldin">
+              <Field label={t('shared.sortOrder')} hint={t('bannerEdit.info.sortHint')}>
                 <Input type="number" value={String(form.sortOrder)} onChange={(v) => set('sortOrder', Number(v) || 0)} />
               </Field>
             </div>
             <div className="mt-2 divide-y divide-line">
-              <SwitchRow label="Saytda ko'rsatilsin" on={form.isActive} onChange={(v) => set('isActive', v)} />
+              <SwitchRow label={t('shared.showOnSite')} on={form.isActive} onChange={(v) => set('isActive', v)} />
             </div>
           </Card>
           {!isNew && (
-            <Card title="Xavfli zona">
-              <Button variant="destructive" onClick={remove}>Bannerni o'chirish</Button>
+            <Card title={t('shared.dangerZone')}>
+              <Button variant="destructive" onClick={remove}>{t('bannerEdit.confirmDelete')}</Button>
             </Card>
           )}
         </div>

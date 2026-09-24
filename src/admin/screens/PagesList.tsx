@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
 import { ExternalLink } from 'lucide-react';
+import type { ParseKeys } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import type { ApiPage } from '../../../shared/types';
 import { ABOUT_SLUG, LEGAL_LEDE_KEYS } from '../../lib/page-slugs';
 import { listPages, updatePage } from '../api';
@@ -10,14 +12,15 @@ import { useActiveToggle } from '../useActiveToggle';
 
 const LIST = '/admin/content/pages';
 
-/** Maxsus shablonli sahifalar — tahririda qo'shimcha maydonlar bor. */
-function pageKind(slug: string): string {
-  if (slug === ABOUT_SLUG) return 'Biz haqimizda';
-  return LEGAL_LEDE_KEYS[slug] ? 'Huquqiy' : '';
+/** Maxsus shablonli sahifalar — tahririda qo'shimcha maydonlar bor; yorliq kaliti, oddiy sahifada `null`. */
+function pageKind(slug: string): ParseKeys<'content'> | null {
+  if (slug === ABOUT_SLUG) return 'pagesList.templateAbout';
+  return LEGAL_LEDE_KEYS[slug] ? 'pagesList.templateLegal' : null;
 }
 
 /** Kontent sahifalari — faollari saytda ochiladi va footer'da chiqadi. Qator bosilsa tahrir. */
 const PagesList: FC = () => {
+  const { t } = useTranslation('content');
   const navigate = useNavigate();
   const [rawItems, setItems] = useState(null as ApiPage[] | null);
   const items = rawItems as ApiPage[] | null;
@@ -25,12 +28,12 @@ const PagesList: FC = () => {
   const toggle = useActiveToggle(setItems, (p: ApiPage) => updatePage(p.id, p));
 
   useEffect(() => {
-    listPages().then(setItems).catch(() => setError('Yuklashda xatolik'));
+    listPages().then(setItems).catch(() => setError(t('shared.loadError')));
   }, []);
 
   const columns: Column<ApiPage>[] = [
     {
-      id: 'title', label: 'Sahifa', mobile: 'title',
+      id: 'title', label: t('pagesList.columnPage'), mobile: 'title',
       cell: (p) => (
         <span className="flex flex-col">
           <span className="text-primary">{p.title.uz}</span>
@@ -38,8 +41,14 @@ const PagesList: FC = () => {
         </span>
       ),
     },
-    { id: 'kind', label: 'Shablon', className: 'w-36', cell: (p) => (pageKind(p.slug) ? <Badge>{pageKind(p.slug)}</Badge> : <span className="text-muted-2">Matn</span>) },
-    { id: 'sort', label: 'Tartib', align: 'right', className: 'w-20', cell: (p) => <span className="text-muted">{p.sortOrder}</span> },
+    {
+      id: 'kind', label: t('pagesList.columnTemplate'), className: 'w-36',
+      cell: (p) => {
+        const kind = pageKind(p.slug);
+        return kind ? <Badge>{t(kind)}</Badge> : <span className="text-muted-2">{t('shared.text')}</span>;
+      },
+    },
+    { id: 'sort', label: t('shared.sortOrder'), align: 'right', className: 'w-20', cell: (p) => <span className="text-muted">{p.sortOrder}</span> },
     {
       id: 'open', label: '', className: 'w-12', mobile: 'hide',
       cell: (p) => (
@@ -47,25 +56,25 @@ const PagesList: FC = () => {
           href={`/page/${p.slug}`}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`${p.title.uz} — saytda ko'rish`}
+          aria-label={t('pagesList.openAria', { name: p.title.uz })}
           className="press inline-flex size-9 items-center justify-center rounded-xs text-muted hover:bg-fill-2 hover:text-primary"
         >
           <ExternalLink aria-hidden className="size-4" />
         </a>
       ),
     },
-    { id: 'active', label: 'Saytda', align: 'right', className: 'w-20', cell: (p) => <Toggle on={p.isActive} onChange={(v) => toggle(p, v)} label={`${p.title.uz} — saytda ko'rsatish`} /> },
+    { id: 'active', label: t('shared.onSiteColumn'), align: 'right', className: 'w-20', cell: (p) => <Toggle on={p.isActive} onChange={(v) => toggle(p, v)} label={t('shared.toggleAria', { name: p.title.uz })} /> },
   ];
 
-  if (error) return <EmptyState title="Ma'lumot yuklanmadi" text={error} />;
+  if (error) return <EmptyState title={t('shared.loadErrorTitle')} text={error} />;
   if (!items) return <Skeleton rows={6} />;
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-para text-muted">Faol sahifalar saytda ochiladi va footer'da chiqadi. «Biz haqimizda» va huquqiy hujjatlar tahririda qo'shimcha maydonlar bor.</p>
+        <p className="text-para text-muted">{t('pagesList.description')}</p>
         <div className="sm:ml-auto">
-          <Button to={`${LIST}/new`}>Yangi sahifa</Button>
+          <Button to={`${LIST}/new`}>{t('pagesList.new')}</Button>
         </div>
       </div>
       <Card padded={false}>
@@ -75,7 +84,7 @@ const PagesList: FC = () => {
             rows={items}
             rowKey={(p) => p.id}
             onRowClick={(p) => navigate(`${LIST}/${p.id}`)}
-            empty={<EmptyState title="Sahifa yo'q" action={<Button to={`${LIST}/new`}>Yangi sahifa</Button>} />}
+            empty={<EmptyState title={t('pagesList.emptyTitle')} action={<Button to={`${LIST}/new`}>{t('pagesList.new')}</Button>} />}
           />
         </div>
       </Card>

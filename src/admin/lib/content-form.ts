@@ -1,26 +1,26 @@
-import type { AssetField, AssetKey, ContentGroup, SiteAssets, SiteTexts, TextsResponse } from '../../lib/site-content';
+import type { AssetField, AssetKey, ContentGroup, SiteAssets, SiteSection, SiteTexts, TextsResponse } from '../../lib/site-content';
 import type { NormalizeOptions } from './image-normalize';
 
 /** `GET /api/admin/texts` maydoni — registr qatori standart matnlari bilan. */
 export type TextFieldDef = TextsResponse['fields'][number];
 
 export interface ContentSection {
-  title: string;
+  id: SiteSection;
   texts: TextFieldDef[];
   assets: AssetField[];
 }
 
 /**
  * Guruh maydonlarini admin kartalariga bo'ladi. Tartib registrdagidek: matnli bo'limlar oldin, faqat rasmli bo'limlar
- * ("Rasmlar") oxirida; bo'lim ichida matnlar, keyin rasmlar. `keys` berilsa faqat shu kalitlar (sahifa tahriridagi izoh).
+ * (`images`) oxirida; bo'lim ichida matnlar, keyin rasmlar. `keys` berilsa faqat shu kalitlar (sahifa tahriridagi izoh).
  */
 export function contentSections(group: ContentGroup, texts: TextFieldDef[], assets: AssetField[], keys?: string[]): ContentSection[] {
   const wanted = (f: { key: string; group: ContentGroup }) => f.group === group && (!keys || keys.includes(f.key));
   const out: ContentSection[] = [];
-  const sectionFor = (title: string): ContentSection => {
-    const found = out.find((s) => s.title === title);
+  const sectionFor = (id: SiteSection): ContentSection => {
+    const found = out.find((s) => s.id === id);
     if (found) return found;
-    const created: ContentSection = { title, texts: [], assets: [] };
+    const created: ContentSection = { id, texts: [], assets: [] };
     out.push(created);
     return created;
   };
