@@ -72,6 +72,15 @@ const orders = {
     count_many: '{{count}} ta mijoz',
     count_other: '{{count}} ta mijoz',
   },
+  customerDetail: {
+    missingTitle: 'Mijoz topilmadi',
+    backToList: "Mijozlarga qaytish",
+    infoTitle: "Ma'lumotlar",
+    emailLabel: 'Email',
+    ordersTitle: 'Buyurtmalari',
+    orderColumn: 'Buyurtma',
+    noOrders: 'Bu mijoz hali buyurtma bermagan.',
+  },
   applicationsList: {
     open: 'Ochish',
     emptyAllTitle: "Hozircha ariza yo'q",

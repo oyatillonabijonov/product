@@ -73,6 +73,15 @@ const orders: Dict<typeof uz> = {
     count_many: '{{count}} клиентов',
     count_other: '{{count}} клиента',
   },
+  customerDetail: {
+    missingTitle: 'Клиент не найден',
+    backToList: 'К списку клиентов',
+    infoTitle: 'Данные',
+    emailLabel: 'Email',
+    ordersTitle: 'Заказы клиента',
+    orderColumn: 'Заказ',
+    noOrders: 'Этот клиент ещё ничего не заказывал.',
+  },
   applicationsList: {
     open: 'Открыть',
     emptyAllTitle: 'Пока нет откликов',

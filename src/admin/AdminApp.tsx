@@ -31,6 +31,7 @@ import ModelsList from './screens/ModelsList';
 import ModelEdit from './screens/ModelEdit';
 import OrdersList from './screens/OrdersList';
 import CustomersList from './screens/CustomersList';
+import CustomerDetail from './screens/CustomerDetail';
 import OrderDetail from './screens/OrderDetail';
 import ApplicationsList from './screens/ApplicationsList';
 import Announcements from './screens/Announcements';
@@ -60,7 +61,7 @@ function screenFor(key: string, clearDefaultPw: () => void, defaultPw: boolean, 
     case 'products/brands': return id ? <BrandEdit key={id} id={id} /> : <BrandsList />;
     case 'products/models': return id ? <ModelEdit key={id} id={id} /> : <ModelsList />;
     case 'orders/list': return id ? <OrderDetail key={id} id={id} onCountsChange={refreshCounts} /> : <OrdersList onCountsChange={refreshCounts} />;
-    case 'orders/customers': return <CustomersList />;
+    case 'orders/customers': return id ? <CustomerDetail key={id} id={id} /> : <CustomersList />;
     case 'orders/announcements': return <Announcements />;
     case 'orders/applications': return id ? <ApplicationDetail key={id} id={id} onCountsChange={refreshCounts} /> : <ApplicationsList onCountsChange={refreshCounts} />;
     case 'content/home': return <ContentHome />;

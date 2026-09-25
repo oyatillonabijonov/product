@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC, ReactNode } from 'react';
-import { useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminCustomer } from '../../../shared/types';
 import { listCustomers } from '../api';
@@ -9,13 +9,15 @@ import { telHref } from '../lib/inbox';
 import { Badge, Button, Card, DataTable, EmptyState, Pagination, SearchInput, Skeleton, type Column } from '../ui';
 
 const PAGE_SIZE = 20;
+const LIST = '/admin/orders/customers';
 
 /**
- * Ro'yxatdan o'tgan mijozlar (Google yoki Telegram orqali kirganlar) — faqat ko'rish uchun. Qidiruv ism, email yoki
+ * Ro'yxatdan o'tgan mijozlar (Google yoki Telegram orqali kirganlar); qator bosilsa — mijoz va uning buyurtmalari. Qidiruv ism, email yoki
  * telefon raqamlari bo'yicha (raqamli so'rov bo'shliq/tiredan qat'i nazar); `q` va `page` URL'da, boshqa ro'yxatlar kabi.
  */
 const CustomersList: FC = () => {
   const { t } = useTranslation(['orders', 'common']);
+  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const q = params.get('q') ?? '';
   const page = Math.max(1, Number(params.get('page')) || 1);
@@ -105,7 +107,13 @@ const CustomersList: FC = () => {
           <p className="text-label text-muted">{t('customersList.count', { count: filtered.length })}</p>
           <Card padded={false}>
             <div className="px-2 py-1">
-              <DataTable columns={columns} rows={rows} rowKey={(c) => String(c.id)} empty={empty} />
+              <DataTable
+                columns={columns}
+                rows={rows}
+                rowKey={(c) => String(c.id)}
+                onRowClick={(c) => navigate(`${LIST}/${c.id}`, { state: { search: params.toString() } })}
+                empty={empty}
+              />
             </div>
           </Card>
           <Pagination page={safePage} pageCount={pageCount} onChange={(p) => update('page', String(p))} />

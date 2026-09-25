@@ -38,7 +38,7 @@ export const SECTIONS: SectionDef[] = [
     id: 'orders', labelKey: 'nav.orders.label', shortKey: 'nav.orders.short', Icon: Receipt,
     tabs: [
       { id: 'list', segment: '', labelKey: 'nav.orders.list', Icon: Inbox, detail: true },
-      { id: 'customers', segment: 'customers', labelKey: 'nav.orders.customers', Icon: UsersRound },
+      { id: 'customers', segment: 'customers', labelKey: 'nav.orders.customers', Icon: UsersRound, detail: true },
       { id: 'applications', segment: 'applications', labelKey: 'nav.orders.applications', Icon: Users, detail: true },
       { id: 'announcements', segment: 'announcements', labelKey: 'nav.orders.announcements', Icon: Megaphone, ownPage: true },
     ],

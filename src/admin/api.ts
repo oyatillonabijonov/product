@@ -282,6 +282,10 @@ export async function listCustomers(): Promise<ApiAdminCustomer[]> {
   return handle(await fetch('/api/admin/customers'));
 }
 
+export async function getCustomer(id: string): Promise<{ customer: ApiAdminCustomer; orders: ApiOrder[] }> {
+  return handle(await fetch(`/api/admin/customers/${encodeURIComponent(id)}`));
+}
+
 export async function listJobApplications(): Promise<ApiJobApplication[]> {
   return handle(await fetch('/api/admin/job-applications'));
 }

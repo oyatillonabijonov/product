@@ -17,6 +17,7 @@ import type {
   ApiSettings,
   ApiVariant,
   ApiOrder,
+  ApiAdminCustomer,
   ApiCustomer,
   ApiVacancy,
   ApiJobApplication,
@@ -606,6 +607,24 @@ export interface CustomerRow {
 
 function rowToCustomer(r: CustomerRow): ApiCustomer {
   return { id: r.id, createdAt: r.created_at, name: r.name, phone: r.phone, email: r.email, avatar: r.avatar };
+}
+
+/** Admin → Mijozlar: mijoz + kirish usuli + buyurtmalar soni. `WHERE`/`GROUP BY c.id`/`ORDER BY` chaqiruvchida. */
+export const ADMIN_CUSTOMER_SQL = `SELECT c.id, c.created_at, c.name, c.phone, c.email, c.avatar, c.google_sub, c.telegram_id,
+  COUNT(o.id) AS order_count, MAX(o.created_at) AS last_order_at
+  FROM customers c LEFT JOIN orders o ON o.customer_id = c.id`;
+
+export interface AdminCustomerRow {
+  id: number; created_at: number; name: string; phone: string | null; email: string | null; avatar: string | null;
+  google_sub: string | null; telegram_id: string | null; order_count: number; last_order_at: number | null;
+}
+
+export function rowToAdminCustomer(r: AdminCustomerRow): ApiAdminCustomer {
+  return {
+    id: r.id, createdAt: r.created_at, name: r.name, phone: r.phone, email: r.email, avatar: r.avatar,
+    via: r.google_sub ? 'google' : r.telegram_id ? 'telegram' : null,
+    orderCount: r.order_count, lastOrderAt: r.last_order_at,
+  };
 }
 
 export async function loadCustomer(env: Env, id: number): Promise<ApiCustomer | null> {
