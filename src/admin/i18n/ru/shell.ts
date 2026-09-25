@@ -9,7 +9,7 @@ const shell: Dict<typeof uz> = {
     collapse: '{{name}} — свернуть',
     home: { label: 'Главная', short: 'Главная' },
     products: { label: 'Товары', short: 'Товары', list: 'Товары', types: 'Типы', categories: 'Категории', brands: 'Бренды', models: 'Модели' },
-    orders: { label: 'Заказы', short: 'Заказы', list: 'Заказы', applications: 'Отклики', announcements: 'Объявления' },
+    orders: { label: 'Заказы', short: 'Заказы', list: 'Заказы', customers: 'Клиенты', applications: 'Отклики', announcements: 'Объявления' },
     content: { label: 'Контент', short: 'Контент', home: 'Главная', banners: 'Баннеры', news: 'Новости', posts: 'Блог', pages: 'Страницы', vacancies: 'Вакансии' },
     settings: { label: 'Настройки', short: 'Настройки', store: 'Магазин', contact: 'Контакты', payment: 'Оплата и курс', integrations: 'Интеграции', seo: 'SEO', account: 'Аккаунт' },
   },

@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   BookOpen, Boxes, Briefcase, FileText, House, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Phone, Plug,
-  Receipt, Search, Settings, Shapes, Smartphone, Store, Tag, UserRound, Users, Wallet,
+  Receipt, Search, Settings, Shapes, Smartphone, Store, Tag, UserRound, Users, UsersRound, Wallet,
 } from 'lucide-react';
 import type { ParseKeys } from 'i18next';
 import type { AdminRoute, SectionId } from './lib/admin-path';
@@ -38,6 +38,7 @@ export const SECTIONS: SectionDef[] = [
     id: 'orders', labelKey: 'nav.orders.label', shortKey: 'nav.orders.short', Icon: Receipt,
     tabs: [
       { id: 'list', segment: '', labelKey: 'nav.orders.list', Icon: Inbox, detail: true },
+      { id: 'customers', segment: 'customers', labelKey: 'nav.orders.customers', Icon: UsersRound },
       { id: 'applications', segment: 'applications', labelKey: 'nav.orders.applications', Icon: Users, detail: true },
       { id: 'announcements', segment: 'announcements', labelKey: 'nav.orders.announcements', Icon: Megaphone, ownPage: true },
     ],

@@ -19,6 +19,7 @@ import type {
   ApiSpec,
   ApiVariant,
   ApiVacancy,
+  ApiAdminCustomer,
   ApiJobApplication,
   OrderStatus,
 } from '../../shared/types';
@@ -277,6 +278,10 @@ export async function updateVacancy(id: string, v: Partial<ApiVacancy>): Promise
 export async function deleteVacancy(id: string): Promise<void> {
   await handle(await fetch(`/api/admin/vacancies/${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
+export async function listCustomers(): Promise<ApiAdminCustomer[]> {
+  return handle(await fetch('/api/admin/customers'));
+}
+
 export async function listJobApplications(): Promise<ApiJobApplication[]> {
   return handle(await fetch('/api/admin/job-applications'));
 }

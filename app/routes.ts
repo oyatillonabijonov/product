@@ -81,6 +81,7 @@ export default [
   route('api/admin/news/:id', 'routes/api.admin.news.$id.tsx'),
   route('api/admin/vacancies', 'routes/api.admin.vacancies.tsx'),
   route('api/admin/vacancies/:id', 'routes/api.admin.vacancies.$id.tsx'),
+  route('api/admin/customers', 'routes/api.admin.customers.tsx'),
   route('api/admin/job-applications', 'routes/api.admin.job-applications.tsx'),
   route('api/admin/job-applications/:id', 'routes/api.admin.job-applications.$id.tsx'),
   route('api/admin/posts', 'routes/api.admin.posts.tsx'),

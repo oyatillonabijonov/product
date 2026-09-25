@@ -288,6 +288,13 @@ export interface ApiCustomer {
   avatar: string | null;
 }
 
+/** Admin → Mijozlar qatori: kirish usuli va buyurtmalar soni bilan (`GET /api/admin/customers`). */
+export interface ApiAdminCustomer extends ApiCustomer {
+  via: 'google' | 'telegram' | null;
+  orderCount: number;
+  lastOrderAt: number | null;
+}
+
 export type OrderPaymentKind = 'cash' | 'installment';
 export type OrderSource = 'product' | 'cart' | 'consult';
 
