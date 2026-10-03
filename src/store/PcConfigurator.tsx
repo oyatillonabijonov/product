@@ -1,6 +1,6 @@
 import { useState, type FC } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Cpu, CircuitBoard, MemoryStick, MonitorPlay, HardDrive, Zap, Box, Check, ChevronRight, AlertTriangle } from 'lucide-react';
+import { Cpu, CircuitBoard, MemoryStick, MonitorPlay, HardDrive, Zap, Box, Check, ChevronRight, AlertTriangle, Search } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Translation } from '../locales';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
@@ -52,7 +52,9 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
   const [pickedRaw, setPicked] = useState({});
   const [removedRaw, setRemoved] = useState([]);
   const [stockOnlyRaw, setStockOnly] = useState(false);
+  const [queryRaw, setQuery] = useState('');
   const stockOnly = stockOnlyRaw as boolean;
+  const query = queryRaw as string;
   const picked = pickedRaw as Partial<Record<SlotKey, ConfigPart>>;
   const removed = removedRaw as SlotKey[];
   const cart = useCart();
@@ -73,6 +75,16 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
   const total = slots.reduce((sum, k) => sum + (picked[k]?.priceUzs ?? 0), 0);
   const anyOnOrder = slots.some((k) => picked[k] && !picked[k]?.inStock);
   const boards = (parts.mb ?? []).map((b) => b.attrs);
+  // Qidiruv ko'p so'zli: har so'z nomda bo'lishi kerak, tartibdan qat'i nazar ("14400 i5").
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const list = (parts[active] ?? []).filter((part) =>
+    (!stockOnly || part.inStock) && words.every((w) => part.name.toLowerCase().includes(w)));
+
+  // Boshqa bo'g'inga o'tganda qidiruv tozalanadi — "14400" protsessor uchun yozilgan, platada ma'nosiz.
+  const openSlot = (k: SlotKey) => {
+    setActive(k);
+    setQuery('');
+  };
 
   const choose = (part: ConfigPart) => {
     const next: Partial<Record<SlotKey, ConfigPart>> = { ...picked, [active]: part };
@@ -87,7 +99,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
     setPicked(next);
     setRemoved(dropped);
     const following = slots.find((k) => k !== active && !next[k]);
-    if (following) setActive(following);
+    if (following) openSlot(following);
   };
 
   const unpick = (k: SlotKey) => {
@@ -132,7 +144,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
             <button
               key={k}
               type="button"
-              onClick={() => setActive(k)}
+              onClick={() => openSlot(k)}
               aria-pressed={on}
               style={{ clipPath: shape }}
               className={`press group/tab relative inline-flex h-11 shrink-0 items-center gap-2 text-copy outline-none ${round} ${
@@ -193,8 +205,21 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
               {t.cfgRemoved.replace('{slots}', removed.map((k) => SLOT_UI[k].label(t)).join(', '))}
             </p>
           )}
+          {/* Header qidiruvi bilan bir shakl; text-control — iOS 16px dan kichik inputni fokusda zoom qiladi. */}
+          <div className="relative mt-4">
+            <Search aria-hidden className="pointer-events-none absolute left-4 top-1/2 size-4.5 -translate-y-1/2 text-muted-2" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              type="search"
+              placeholder={t.cfgSearch}
+              aria-label={t.cfgSearch}
+              className="h-11 w-full rounded-full bg-segment pl-11 pr-4 text-control text-primary placeholder:text-muted-2 focus:outline-none focus:ring-2 focus:ring-accent/30"
+            />
+          </div>
+          {list.length === 0 && <p className="px-1 py-8 text-center text-para text-muted-2">{t.cfgNoResults}</p>}
           <ul className="mt-4 flex max-h-[560px] flex-col gap-2 overflow-y-auto">
-            {(parts[active] ?? []).filter((part) => !stockOnly || part.inStock).map((part) => {
+            {list.map((part) => {
               const on = picked[active]?.id === part.id;
               const state = candidateState(active, part.attrs, pickedAttrs);
               const disabled = !!state.block;
@@ -223,10 +248,18 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
                     onClick={() => choose(part)}
                     disabled={disabled}
                     aria-pressed={on}
-                    className={`press flex w-full items-center gap-4 rounded-sm border-[1.5px] p-3 text-left ${
-                      on ? 'border-cta' : 'border-transparent bg-bg hover:border-muted-3'
+                    className={`press flex w-full items-center gap-4 rounded-sm border-2 p-3 text-left ${
+                      on ? 'border-cta bg-cta/8' : 'border-transparent bg-bg hover:border-muted-3'
                     } disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-transparent`}
                   >
+                    {/* Tanlov belgisi (mijozning talabi — faqat chegara rangi "omonat" ko'rinardi): doira,
+                        tanlanganda ko'k to'ldirma va ✓. Chegara hamma qatorda 2px — tanlovda layout siljimaydi. */}
+                    <span
+                      aria-hidden
+                      className={`grid size-[22px] shrink-0 place-items-center rounded-full border-2 ${on ? 'border-cta bg-cta text-white' : 'border-muted-3'}`}
+                    >
+                      {on && <Check className="size-3.5" strokeWidth={3} />}
+                    </span>
                     <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xs border border-line bg-white">
                       {part.image
                         ? <img src={part.image} alt="" loading="lazy" className="h-full w-full object-contain" />
