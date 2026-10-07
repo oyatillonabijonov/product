@@ -15,7 +15,7 @@ import {
 } from '../../functions/lib/db';
 import { rowToProductType, type ProductTypeDbRow, type ProductTypeRow } from '../../shared/product-types';
 import { PC_SLOTS, toConfigParts, type ConfigPart, type ConfigPartRow, type SlotKey } from '../../shared/pc-compat';
-import { applyFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
+import { applyFilters, parseCatalogFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 import { siteConfig as staticSiteConfig } from './site.config';
 import { translations, type Translation } from '../../src/locales';
 import { isAssetKey, mergeTexts, type SiteAssets, type SiteTexts } from '../../src/lib/site-content';
@@ -460,4 +460,33 @@ export async function loadSiteAssets(env: Env): Promise<SiteAssets> {
  */
 export async function loadT(env: Env, locale: Locale): Promise<Translation> {
   return mergeTexts(translations[localeToLang(locale)], await loadSiteTexts(env), locale === 'ru' ? 'ru' : 'uz');
+}
+
+export interface SearchSuggestion { id: string; name: string; image: string; priceUzs: number }
+
+/**
+ * Qidiruv maydonidagi tavsiyalar ("ip" → iPhone'lar). Moslik qoidasi katalog qidiruvi bilan bir xil
+ * (`buildConds`: har so'z nom, brend yoki kategoriyada), tartib esa yozilganga yaqinligi bo'yicha:
+ * nomi so'z bilan boshlanadigan → nomidagi biror so'z shu bilan boshlanadigan → qolgani; teng bo'lsa
+ * turlar admin'dagi tartibda guruhlanadi ("ip" → avval iPhone'lar, keyin iPad'lar — aralashmaydi).
+ */
+export async function loadSearchSuggestions(env: Env, q: string, limit = 8): Promise<SearchSuggestion[]> {
+  const terms = searchTerms(q);
+  if (terms.length === 0) return [];
+  const toSuggestion = (p: Product): SearchSuggestion => ({ id: p.id, name: p.name, image: p.image, priceUzs: p.minPriceUzs });
+  try {
+    const w = buildConds({ ...parseCatalogFilters(new URLSearchParams()), q });
+    const first = escapeLike(terms[0]);
+    const { results } = await env.DB.prepare(
+      `SELECT * FROM (SELECT ${PRODUCT_COLS} FROM products) WHERE ${w.sql}
+       ORDER BY CASE WHEN name LIKE ? ESCAPE '\\' THEN 0 WHEN name LIKE ? ESCAPE '\\' THEN 1 ELSE 2 END,
+         (SELECT pt.sort_order FROM product_types pt WHERE pt.id = type), sort_order ASC, name ASC
+       LIMIT ?`,
+    ).bind(...w.binds, `${first}%`, `% ${first}%`, limit).all<ProductRow>();
+    return results.map(rowToProduct).map(mapProduct).map(toSuggestion);
+  } catch (err) {
+    console.error('loadSearchSuggestions fallback:', err);
+    const lower = terms.map((x) => x.toLowerCase());
+    return fallbackProducts.filter((p) => lower.every((x) => p.name.toLowerCase().includes(x))).slice(0, limit).map(toSuggestion);
+  }
 }

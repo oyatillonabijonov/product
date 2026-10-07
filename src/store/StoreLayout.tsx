@@ -15,6 +15,7 @@ import { parseAvatar } from '../../shared/avatar';
 import Footer from './Footer';
 import ContactFab from './ContactFab';
 import CookieBanner from './CookieBanner';
+import BetaBar from './BetaBar';
 import { CartProvider } from './CartContext';
 import { FavoritesProvider } from './FavoritesContext';
 import { CurrencyProvider } from './CurrencyContext';
@@ -76,6 +77,7 @@ export default function StoreLayout({
           o'sha selektor ostida qayta e'lon qilinadi (app/styles.css). Landing hero'si
           ikkala rejimda ham qora — u mavzu emas, rasm. */}
       <div className="min-h-screen flex flex-col bg-bg">
+        <BetaBar t={t} />
         {pending && (
           <div aria-hidden className="fixed top-0 inset-x-0 z-50 h-[3px] overflow-hidden bg-accent-soft">
             <div className="nav-progress h-full w-1/3 bg-accent rounded-full" />

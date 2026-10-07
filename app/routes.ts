@@ -46,6 +46,7 @@ export default [
   route('api/order', 'routes/api.order.tsx'),
   route('api/consult', 'routes/api.consult.tsx'),
   route('api/job-apply', 'routes/api.job-apply.tsx'),
+  route('api/search-suggest', 'routes/api.search-suggest.tsx'),
   route('images/*', 'routes/images.$.tsx'),
   route('sitemap.xml', 'routes/sitemap[.]xml.tsx'),
   route('robots.txt', 'routes/robots[.]txt.tsx'),

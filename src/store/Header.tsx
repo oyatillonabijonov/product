@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Search, ShoppingCart, Menu, X, Globe, User, Heart, Wallet, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Menu, X, Globe, User, Heart, Wallet, ChevronDown } from 'lucide-react';
 import { BotAvatar } from 'bot-avatars';
 import type { Avatar } from '../../shared/avatar';
 import type { LangKey, Translation } from '../locales';
@@ -16,6 +16,7 @@ import { useCurrency } from './CurrencyContext';
 import { useAssets } from './SiteAssets';
 import ThemeToggle from './ThemeToggle';
 import { PILL } from './ui';
+import SearchBox from './SearchBox';
 
 /**
  * O'ng tomondagi ikon ustunlari — ikonka + tagida nomi (nomi faqat `lg`dan yuqorida).
@@ -69,7 +70,6 @@ export default function Header({
   hasDeals: boolean;
 }) {
   const asset = useAssets();
-  const [q, setQ] = useState('');
   const [catOpen, setCatOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
@@ -99,42 +99,6 @@ export default function Header({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [catOpen]);
-
-  function submitSearch(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const query = q.trim();
-    if (!query) {
-      // Bo'sh submit jim turmasin — inputga fokus qaytadi.
-      e.currentTarget.querySelector<HTMLInputElement>('input')?.focus();
-      return;
-    }
-    navigate(localizedPath(locale, `/search?q=${encodeURIComponent(query)}`));
-  }
-
-  // Ikkala joyda (desktop markaziy guruh / mobil 2-qator) bir xil forma, Katalog tugmasi bilan bir
-  // balandlikda (44px). Qidiruv ikonkasi maydon ichida chapda: alohida qora doira sarlavhadagi yagona
-  // to'q urg'u — Katalog — bilan raqobatlashardi. Enter ham yuboradi.
-  // text-control — iOS Safari 16px dan kichik inputni fokusda zoom qiladi.
-  const searchForm = (
-    <form onSubmit={submitSearch} role="search" className="relative w-full">
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        type="search"
-        enterKeyHint="search"
-        placeholder={t.navSearchPlaceholder}
-        aria-label={t.navSearch}
-        className="h-11 w-full rounded-full bg-segment pl-11 pr-4 text-control text-primary placeholder:text-muted-2 transition-colors focus:bg-surface focus:outline-none focus:ring-2 focus:ring-accent/30 [&::-webkit-search-cancel-button]:hidden"
-      />
-      <button
-        type="submit"
-        aria-label={t.navSearch}
-        className="press absolute left-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-2 hover:text-primary"
-      >
-        <Search aria-hidden className="size-4.5" />
-      </button>
-    </form>
-  );
 
   // Katalog tugmasidagi ikonka: yopiq — hamburger, ochiq — ✕. Ikkalasi bir joyda ustma-ust turib
   // almashadi (masshtab + shaffoflik + blur), tugma kengligi o'zgarmaydi.
@@ -280,7 +244,7 @@ export default function Header({
           <button type="button" onClick={() => setCatOpen((v) => !v)} aria-expanded={catOpen} className={`${PILL} shrink-0`}>
             {toggleIcon('-ml-1 size-4.5')} {t.navAll}
           </button>
-          <div className="w-full max-w-xl">{searchForm}</div>
+          <div className="w-full max-w-xl"><SearchBox t={t} locale={locale} /></div>
         </div>
 
         {/* Valyuta — til ustuni naqshi: yozuvda joriy valyuta, ustida shaffof native select. */}
@@ -387,7 +351,7 @@ export default function Header({
         >
           {toggleIcon('size-5')}
         </button>
-        {searchForm}
+        <SearchBox t={t} locale={locale} />
       </div>
 
       {catMenu}

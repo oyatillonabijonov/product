@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ChevronDown, Globe } from 'lucide-react';
 import type { Translation } from '../locales';
@@ -9,6 +9,8 @@ import LocaleLink from './LocaleLink';
 import ThemeToggle from './ThemeToggle';
 import { useAssets } from './SiteAssets';
 import { SPRING_UI as SPRING } from '../lib/motion';
+import SearchBox from './SearchBox';
+import { BETA_BAR_H } from './BetaBar';
 
 
 /** Nav'ning yumaloq ikon tugmasi — Kirish pill'i bilan bir balandlikda (36px). */
@@ -30,6 +32,10 @@ export default function HeroNotch({ t, locale, categories }: {
   const [hover, setHover] = useState(false);
   const [menu, setMenu] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [searching, setSearching] = useState(false);
+  // Beta qatori (vaqtinchalik) ko'rinib turganda notch uning ostidan boshlanadi, aks holda matnni yopardi.
+  const [barOffset, setBarOffset] = useState(BETA_BAR_H);
+  const onSearchActive = useCallback((v: boolean) => setSearching(v), []);
   const navRef = useRef<HTMLDivElement | null>(null);
   const [navW, setNavW] = useState(0);
   const reduced = useReducedMotion();
@@ -49,7 +55,10 @@ export default function HeroNotch({ t, locale, categories }: {
     // Hero balandligi HeroColumns bilan bir xil: 100vh, lekin kamida 740px.
     // `innerHeight` mount paytida hali 0 bo'lishi mumkin — shuning uchun pastki
     // chegara qo'yilmasa notch birinchi kadrda ochiq bo'lib qotib qolardi.
-    const onScroll = () => setPinned(window.scrollY > Math.max(740, window.innerHeight) - 120);
+    const onScroll = () => {
+      setPinned(window.scrollY > Math.max(740, window.innerHeight) - 120);
+      setBarOffset(Math.max(0, BETA_BAR_H - window.scrollY));
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
@@ -59,10 +68,11 @@ export default function HeroNotch({ t, locale, categories }: {
     };
   }, []);
 
-  const open = hover || menu || pinned;
+  // Qidiruvga yozilayotganda sichqoncha chiqib ketsa ham notch yopilmaydi.
+  const open = hover || menu || pinned || (searching as boolean);
 
   // Chekkasidagi hairline (`border-white/[0.12]`): notch ham, hero ham qora — usiz
-  // qutining qayerda tugashi ko'rinmaydi. Tepasi ekrandan yuqorida (`-top-[14px]`),
+  // qutining qayerda tugashi ko'rinmaydi. Tepasi ekrandan 14px yuqorida (`top` style'da, beta qatori ofseti bilan),
   // shuning uchun faqat yon va pastki chetlari ko'zga tashlanadi.
   return (
     <motion.div
@@ -73,8 +83,8 @@ export default function HeroNotch({ t, locale, categories }: {
         ? { height: 92, paddingLeft: 24, paddingRight: 24, gap: 28 }
         : { height: 80.53, paddingLeft: 0, paddingRight: 0, gap: 0 }}
       transition={reduced ? { duration: 0 } : SPRING}
-      style={{ overflow: open ? 'visible' : 'hidden' }}
-      className="rounded-b-xl fixed -top-[14px] left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center border border-white/[0.12] bg-black pt-5"
+      style={{ overflow: open ? 'visible' : 'hidden', top: (barOffset as number) - 14 }}
+      className="rounded-b-xl fixed left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center border border-white/[0.12] bg-black pt-5"
     >
       <LocaleLink to="/" className="block flex-none">
         <img src={asset('logoDark')} alt="" aria-hidden className="block h-[25px] w-auto" />
@@ -142,6 +152,10 @@ export default function HeroNotch({ t, locale, categories }: {
         <div aria-hidden className="h-[22px] w-px bg-white/[0.34]" />
 
         <div className="flex items-center gap-4">
+          {/* Ixcham qidiruv — faqat `lg`dan: `md`da notch'ga sig'maydi (mijozning talabi, 2026-10-07). */}
+          <div className="hidden lg:block">
+            <SearchBox t={t} locale={locale} dark onActiveChange={onSearchActive} />
+          </div>
           {/* "Kirish" doim ko'rinadi; profil ikonkasi 2026-09-18'da olib tashlandi (egasining
               talabi — notch'da bitta kirish nuqtasi yetarli, kabinetga o'sha yerdan o'tiladi). */}
           <LocaleLink
