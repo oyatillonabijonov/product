@@ -1,8 +1,9 @@
 /**
- * PC konfiguratori — qism atributlari va moslik qoidalari (sof; sayt, loader va admin ishlatadi).
- * Billz'da soket/DDR maydoni yo'q, shuning uchun atributlar tovar NOMIDAN chiqariladi;
- * admin tuzatishi (`products.pc_socket|pc_memory|pc_watts`) nomdan ustun turadi.
- * Spec: docs/superpowers/specs/2026-09-18-pc-konfigurator-moslik-design.md
+ * PC konfiguratori — moslik qoidalari va qism guruhlari (sof; sayt loaderi, admin API va admin UI ishlatadi).
+ * Moslik admin belgilagan qiymatlardan keladi (`pc_dimensions` / `pc_dimension_values` / `pc_part_values`):
+ * ikki qism faol turda kamida bitta umumiy qiymatga ega bo'lsa — mos. Tovar nomi parserlari endi faqat
+ * admin ekranidagi **taklif** (`suggestValues`) va quvvat (`partWatts`) uchun ishlaydi.
+ * Spec: docs/superpowers/specs/2026-10-13-pc-moslik-guruhlari-design.md
  */
 
 export type SlotKey = 'cpu' | 'mb' | 'ram' | 'gpu' | 'psu' | 'ssd' | 'case';
@@ -18,16 +19,30 @@ export const PC_SLOTS: readonly { key: SlotKey; type: string }[] = [
   { key: 'case', type: 'korpus' },
 ];
 
-export const PC_SOCKETS = ['LGA1700', 'LGA1851', 'LGA1200', 'AM5', 'AM4'] as const;
-export type PcSocket = (typeof PC_SOCKETS)[number];
-export type PcMemory = 'DDR4' | 'DDR5';
-
-export interface PartAttrs { socket: PcSocket | null; memory: PcMemory | null; watts: number | null }
-export interface PartOverride { socket: string | null; memory: string | null; watts: number | null }
-
 export function slotForType(type: string | null): SlotKey | null {
   return PC_SLOTS.find((s) => s.type === type)?.key ?? null;
 }
+
+export interface PcDimensionValue { id: number; label: string }
+export interface PcDimension {
+  id: number;
+  /** Seed turlari: 'socket' | 'memory' — nomdan taklif shu kalit bo'yicha; admin yaratgan turda null. */
+  key: string | null;
+  name: string;
+  nameRu: string;
+  slots: SlotKey[];
+  /** Faol tur saytda tekshiriladi va qism ko'rinishi uchun talab qilinadi. */
+  active: boolean;
+  values: PcDimensionValue[];
+}
+/** dimensionId → tasdiqlangan qiymat id'lari. */
+export type PartValues = Record<number, number[]>;
+export interface PartAttrs { values: PartValues; watts: number | null }
+
+// ── Nom parserlari: taklif va quvvat uchun ───────────────────────────────────
+
+type PcSocket = 'LGA1700' | 'LGA1851' | 'LGA1200' | 'AM5' | 'AM4';
+type PcMemory = 'DDR4' | 'DDR5';
 
 const CHIPSETS: Record<string, PcSocket> = {};
 const addChipsets = (socket: PcSocket, list: string) => { for (const c of list.split(' ')) CHIPSETS[c] = socket; };
@@ -138,51 +153,79 @@ function psuWatts(n: string): number | null {
   return null;
 }
 
-/**
- * Protsessorning o'z grafikasi bormi — ya'ni videokartasiz ekranga tasvir chiqaradimi.
- * Intel 12–14 avlod va Core Ultra 200: "F"/"KF" qo'shimchasi — grafikasiz. AMD AM5
- * (7000/8000/9000): "F" — grafikasiz, qolgani oddiy RDNA grafikali. AMD AM4 (3000/4000/5000):
- * faqat "G"/"GE" grafikali. Tanilmasa — null (ogohlantirilmaydi).
- */
-export function cpuHasGraphics(name: string): boolean | null {
-  const n = name.toLowerCase().replace(/[™®]/g, '');
-  const ultra = n.match(/ultra\s*[3579]\s*2\d\d([a-z]*)/);
-  if (ultra) return !ultra[1].includes('f');
-  const intel = n.match(/\bi[3579][\s-]*\d{4,5}([a-z]*)/);
-  if (intel) return !intel[1].includes('f');
-  const ryzen = n.match(/ryzen\s*[3579]\b.*?\b([3-9])\d{3}([a-z0-9]*)/);
-  if (ryzen) return Number(ryzen[1]) >= 7 ? !ryzen[2].includes('f') : ryzen[2].startsWith('g');
+// ™/® savdo belgisi tier va model raqami orasiga tushib qolsa \s* uni bo'shliq deb qabul qilmaydi.
+const norm = (name: string): string => name.toLowerCase().replace(/[™®]/g, '');
+
+/** Iste'mol (CPU, GPU) yoki quvvat (blok), W: admin tuzatishi (> 0) → nomdan; boshqa bo'g'in — null. */
+export function partWatts(slot: SlotKey, name: string, override: number | null): number | null {
+  if (override !== null && override > 0) return override;
+  const n = norm(name);
+  if (slot === 'cpu') return cpuWatts(n);
+  if (slot === 'gpu') return gpuWatts(n);
+  if (slot === 'psu') return psuWatts(n);
   return null;
 }
 
-const asSocket = (v: string | null): PcSocket | null => (PC_SOCKETS as readonly string[]).includes(v ?? '') ? (v as PcSocket) : null;
-const asMemory = (v: string | null): PcMemory | null => (v === 'DDR4' || v === 'DDR5' ? v : null);
-
-/** Qism atributlari: admin tuzatishi (to'g'ri qiymat bo'lsa) → nom → null. */
-export function partAttrs(slot: SlotKey, name: string, override?: PartOverride): PartAttrs {
-  // ™/® savdo belgisi tier va model raqami orasiga tushib qolsa \s* uni bo'shliq deb qabul qilmaydi.
-  const n = name.toLowerCase().replace(/[™®]/g, '');
-  const o = override ?? { socket: null, memory: null, watts: null };
-  const oWatts = o.watts !== null && o.watts > 0 ? o.watts : null;
+/** Nomdan taklif yorliqlari — faqat seed turlari kaliti bo'yicha. */
+function suggestLabels(key: string | null, slot: SlotKey, n: string): string[] {
+  if (key === 'socket') {
+    const s = slot === 'cpu' ? cpuSocket(n) : slot === 'mb' ? boardSocket(n) : null;
+    return s ? [s] : [];
+  }
+  if (key !== 'memory') return [];
   if (slot === 'cpu') {
-    const socket = asSocket(o.socket) ?? cpuSocket(n);
-    return { socket, memory: asMemory(o.memory) ?? socketMemory(socket), watts: oWatts ?? cpuWatts(n) };
+    const socket = cpuSocket(n);
+    if (socket === 'LGA1700') return ['DDR4', 'DDR5'];
+    const m = socketMemory(socket);
+    return m ? [m] : [];
   }
   if (slot === 'mb') {
-    const socket = asSocket(o.socket) ?? boardSocket(n);
     // LGA1700 platalar ikkala turda chiqadi; DDR4 versiyasi nomda "D4"/"DDR4" bilan belgilanadi.
-    // H610 arzon segment — asosan DDR4, lekin noaniq holatda DDR5 deb taxmin qilish RAM
-    // xaridini butunlay bloklardi; operator o'zi tasdiqlasin. Boshqa LGA1700 chipsetlar DDR5'ga qaytadi.
+    // H610 — asosan DDR4, lekin nomda aytilmasa noaniq: taklif berilmaydi, admin o'zi tanlaydi.
+    const socket = boardSocket(n);
     const fallback = boardChipsetCode(n) === 'h610' ? null : socket === 'LGA1700' ? 'DDR5' : socketMemory(socket);
-    return { socket, memory: asMemory(o.memory) ?? nameMemory(n) ?? fallback, watts: null };
+    const m = nameMemory(n) ?? fallback;
+    return m ? [m] : [];
   }
-  if (slot === 'ram') return { socket: null, memory: asMemory(o.memory) ?? ramMemory(n), watts: null };
-  if (slot === 'gpu') return { socket: null, memory: null, watts: oWatts ?? gpuWatts(n) };
-  if (slot === 'psu') return { socket: null, memory: null, watts: oWatts ?? psuWatts(n) };
-  return { socket: null, memory: null, watts: null };
+  if (slot === 'ram') {
+    const m = ramMemory(n);
+    return m ? [m] : [];
+  }
+  return [];
 }
 
-export interface Issue { slot: SlotKey; level: 'block' | 'warn'; code: 'socket' | 'memory' | 'power' | 'graphics'; need: string }
+/** Admin ekranidagi "taklif": nomdan aniqlangan qiymatlar shu turlarning qiymat id'lariga moslangan. Saytga ta'sir qilmaydi. */
+export function suggestValues(slot: SlotKey, name: string, dims: PcDimension[]): PartValues {
+  const n = norm(name);
+  const out: PartValues = {};
+  for (const d of dims) {
+    if (!d.slots.includes(slot)) continue;
+    const labels = suggestLabels(d.key, slot, n);
+    const ids = d.values.filter((v) => labels.includes(v.label)).map((v) => v.id);
+    if (ids.length > 0) out[d.id] = ids;
+  }
+  return out;
+}
+
+// ── Moslik qoidalari ─────────────────────────────────────────────────────────
+
+const activeFor = (slot: SlotKey, dims: PcDimension[]): PcDimension[] => dims.filter((d) => d.active && d.slots.includes(slot));
+const labelsOf = (d: PcDimension, ids: number[]): string => d.values.filter((v) => ids.includes(v.id)).map((v) => v.label).join(' / ');
+
+/** Qism konfiguratorda ko'rinadimi: bo'g'ini kirgan har bir faol turda kamida bitta tasdiqlangan qiymat. */
+export function isTagged(slot: SlotKey, values: PartValues, dims: PcDimension[]): boolean {
+  return activeFor(slot, dims).every((d) => (values[d.id]?.length ?? 0) > 0);
+}
+
+export interface Issue {
+  slot: SlotKey;
+  level: 'block' | 'warn';
+  code: 'dimension' | 'power' | 'graphics';
+  /** dimension: kerakli qiymat(lar) " / " bilan; power: tavsiya etilgan W. */
+  need: string;
+  /** Faqat `code: 'dimension'` — sabab matnidagi tur nomi uchun. */
+  dimensionId?: number;
+}
 export type Picked = Partial<Record<SlotKey, PartAttrs>>;
 
 /** Buyurtma uchun majburiy bo'g'inlar (GPU — integrallashgan grafika bo'lishi mumkin; qolgani mijozda bo'lishi mumkin). */
@@ -196,25 +239,23 @@ export function recommendedWatts(picked: Picked): number | null {
   return Math.ceil(((cpu ?? 0) + (gpu ?? 0) + 100) * 1.2 / 50) * 50;
 }
 
-/** Xotira talabi: plata tanlangan bo'lsa plata, aks holda CPU (LGA1700 → null). */
-const memoryNeed = (picked: Picked): PcMemory | null => (picked.mb ? picked.mb.memory : picked.cpu?.memory ?? null);
-
-/** `cand` — `slot` bo'g'inining nomzodi; `picked` — boshqa bo'g'inlardagi tanlovlar (`slot`ning o'zi e'tiborsiz). */
-export function issueFor(slot: SlotKey, cand: PartAttrs, picked: Picked): Issue | null {
+/**
+ * `cand` — `slot` bo'g'inining nomzodi; `picked` — boshqa bo'g'inlardagi tanlovlar (`slot`ning o'zi e'tiborsiz).
+ * Har faol tur bo'yicha har bir boshqa tanlangan qism bilan juftlik: qiymatlar kesishmasi bo'sh → block.
+ * Qiymatsiz qism (sayt ularni ko'rsatmaydi, lekin himoya uchun) — tekshirilmaydi.
+ */
+export function issueFor(slot: SlotKey, cand: PartAttrs, picked: Picked, dims: PcDimension[]): Issue | null {
   const others: Picked = { ...picked, [slot]: undefined };
-  if (slot === 'cpu' || slot === 'mb') {
-    const other = slot === 'cpu' ? others.mb : others.cpu;
-    if (cand.socket && other?.socket && cand.socket !== other.socket) return { slot, level: 'block', code: 'socket', need: other.socket };
-  }
-  if (slot === 'ram') {
-    const need = memoryNeed(others);
-    if (cand.memory && need && cand.memory !== need) return { slot, level: 'block', code: 'memory', need };
-  }
-  if (slot === 'mb' || slot === 'cpu') {
-    const ram = others.ram?.memory ?? null;
-    const own = cand.memory;
-    // CPU faqat plata yo'q bo'lsa RAM bilan solishtiriladi — plata bo'lsa talabni plata belgilaydi.
-    if (ram && own && own !== ram && (slot === 'mb' || !others.mb)) return { slot, level: 'block', code: 'memory', need: ram };
+  for (const d of activeFor(slot, dims)) {
+    const mine = cand.values[d.id] ?? [];
+    if (mine.length === 0) continue;
+    for (const { key } of PC_SLOTS) {
+      if (key === slot || !d.slots.includes(key)) continue;
+      const theirs = others[key]?.values[d.id] ?? [];
+      if (theirs.length > 0 && !mine.some((v) => theirs.includes(v))) {
+        return { slot, level: 'block', code: 'dimension', dimensionId: d.id, need: labelsOf(d, theirs) };
+      }
+    }
   }
   if (slot === 'psu' || slot === 'cpu' || slot === 'gpu') {
     const next: Picked = { ...others, [slot]: cand };
@@ -225,46 +266,58 @@ export function issueFor(slot: SlotKey, cand: PartAttrs, picked: Picked): Issue 
   return null;
 }
 
-/** Yig'madagi barcha muammolar (har juft bir marta: soket — plata, xotira — RAM, quvvat — blok). */
-export function summaryIssues(picked: Picked): Issue[] {
+/** Yig'madagi muammolar — har juft bir marta (keyingi bo'g'in oldingilari bilan solishtiriladi). */
+export function summaryIssues(picked: Picked, dims: PcDimension[]): Issue[] {
   const out: Issue[] = [];
-  for (const slot of ['mb', 'ram', 'psu'] as const) {
-    const cand = picked[slot];
+  const earlier: Picked = {};
+  for (const { key } of PC_SLOTS) {
+    const cand = picked[key];
     if (!cand) continue;
-    const i = issueFor(slot, cand, picked);
+    const i = issueFor(key, cand, earlier, dims);
     if (i) out.push(i);
+    earlier[key] = cand;
   }
-  // RAM bor, plata yo'q: CPU ↔ RAM xotirasi RAM tomonida allaqachon tekshirildi.
   return out;
 }
 
 /**
  * Grafikasiz protsessor va videokarta tanlanmagan — bunday kompyuter ekranga hech narsa
- * chiqarmaydi. Katalogdagi 30 protsessordan 10 tasi grafikasiz (12400F, 7500F, 265F…).
- * **Ogohlantirish, blok emas:** videokarta ixtiyoriy bo'g'in, u mijozning o'zida bo'lishi
- * mumkin — blok quvvati kabi, mijoz bilib turib buyurtma bera oladi.
+ * chiqarmaydi. **Ogohlantirish, blok emas:** videokarta ixtiyoriy bo'g'in, u mijozning o'zida bo'lishi mumkin.
  */
 export function graphicsIssue(cpuName: string | undefined, hasGpu: boolean): Issue | null {
   if (!cpuName || hasGpu || cpuHasGraphics(cpuName) !== false) return null;
   return { slot: 'cpu', level: 'warn', code: 'graphics', need: '' };
 }
 
+/**
+ * Protsessorning o'z grafikasi bormi. Intel 12–14 avlod va Core Ultra 200: "F"/"KF" — grafikasiz.
+ * AMD AM5 (7000/8000/9000): "F" — grafikasiz. AMD AM4 (3000/4000/5000): faqat "G"/"GE" grafikali. Tanilmasa — null.
+ */
+export function cpuHasGraphics(name: string): boolean | null {
+  const n = norm(name);
+  const ultra = n.match(/ultra\s*[3579]\s*2\d\d([a-z]*)/);
+  if (ultra) return !ultra[1].includes('f');
+  const intel = n.match(/\bi[3579][\s-]*\d{4,5}([a-z]*)/);
+  if (intel) return !intel[1].includes('f');
+  const ryzen = n.match(/ryzen\s*[3579]\b.*?\b([3-9])\d{3}([a-z0-9]*)/);
+  if (ryzen) return Number(ryzen[1]) >= 7 ? !ryzen[2].includes('f') : ryzen[2].startsWith('g');
+  return null;
+}
+
 export interface CandidateState { block: Issue | null; drops: SlotKey[]; warn: Issue | null }
 
 /**
- * Nomzod holati faol bo'g'in uchun: `block` — faqat PC_SLOTS tartibida **oldinroq** turgan
- * bo'g'inlar bilan mos kelmasa (keyingi bo'g'indagi tanlov nomzodni bloklamaydi — foydalanuvchi
- * fikridan qaytishi kerak bo'lganda tiqilib qolmasin); `drops` — shu nomzod tanlansa keyingi
- * bo'g'inlardan endi mos kelmay qoladiganlari (ketma-ket, oldingi olib tashlanganlar hisobga
- * olingan holda — xuddi `choose()`dagi kaskad kabi); `warn` — quvvat ogohlantirishi (hamma bo'g'inlar bilan).
+ * Nomzod holati faol bo'g'in uchun: `block` — faqat PC_SLOTS tartibida **oldinroq** turgan bo'g'inlar bilan
+ * mos kelmasa; `drops` — shu nomzod tanlansa keyingi bo'g'inlardan mos kelmay qoladiganlari (kaskad,
+ * xuddi `choose()`dagi kabi); `warn` — quvvat ogohlantirishi (hamma bo'g'inlar bilan).
  */
-export function candidateState(slot: SlotKey, cand: PartAttrs, picked: Picked): CandidateState {
+export function candidateState(slot: SlotKey, cand: PartAttrs, picked: Picked, dims: PcDimension[]): CandidateState {
   const order = PC_SLOTS.map((s) => s.key);
   const idx = order.indexOf(slot);
 
   const earlier: Picked = {};
   for (const k of order.slice(0, idx)) if (picked[k]) earlier[k] = picked[k];
-  const blockIssue = issueFor(slot, cand, earlier);
+  const blockIssue = issueFor(slot, cand, earlier, dims);
   const block = blockIssue?.level === 'block' ? blockIssue : null;
 
   const current: Picked = { ...picked, [slot]: cand };
@@ -272,36 +325,40 @@ export function candidateState(slot: SlotKey, cand: PartAttrs, picked: Picked): 
   for (const k of order.slice(idx + 1)) {
     const cur = current[k];
     if (!cur) continue;
-    const i = issueFor(k, cur, current);
+    const i = issueFor(k, cur, current, dims);
     if (i?.level === 'block') { delete current[k]; drops.push(k); }
   }
 
-  const warnIssue = issueFor(slot, cand, picked);
+  const warnIssue = issueFor(slot, cand, picked, dims);
   const warn = warnIssue?.level === 'warn' ? warnIssue : null;
 
   return { block, drops, warn };
 }
 
-/** Qismning moslikka kerakli atributi aniqlanmagan → operator tasdiqlaydi. */
+/** Blok quvvati aniqlanmagan → "Moslikni operator tasdiqlaydi". Moslik qiymati yo'q qism umuman ko'rinmaydi. */
 export function needsVerify(slot: SlotKey, attrs: PartAttrs): boolean {
-  if (slot === 'cpu' || slot === 'mb') return attrs.socket === null;
-  if (slot === 'ram') return attrs.memory === null;
-  if (slot === 'psu') return attrs.watts === null;
-  return false;
+  return slot === 'psu' && attrs.watts === null;
 }
 
-/** CPU uchun ro'yxatda mos plata bormi (soketi noma'lum CPU yoki plata — mos deb hisoblanadi). */
-export function hasMatch(cpu: PartAttrs, boards: PartAttrs[]): boolean {
-  if (!cpu.socket) return true;
-  return boards.some((b) => b.socket === null || b.socket === cpu.socket);
+/** CPU uchun ro'yxatda mos plata bormi (CPU va platani bog'laydigan hamma faol turlarda kesishma). */
+export function hasMatch(cpu: PartAttrs, boards: PartAttrs[], dims: PcDimension[]): boolean {
+  const shared = dims.filter((d) => d.active && d.slots.includes('cpu') && d.slots.includes('mb'));
+  return boards.some((b) => shared.every((d) => {
+    const x = cpu.values[d.id] ?? [];
+    const y = b.values[d.id] ?? [];
+    return x.length === 0 || y.length === 0 || x.some((v) => y.includes(v));
+  }));
 }
+
+// ── Qismlar: guruhlash va sayt ro'yxati ──────────────────────────────────────
 
 export interface ConfigPartRow {
   id: string; name: string; image_url: string; type: string | null; price: number;
   billz_id: string | null; billz_stock: number | null; is_active: number;
-  pc_socket: string | null; pc_memory: string | null; pc_watts: number | null;
+  pc_watts: number | null;
 }
 export interface ConfigPart { id: string; name: string; image: string; priceUzs: number; inStock: boolean; attrs: PartAttrs }
+export interface PartGroup { slot: SlotKey; rep: ConfigPartRow; inStock: boolean; ids: string[] }
 
 /**
  * Konfigurator dedupe kaliti — `nameKey` (billz.ts, sinxronizatsiya guruhlash uchun, o'zgartirilmaydi)
@@ -321,30 +378,68 @@ function partKey(name: string): string {
 }
 
 /**
- * Loader qatorlari → bo'g'in bo'yicha qismlar. Omborda: Billz qoldig'i > 0 yoki qo'lda kiritilgan faol tovar.
- * Nom bo'yicha dublikat (sinxronizatsiya eski dublikatni `is_active=0, billz_stock=0` qilib qoldiradi) —
- * omborda bori, keyin faoli saqlanadi. Tartib: omborda bori oldin, keyin arzonroq.
+ * Bo'g'in + yaqin-dublikat nom bo'yicha guruhlar. Omborda: Billz qoldig'i > 0 yoki qo'lda kiritilgan faol tovar.
+ * Vakil — omborda bori, keyin faoli (sinxronizatsiya eski dublikatni `is_active=0, billz_stock=0` qilib qoldiradi).
+ * `ids` — guruhning hamma qatorlari: admin yozuvi ularning hammasiga tushadi.
  */
-export function toConfigParts(rows: ConfigPartRow[]): Partial<Record<SlotKey, ConfigPart[]>> {
-  const best = new Map<string, { row: ConfigPartRow; inStock: boolean; slot: SlotKey }>();
-  const rank = (x: { row: ConfigPartRow; inStock: boolean }) => (x.inStock ? 2 : 0) + (x.row.is_active === 1 ? 1 : 0);
+export function partGroups(rows: ConfigPartRow[]): PartGroup[] {
+  const map = new Map<string, PartGroup>();
+  const rank = (row: ConfigPartRow, inStock: boolean) => (inStock ? 2 : 0) + (row.is_active === 1 ? 1 : 0);
   for (const row of rows) {
     const slot = slotForType(row.type);
     if (!slot) continue;
     const inStock = (row.billz_stock ?? 0) > 0 || (row.billz_id === null && row.is_active === 1);
     const key = `${slot}|${partKey(row.name)}`;
-    const cur = best.get(key);
-    const cand = { row, inStock, slot };
-    if (!cur || rank(cand) > rank(cur)) best.set(key, cand);
+    const cur = map.get(key);
+    if (!cur) { map.set(key, { slot, rep: row, inStock, ids: [row.id] }); continue; }
+    cur.ids.push(row.id);
+    if (rank(row, inStock) > rank(cur.rep, cur.inStock)) { cur.rep = row; cur.inStock = inStock; }
   }
+  return [...map.values()];
+}
+
+/** Guruh qiymatlari — guruhdagi hamma qatorlar qiymatlarining birlashmasi, tur bo'yicha; turi topilmagan qiymat tashlanadi. */
+export function groupValues(ids: string[], byProduct: Map<string, number[]>, dims: PcDimension[]): PartValues {
+  const dimOf = new Map<number, number>();
+  for (const d of dims) for (const v of d.values) dimOf.set(v.id, d.id);
+  const out: PartValues = {};
+  for (const id of ids) {
+    for (const v of byProduct.get(id) ?? []) {
+      const d = dimOf.get(v);
+      if (d === undefined) continue;
+      const list = (out[d] ??= []);
+      if (!list.includes(v)) list.push(v);
+    }
+  }
+  return out;
+}
+
+/** Sayt ro'yxati: belgilanmagan qism chiqmaydi. Tartib: omborda bori oldin, keyin arzonroq. */
+export function toConfigParts(rows: ConfigPartRow[], byProduct: Map<string, number[]>, dims: PcDimension[]): Partial<Record<SlotKey, ConfigPart[]>> {
   const out: Partial<Record<SlotKey, ConfigPart[]>> = {};
-  for (const { row, inStock, slot } of best.values()) {
-    const part: ConfigPart = {
-      id: row.id, name: row.name.trim(), image: row.image_url, priceUzs: row.price, inStock,
-      attrs: partAttrs(slot, row.name, { socket: row.pc_socket, memory: row.pc_memory, watts: row.pc_watts }),
-    };
-    (out[slot] ??= []).push(part);
+  for (const g of partGroups(rows)) {
+    const values = groupValues(g.ids, byProduct, dims);
+    if (!isTagged(g.slot, values, dims)) continue;
+    (out[g.slot] ??= []).push({
+      id: g.rep.id, name: g.rep.name.trim(), image: g.rep.image_url, priceUzs: g.rep.price, inStock: g.inStock,
+      attrs: { values, watts: partWatts(g.slot, g.rep.name, g.rep.pc_watts) },
+    });
   }
   for (const list of Object.values(out)) list?.sort((a, b) => Number(b.inStock) - Number(a.inStock) || a.priceUzs - b.priceUzs);
   return out;
+}
+
+/** Konfigurator chiziladimi: majburiy bo'g'inlarning har birida kamida bitta qism. */
+export function configuratorReady(parts: Partial<Record<SlotKey, ConfigPart[]>>): boolean {
+  return REQUIRED_SLOTS.every((k) => (parts[k]?.length ?? 0) > 0);
+}
+
+/** Bosh sahifa: faol turlar sabab saytda ko'rinmayotgan qism guruhlari soni. */
+export function countUntagged(rows: ConfigPartRow[], byProduct: Map<string, number[]>, dims: PcDimension[]): number {
+  return partGroups(rows).filter((g) => activeFor(g.slot, dims).length > 0 && !isTagged(g.slot, groupValues(g.ids, byProduct, dims), dims)).length;
+}
+
+/** Admin turlar ro'yxati: shu turning bo'g'inlarida shu tur qiymati yo'q guruhlar (tur faol-nofaolligidan qat'i nazar). */
+export function missingCount(dim: PcDimension, groups: PartGroup[], byProduct: Map<string, number[]>, dims: PcDimension[]): number {
+  return groups.filter((g) => dim.slots.includes(g.slot) && (groupValues(g.ids, byProduct, dims)[dim.id]?.length ?? 0) === 0).length;
 }
