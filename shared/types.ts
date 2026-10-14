@@ -340,6 +340,8 @@ export interface ApiSiteText {
 export interface ApiDashboard {
   /** Billz tovarlari: qoldiq bor, rasm yo'q — saytda ko'rinmaydi. */
   needsImage: number;
+  /** Konfigurator: faol moslik turlarida qiymati tasdiqlanmagan — saytdagi konfiguratorda ko'rinmaydigan qism guruhlari. */
+  configuratorUntagged: number;
   newOrders: number;
   newApplications: number;
   billz: BillzSyncStatus;

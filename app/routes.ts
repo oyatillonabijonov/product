@@ -97,5 +97,8 @@ export default [
   route('api/admin/announcements', 'routes/api.admin.announcements.tsx'),
   route('api/admin/reviews', 'routes/api.admin.reviews.tsx'),
   route('api/admin/reviews/:id', 'routes/api.admin.reviews.$id.tsx'),
+  route('api/admin/pc-dimensions', 'routes/api.admin.pc-dimensions.tsx'),
+  route('api/admin/pc-dimensions/:id', 'routes/api.admin.pc-dimensions.$id.tsx'),
+  route('api/admin/pc-parts', 'routes/api.admin.pc-parts.tsx'),
   route('*', 'routes/not-found.tsx'),
 ] satisfies RouteConfig;

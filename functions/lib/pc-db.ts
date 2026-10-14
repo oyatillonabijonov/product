@@ -1,5 +1,6 @@
 import type { Env } from '../env';
-import { PC_SLOTS, type ConfigPartRow, type PcDimension, type SlotKey } from '../../shared/pc-compat';
+import { PC_SLOTS, missingCount, partGroups, type ConfigPartRow, type PcDimension, type SlotKey } from '../../shared/pc-compat';
+import type { ApiPcDimension } from '../../shared/types';
 
 interface DimRow { id: number; key: string | null; name: string; name_ru: string; slots: string; is_active: number }
 interface ValueRow { id: number; dimension_id: number; label: string }
@@ -57,4 +58,11 @@ export async function readPartValues(env: Env): Promise<Map<string, number[]>> {
     else map.set(r.product_id, [r.value_id]);
   }
   return map;
+}
+
+/** Admin turlar ro'yxati: har tur + shu turda qiymati yo'q (saytda ko'rinadigan) qism guruhlari soni. */
+export async function readDimensionList(env: Env): Promise<ApiPcDimension[]> {
+  const [dims, rows, byProduct] = await Promise.all([readDimensions(env), readConfigRows(env), readPartValues(env)]);
+  const groups = partGroups(rows);
+  return dims.map((d) => ({ ...d, missing: missingCount(d, groups, byProduct, dims) }));
 }
