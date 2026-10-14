@@ -2,7 +2,6 @@ import type { ApiPcDimension, ApiPcPart, PcDimensionInput, PcPartWrite } from '.
 import type { PcDimension, SlotKey } from '../../../shared/pc-compat';
 
 export type PartFilter = 'all' | 'untagged' | 'tagged';
-export const PART_FILTERS: readonly PartFilter[] = ['all', 'untagged', 'tagged'];
 
 /** Bo'g'inga tegishli turlar — faol va nofaol (admin yangi turni yoqishdan oldin to'ldiradi). Jadval ustunlari shular. */
 export function dimsForSlot(slot: SlotKey, dims: PcDimension[]): PcDimension[] {
@@ -41,9 +40,24 @@ export function acceptSuggestions(parts: ApiPcPart[], dims: PcDimension[]): { it
   return { items, confirmed: new Set(items.map((i) => i.productId)).size, skipped };
 }
 
-/** «Qiymat berish» / «Tozalash» (`valueIds = []`): faqat tur bog'laydigan bo'g'indagi qismlar. */
-export function assignValues(parts: ApiPcPart[], dim: PcDimension, valueIds: number[]): PcPartWrite[] {
-  return parts.filter((p) => dim.slots.includes(p.slot)).map((p) => ({ productId: p.id, dimensionId: dim.id, valueIds }));
+/** Qo'lda tanlash kerak: bo'g'iniga tegishli biror turda na tasdiqlangan qiymat, na nomdan taklif bor. */
+export function needsManual(part: ApiPcPart, dims: PcDimension[]): boolean {
+  return dimsForSlot(part.slot, dims).some((d) => (part.values[d.id]?.length ?? 0) === 0 && (part.suggested[d.id]?.length ?? 0) === 0);
+}
+
+/** Tasdiqlangan qiymatlar bir qatorda: turlar " · " bilan, bir turdagi bir nechta qiymat " / " bilan ("AM5 · DDR5"). */
+export function partSummary(part: ApiPcPart, dims: PcDimension[]): string {
+  return dimsForSlot(part.slot, dims)
+    .map((d) => d.values.filter((v) => (part.values[d.id] ?? []).includes(v.id)).map((v) => v.label).join(' / '))
+    .filter(Boolean)
+    .join(' · ');
+}
+
+/** Server bitta so'rovda 500 tagacha yozuv qabul qiladi — ommaviy tasdiqlash bo'laklab yuboriladi. */
+export function chunk<T>(list: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < list.length; i += size) out.push(list.slice(i, i + size));
+  return out;
 }
 
 /** Chip bosildi: qiymat bor bo'lsa olib tashlanadi, yo'q bo'lsa qo'shiladi. */

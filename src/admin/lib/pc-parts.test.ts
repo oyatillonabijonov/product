@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ApiPcPart } from '../../../shared/types';
 import type { PcDimension } from '../../../shared/pc-compat';
-import { acceptSuggestions, addValue, assignValues, dimToForm, dimsForSlot, filterParts, isUntagged, toggleValue } from './pc-parts';
+import { acceptSuggestions, addValue, chunk, dimToForm, dimsForSlot, filterParts, isUntagged, needsManual, partSummary, toggleValue } from './pc-parts';
 
 const SOCKET: PcDimension = { id: 1, key: 'socket', name: 'Soket', nameRu: '', slots: ['cpu', 'mb'], active: true, values: [{ id: 12, label: 'AM5' }, { id: 14, label: 'LGA1700' }] };
 const MEMORY: PcDimension = { id: 2, key: 'memory', name: 'Xotira turi', nameRu: '', slots: ['cpu', 'mb', 'ram'], active: true, values: [{ id: 21, label: 'DDR4' }, { id: 22, label: 'DDR5' }] };
@@ -53,11 +53,33 @@ describe('acceptSuggestions', () => {
   });
 });
 
-describe('assignValues / toggleValue', () => {
-  it("faqat tur bo'g'iniga tegishli qismlar", () => {
-    expect(assignValues([part({ id: 'a' }), part({ id: 'k', slot: 'case' })], SOCKET, [12])).toEqual([{ productId: 'a', dimensionId: 1, valueIds: [12] }]);
-    expect(assignValues([part({ id: 'a' })], SOCKET, [])).toEqual([{ productId: 'a', dimensionId: 1, valueIds: [] }]);
+describe('needsManual', () => {
+  it("biror turda na qiymat, na taklif bo'lsa — qo'lda tanlash kerak", () => {
+    expect(needsManual(part({ suggested: { 1: [12], 2: [22] } }), DIMS)).toBe(false);
+    expect(needsManual(part({ values: { 1: [12] }, suggested: { 2: [22] } }), DIMS)).toBe(false);
+    expect(needsManual(part({ suggested: { 1: [12] } }), DIMS)).toBe(true);
+    expect(needsManual(part({ slot: 'mb', values: { 1: [12], 2: [22] } }), DIMS)).toBe(true);
+    expect(needsManual(part({ slot: 'gpu' }), DIMS)).toBe(false);
   });
+});
+
+describe('partSummary', () => {
+  it("tasdiqlangan qiymatlar tur tartibida, bir turdagi bir nechtasi ' / ' bilan", () => {
+    expect(partSummary(part({ values: { 1: [12], 2: [21, 22] } }), DIMS)).toBe('AM5 · DDR4 / DDR5');
+    expect(partSummary(part({ values: { 2: [22] } }), DIMS)).toBe('DDR5');
+    expect(partSummary(part({}), DIMS)).toBe('');
+  });
+});
+
+describe('chunk', () => {
+  it("ro'yxatni berilgan o'lchamdagi bo'laklarga ajratadi", () => {
+    expect(chunk([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]]);
+    expect(chunk([1, 2], 500)).toEqual([[1, 2]]);
+    expect(chunk([], 500)).toEqual([]);
+  });
+});
+
+describe('toggleValue', () => {
   it("chip: qo'shadi yoki olib tashlaydi", () => {
     expect(toggleValue([12], 14)).toEqual([12, 14]);
     expect(toggleValue([12, 14], 12)).toEqual([14]);

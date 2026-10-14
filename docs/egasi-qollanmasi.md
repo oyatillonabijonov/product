@@ -37,16 +37,18 @@ Billz'da «promo narx» qo'ysangiz saytda chegirma (eski narx chizilgan) va «Ch
 
 Saytdagi konfigurator (PC bo'limi pastida) qaysi protsessor qaysi plata va xotira bilan ishlashini **siz belgilagan qiymatlardan** biladi. Qiymati tasdiqlanmagan qism konfiguratorda ko'rinmaydi.
 
-**Qayerda:** Mahsulotlar → **Konfigurator**.
+**Qayerda:** Mahsulotlar → **Konfigurator**. Ekran ikki qadamdan iborat:
 
-- **Moslik turlari** — masalan, *Soket* (protsessor ↔ ona plata: AM5, LGA1700…) va *Xotira turi* (protsessor, plata, RAM: DDR4, DDR5). Ikki qism shu turda bir xil qiymatga ega bo'lsa — mos.
-- **Qismlar** — bo'g'inni tanlang (Protsessor, Ona plata…). Punktirli chip — tizim tovar nomidan *taklif qilgan* qiymat; u hali saytga ta'sir qilmaydi.
+1. **«Hammasini tasdiqlash»** — tizim protsessor, plata va xotiraning soketi va xotira turini tovar nomidan o'zi aniqlaydi. Tugmani bossangiz, hammasi bir yo'la saqlanadi va konfiguratorda chiqadi. Avval ko'rmoqchi bo'lsangiz — «Tizim aniqlaganini ko'rish».
+2. **«Qo'lda tanlang»** — tizim aniqlay olmagan bir nechta qism. Har birida to'g'ri qiymatni bosing (masalan, *LGA1700* va *DDR5*) — darhol saqlanadi.
 
-**Tez tasdiqlash:** «Belgilanmagan» filtri → «Hammasini belgilash» → takliflarni ko'zdan kechiring → «Taklifni tasdiqlash». Taklifi yo'q qismlarni belgilab, «Qiymat berish» bilan qiymatni o'zingiz qo'ying. Bitta qismni tuzatish uchun qatorini bosing.
+Hammasi tayyor bo'lsa, tepada «Hamma qismlar tayyor» yozuvi chiqadi.
 
-**Yangi tovar** Billz'dan kelsa, u konfiguratorda chiqishi uchun shu yerda tasdiqlanishi kerak — Bosh sahifadagi «Konfigurator qismlari» kartasi nechta qism kutayotganini ko'rsatadi.
+**Xato topsangiz:** «Tasdiqlangan qismlar»ni oching, qismni qidiring, «O'zgartirish»ni bosing va to'g'ri qiymatni tanlang.
 
-**Yangi moslik turi** (masalan, plata va korpus uchun *Form-faktor*: ATX, mATX) — «Yangi tur». U avval o'chiq turadi: qismlarga qiymat bering, keyin ro'yxatda «Saytda tekshiriladi»ni yoqing (aks holda qiymatsiz qismlar konfiguratordan yo'qoladi).
+**Yangi tovar** Billz'dan kelsa, u shu ekranda paydo bo'ladi — Bosh sahifadagi «Konfigurator qismlari» kartasi nechta qism kutayotganini ko'rsatadi.
+
+**«Moslik turlarini sozlash»** (pastda) — kamdan-kam kerak: masalan, plata va korpus uchun yangi *Form-faktor* turi (ATX, mATX). Yangi tur avval o'chiq turadi: qismlarga qiymat bering, keyin «Saytda tekshiriladi»ni yoqing.
 
 ## 5. Buyurtmalar
 
