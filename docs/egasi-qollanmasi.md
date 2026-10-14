@@ -33,13 +33,28 @@ Billz'da narx dollarda, saytda so'mda. Hammasi **Sozlamalar → To'lov va kurs**
 
 Billz'da «promo narx» qo'ysangiz saytda chegirma (eski narx chizilgan) va «Chegirmalar» sahifasi o'zi paydo bo'ladi.
 
-## 4. Buyurtmalar
+## 4. Kompyuter konfiguratori — qismlarning mosligi
+
+Saytdagi konfigurator (PC bo'limi pastida) qaysi protsessor qaysi plata va xotira bilan ishlashini **siz belgilagan qiymatlardan** biladi. Qiymati tasdiqlanmagan qism konfiguratorda ko'rinmaydi.
+
+**Qayerda:** Mahsulotlar → **Konfigurator**.
+
+- **Moslik turlari** — masalan, *Soket* (protsessor ↔ ona plata: AM5, LGA1700…) va *Xotira turi* (protsessor, plata, RAM: DDR4, DDR5). Ikki qism shu turda bir xil qiymatga ega bo'lsa — mos.
+- **Qismlar** — bo'g'inni tanlang (Protsessor, Ona plata…). Punktirli chip — tizim tovar nomidan *taklif qilgan* qiymat; u hali saytga ta'sir qilmaydi.
+
+**Tez tasdiqlash:** «Belgilanmagan» filtri → «Hammasini belgilash» → takliflarni ko'zdan kechiring → «Taklifni tasdiqlash». Taklifi yo'q qismlarni belgilab, «Qiymat berish» bilan qiymatni o'zingiz qo'ying. Bitta qismni tuzatish uchun qatorini bosing.
+
+**Yangi tovar** Billz'dan kelsa, u konfiguratorda chiqishi uchun shu yerda tasdiqlanishi kerak — Bosh sahifadagi «Konfigurator qismlari» kartasi nechta qism kutayotganini ko'rsatadi.
+
+**Yangi moslik turi** (masalan, plata va korpus uchun *Form-faktor*: ATX, mATX) — «Yangi tur». U avval o'chiq turadi: qismlarga qiymat bering, keyin ro'yxatda «Saytda tekshiriladi»ni yoqing (aks holda qiymatsiz qismlar konfiguratordan yo'qoladi).
+
+## 5. Buyurtmalar
 
 Mijoz saytda ism va telefon qoldiradi. Buyurtma ikki joyga tushadi: **Telegram guruhingizga** (bot orqali) va admin → **Buyurtmalar**ga. Operator 30 daqiqa ichida qo'ng'iroq qilib narxni tasdiqlaydi (sayt shuni va'da qiladi). Statusni admin'da o'zgartiring: Yangi → Bog'lanildi → Bajarildi. Konsultatsiya arizalari shu ro'yxatda «Konsultatsiya» belgisi bilan turadi.
 
 Vakansiyaga kelgan arizalar alohida: **Buyurtmalar → Ish arizalari**.
 
-## 5. Sayt matnlari va rasmlari — Kontent
+## 6. Sayt matnlari va rasmlari — Kontent
 
 Saytdagi deyarli har bir matn va rasm admin'da tahrirlanadi. Maydonni bo'shatsangiz standart matn qaytadi.
 
@@ -50,7 +65,7 @@ Saytdagi deyarli har bir matn va rasm admin'da tahrirlanadi. Maydonni bo'shatsan
 
 **Birinchi kunlardayoq to'ldiring:** Oferta va Maxfiylik sahifalarida `[MCHJ / YaTT nomi]` va `[STIR raqami]` qavslari bor — o'z rekvizitlaringizni yozing.
 
-## 6. Sozlamalar
+## 7. Sozlamalar
 
 - **Do'kon** — do'kon nomi, narx rejimi (naqd / muddatli / ikkalasi), logo (yorug' va qorong'i mavzu uchun) va favicon, mahsulot sahifasidagi va'dalar, buyurtma va cookie matnlari.
 - **Aloqa** — telefon (qanday yozsangiz saytda shunday chiqadi), Telegram, Instagram, WhatsApp, manzil, ish vaqti, xarita koordinatasi. Bo'sh qoldirilgan havola saytda umuman chiqmaydi.
@@ -59,19 +74,19 @@ Saytdagi deyarli har bir matn va rasm admin'da tahrirlanadi. Maydonni bo'shatsan
 - **SEO** — sarlavha qo'shimchasi, bosh sahifa tavsifi, ulashish rasmi (havola Telegram yoki ijtimoiy tarmoqda tashlanganda ko'rinadi), katalog sahifalari uchun tavsif shabloni.
 - **Akkaunt** — login va parol. Standart `admin/admin` parolini birinchi kuni o'zgartiring; har o'zgarish joriy parol bilan tasdiqlanadi va parol almashgach barcha ochiq sessiyalar bekor bo'ladi.
 
-## 7. Sharhlar
+## 8. Sharhlar
 
 Sayt o'zi sharh yig'maydi. Admin → **Mahsulotlar** → tovarni oching → «Reyting va sharhlar» kartasi: muallif, baho, matn, sana. Reyting o'zi hisoblanadi. Sharhsiz tovarda yulduzcha ko'rinmaydi.
 
-## 8. Mijoz akkauntlari
+## 9. Mijoz akkauntlari
 
 Mijozlar ro'yxatdan o'tmasdan buyurtma beradi. Google/Telegram orqali kirish faqat **Sozlamalar → Integratsiyalar**da Google Client ID yoki Telegram login boti kiritilgan bo'lsa ko'rinadi. Kiritilmagan bo'lsa saytda «Kirish» tugmasi umuman yo'q — bu normal.
 
-## 9. Zaxira nusxa
+## 10. Zaxira nusxa
 
 Server har kuni bazaning nusxasini `data/backups/` papkasiga oladi (oxirgi 7 kun). Oyda bir marta shu papkani va `data/images/` ni kompyuteringizga ko'chirib oling — bu sizning butun saytingiz.
 
-## 10. Claude bilan gaplashib tovar qo'shish
+## 11. Claude bilan gaplashib tovar qo'shish
 
 Claude Code o'rnatish shart emas — telefondan ham ishlaydi. Claude bilan gaplashib tovar
 qo'shish, yetishmayotgan rasm/tavsifni to'ldirish va katalog holatini so'rash mumkin.
@@ -89,7 +104,7 @@ uzata olmaydi. Shunday holatda **«rasm yuklash havolasini ber»** deb yozing �
 30 daqiqa ishlaydigan havola beradi, uni bosib galereyadan rasm tanlaysiz, rasmlar
 tovarga o'zi qo'shiladi.
 
-## 11. Kimga murojaat qilish
+## 12. Kimga murojaat qilish
 
 - Tovar saytda ko'rinmayapti → 2-bo'limdagi shartlarni tekshiring (rasm bormi, o'zingiz yashirmaganmisiz).
 - Narx noto'g'ri → kurs (3-bo'lim) yoki Billz'dagi narx.
