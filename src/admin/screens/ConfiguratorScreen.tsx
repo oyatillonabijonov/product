@@ -172,13 +172,15 @@ const ConfiguratorScreen: FC = () => {
     {
       id: 'sel', label: '', className: 'w-10',
       cell: (p) => (
-        <input
-          type="checkbox"
-          checked={selected.includes(p.id)}
-          onChange={() => setSel(selected.includes(p.id) ? selected.filter((x) => x !== p.id) : [...selected, p.id])}
-          aria-label={t('configurator.selectPart', { name: p.name })}
-          className="size-5 accent-accent"
-        />
+        <label className="-m-3 inline-flex cursor-pointer p-3">
+          <input
+            type="checkbox"
+            checked={selected.includes(p.id)}
+            onChange={() => setSel(selected.includes(p.id) ? selected.filter((x) => x !== p.id) : [...selected, p.id])}
+            aria-label={t('configurator.selectPart', { name: p.name })}
+            className="size-5 accent-accent"
+          />
+        </label>
       ),
     },
     {

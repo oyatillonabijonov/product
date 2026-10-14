@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FC } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import { createPcDimension, deletePcDimension, updatePcDimension } from './api';
 import { errText } from './errText';
 import { addValue, dimToForm } from './lib/pc-parts';
 import { Button, Field, Input } from './ui';
-import { useConfirm } from './ui/confirm';
+import { useConfirm, type ConfirmOpts } from './ui/confirm';
 import { useToast } from './ui/toast';
 
 /**
@@ -26,7 +26,19 @@ const PcDimensionModal: FC<{
 }> = ({ open, dim, onClose, onExited, onSaved }) => {
   const { t } = useTranslation(['products', 'common']);
   const toast = useToast();
-  const confirm = useConfirm();
+  const rawConfirm = useConfirm();
+  // Tasdiq oynasi ochiq paytda Escape ikkala `Modal`ning window tinglovchisini ishga tushiradi — tahrir yopilib,
+  // saqlanmagan o'zgarishlar yo'qolardi. Bayroq tasdiq ochiq bo'lgan butun vaqt davomida tahrirni yopmaydi.
+  const confirming = useRef(false) as { current: boolean };
+  const confirm = async (opts: ConfirmOpts) => {
+    confirming.current = true;
+    try {
+      return await rawConfirm(opts);
+    } finally {
+      // Keyingi tikda: Escape bir hodisada ikkala tinglovchini chaqiradi, ularning tartibi bayroqqa bog'liq bo'lmasin.
+      setTimeout(() => { confirming.current = false; }, 0);
+    }
+  };
   const [rawForm, setForm] = useState(dimToForm(dim));
   const [rawLabel, setLabel] = useState('');
   const [rawBusy, setBusy] = useState(false);
@@ -72,7 +84,7 @@ const PcDimensionModal: FC<{
   };
 
   return (
-    <Modal open={open} label={t('configurator.editTitle')} onClose={onClose} onExited={onExited} panelClass="max-w-lg">
+    <Modal open={open} label={t('configurator.editTitle')} onClose={() => { if (!confirming.current) onClose(); }} onExited={onExited} panelClass="max-w-lg">
       <div className="flex flex-col gap-5 p-6">
         <h2 className="text-copy font-semibold text-primary">{t('configurator.editTitle')}</h2>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -115,7 +127,7 @@ const PcDimensionModal: FC<{
                   type="button"
                   aria-label={t('configurator.removeValue', { label: v.label })}
                   onClick={() => removeValue(i)}
-                  className="press grid size-7 place-items-center rounded-full text-muted-2 hover:text-danger"
+                  className="press relative grid size-7 place-items-center rounded-full text-muted-2 after:absolute after:-inset-2 hover:text-danger"
                 >
                   <X aria-hidden className="size-4" />
                 </button>
