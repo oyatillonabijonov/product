@@ -469,7 +469,10 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                 on={form.pcHidden}
                 onChange={(v) => set('pcHidden', v)}
               />
-              {!isNew && <PcPartValues productId={id} />}
+              {/* Saqlangan holatdan (`loaded`), qoralamadan emas: server qismni faqat saqlangan tur/narx bo'yicha biladi; key o'zgarsa saqlagandan keyin qayta yuklanadi. */}
+              {!isNew && loaded && loaded.categoryId === 'pc' && slotForType(loaded.type) && (
+                <PcPartValues key={`${loaded.categoryId}|${loaded.type}|${loaded.cashPriceUzs}`} productId={id} />
+              )}
               <div className="grid gap-4 py-3 sm:grid-cols-3">
                 {(pcSlot === 'cpu' || pcSlot === 'gpu' || pcSlot === 'psu') && (
                   <Field label={pcSlot === 'psu' ? t('productEdit.pc.wattsLabelPsu') : t('productEdit.pc.wattsLabelOther')}>
