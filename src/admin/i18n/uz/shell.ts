@@ -45,6 +45,12 @@ const shell = {
       zero: 'Hammasining rasmi bor.',
       action: "Ro'yxatni ochish",
     },
+    configurator: {
+      label: 'Konfigurator qismlari',
+      note: "Moslik qiymati tasdiqlanmagan — shuning uchun saytdagi konfiguratorda ko'rinmayapti.",
+      zero: 'Konfiguratordagi hamma qismlar tasdiqlangan.',
+      action: 'Tasdiqlash',
+    },
     newOrders: {
       label: 'Javob kutayotgan buyurtmalar',
       note: "Mijoz buyurtma qoldirgan, hali qo'ng'iroq qilinmagan.",

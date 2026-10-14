@@ -13,6 +13,7 @@ import type { AdminVariantInput } from '../api';
 import { errText } from '../errText';
 import ImageUploader from '../ImageUploader';
 import ModelCombobox from '../ModelCombobox';
+import PcPartValues from '../PcPartValues';
 import PriceInput from '../PriceInput';
 import ReviewsEditor from '../ReviewsEditor';
 import { normalizeImage } from '../lib/image-normalize';
@@ -468,6 +469,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                 on={form.pcHidden}
                 onChange={(v) => set('pcHidden', v)}
               />
+              {!isNew && <PcPartValues productId={id} />}
               <div className="grid gap-4 py-3 sm:grid-cols-3">
                 {(pcSlot === 'cpu' || pcSlot === 'gpu' || pcSlot === 'psu') && (
                   <Field label={pcSlot === 'psu' ? t('productEdit.pc.wattsLabelPsu') : t('productEdit.pc.wattsLabelOther')}>

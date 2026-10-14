@@ -199,7 +199,9 @@ const products = {
     },
     pc: {
       title: 'Konfigurator',
-      desc: "Kompyuter konfiguratoridagi moslik. «Avtomatik» — tovar nomidan aniqlangan qiymat.",
+      desc: "Kompyuter konfiguratori. Moslik qiymatlari — shu yerda yoki Mahsulotlar → Konfigurator'da; quvvat bo'sh bo'lsa tovar nomidan aniqlanadi.",
+      valuesHint: "Bosilgan qiymat darhol saqlanadi. Punktirli — nomdan taklif; qiymati tasdiqlanmagan qism konfiguratorda ko'rinmaydi.",
+      valuesNone: "Bu tovar hozir konfiguratorga tushmaydi (narxi yo'q yoki saytda emas).",
       hiddenLabel: "Konfiguratorda ko'rsatilmasin",
       hiddenHint: "Eskirgan yoki keltirib bo'lmaydigan model uchun.",
       wattsLabelPsu: 'Quvvat, W',

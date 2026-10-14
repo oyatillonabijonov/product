@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { DollarSign, ImageOff, Inbox, RefreshCw, Users } from 'lucide-react';
+import { Cpu, DollarSign, ImageOff, Inbox, RefreshCw, Users } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
 import type { ApiDashboard } from '../../../shared/types';
 import { runBillzSync } from '../api';
@@ -79,6 +79,12 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
             note={t('dashboard.needsImage.note')}
             zero={t('dashboard.needsImage.zero')}
             to="/admin/products?f=needs_image" action={t('dashboard.needsImage.action')}
+          />
+          <Stat
+            label={t('dashboard.configurator.label')} value={data.configuratorUntagged} Icon={Cpu}
+            note={t('dashboard.configurator.note')}
+            zero={t('dashboard.configurator.zero')}
+            to="/admin/products/configurator?f=untagged" action={t('dashboard.configurator.action')}
           />
           <Stat
             label={t('dashboard.newOrders.label')} value={data.newOrders} Icon={Inbox}
