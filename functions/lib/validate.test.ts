@@ -521,6 +521,8 @@ describe('parsePcDimensionInput', () => {
     expect(() => parsePcDimensionInput({ ...base, values: [{ label: 'x'.repeat(31) }] })).toThrow('value_invalid');
     expect(() => parsePcDimensionInput({ ...base, values: [{ label: 'ATX' }, { label: 'atx' }] })).toThrow('value_duplicate');
     expect(() => parsePcDimensionInput({ ...base, values: Array.from({ length: 51 }, (_, i) => ({ label: `v${i}` })) })).toThrow('values_limit');
+    expect(() => parsePcDimensionInput({ ...base, values: undefined })).toThrow('value_invalid');
+    expect(() => parsePcDimensionInput({ ...base, values: null })).toThrow('value_invalid');
     expect(parsePcDimensionInput({ ...base, values: [] }).values).toEqual([]);
   });
 });
@@ -539,5 +541,7 @@ describe('parsePcPartsInput', () => {
     expect(() => parsePcPartsInput({ items: [{ productId: '', dimensionId: 1, valueIds: [] }] })).toThrow('items_invalid');
     expect(() => parsePcPartsInput({ items: [{ productId: 'p', dimensionId: '1', valueIds: [] }] })).toThrow('items_invalid');
     expect(() => parsePcPartsInput({ items: [{ productId: 'p', dimensionId: 1, valueIds: ['12'] }] })).toThrow('items_invalid');
+    expect(() => parsePcPartsInput({ items: [{ productId: 'p', dimensionId: 1 }] })).toThrow('items_invalid');
+    expect(() => parsePcPartsInput({ items: [{ productId: 'p', dimensionId: 1, valueIds: null }] })).toThrow('items_invalid');
   });
 });

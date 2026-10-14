@@ -754,7 +754,8 @@ export function parsePcDimensionInput(body: unknown): PcDimensionInput {
   const rawSlots: unknown[] = Array.isArray(o.slots) ? o.slots : [];
   const slots = rawSlots.filter((s): s is SlotKey => typeof s === 'string' && PC_SLOT_KEYS.includes(s));
   if (slots.length < 2 || slots.length !== rawSlots.length || new Set(slots).size !== slots.length) throw new ValidationError('slots_invalid');
-  const rawValues: unknown[] = Array.isArray(o.values) ? o.values : [];
+  if (!Array.isArray(o.values)) throw new ValidationError('value_invalid');
+  const rawValues: unknown[] = o.values;
   if (rawValues.length > MAX_DIM_VALUES) throw new ValidationError('values_limit');
   const values = rawValues.map((raw) => {
     const r = asRecord(raw);
@@ -776,7 +777,8 @@ export function parsePcPartsInput(body: unknown): { items: PcPartWrite[] } {
     const r = asRecord(x);
     const productId = typeof r.productId === 'string' ? r.productId.trim() : '';
     const dimensionId = r.dimensionId;
-    const ids: unknown[] = Array.isArray(r.valueIds) ? r.valueIds : [];
+    if (!Array.isArray(r.valueIds)) throw new ValidationError('items_invalid');
+    const ids: unknown[] = r.valueIds;
     if (!productId || typeof dimensionId !== 'number' || !Number.isInteger(dimensionId)) throw new ValidationError('items_invalid');
     if (!ids.every((v): v is number => typeof v === 'number' && Number.isInteger(v))) throw new ValidationError('items_invalid');
     return { productId, dimensionId, valueIds: [...new Set(ids as number[])] };
