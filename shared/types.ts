@@ -1,5 +1,6 @@
 import type { BillzSyncStatus, ManualField } from './billz';
 import type { ProductTypeRow } from './product-types';
+import type { PartValues, PcDimension, SlotKey } from './pc-compat';
 
 export type Condition = 'yangi' | 'ishlatilgan';
 export type PaymentMode = 'both' | 'cash' | 'installment';
@@ -359,4 +360,30 @@ export interface ApiAdminToken {
   kind: 'manual' | 'oauth';
   createdAt: number;
   lastUsedAt: number | null;
+}
+
+/** Admin: bitta qism guruhining bitta turdagi qiymatlarini almashtirish (bo'sh ro'yxat — tozalash). */
+export interface PcPartWrite { productId: string; dimensionId: number; valueIds: number[] }
+
+/** Admin: moslik turi yaratish/tahriri. `values[].id` — mavjud qiymat (yorlig'i yangilanadi), null — yangi. */
+export interface PcDimensionInput { name: string; nameRu: string; slots: SlotKey[]; active: boolean; values: { id: number | null; label: string }[] }
+
+/** Admin turlar ro'yxati qatori. */
+export interface ApiPcDimension extends PcDimension {
+  /** Shu tur bo'g'inlarida shu tur qiymati yo'q qism guruhlari soni. */
+  missing: number;
+}
+
+/** Admin qismlar jadvali qatori — dublikatlar bitta guruh (`ids` — hamma qatorlar, `id` — vakil). */
+export interface ApiPcPart {
+  id: string;
+  ids: string[];
+  slot: SlotKey;
+  name: string;
+  image: string;
+  inStock: boolean;
+  /** Tasdiqlangan qiymatlar (saytga ta'sir qiladi). */
+  values: PartValues;
+  /** Nomdan taklif (faqat admin ekrani). */
+  suggested: PartValues;
 }

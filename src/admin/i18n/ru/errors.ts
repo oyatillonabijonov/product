@@ -76,6 +76,17 @@ const errors: Dict<typeof uz> = {
   method_not_allowed: 'Это действие не поддерживается',
   token_label_required: 'Название должно быть 2–40 символов',
   cookie_only: 'Это действие можно выполнить только из админ-панели',
+  name_long: 'Название — не длиннее 60 символов',
+  slots_invalid: 'Выберите минимум два звена',
+  values_limit: 'Не больше 50 значений',
+  value_invalid: 'Значение — от 1 до 30 символов',
+  value_duplicate: 'Значения не должны повторяться',
+  items_invalid: 'Неверные данные для сохранения',
+  dimension_not_found: 'Тип совместимости не найден',
+  dimension_protected: 'Типы «Сокет» и «Тип памяти» удалить нельзя',
+  part_not_found: 'Деталь не найдена в конфигураторе',
+  value_not_in_dimension: 'Значение не относится к этому типу',
+  slot_not_in_dimension: 'Этот тип не связывает это звено',
 };
 
 export default errors;

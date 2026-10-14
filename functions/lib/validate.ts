@@ -12,6 +12,8 @@ import type {
   OrderItemInput,
   OrderPaymentKind,
   PaymentMode,
+  PcDimensionInput,
+  PcPartWrite,
   Term,
 } from '../../shared/types';
 import { SAFE_HREF_RE } from '../../shared/safe-href';
@@ -19,6 +21,7 @@ import { isAvatar } from '../../shared/avatar';
 import type { AddressFields } from '../../shared/address';
 import { districtById, regionById } from '../../shared/uz-regions';
 import { parseManualFields } from '../../shared/billz';
+import { PC_SLOTS, type SlotKey } from '../../shared/pc-compat';
 
 export class ValidationError extends Error {}
 
@@ -736,4 +739,47 @@ export function parseAssetsInput(body: unknown, fields: readonly { key: string; 
     out[key] = url;
   }
   return out;
+}
+
+const PC_SLOT_KEYS: readonly string[] = PC_SLOTS.map((s) => s.key);
+const MAX_DIM_VALUES = 50;
+const MAX_PC_WRITES = 500;
+
+/** Moslik turi: nom uz (majburiy) / ru, kamida 2 ta bo'g'in, qiymat yorliqlari takrorlanmas. */
+export function parsePcDimensionInput(body: unknown): PcDimensionInput {
+  const o = asRecord(body);
+  const name = reqString(o, 'name');
+  const nameRu = typeof o.nameRu === 'string' ? o.nameRu.trim() : '';
+  if (name.length > 60 || nameRu.length > 60) throw new ValidationError('name_long');
+  const rawSlots: unknown[] = Array.isArray(o.slots) ? o.slots : [];
+  const slots = rawSlots.filter((s): s is SlotKey => typeof s === 'string' && PC_SLOT_KEYS.includes(s));
+  if (slots.length < 2 || slots.length !== rawSlots.length || new Set(slots).size !== slots.length) throw new ValidationError('slots_invalid');
+  const rawValues: unknown[] = Array.isArray(o.values) ? o.values : [];
+  if (rawValues.length > MAX_DIM_VALUES) throw new ValidationError('values_limit');
+  const values = rawValues.map((raw) => {
+    const r = asRecord(raw);
+    const label = typeof r.label === 'string' ? r.label.trim() : '';
+    if (!label || label.length > 30) throw new ValidationError('value_invalid');
+    const id = typeof r.id === 'number' && Number.isInteger(r.id) && r.id > 0 ? r.id : null;
+    return { id, label };
+  });
+  if (new Set(values.map((v) => v.label.toLowerCase())).size !== values.length) throw new ValidationError('value_duplicate');
+  return { name, nameRu, slots, active: o.active === true, values };
+}
+
+/** Qism qiymatlarini yozish: `[{ productId, dimensionId, valueIds }]`, 1–500 element. Mavjudlik route'da tekshiriladi. */
+export function parsePcPartsInput(body: unknown): { items: PcPartWrite[] } {
+  const o = asRecord(body);
+  const raw: unknown[] = Array.isArray(o.items) ? o.items : [];
+  if (raw.length === 0 || raw.length > MAX_PC_WRITES) throw new ValidationError('items_invalid');
+  const items = raw.map((x) => {
+    const r = asRecord(x);
+    const productId = typeof r.productId === 'string' ? r.productId.trim() : '';
+    const dimensionId = r.dimensionId;
+    const ids: unknown[] = Array.isArray(r.valueIds) ? r.valueIds : [];
+    if (!productId || typeof dimensionId !== 'number' || !Number.isInteger(dimensionId)) throw new ValidationError('items_invalid');
+    if (!ids.every((v): v is number => typeof v === 'number' && Number.isInteger(v))) throw new ValidationError('items_invalid');
+    return { productId, dimensionId, valueIds: [...new Set(ids as number[])] };
+  });
+  return { items };
 }

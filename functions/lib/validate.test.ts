@@ -15,6 +15,8 @@ import {
   parseTypeInput,
   parseTextsInput,
   parseAssetsInput,
+  parsePcDimensionInput,
+  parsePcPartsInput,
   ValidationError,
 } from './validate';
 
@@ -493,5 +495,49 @@ describe('parseAssetsInput', () => {
   it('rasm kalitiga video va aksincha — url_invalid', () => {
     expect(() => parseAssetsInput({ logo: '/images/products/a.mp4' }, fields)).toThrow('url_invalid');
     expect(() => parseAssetsInput({ 'hero.apple.video1': '/images/products/a.webp' }, fields)).toThrow('url_invalid');
+  });
+});
+
+describe('parsePcDimensionInput', () => {
+  const base = { name: 'Form-faktor', nameRu: 'Форм-фактор', slots: ['mb', 'case'], active: false, values: [{ id: null, label: 'ATX' }, { id: 7, label: 'mATX' }] };
+  it("to'liq kirish; probellar kesiladi", () => {
+    expect(parsePcDimensionInput({ ...base, name: '  Form-faktor ', values: [{ label: ' ATX ' }, { id: 7, label: 'mATX' }] })).toEqual({
+      name: 'Form-faktor', nameRu: 'Форм-фактор', slots: ['mb', 'case'], active: false,
+      values: [{ id: null, label: 'ATX' }, { id: 7, label: 'mATX' }],
+    });
+    expect(parsePcDimensionInput({ ...base, active: true }).active).toBe(true);
+  });
+  it('nom majburiy va ≤ 60', () => {
+    expect(() => parsePcDimensionInput({ ...base, name: '' })).toThrow('name_required');
+    expect(() => parsePcDimensionInput({ ...base, name: 'x'.repeat(61) })).toThrow('name_long');
+  });
+  it("bo'g'inlar: kamida 2, ma'lum kalitlar, takrorsiz", () => {
+    expect(() => parsePcDimensionInput({ ...base, slots: ['mb'] })).toThrow('slots_invalid');
+    expect(() => parsePcDimensionInput({ ...base, slots: ['mb', 'monitor'] })).toThrow('slots_invalid');
+    expect(() => parsePcDimensionInput({ ...base, slots: ['mb', 'mb'] })).toThrow('slots_invalid');
+  });
+  it("qiymatlar: 1–30 belgi, katta-kichik harfsiz takrorlanmas, ≤ 50", () => {
+    expect(() => parsePcDimensionInput({ ...base, values: [{ label: '' }] })).toThrow('value_invalid');
+    expect(() => parsePcDimensionInput({ ...base, values: [{ label: 'x'.repeat(31) }] })).toThrow('value_invalid');
+    expect(() => parsePcDimensionInput({ ...base, values: [{ label: 'ATX' }, { label: 'atx' }] })).toThrow('value_duplicate');
+    expect(() => parsePcDimensionInput({ ...base, values: Array.from({ length: 51 }, (_, i) => ({ label: `v${i}` })) })).toThrow('values_limit');
+    expect(parsePcDimensionInput({ ...base, values: [] }).values).toEqual([]);
+  });
+});
+
+describe('parsePcPartsInput', () => {
+  it("to'g'ri kirish; qiymat id'lari takrorsiz", () => {
+    expect(parsePcPartsInput({ items: [{ productId: ' p1 ', dimensionId: 1, valueIds: [12, 12, 22] }] })).toEqual({
+      items: [{ productId: 'p1', dimensionId: 1, valueIds: [12, 22] }],
+    });
+    expect(parsePcPartsInput({ items: [{ productId: 'p1', dimensionId: 1, valueIds: [] }] }).items[0].valueIds).toEqual([]);
+  });
+  it("bo'sh, ortiqcha yoki noto'g'ri element → items_invalid", () => {
+    expect(() => parsePcPartsInput({ items: [] })).toThrow('items_invalid');
+    expect(() => parsePcPartsInput({})).toThrow('items_invalid');
+    expect(() => parsePcPartsInput({ items: Array.from({ length: 501 }, () => ({ productId: 'p', dimensionId: 1, valueIds: [] })) })).toThrow('items_invalid');
+    expect(() => parsePcPartsInput({ items: [{ productId: '', dimensionId: 1, valueIds: [] }] })).toThrow('items_invalid');
+    expect(() => parsePcPartsInput({ items: [{ productId: 'p', dimensionId: '1', valueIds: [] }] })).toThrow('items_invalid');
+    expect(() => parsePcPartsInput({ items: [{ productId: 'p', dimensionId: 1, valueIds: ['12'] }] })).toThrow('items_invalid');
   });
 });

@@ -73,6 +73,17 @@ export const ERR_MESSAGES = {
   method_not_allowed: "Bu amal qo'llab-quvvatlanmaydi",
   token_label_required: "Nom 2–40 belgi bo'lishi kerak",
   cookie_only: 'Bu amalni faqat admin panelidan bajarish mumkin',
+  name_long: "Nom 60 belgidan oshmasin",
+  slots_invalid: "Kamida ikkita bo'g'in tanlang",
+  values_limit: "Qiymatlar 50 tadan oshmasin",
+  value_invalid: "Qiymat 1–30 belgi bo'lishi kerak",
+  value_duplicate: 'Qiymatlar takrorlanmasin',
+  items_invalid: "Saqlanadigan ma'lumot noto'g'ri",
+  dimension_not_found: 'Moslik turi topilmadi',
+  dimension_protected: "Soket va Xotira turini o'chirib bo'lmaydi",
+  part_not_found: "Qism konfiguratorda topilmadi",
+  value_not_in_dimension: 'Qiymat bu turga tegishli emas',
+  slot_not_in_dimension: "Bu tur shu bo'g'inni bog'lamaydi",
 } as const;
 
 /** Qidiruv uchun keng tip: server istalgan kod qaytarishi mumkin. */
