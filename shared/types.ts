@@ -33,9 +33,7 @@ export interface ApiProduct {
   preorder: boolean;
   /** PC konfiguratorida ko'rsatilmasin (egasi eskirgan modelni chiqaradi). */
   pcHidden: boolean;
-  /** Konfigurator atributlarining admin tuzatishi; null — nomdan avtomatik (shared/pc-compat.ts). */
-  pcSocket: string | null;
-  pcMemory: string | null;
+  /** Iste'mol/quvvat (W) admin tuzatishi; null — nomdan avtomatik. Moslik qiymatlari — `pc_part_values` (admin → Konfigurator). */
   pcWatts: number | null;
   /** Billz tovar UUID'si — sinxronizatsiya bog'lanishi; qo'lda kiritilgan mahsulotda `null`. */
   billzId: string | null;

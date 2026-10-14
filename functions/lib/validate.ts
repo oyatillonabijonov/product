@@ -124,10 +124,6 @@ export function parseProductInput(body: unknown): ProductInput {
       : 0;
   const preorder = o.preorder === true;
   const pcHidden = o.pcHidden === true;
-  // shared/pc-compat.ts PC_SOCKETS bilan bir xil
-  const PC_SOCKET_SET = ['LGA1700', 'LGA1851', 'LGA1200', 'AM5', 'AM4'];
-  const pcSocket = typeof o.pcSocket === 'string' && PC_SOCKET_SET.includes(o.pcSocket) ? o.pcSocket : null;
-  const pcMemory = o.pcMemory === 'DDR4' || o.pcMemory === 'DDR5' ? o.pcMemory : null;
   const pcWatts =
     typeof o.pcWatts === 'number' && Number.isInteger(o.pcWatts) && o.pcWatts > 0 && o.pcWatts <= 3000 ? o.pcWatts : null;
 
@@ -208,8 +204,6 @@ export function parseProductInput(body: unknown): ProductInput {
     reviewCount,
     preorder,
     pcHidden,
-    pcSocket,
-    pcMemory,
     pcWatts,
     options,
     variants,

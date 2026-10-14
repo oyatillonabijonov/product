@@ -35,8 +35,6 @@ export interface ProductFormState {
   reviewCount: number;
   preorder: boolean;
   pcHidden: boolean;
-  pcSocket: string | null;
-  pcMemory: string | null;
   pcWatts: number | null;
   options: OptionDraft[];
   variants: AdminVariantInput[];
@@ -52,7 +50,7 @@ export const EMPTY_FORM: ProductFormState = {
   name: '', categoryId: null, type: null, condition: 'yangi', conditionNote: '',
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
   brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, preorder: false,
-  pcHidden: false, pcSocket: null, pcMemory: null, pcWatts: null,
+  pcHidden: false, pcWatts: null,
   options: [], variants: [], billzId: null, billzStock: null, manualFields: [],
 };
 
@@ -72,7 +70,7 @@ export function detailToForm(d: AdminProductDetail): ProductFormState {
     description: d.description ?? '', imageUrl: d.imageUrl, images: d.images.filter((u) => u !== d.imageUrl),
     specs: d.specs, sortOrder: d.sortOrder, isActive: d.isActive, brandId: d.brandId, slug: d.slug ?? '',
     ratingAvg: d.ratingAvg ?? 0, reviewCount: d.reviewCount ?? 0, preorder: d.preorder,
-    pcHidden: d.pcHidden, pcSocket: d.pcSocket, pcMemory: d.pcMemory, pcWatts: d.pcWatts,
+    pcHidden: d.pcHidden, pcWatts: d.pcWatts,
     options: d.options.map((o) => ({ name: o.name, values: o.values.map((v) => v.value) })),
     variants: d.variants.map((v) => ({
       sku: v.sku, cashPriceUzs: v.cashPriceUzs, oldPriceUzs: v.oldPriceUzs, imageUrl: v.imageUrl, inStock: v.inStock,
@@ -108,7 +106,7 @@ export function formToPayload(f: ProductFormState): AdminProductInput {
     sortOrder: f.sortOrder, isActive: f.isActive,
     brandId: f.brandId, slug: f.slug || null,
     ratingAvg: f.ratingAvg > 0 ? f.ratingAvg : null, reviewCount: f.reviewCount, preorder: f.preorder,
-    pcHidden: f.pcHidden, pcSocket: f.pcSocket, pcMemory: f.pcMemory, pcWatts: f.pcWatts,
+    pcHidden: f.pcHidden, pcWatts: f.pcWatts,
     options: f.options.filter((o) => o.name.trim() && o.values.length),
     variants: priced,
     manualFields: f.manualFields,

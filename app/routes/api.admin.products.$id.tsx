@@ -43,7 +43,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       ? billzVisible({ hasImage: input.imageUrl !== '', hiddenLocked: input.manualFields.includes('hidden') })
       : input.isActive;
     const update = env.DB.prepare(
-      `UPDATE products SET name=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, type=?, old_price_uzs=?, description=?, brand_id=?, slug=?, rating_avg=?, review_count=?, preorder=?, manual_fields=?, pc_hidden=?, pc_socket=?, pc_memory=?, pc_watts=? WHERE id=?`,
+      `UPDATE products SET name=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, type=?, old_price_uzs=?, description=?, brand_id=?, slug=?, rating_avg=?, review_count=?, preorder=?, manual_fields=?, pc_hidden=?, pc_watts=? WHERE id=?`,
     ).bind(
       input.name,
       input.condition,
@@ -63,8 +63,6 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       input.preorder ? 1 : 0,
       serializeManualFields(input.manualFields),
       input.pcHidden ? 1 : 0,
-      input.pcSocket,
-      input.pcMemory,
       input.pcWatts,
       id,
     );
@@ -121,6 +119,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
         'DELETE FROM product_option_values WHERE option_id IN (SELECT id FROM product_options WHERE product_id = ?)',
       ).bind(id),
       env.DB.prepare('DELETE FROM product_options WHERE product_id = ?').bind(id),
+      env.DB.prepare('DELETE FROM pc_part_values WHERE product_id = ?').bind(id),
       env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id),
     ]);
     return json({ ok: true });
