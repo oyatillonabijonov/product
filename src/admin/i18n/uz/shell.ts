@@ -6,7 +6,7 @@ const shell = {
     expand: '{{name}} — ochish',
     collapse: '{{name}} — yopish',
     home: { label: 'Bosh sahifa', short: 'Asosiy' },
-    products: { label: 'Mahsulotlar', short: 'Tovarlar', list: 'Mahsulotlar', types: 'Turlar', categories: 'Kategoriyalar', brands: 'Brendlar', models: 'Modellar' },
+    products: { label: 'Mahsulotlar', short: 'Tovarlar', list: 'Mahsulotlar', types: 'Turlar', categories: 'Kategoriyalar', brands: 'Brendlar', models: 'Modellar', configurator: 'Konfigurator' },
     orders: { label: 'Buyurtmalar', short: 'Buyurtma', list: 'Buyurtmalar', customers: 'Mijozlar', applications: 'Ish arizalari', announcements: "E'lonlar" },
     content: { label: 'Kontent', short: 'Kontent', home: 'Bosh sahifa', banners: 'Bannerlar', news: 'Yangiliklar', posts: 'Blog', pages: 'Sahifalar', vacancies: 'Vakansiyalar' },
     settings: { label: 'Sozlamalar', short: 'Sozlash', store: "Do'kon", contact: 'Aloqa', payment: "To'lov va kurs", integrations: 'Integratsiyalar', seo: 'SEO', account: 'Akkaunt' },

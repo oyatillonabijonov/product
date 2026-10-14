@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  BookOpen, Boxes, Briefcase, FileText, House, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Phone, Plug,
+  BookOpen, Boxes, Briefcase, Cpu, FileText, House, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Phone, Plug,
   Receipt, Search, Settings, Shapes, Smartphone, Store, Tag, UserRound, Users, UsersRound, Wallet,
 } from 'lucide-react';
 import type { ParseKeys } from 'i18next';
@@ -32,6 +32,7 @@ export const SECTIONS: SectionDef[] = [
       { id: 'categories', segment: 'categories', labelKey: 'nav.products.categories', Icon: LayoutGrid, detail: true },
       { id: 'brands', segment: 'brands', labelKey: 'nav.products.brands', Icon: Tag, detail: true },
       { id: 'models', segment: 'models', labelKey: 'nav.products.models', Icon: Smartphone, detail: true },
+      { id: 'configurator', segment: 'configurator', labelKey: 'nav.products.configurator', Icon: Cpu },
     ],
   },
   {
