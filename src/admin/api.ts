@@ -10,6 +10,8 @@ import type {
   ApiOption,
   ApiOrder,
   ApiPage,
+  ApiPcDimension,
+  ApiPcPart,
   ApiPost,
   ApiReview,
   ApiProduct,
@@ -22,7 +24,10 @@ import type {
   ApiAdminCustomer,
   ApiJobApplication,
   OrderStatus,
+  PcDimensionInput,
+  PcPartWrite,
 } from '../../shared/types';
+import type { SlotKey } from '../../shared/pc-compat';
 import type { BillzShop, BillzSyncStatus } from '../../shared/billz';
 import type { AssetsResponse, SiteAssets, SiteTexts, TextsResponse } from '../lib/site-content';
 
@@ -442,6 +447,35 @@ export async function updateType(categoryId: string, id: string, t: AdminTypeInp
 }
 export async function deleteType(categoryId: string, id: string): Promise<{ ok: true; cleared: number }> {
   return handle(await fetch(`/api/admin/types/${encodeURIComponent(categoryId)}/${encodeURIComponent(id)}`, { method: 'DELETE' }));
+}
+
+// ── Konfigurator mosligi ────────────────────────────────────────────────────
+export async function listPcDimensions(): Promise<ApiPcDimension[]> {
+  return handle(await fetch('/api/admin/pc-dimensions'));
+}
+export async function createPcDimension(input: PcDimensionInput): Promise<ApiPcDimension[]> {
+  return handle(await fetch('/api/admin/pc-dimensions', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input),
+  }));
+}
+export async function updatePcDimension(id: number, input: PcDimensionInput): Promise<ApiPcDimension[]> {
+  return handle(await fetch(`/api/admin/pc-dimensions/${id}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input),
+  }));
+}
+export async function deletePcDimension(id: number): Promise<ApiPcDimension[]> {
+  return handle(await fetch(`/api/admin/pc-dimensions/${id}`, { method: 'DELETE' }));
+}
+export async function listPcParts(slot: SlotKey): Promise<ApiPcPart[]> {
+  return handle(await fetch(`/api/admin/pc-parts?slot=${slot}`));
+}
+export async function getPcPart(productId: string): Promise<ApiPcPart> {
+  return handle(await fetch(`/api/admin/pc-parts?product=${encodeURIComponent(productId)}`));
+}
+export async function setPcPartValues(items: PcPartWrite[]): Promise<{ ok: true; updated: number }> {
+  return handle(await fetch('/api/admin/pc-parts', {
+    method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items }),
+  }));
 }
 
 // ── Sayt matnlari va rasmlari ───────────────────────────────────────────────
