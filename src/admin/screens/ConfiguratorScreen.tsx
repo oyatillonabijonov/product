@@ -11,7 +11,7 @@ import { acceptSuggestions, assignValues, dimsForSlot, filterParts, PART_FILTERS
 import PcDimensionModal from '../PcDimensionModal';
 import PcValueChips from '../PcValueChips';
 import { Badge, Button, Card, DataTable, EmptyState, SearchInput, Segmented, Skeleton, Toggle, type Column } from '../ui';
-import { useConfirm } from '../ui/confirm';
+import { useConfirm, useGuardedConfirm } from '../ui/confirm';
 import { useToast } from '../ui/toast';
 
 /** Ommaviy «Qiymat berish» oynasi: tur va qiymat(lar) tanlanadi — «Berish» yoki «Tozalash». */
@@ -53,6 +53,7 @@ const ConfiguratorScreen: FC = () => {
   const { t } = useTranslation('products');
   const toast = useToast();
   const confirm = useConfirm();
+  const { confirm: confirmOver, confirming } = useGuardedConfirm();
   const [params, setParams] = useSearchParams();
   const [rawDims, setDims] = useState(null as ApiPcDimension[] | null);
   const [rawParts, setParts] = useState(null as ApiPcPart[] | null);
@@ -119,6 +120,11 @@ const ConfiguratorScreen: FC = () => {
     write(items, skipped > 0 ? t('configurator.acceptedSkipped', { done: confirmed, skipped }) : t('configurator.accepted', { done: confirmed }));
   };
   const assign = async (dim: PcDimension, valueIds: number[]) => {
+    // «Tozalash» tanlangan hamma qismdan shu tur qiymatlarini olib tashlaydi — tanlovni emas; tasdiqsiz bajarilmaydi.
+    if (valueIds.length === 0 && !(await confirmOver({
+      title: t('configurator.assignClearTitle'), message: t('configurator.assignClearMessage', { count: selected.length, dim: dim.name }),
+      destructive: true, confirmLabel: t('configurator.assignClear'),
+    }))) return;
     await write(assignValues(chosen(), dim, valueIds), t('configurator.saved'));
     setAssignOpen(false);
   };
@@ -275,7 +281,7 @@ const ConfiguratorScreen: FC = () => {
         onSaved={(list) => { setDims(list); if (slot) listPcParts(slot).then(setParts).catch(() => {}); }}
       />
 
-      <Modal open={partOpen} label={t('configurator.partTitle')} onClose={() => setPartOpen(false)} onExited={() => setPart(null)} panelClass="max-w-lg">
+      <Modal open={partOpen} label={t('configurator.partTitle')} onClose={() => setPartOpen(false)} onExited={() => setPart(null)} panelClass="max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto">
         {editPart && (
           <div className="flex flex-col gap-5 p-6">
             <div>
@@ -289,7 +295,7 @@ const ConfiguratorScreen: FC = () => {
         )}
       </Modal>
 
-      <Modal open={assignOpen} label={t('configurator.assignTitle')} onClose={() => setAssignOpen(false)} panelClass="max-w-lg">
+      <Modal open={assignOpen} label={t('configurator.assignTitle')} onClose={() => { if (!confirming.current) setAssignOpen(false); }} panelClass="max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto">
         <AssignForm dims={slotDims} count={selected.length} busy={busy} onApply={assign} onCancel={() => setAssignOpen(false)} />
       </Modal>
     </div>

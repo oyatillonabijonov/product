@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import type { FC } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import { createPcDimension, deletePcDimension, updatePcDimension } from './api';
 import { errText } from './errText';
 import { addValue, dimToForm } from './lib/pc-parts';
 import { Button, Field, Input } from './ui';
-import { useConfirm, type ConfirmOpts } from './ui/confirm';
+import { useGuardedConfirm } from './ui/confirm';
 import { useToast } from './ui/toast';
 
 /**
@@ -26,19 +26,7 @@ const PcDimensionModal: FC<{
 }> = ({ open, dim, onClose, onExited, onSaved }) => {
   const { t } = useTranslation(['products', 'common']);
   const toast = useToast();
-  const rawConfirm = useConfirm();
-  // Tasdiq oynasi ochiq paytda Escape ikkala `Modal`ning window tinglovchisini ishga tushiradi — tahrir yopilib,
-  // saqlanmagan o'zgarishlar yo'qolardi. Bayroq tasdiq ochiq bo'lgan butun vaqt davomida tahrirni yopmaydi.
-  const confirming = useRef(false) as { current: boolean };
-  const confirm = async (opts: ConfirmOpts) => {
-    confirming.current = true;
-    try {
-      return await rawConfirm(opts);
-    } finally {
-      // Keyingi tikda: Escape bir hodisada ikkala tinglovchini chaqiradi, ularning tartibi bayroqqa bog'liq bo'lmasin.
-      setTimeout(() => { confirming.current = false; }, 0);
-    }
-  };
+  const { confirm, confirming } = useGuardedConfirm();
   const [rawForm, setForm] = useState(dimToForm(dim));
   const [rawLabel, setLabel] = useState('');
   const [rawBusy, setBusy] = useState(false);
@@ -56,6 +44,9 @@ const PcDimensionModal: FC<{
   };
 
   const save = async () => {
+    // Faol turga bo'g'in qo'shilsa, yangi bo'g'indagi qismlarda qiymat yo'q — ular darhol konfiguratordan chiqib ketadi.
+    if (dim?.active && form.slots.some((s) => !dim.slots.includes(s))
+      && !(await confirm({ title: t('configurator.addSlotTitle'), message: t('configurator.addSlotMessage'), confirmLabel: t('shared.save') }))) return;
     setBusy(true);
     try {
       // Yozilib qolgan, lekin «Qo'shish» bosilmagan qiymat ham saqlanadi.
@@ -84,7 +75,7 @@ const PcDimensionModal: FC<{
   };
 
   return (
-    <Modal open={open} label={t('configurator.editTitle')} onClose={() => { if (!confirming.current) onClose(); }} onExited={onExited} panelClass="max-w-lg">
+    <Modal open={open} label={t('configurator.editTitle')} onClose={() => { if (!confirming.current) onClose(); }} onExited={onExited} panelClass="max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto">
       <div className="flex flex-col gap-5 p-6">
         <h2 className="text-copy font-semibold text-primary">{t('configurator.editTitle')}</h2>
         <div className="grid gap-4 sm:grid-cols-2">

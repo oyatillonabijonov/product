@@ -78,6 +78,7 @@ export const ERR_MESSAGES = {
   values_limit: "Qiymatlar 50 tadan oshmasin",
   value_invalid: "Qiymat 1–30 belgi bo'lishi kerak",
   value_duplicate: 'Qiymatlar takrorlanmasin',
+  active_invalid: "Faollik qiymati noto'g'ri",
   items_invalid: "Saqlanadigan ma'lumot noto'g'ri",
   dimension_not_found: 'Moslik turi topilmadi',
   dimension_protected: "Soket va Xotira turini o'chirib bo'lmaydi",

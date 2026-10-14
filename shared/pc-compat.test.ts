@@ -74,13 +74,23 @@ describe('partWatts', () => {
   it('CPU/GPU/blok — nomdan; boshqa bo\'g\'in — null', () => {
     expect(partWatts('cpu', 'Intel Core i5 13600KF', null)).toBe(180);
     expect(partWatts('cpu', 'Intel Core i9-14900KF', null)).toBe(250);
+    expect(partWatts('cpu', 'AMD Ryzen 7 9800x3D', null)).toBe(150);
+    expect(partWatts('cpu', 'AMD Ryzen 5 5600X', null)).toBe(110);
+    expect(partWatts('cpu', 'Intel Core Ultra 7 265F', null)).toBe(200);
     expect(partWatts('gpu', 'Gigabyte RTX5060 8GB', null)).toBe(145);
     expect(partWatts('gpu', 'MSI Ventus 5060Ti 8GB / Black', null)).toBe(180);
     expect(partWatts('gpu', 'Galax 2060Super 8GB / Black', null)).toBe(175);
     expect(partWatts('gpu', 'Hellhound AMD Radeon™ RX 9060 XT 8GB GDDR6', null)).toBe(160);
+    expect(partWatts('gpu', 'PELADN RTX 2060  6GB', null)).toBe(160);
+    expect(partWatts('gpu', 'Asus TUF Gaming GeForce RTX3060 12GB / Black', null)).toBe(170);
+    expect(partWatts('gpu', 'Sapphire RX 7800 XT', null)).toBe(263);
+    expect(partWatts('gpu', 'Gigabyte 5060Ti 8GB / Black', null)).toBe(180);
+    expect(partWatts('gpu', 'MSI Shadow Geforce RTX 5060Ti 16GB / Black', null)).toBe(180);
     expect(partWatts('gpu', 'GPU Intel Arc Pro B70 Graphics Black', null)).toBeNull();
     expect(partWatts('psu', 'SAMA  B850W Bronze', null)).toBe(850);
     expect(partWatts('psu', 'PSU SAMA G850 80Plus Gold Black / Black', null)).toBe(850);
+    expect(partWatts('psu', 'SAMA K650W 80Plus Bronze, ATX 2.52 Black', null)).toBe(650);
+    expect(partWatts('psu', 'PSU Cooler Master MWE 1250W V2 80Plus Gold / Black', null)).toBe(1250);
     expect(partWatts('psu', 'PSU BEQUITE Dark Power Pro 12 1500W Titanium Black / Black', null)).toBe(1500);
     expect(partWatts('ram', 'DDR5 Corsair 16GB', null)).toBeNull();
   });

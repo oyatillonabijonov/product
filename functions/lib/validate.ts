@@ -761,10 +761,12 @@ export function parsePcDimensionInput(body: unknown): PcDimensionInput {
     const r = asRecord(raw);
     const label = typeof r.label === 'string' ? r.label.trim() : '';
     if (!label || label.length > 30) throw new ValidationError('value_invalid');
-    const id = typeof r.id === 'number' && Number.isInteger(r.id) && r.id > 0 ? r.id : null;
-    return { id, label };
+    // `id` yo'q yoki `null` — yangi qiymat; berilgan, lekin yaroqsiz `id` jim yangi qiymatga aylanmaydi (eskisi va uning qism bog'lari o'chib ketardi).
+    if (r.id !== undefined && r.id !== null && !(typeof r.id === 'number' && Number.isInteger(r.id) && r.id > 0)) throw new ValidationError('value_invalid');
+    return { id: typeof r.id === 'number' ? r.id : null, label };
   });
   if (new Set(values.map((v) => v.label.toLowerCase())).size !== values.length) throw new ValidationError('value_duplicate');
+  if (o.active !== undefined && typeof o.active !== 'boolean') throw new ValidationError('active_invalid');
   return { name, nameRu, slots, active: o.active === true, values };
 }
 

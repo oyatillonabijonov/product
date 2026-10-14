@@ -17,20 +17,22 @@ const PcPartValues: FC<{ productId: string }> = ({ productId }) => {
   const toast = useToast();
   const [rawPart, setPart] = useState(null as ApiPcPart | null);
   const [rawDims, setDims] = useState([] as ApiPcDimension[]);
-  const [rawState, setState] = useState('loading' as 'loading' | 'ready' | 'none');
+  const [rawState, setState] = useState('loading' as 'loading' | 'ready' | 'none' | 'error');
   const [rawBusy, setBusy] = useState(false);
   const part = rawPart as ApiPcPart | null;
   const dims = rawDims as ApiPcDimension[];
-  const state = rawState as 'loading' | 'ready' | 'none';
+  const state = rawState as 'loading' | 'ready' | 'none' | 'error';
   const busy = rawBusy as boolean;
 
   useEffect(() => {
     Promise.all([getPcPart(productId), listPcDimensions()])
       .then(([p, d]) => { setPart(p); setDims(d); setState('ready'); })
-      .catch(() => setState('none'));
+      // Faqat 404 «konfiguratorda yo'q» degani; tarmoq/server xatosi uni yashirmasin.
+      .catch((e) => setState(e instanceof Error && e.message === 'part_not_found' ? 'none' : 'error'));
   }, [productId]);
 
   if (state === 'loading') return null;
+  if (state === 'error') return <p className="py-3 text-para text-muted-2">{t('shared.loadError')}</p>;
   if (state === 'none' || !part) return <p className="py-3 text-para text-muted-2">{t('productEdit.pc.valuesNone')}</p>;
   const slotDims = dimsForSlot(part.slot, dims);
   if (slotDims.length === 0) return null;

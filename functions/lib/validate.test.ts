@@ -525,6 +525,21 @@ describe('parsePcDimensionInput', () => {
     expect(() => parsePcDimensionInput({ ...base, values: null })).toThrow('value_invalid');
     expect(parsePcDimensionInput({ ...base, values: [] }).values).toEqual([]);
   });
+  it("qiymat id: yo'q yoki null — yangi; berilgan yaroqsiz id → value_invalid", () => {
+    expect(parsePcDimensionInput({ ...base, values: [{ label: 'ATX' }, { id: null, label: 'mATX' }] }).values).toEqual([{ id: null, label: 'ATX' }, { id: null, label: 'mATX' }]);
+    expect(() => parsePcDimensionInput({ ...base, values: [{ id: '7', label: 'ATX' }] })).toThrow('value_invalid');
+    expect(() => parsePcDimensionInput({ ...base, values: [{ id: 0, label: 'ATX' }] })).toThrow('value_invalid');
+    expect(() => parsePcDimensionInput({ ...base, values: [{ id: 1.5, label: 'ATX' }] })).toThrow('value_invalid');
+    expect(() => parsePcDimensionInput({ ...base, values: [{ id: -3, label: 'ATX' }] })).toThrow('value_invalid');
+  });
+  it("faollik: yo'q — false; mantiqiy bo'lmasa → active_invalid", () => {
+    const { active: _active, ...noActive } = base;
+    expect(parsePcDimensionInput(noActive).active).toBe(false);
+    expect(parsePcDimensionInput({ ...base, active: false }).active).toBe(false);
+    expect(() => parsePcDimensionInput({ ...base, active: 'yes' })).toThrow('active_invalid');
+    expect(() => parsePcDimensionInput({ ...base, active: 1 })).toThrow('active_invalid');
+    expect(() => parsePcDimensionInput({ ...base, active: null })).toThrow('active_invalid');
+  });
 });
 
 describe('parsePcPartsInput', () => {

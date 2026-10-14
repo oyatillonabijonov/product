@@ -81,6 +81,7 @@ const errors: Dict<typeof uz> = {
   values_limit: 'Не больше 50 значений',
   value_invalid: 'Значение — от 1 до 30 символов',
   value_duplicate: 'Значения не должны повторяться',
+  active_invalid: 'Неверное значение активности',
   items_invalid: 'Неверные данные для сохранения',
   dimension_not_found: 'Тип совместимости не найден',
   dimension_protected: 'Типы «Сокет» и «Тип памяти» удалить нельзя',
