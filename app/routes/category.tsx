@@ -6,6 +6,7 @@ import { siteConfig } from '../lib/site.config';
 import { parseCatalogFilters } from '../lib/catalog';
 import { queryProducts, loadConfig, loadCategories, loadBrands, loadTypes, loadConfiguratorParts, loadT } from '../lib/loaders';
 import { categoryTiles } from '../lib/tiles';
+import { configuratorReady } from '../../shared/pc-compat';
 import type { StoreContext } from '../../src/store/StoreLayout';
 import CatalogView from '../../src/store/CatalogView';
 import CategoryCover from '../../src/store/CategoryCover';
@@ -31,9 +32,9 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   ]);
   const title = categoryLabel(category, locale);
   const tiles = categoryTiles(types, slug, locale === 'ru' ? 'ru' : 'uz');
-  // PC konfiguratori — hamma Billz PC qismlari (omborda va buyurtma asosida), moslik atributlari bilan.
-  const parts = slug === 'pc' ? await loadConfiguratorParts(env) : {};
-  return { result, config, title, brands, filters, requestUrl: request.url, category, tiles, parts, metaDesc: t.metaCatalogDesc };
+  // PC konfiguratori — admin tasdiqlagan qismlar (omborda va buyurtma asosida) va faol moslik turlari.
+  const configurator = slug === 'pc' ? await loadConfiguratorParts(env) : { parts: {}, dims: [] };
+  return { result, config, title, brands, filters, requestUrl: request.url, category, tiles, configurator, metaDesc: t.metaCatalogDesc };
 }
 
 export function meta({ data, matches }: Route.MetaArgs) {
@@ -44,7 +45,7 @@ export function meta({ data, matches }: Route.MetaArgs) {
 }
 
 export default function CategoryRoute() {
-  const { result, config, title, brands, filters, category, tiles, parts } = useLoaderData<typeof loader>();
+  const { result, config, title, brands, filters, category, tiles, configurator } = useLoaderData<typeof loader>();
   const ctx = useOutletContext<StoreContext>();
   const asset = useAssets();
   // Cover — avval kategoriyaning o'z rasmi (admin → Kategoriyalar). Bo'lmasa landing ustuni, lekin faqat
@@ -68,11 +69,11 @@ export default function CategoryRoute() {
         t={ctx.t} title={title} result={result} config={config} brands={brands} filters={filters}
         subtitle={isOwnColumn ? ctx.t.proTitle : undefined}
         tiles={<CategoryTiles tiles={tiles} t={ctx.t} />}
-        promo={category.id === 'pc' ? <PcBuildPromo t={ctx.t} /> : undefined}
+        promo={category.id === 'pc' && configuratorReady(configurator.parts) ? <PcBuildPromo t={ctx.t} /> : undefined}
       />
       {category.id === 'pc' && (
         <div className="shell pb-14 md:pb-20">
-          <PcConfigurator t={ctx.t} locale={ctx.locale} parts={parts} />
+          <PcConfigurator t={ctx.t} locale={ctx.locale} parts={configurator.parts} dims={configurator.dims} />
         </div>
       )}
     </>

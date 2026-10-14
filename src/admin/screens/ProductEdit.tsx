@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel, ApiProductType } from '../../../shared/types';
 import { withHiddenLock, type ManualField } from '../../../shared/billz';
-import { PC_SOCKETS, partAttrs, slotForType } from '../../../shared/pc-compat';
+import { partWatts, slotForType } from '../../../shared/pc-compat';
 import {
   createProduct, deleteProduct, getProductDetail, listBrands, listCategories, listDeviceModels, listTypes, updateProduct, uploadImage,
 } from '../api';
@@ -224,7 +224,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
   const billz = form.billzId !== null;
   // PC bo'g'in turlarida — konfigurator kartasi; "Avtomatik" qiymatlar tuzatishsiz, faqat nomdan.
   const pcSlot = form.categoryId === 'pc' ? slotForType(form.type) : null;
-  const autoAttrs = pcSlot ? partAttrs(pcSlot, form.name) : { socket: null, memory: null, watts: null };
+  const autoWatts = pcSlot ? partWatts(pcSlot, form.name, null) : null;
   // Billz tovarida har maydon manbasini ko'rsatamiz; qaysi qulf qo'yilishi saqlashdan oldin jonli hisoblanadi.
   const locks = formLocks(form, loaded);
   const unlock = (f: ManualField) => { if (loaded) patch((x) => revertField(x, loaded, f)); };
@@ -469,29 +469,12 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                 onChange={(v) => set('pcHidden', v)}
               />
               <div className="grid gap-4 py-3 sm:grid-cols-3">
-                {(pcSlot === 'cpu' || pcSlot === 'mb') && (
-                  <Field label={t('productEdit.pc.socketLabel')}>
-                    <Select value={form.pcSocket ?? ''} onChange={(v) => set('pcSocket', v || null)}>
-                      <option value="">{t('productEdit.pc.autoOption', { value: autoAttrs.socket ?? t('productEdit.pc.autoUnknown') })}</option>
-                      {PC_SOCKETS.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </Select>
-                  </Field>
-                )}
-                {(pcSlot === 'mb' || pcSlot === 'ram') && (
-                  <Field label={t('productEdit.pc.memoryLabel')}>
-                    <Select value={form.pcMemory ?? ''} onChange={(v) => set('pcMemory', v || null)}>
-                      <option value="">{t('productEdit.pc.autoOption', { value: autoAttrs.memory ?? t('productEdit.pc.autoUnknown') })}</option>
-                      <option value="DDR4">DDR4</option>
-                      <option value="DDR5">DDR5</option>
-                    </Select>
-                  </Field>
-                )}
                 {(pcSlot === 'cpu' || pcSlot === 'gpu' || pcSlot === 'psu') && (
                   <Field label={pcSlot === 'psu' ? t('productEdit.pc.wattsLabelPsu') : t('productEdit.pc.wattsLabelOther')}>
                     <Input
                       value={form.pcWatts ? String(form.pcWatts) : ''}
                       onChange={(v) => { const n = Number(v.replace(/\D/g, '')); set('pcWatts', n > 0 ? Math.min(3000, n) : null); }}
-                      placeholder={autoAttrs.watts ? t('productEdit.pc.wattsPlaceholderAuto', { value: autoAttrs.watts }) : t('productEdit.pc.wattsPlaceholderUnknown')}
+                      placeholder={autoWatts ? t('productEdit.pc.wattsPlaceholderAuto', { value: autoWatts }) : t('productEdit.pc.wattsPlaceholderUnknown')}
                     />
                   </Field>
                 )}

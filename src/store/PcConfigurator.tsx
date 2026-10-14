@@ -6,7 +6,7 @@ import type { Translation } from '../locales';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
 import {
   PC_SLOTS, REQUIRED_SLOTS, candidateState, graphicsIssue, hasMatch, issueFor, needsVerify, summaryIssues,
-  type ConfigPart, type Issue, type Picked, type SlotKey,
+  type ConfigPart, type Issue, type PcDimension, type Picked, type SlotKey,
 } from '../../shared/pc-compat';
 import { useCart } from './CartContext';
 import { useCurrency } from './CurrencyContext';
@@ -35,18 +35,22 @@ const chevron = (first: boolean, last: boolean): string => {
   return `polygon(0 0, ${right.join(', ')}, 0 100%${left.length ? `, ${left.join(', ')}` : ''})`;
 };
 
-const reason = (t: Translation, i: Issue): string =>
-  i.code === 'graphics'
-    ? t.cfgNoGraphics
-    : (i.code === 'socket' ? t.cfgNeedSocket : i.code === 'memory' ? t.cfgNeedMemory : t.cfgNeedPower).replace('{need}', i.need);
+const dimName = (d: PcDimension, locale: Locale): string => (locale === 'ru' && d.nameRu ? d.nameRu : d.name);
+
+const reason = (t: Translation, i: Issue, dims: PcDimension[], locale: Locale): string => {
+  if (i.code === 'graphics') return t.cfgNoGraphics;
+  if (i.code === 'power') return t.cfgNeedPower.replace('{need}', i.need);
+  const d = dims.find((x) => x.id === i.dimensionId);
+  return t.cfgNeedValue.replace('{dim}', d ? dimName(d, locale) : '').replace('{need}', i.need);
+};
 
 /**
  * Kompyuter konfiguratori — hamma Billz PC qismlari: omborda va "Buyurtma asosida" (qoldiq 0, narx taxminiy).
- * Moslik (soket, DDR, blok quvvati) `shared/pc-compat.ts`da; mos kelmaydigan nomzod yashirilmaydi —
+ * Moslik (admin belgilagan turlar — soket, xotira…, blok quvvati) `shared/pc-compat.ts`da; mos kelmaydigan nomzod yashirilmaydi —
  * kulrang va sababi bilan. Tanlov o'zgarib boshqa bo'g'indagi tanlov mos kelmay qolsa, u olib tashlanadi.
  * Yig'ma savatga tushadi (buyurtma asosidagisi `variantLabel` bilan — savat va Telegram'da ko'rinadi).
  */
-const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record<SlotKey, ConfigPart[]>> }> = ({ t, locale, parts }) => {
+const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record<SlotKey, ConfigPart[]>>; dims: PcDimension[] }> = ({ t, locale, parts, dims }) => {
   const slots = PC_SLOTS.map((s) => s.key).filter((k) => (parts[k]?.length ?? 0) > 0);
   const [activeRaw, setActive] = useState(slots[0] ?? 'cpu');
   const [pickedRaw, setPicked] = useState({});
@@ -69,7 +73,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
   // Grafikasiz protsessor + videokarta yo'q — ogohlantirish: "Hammasi mos" chiqmaydi, lekin
   // buyurtma ochiq (videokarta mijozning o'zida bo'lishi mumkin).
   const gfx = graphicsIssue(picked.cpu?.name, !!picked.gpu);
-  const issues = gfx ? [...summaryIssues(pickedAttrs), gfx] : summaryIssues(pickedAttrs);
+  const issues = gfx ? [...summaryIssues(pickedAttrs, dims), gfx] : summaryIssues(pickedAttrs, dims);
   const blocked = issues.some((i) => i.level === 'block');
   const complete = REQUIRED_SLOTS.every((k) => picked[k]) && !blocked;
   const total = slots.reduce((sum, k) => sum + (picked[k]?.priceUzs ?? 0), 0);
@@ -93,7 +97,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
     for (const k of slots) {
       const cur = next[k];
       if (k === active || !cur) continue;
-      const i = issueFor(k, cur.attrs, attrsOf(next));
+      const i = issueFor(k, cur.attrs, attrsOf(next), dims);
       if (i?.level === 'block') { delete next[k]; dropped.push(k); }
     }
     setPicked(next);
@@ -221,20 +225,20 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
           <ul className="mt-4 flex max-h-[560px] flex-col gap-2 overflow-y-auto">
             {list.map((part) => {
               const on = picked[active]?.id === part.id;
-              const state = candidateState(active, part.attrs, pickedAttrs);
+              const state = candidateState(active, part.attrs, pickedAttrs, dims);
               const disabled = !!state.block;
-              const noBoard = active === 'cpu' && !hasMatch(part.attrs, boards);
+              const noBoard = active === 'cpu' && !hasMatch(part.attrs, boards, dims);
               // Videokarta hali tanlanmagan bo'lsa grafikasiz protsessor tanlashdan oldin ogohlantiriladi.
               const gfxNote = active === 'cpu' ? graphicsIssue(part.name, !!picked.gpu) : null;
               const dropsNote = state.drops.length > 0
                 ? t.cfgWillDrop.replace('{slots}', state.drops.map((k) => SLOT_UI[k].label(t)).join(', '))
                 : '';
               const note = state.block
-                ? reason(t, state.block)
+                ? reason(t, state.block, dims, locale)
                 : dropsNote
                   ? dropsNote
                   : state.warn
-                    ? reason(t, state.warn)
+                    ? reason(t, state.warn, dims, locale)
                     : noBoard
                       ? t.cfgNoBoard
                       : gfxNote
@@ -317,7 +321,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
             )}
             {issues.map((i) => (
               <p key={i.slot + i.code} className="flex items-center gap-1.5 text-label text-primary">
-                <AlertTriangle className={`h-4 w-4 shrink-0 ${i.level === 'block' ? 'text-sale' : 'text-new'}`} /> {SLOT_UI[i.slot].label(t)}: {reason(t, i)}
+                <AlertTriangle className={`h-4 w-4 shrink-0 ${i.level === 'block' ? 'text-sale' : 'text-new'}`} /> {SLOT_UI[i.slot].label(t)}: {reason(t, i, dims, locale)}
               </p>
             ))}
             {anyOnOrder && <p className="text-label text-muted-2">{t.cfgOnOrderNote}</p>}

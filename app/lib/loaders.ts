@@ -14,7 +14,8 @@ import {
   rowToVacancy, type VacancyRow,
 } from '../../functions/lib/db';
 import { rowToProductType, type ProductTypeDbRow, type ProductTypeRow } from '../../shared/product-types';
-import { PC_SLOTS, toConfigParts, type ConfigPart, type ConfigPartRow, type SlotKey } from '../../shared/pc-compat';
+import { toConfigParts, type ConfigPart, type PcDimension, type SlotKey } from '../../shared/pc-compat';
+import { readConfigRows, readDimensions, readPartValues } from '../../functions/lib/pc-db';
 import { applyFilters, parseCatalogFilters, searchTerms, PAGE_SIZE, type CatalogFilters, type CatalogResult } from './catalog';
 import { siteConfig as staticSiteConfig } from './site.config';
 import { translations, type Translation } from '../../src/locales';
@@ -132,28 +133,17 @@ export async function loadProductsBy(
   }
 }
 
-/**
- * PC konfiguratori qismlari — saytda yashirin bo'lsa ham (qoldiq 0 → "Buyurtma asosida"; rasmsiz qoldiqli).
- * Qo'lda kiritilgan (billz_id yo'q) nofaol mahsulotlar — namuna ma'lumot, chiqmaydi. Egasi yashirgan Billz qismi
- * (`manual_fields`da `hidden`) ham chiqmaydi — admin «Yashirsangiz shunday qoladi» deydi. Xato → {} (bo'lim chiqmaydi).
- */
-export async function loadConfiguratorParts(env: Env): Promise<Partial<Record<SlotKey, ConfigPart[]>>> {
+export interface ConfiguratorData { parts: Partial<Record<SlotKey, ConfigPart[]>>; dims: PcDimension[] }
+
+/** PC konfiguratori: admin tasdiqlagan qismlar + faol moslik turlari (sabab matnidagi nomlar uchun). Xato → bo'sh (bo'lim chiqmaydi). */
+export async function loadConfiguratorParts(env: Env): Promise<ConfiguratorData> {
   try {
-    const types = PC_SLOTS.map((s) => s.type);
-    const { results } = await env.DB.prepare(
-      `SELECT id, name, image_url, type, COALESCE(
-         (SELECT MIN(v.cash_price_uzs) FROM product_variants v WHERE v.product_id = products.id AND v.in_stock = 1),
-         cash_price_uzs) AS price,
-       billz_id, billz_stock, is_active, pc_socket, pc_memory, pc_watts
-       FROM products
-       WHERE category_id = 'pc' AND type IN (${types.map(() => '?').join(', ')}) AND pc_hidden = 0
-         AND cash_price_uzs > 0 AND (is_active = 1 OR billz_id IS NOT NULL)
-         AND instr(',' || COALESCE(manual_fields, '') || ',', ',hidden,') = 0`,
-    ).bind(...types).all<ConfigPartRow>();
-    return toConfigParts(results);
+    const [rows, byProduct, dims] = await Promise.all([readConfigRows(env), readPartValues(env), readDimensions(env)]);
+    const active = dims.filter((d) => d.active);
+    return { parts: toConfigParts(rows, byProduct, active), dims: active };
   } catch (err) {
     console.error('loadConfiguratorParts fallback:', err);
-    return {};
+    return { parts: {}, dims: [] };
   }
 }
 
