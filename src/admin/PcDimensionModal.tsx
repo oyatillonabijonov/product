@@ -7,13 +7,14 @@ import { PC_SLOTS } from '../../shared/pc-compat';
 import Modal from '../store/Modal';
 import { createPcDimension, deletePcDimension, updatePcDimension } from './api';
 import { errText } from './errText';
-import { addValue, dimToForm } from './lib/pc-parts';
+import { addValue, dimLabel, dimToForm, listText, lowerFirst } from './lib/pc-parts';
 import { Button, Field, Input } from './ui';
 import { useGuardedConfirm } from './ui/confirm';
 import { useToast } from './ui/toast';
 
 /**
- * Moslik turi tahriri / yaratish. Yangi tur nofaol yaratiladi (server ham shunday qiladi) — faolligi ro'yxatdagi
+ * Tekshiruv (moslik turi) tahriri / yaratish — uchta savol va ostida jonli «Natija» jumlasi: egasi saqlashdan oldin
+ * tekshiruv saytda nima qilishini o'qiydi. Yangi tur nofaol yaratiladi (server ham shunday qiladi) — faolligi ro'yxatdagi
  * almashtirgichda. Ota komponent `key` bilan qayta yaratadi, shuning uchun forma holati har ochilishda yangi.
  * Chip guruhlari `Field` ichida emas — `Field` `<label>` chizadi, ichidagi tugma label bosilganda "bosilib" ketardi.
  */
@@ -24,7 +25,7 @@ const PcDimensionModal: FC<{
   onExited: () => void;
   onSaved: (list: ApiPcDimension[]) => void;
 }> = ({ open, dim, onClose, onExited, onSaved }) => {
-  const { t } = useTranslation(['products', 'common']);
+  const { t, i18n } = useTranslation(['products', 'common']);
   const toast = useToast();
   const { confirm, confirming } = useGuardedConfirm();
   const [rawForm, setForm] = useState(dimToForm(dim));
@@ -43,6 +44,16 @@ const PcDimensionModal: FC<{
     setForm({ ...form, values: form.values.filter((_, j) => j !== i) });
   };
 
+  // Jonli izoh: yozilib qolgan, lekin «Qo'shish» bosilmagan variant ham hisobga olinadi — saqlashda ham shunday.
+  const lang = i18n.language;
+  const preview = addValue(form.values, label);
+  const slotNames = PC_SLOTS.filter((s) => form.slots.includes(s.key)).map((s) => lowerFirst(t(`configurator.slots.${s.key}`)));
+  const result = slotNames.length >= 2 && preview.length > 0
+    ? t('configurator.result', { slots: listText(slotNames, t('configurator.and')), values: listText(preview.map((v) => v.label), t('configurator.or')) })
+    : t('configurator.resultEmpty');
+  const step = 'text-para font-semibold text-primary';
+  const hint = 'text-label text-muted-2';
+
   const save = async () => {
     // Faol turga bo'g'in qo'shilsa, yangi bo'g'indagi qismlarda qiymat yo'q — ular darhol konfiguratordan chiqib ketadi.
     if (dim?.active && form.slots.some((s) => !dim.slots.includes(s))
@@ -50,7 +61,7 @@ const PcDimensionModal: FC<{
     setBusy(true);
     try {
       // Yozilib qolgan, lekin «Qo'shish» bosilmagan qiymat ham saqlanadi.
-      const input: PcDimensionInput = { ...form, values: addValue(form.values, label) };
+      const input: PcDimensionInput = { ...form, values: preview };
       onSaved(dim ? await updatePcDimension(dim.id, input) : await createPcDimension(input));
       toast(t('configurator.saved'));
       onClose();
@@ -75,20 +86,30 @@ const PcDimensionModal: FC<{
   };
 
   return (
-    <Modal open={open} label={t('configurator.editTitle')} onClose={() => { if (!confirming.current) onClose(); }} onExited={onExited} panelClass="max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto">
-      <div className="flex flex-col gap-5 p-6">
-        <h2 className="text-copy font-semibold text-primary">{t('configurator.editTitle')}</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t('configurator.nameLabel')} required>
-            <Input value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-          </Field>
-          <Field label={t('configurator.nameRuLabel')}>
-            <Input value={form.nameRu} onChange={(v) => setForm({ ...form, nameRu: v })} />
-          </Field>
+    <Modal open={open} label={dim ? t('configurator.editTitle') : t('configurator.newTitle')} onClose={() => { if (!confirming.current) onClose(); }} onExited={onExited} panelClass="max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto">
+      <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-1.5">
+          <h2 className="text-lede font-semibold text-primary">{dim ? t('configurator.editTitle') : t('configurator.newTitle')}</h2>
+          <p className="text-para text-muted">{t('configurator.intro')}</p>
         </div>
 
-        <div>
-          <span className="mb-1.5 block text-label font-medium text-muted">{t('configurator.slotsLabel')}</span>
+        <div className="flex flex-col gap-2">
+          <span className={step}>{t('configurator.nameStep')}</span>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label={t('configurator.nameLabel')} required>
+              <Input value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder={t('configurator.namePlaceholder')} />
+            </Field>
+            <Field label={t('configurator.nameRuLabel')}>
+              <Input value={form.nameRu} onChange={(v) => setForm({ ...form, nameRu: v })} placeholder={t('configurator.namePlaceholderRu')} />
+            </Field>
+          </div>
+          <span className={hint}>
+            {t('configurator.nameHint', { name: dimLabel(form, lang) || t('configurator.nameExample'), value: preview[0]?.label ?? 'ATX' })}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span className={step}>{t('configurator.slotsLabel')}</span>
           <div className="flex flex-wrap gap-2">
             {PC_SLOTS.map(({ key }) => {
               const on = form.slots.includes(key);
@@ -105,31 +126,38 @@ const PcDimensionModal: FC<{
               );
             })}
           </div>
-          <span className="mt-1 block text-label text-muted-2">{t('configurator.slotsHint')}</span>
+          <span className={hint}>{t('configurator.slotsHint')}</span>
         </div>
 
-        <div>
-          <span className="mb-1.5 block text-label font-medium text-muted">{t('configurator.valuesLabel')}</span>
-          <div className="flex flex-wrap gap-2">
-            {form.values.map((v, i) => (
-              <span key={`${v.id ?? 'new'}-${v.label}`} className="inline-flex h-9 items-center gap-1 rounded-full bg-fill-2 pl-3 pr-1 text-para text-primary">
-                {v.label}
-                <button
-                  type="button"
-                  aria-label={t('configurator.removeValue', { label: v.label })}
-                  onClick={() => removeValue(i)}
-                  className="press relative grid size-7 place-items-center rounded-full text-muted-2 after:absolute after:-inset-2 hover:text-danger"
-                >
-                  <X aria-hidden className="size-4" />
-                </button>
-              </span>
-            ))}
-          </div>
-          <div className="mt-3 flex gap-2">
+        <div className="flex flex-col gap-2">
+          <span className={step}>{t('configurator.valuesLabel')}</span>
+          {form.values.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {form.values.map((v, i) => (
+                <span key={`${v.id ?? 'new'}-${v.label}`} className="inline-flex h-9 items-center gap-1 rounded-full bg-fill-2 pl-3 pr-1 text-para text-primary">
+                  {v.label}
+                  <button
+                    type="button"
+                    aria-label={t('configurator.removeValue', { label: v.label })}
+                    onClick={() => removeValue(i)}
+                    className="press relative grid size-7 place-items-center rounded-full text-muted-2 after:absolute after:-inset-2 hover:text-danger"
+                  >
+                    <X aria-hidden className="size-4" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
             <Input value={label} onChange={setLabel} placeholder={t('configurator.valuePlaceholder')} />
             <Button variant="secondary" onClick={add} disabled={!label.trim()}>{t('configurator.addValue')}</Button>
           </div>
+          <span className={hint}>{t('configurator.valuesHint')}</span>
         </div>
+
+        <p className="rounded-sm bg-fill-2 p-4 text-para text-primary">
+          <span className="font-semibold">{t('configurator.resultLabel')}</span> {result}
+        </p>
 
         {!dim && <p className="text-label text-muted-2">{t('configurator.newDimHint')}</p>}
 

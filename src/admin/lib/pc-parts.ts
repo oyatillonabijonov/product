@@ -72,9 +72,31 @@ export function dimToForm(dim: ApiPcDimension | null): PcDimensionInput {
     : { name: '', nameRu: '', slots: [], active: false, values: [] };
 }
 
-/** Yangi qiymat yorlig'i: bo'sh yoki (katta-kichik harfsiz) takror bo'lsa ro'yxat o'zgarmaydi (o'sha massiv qaytadi). */
+/**
+ * Yangi qiymat yorlig'i; vergul bilan bir nechtasi bir yo'la («ATX, mATX, ITX»). Bo'sh yoki (katta-kichik harfsiz)
+ * takror qism tashlanadi; hech narsa qo'shilmasa o'sha massiv qaytadi.
+ */
 export function addValue(values: PcDimensionInput['values'], label: string): PcDimensionInput['values'] {
-  const l = label.trim();
-  if (!l || values.some((v) => v.label.toLowerCase() === l.toLowerCase())) return values;
-  return [...values, { id: null, label: l }];
+  return label.split(',').reduce((acc, part) => {
+    const l = part.trim();
+    return !l || acc.some((v) => v.label.toLowerCase() === l.toLowerCase()) ? acc : [...acc, { id: null, label: l }];
+  }, values);
+}
+
+/** Jumla ichidagi nom: bosh harf kichrayadi («Ona plata» → «ona plata»), qisqartma emas («SSD disk» o'zgarmaydi). */
+export function lowerFirst(s: string): string {
+  return s.length > 1 && s[1] === s[1].toLowerCase() ? s[0].toLowerCase() + s.slice(1) : s;
+}
+
+/** Turning nomi admin tilida; ruschasi bo'sh bo'lsa o'zbekchasi (saytdagi `dimName` bilan bir qoida). */
+export function dimLabel(d: Pick<PcDimension, 'name' | 'nameRu'>, lang: string): string {
+  return lang === 'ru' && d.nameRu ? d.nameRu : d.name;
+}
+
+/**
+ * Ro'yxat jumlada: «protsessor va ona plata», «ATX, mATX yoki ITX». Bog'lovchi tarjimadan keladi —
+ * ponytail: `Intl.ListFormat` brauzerda o'zbekcha ma'lumotsiz, «and/or» qaytaradi.
+ */
+export function listText(items: string[], word: string): string {
+  return items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} ${word} ${items[items.length - 1]}`;
 }

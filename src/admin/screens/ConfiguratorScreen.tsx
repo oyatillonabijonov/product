@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, ChevronDown, Settings2 } from 'lucide-react';
+import { Check, CheckCircle2, ChevronDown, Settings2 } from 'lucide-react';
 import type { ApiPcDimension, ApiPcPart } from '../../../shared/types';
 import { PC_SLOTS } from '../../../shared/pc-compat';
 import { listPcDimensions, listPcParts, setPcPartValues, updatePcDimension } from '../api';
 import { errText } from '../errText';
-import { acceptSuggestions, chunk, dimsForSlot, filterParts, isUntagged, needsManual, partSummary, toggleValue } from '../lib/pc-parts';
+import { acceptSuggestions, chunk, dimLabel, dimsForSlot, filterParts, isUntagged, listText, lowerFirst, needsManual, partSummary, toggleValue } from '../lib/pc-parts';
 import PcDimensionModal from '../PcDimensionModal';
 import PcValueChips from '../PcValueChips';
 import { Badge, Button, Card, EmptyState, SearchInput, Skeleton, Toggle } from '../ui';
@@ -32,10 +32,11 @@ const Disclosure: FC<{ open: boolean; onToggle: () => void; title: string; hint:
  * Mahsulotlar → Konfigurator — egasi uchun eng sodda oqim (mantiq o'zgarmagan, faqat ko'rinish):
  * 1) bitta tugma — tizim nomdan aniqlagan hamma takliflarni tasdiqlaydi (hamma bo'g'in bir yo'la);
  * 2) tizim aniqlay olmaganlari — oddiy ro'yxat, chip bosilsa darhol saqlanadi;
- * 3) tasdiqlanganlar — yig'ilgan, tuzatish uchun; 4) moslik turlarini sozlash — pastda, yig'ilgan (kamdan-kam kerak).
+ * 3) tasdiqlanganlar — yig'ilgan, tuzatish uchun; 4) tekshiruvlar (moslik turlari) — pastda, yig'ilgan (kamdan-kam kerak).
+ * Har amal yonida uning oqibati sodda tilda yoziladi — egasi bosishdan oldin nima bo'lishini bilsin.
  */
 const ConfiguratorScreen: FC = () => {
-  const { t } = useTranslation('products');
+  const { t, i18n } = useTranslation('products');
   const toast = useToast();
   const confirm = useConfirm();
   const [rawDims, setDims] = useState(null as ApiPcDimension[] | null);
@@ -47,6 +48,7 @@ const ConfiguratorScreen: FC = () => {
   const [rawShowDone, setShowDone] = useState(false);
   const [rawShowAdvanced, setShowAdvanced] = useState(false);
   const [rawQuery, setQuery] = useState('');
+  const [rawSavedIds, setSavedIds] = useState([] as string[]);
   const [rawDimModal, setDimModal] = useState({ open: false, dim: null as ApiPcDimension | null, n: 0 });
   const dims = rawDims as ApiPcDimension[] | null;
   const parts = rawParts as ApiPcPart[] | null;
@@ -57,6 +59,7 @@ const ConfiguratorScreen: FC = () => {
   const showDone = rawShowDone as boolean;
   const showAdvanced = rawShowAdvanced as boolean;
   const query = rawQuery as string;
+  const savedIds = rawSavedIds as string[];
   const dimModal = rawDimModal as { open: boolean; dim: ApiPcDimension | null; n: number };
 
   /**
@@ -86,6 +89,8 @@ const ConfiguratorScreen: FC = () => {
   const manual = parts.filter((p) => manualIds.includes(p.id));
   const done = filterParts(parts, dims, 'tagged', query);
   const doneCount = parts.length - pending.length;
+  // Tasdiqlangach saytda chiqadiganlar: har faol turda qiymati yoki taklifi bor (nofaol tur saytda tekshirilmaydi).
+  const willShow = autoParts.filter((p) => !needsManual(p, dims.filter((d) => d.active))).length;
   const slotLabel = (p: ApiPcPart) => t(`configurator.slots.${p.slot}`);
   const suggestionText = (p: ApiPcPart) => dimsForSlot(p.slot, dims)
     .map((d) => d.values.filter((v) => (p.suggested[d.id] ?? []).includes(v.id)).map((v) => v.label).join(' / '))
@@ -111,6 +116,7 @@ const ConfiguratorScreen: FC = () => {
     try {
       await setPcPartValues([{ productId: p.id, dimensionId: dimId, valueIds: next }]);
       setParts(parts.map((x) => (x.id === p.id ? { ...x, values: { ...x.values, [dimId]: next } } : x)));
+      if (!savedIds.includes(p.id)) setSavedIds([...savedIds, p.id]);
       listPcDimensions().then(setDims).catch(() => {});
     } catch (e) {
       toast(errText(e), 'error');
@@ -133,14 +139,24 @@ const ConfiguratorScreen: FC = () => {
 
   const chips = (p: ApiPcPart) => (
     <PcValueChips dims={dimsForSlot(p.slot, dims)} values={p.values} suggested={p.suggested} disabled={busy}
-      suggestionLabel={t('configurator.suggestion')} onToggle={(dimId, valueId) => toggle(p, dimId, valueId)} />
+      onToggle={(dimId, valueId) => toggle(p, dimId, valueId)} />
   );
   const partName = (p: ApiPcPart) => (
-    <span className="text-copy text-primary">{p.name} <span className="text-label text-muted-2">· {slotLabel(p)}</span></span>
+    <span className="text-copy text-primary">
+      {p.name} <span className="text-label text-muted-2">· {slotLabel(p)}</span>
+      {savedIds.includes(p.id) && (
+        <span className="ml-2 inline-flex items-center gap-1 text-label text-verified"><Check aria-hidden className="size-4" />{t('configurator.saved')}</span>
+      )}
+    </span>
   );
+  const slotList = (d: ApiPcDimension) => listText(d.slots.map((s) => lowerFirst(t(`configurator.slots.${s}`))), t('configurator.and'));
 
   return (
     <div className="flex flex-col gap-6">
+      <Card title={t('configurator.aboutTitle')}>
+        <p className="text-para text-muted">{t('configurator.aboutText')}</p>
+      </Card>
+
       {/* 1-qadam: holat va bitta tugma. */}
       <Card>
         {pending.length === 0 ? (
@@ -160,6 +176,9 @@ const ConfiguratorScreen: FC = () => {
             {auto.confirmed > 0 && (
               <>
                 <Button size="lg" onClick={acceptAll} disabled={busy}>{t('configurator.acceptAll', { count: auto.confirmed })}</Button>
+                <p className="text-label text-muted-2">
+                  {willShow > 0 ? t('configurator.acceptHint', { count: willShow }) : t('configurator.acceptHintNone')}
+                </p>
                 <details className="w-full">
                   <summary className="press min-h-11 cursor-pointer py-3 text-para text-link">{t('configurator.preview')}</summary>
                   <ul className="max-h-80 divide-y divide-line overflow-y-auto">
@@ -235,14 +254,19 @@ const ConfiguratorScreen: FC = () => {
                 {dims.map((d) => (
                   <li key={d.id} className="flex items-center gap-4 py-3">
                     <button type="button" onClick={() => setDimModal({ open: true, dim: d, n: dimModal.n + 1 })} className="press flex min-w-0 flex-1 flex-col items-start gap-1.5 text-left">
-                      <span className="text-copy text-primary">{d.name}</span>
-                      <span className="text-label text-muted-2">{d.slots.map((s) => t(`configurator.slots.${s}`)).join(' ↔ ')}</span>
+                      <span className="text-copy text-primary">{t('configurator.checkRule', { name: dimLabel(d, i18n.language), slots: slotList(d) })}</span>
                       <span className="flex flex-wrap gap-1">{d.values.map((v) => <Badge key={v.id}>{v.label}</Badge>)}</span>
                       <span className={`text-label ${d.missing > 0 ? 'font-medium text-primary' : 'text-muted-2'}`}>
                         {d.missing > 0 ? t('configurator.missing', { count: d.missing }) : t('configurator.missingNone')}
                       </span>
+                      <span className="text-label text-link">{t('configurator.edit')} ›</span>
                     </button>
-                    <Toggle on={d.active} onChange={(v) => toggleActive(d, v)} label={t('configurator.activeLabel')} />
+                    <span className="flex shrink-0 flex-col items-end gap-1.5">
+                      <Toggle on={d.active} onChange={(v) => toggleActive(d, v)} label={t('configurator.activeLabel')} />
+                      <span className={`text-label ${d.active ? 'text-verified' : 'text-muted-2'}`}>
+                        {d.active ? t('configurator.stateOn') : t('configurator.stateOff')}
+                      </span>
+                    </span>
                   </li>
                 ))}
               </ul>

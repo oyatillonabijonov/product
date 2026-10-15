@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ApiPcPart } from '../../../shared/types';
 import type { PcDimension } from '../../../shared/pc-compat';
-import { acceptSuggestions, addValue, chunk, dimToForm, dimsForSlot, filterParts, isUntagged, needsManual, partSummary, toggleValue } from './pc-parts';
+import { acceptSuggestions, addValue, chunk, dimToForm, dimsForSlot, filterParts, isUntagged, listText, lowerFirst, needsManual, partSummary, toggleValue } from './pc-parts';
 
 const SOCKET: PcDimension = { id: 1, key: 'socket', name: 'Soket', nameRu: '', slots: ['cpu', 'mb'], active: true, values: [{ id: 12, label: 'AM5' }, { id: 14, label: 'LGA1700' }] };
 const MEMORY: PcDimension = { id: 2, key: 'memory', name: 'Xotira turi', nameRu: '', slots: ['cpu', 'mb', 'ram'], active: true, values: [{ id: 21, label: 'DDR4' }, { id: 22, label: 'DDR5' }] };
@@ -96,5 +96,17 @@ describe('dimToForm / addValue', () => {
     expect(addValue(vals, ' mATX ')).toEqual([{ id: 31, label: 'ATX' }, { id: null, label: 'mATX' }]);
     expect(addValue(vals, 'atx')).toBe(vals);
     expect(addValue(vals, '  ')).toBe(vals);
+  });
+  it("vergul bilan bir nechta qiymat bir yo'la qo'shiladi", () => {
+    expect(addValue([{ id: 31, label: 'ATX' }], 'mATX, atx, ITX,')).toEqual([{ id: 31, label: 'ATX' }, { id: null, label: 'mATX' }, { id: null, label: 'ITX' }]);
+  });
+});
+
+describe('lowerFirst / listText', () => {
+  it("jumla uchun: bosh harf kichrayadi, qisqartma qoladi; ro'yxat til bo'yicha", () => {
+    expect(['Ona plata', 'Korpus', 'SSD disk'].map(lowerFirst)).toEqual(['ona plata', 'korpus', 'SSD disk']);
+    expect(listText(['protsessor', 'ona plata'], 'va')).toBe('protsessor va ona plata');
+    expect(listText(['ATX', 'mATX', 'ITX'], 'yoki')).toBe('ATX, mATX yoki ITX');
+    expect(listText(['ATX'], 'yoki')).toBe('ATX');
   });
 });

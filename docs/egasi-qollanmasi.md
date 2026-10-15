@@ -35,20 +35,20 @@ Billz'da «promo narx» qo'ysangiz saytda chegirma (eski narx chizilgan) va «Ch
 
 ## 4. Kompyuter konfiguratori — qismlarning mosligi
 
-Saytdagi konfigurator (PC bo'limi pastida) qaysi protsessor qaysi plata va xotira bilan ishlashini **siz belgilagan qiymatlardan** biladi. Qiymati tasdiqlanmagan qism konfiguratorda ko'rinmaydi.
+Saytdagi konfiguratorda (PC bo'limi pastida) mijoz kompyuterni qismlardan yig'adi. Sayt unga mos kelmaydigan qismni tanlatmaydi: masalan, protsessor plataga faqat **soketi bir xil** bo'lsa tushadi (AM5 → AM5). Buning uchun har qismning **varianti** (AM5, DDR5…) belgilanadi. Varianti berilmagan qism konfiguratorda ko'rinmaydi.
 
-**Qayerda:** Mahsulotlar → **Konfigurator**. Ekran ikki qadamdan iborat:
+**Qayerda:** Mahsulotlar → **Konfigurator**. Ekran tepasida «Bu nima?» izohi, keyin ikki qadam:
 
-1. **«Hammasini tasdiqlash»** — tizim protsessor, plata va xotiraning soketi va xotira turini tovar nomidan o'zi aniqlaydi. Tugmani bossangiz, hammasi bir yo'la saqlanadi va konfiguratorda chiqadi. Avval ko'rmoqchi bo'lsangiz — «Tizim aniqlaganini ko'rish».
-2. **«Qo'lda tanlang»** — tizim aniqlay olmagan bir nechta qism. Har birida to'g'ri qiymatni bosing (masalan, *LGA1700* va *DDR5*) — darhol saqlanadi.
+1. **«Hammasini tasdiqlash»** — tizim variantni tovar nomidan o'zi aniqlaydi. Tugma ostida bossangiz nechta qism saytda chiqishi yozilgan. Avval ko'rmoqchi bo'lsangiz — «Tizim aniqlaganini ko'rish».
+2. **«Qo'lda tanlang»** — tizim aniqlay olmagan qismlar. Har qism savol bilan so'raladi («Soket qaysi?», «Xotira turi qaysi?») — to'g'ri variantni bosing, darhol saqlanadi va qator yonida «✓ Saqlandi» chiqadi.
 
 Hammasi tayyor bo'lsa, tepada «Hamma qismlar tayyor» yozuvi chiqadi.
 
-**Xato topsangiz:** «Tasdiqlangan qismlar»ni oching, qismni qidiring, «O'zgartirish»ni bosing va to'g'ri qiymatni tanlang.
+**Xato topsangiz:** «Tasdiqlangan qismlar»ni oching, qismni qidiring, «O'zgartirish»ni bosing va to'g'ri variantni tanlang.
 
 **Yangi tovar** Billz'dan kelsa, u shu ekranda paydo bo'ladi — Bosh sahifadagi «Konfigurator qismlari» kartasi nechta qism kutayotganini ko'rsatadi.
 
-**«Moslik turlarini sozlash»** (pastda) — kamdan-kam kerak: masalan, plata va korpus uchun yangi *Form-faktor* turi (ATX, mATX). Yangi tur avval o'chiq turadi: qismlarga qiymat bering, keyin «Saytda tekshiriladi»ni yoqing.
+**«Tekshiruvlar»** (pastda) — sayt qismlarning nimasini solishtiradi. Har biri bitta jumla: *«Soket: protsessor va ona platada bir xil bo'lishi kerak»*, yonida holati — «Saytda ishlayapti» yoki «O'chiq». Kamdan-kam kerak: masalan, katta plata kichik korpusga sig'masligi uchun yangi tekshiruv. «Yangi tekshiruv qo'shish» uchta savol beradi — nomi (*Form-faktor*), qaysi qismlar mos bo'lishi kerak (*ona plata* va *korpus*), qanday variantlar bor (*ATX, mATX, ITX*) — ostida esa «Natija:» jumlasi tekshiruv nima qilishini oddiy tilda aytadi. Yangi tekshiruv o'chiq saqlanadi: avval qismlarga variant bering («Qo'lda tanlang»da chiqadi), keyin yoqing. Yoqishdan oldin sayt nechta qism vaqtincha yo'qolishini aytib, tasdiq so'raydi.
 
 ## 5. Buyurtmalar
 

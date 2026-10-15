@@ -53,7 +53,7 @@ const PcPartValues: FC<{ productId: string }> = ({ productId }) => {
   return (
     <div className="flex flex-col gap-3 py-3">
       <p className="text-para text-muted">{t('productEdit.pc.valuesHint')}</p>
-      <PcValueChips dims={slotDims} values={part.values} suggested={part.suggested} disabled={busy} suggestionLabel={t('configurator.suggestion')} onToggle={toggle} />
+      <PcValueChips dims={slotDims} values={part.values} suggested={part.suggested} disabled={busy} onToggle={toggle} />
     </div>
   );
 };
