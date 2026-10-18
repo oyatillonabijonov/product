@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import express from 'express';
 import compression from 'compression';
@@ -73,9 +74,7 @@ if (!mountOAuth(app, env)) {
 // Google buni vaqtincha deb tushunadi (bir necha kun xavfsiz). Admin panel, uning API'si va rasmlar ochiq.
 const MAINTENANCE = true;
 const MAINTENANCE_OPEN = ['/admin', '/api/admin', '/images/', '/yuklash'];
-const MAINTENANCE_HTML = `<!doctype html><html lang="uz"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>ProDuct — texnik ishlar</title>
-<style>body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#000;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;text-align:center;padding:24px}h1{font-size:32px;font-weight:600;margin:0 0 12px}p{font-size:17px;color:#a1a1a6;margin:4px 0}.b{font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:40px}</style></head>
-<body><main><div class="b">ProDuct</div><h1>Saytda texnik ishlar olib borilmoqda</h1><p>Tez orada qaytamiz.</p><p>На сайте ведутся технические работы. Скоро вернёмся.</p></main></body></html>`;
+const MAINTENANCE_HTML = readFileSync(new URL('./maintenance.html', import.meta.url), 'utf8');
 const maintenance: express.RequestHandler = (req, res, next) => {
   if (!MAINTENANCE || MAINTENANCE_OPEN.some((p) => req.path.startsWith(p))) return next();
   res.status(503).set({ 'Retry-After': '86400', 'Cache-Control': 'no-store' }).type('html').send(MAINTENANCE_HTML);
