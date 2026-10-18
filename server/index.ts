@@ -69,6 +69,18 @@ if (!mountOAuth(app, env)) {
   console.log('PUBLIC_URL yo\'q — OAuth ulanmadi; /mcp faqat bearer token bilan ishlaydi.');
 }
 
+// ponytail: e'longacha sayt yopiq — ochish uchun `false` qilib deploy qilinadi. 503 + Retry-After:
+// Google buni vaqtincha deb tushunadi (bir necha kun xavfsiz). Admin panel, uning API'si va rasmlar ochiq.
+const MAINTENANCE = true;
+const MAINTENANCE_OPEN = ['/admin', '/api/admin', '/images/', '/yuklash'];
+const MAINTENANCE_HTML = `<!doctype html><html lang="uz"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>ProDuct — texnik ishlar</title>
+<style>body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#000;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;text-align:center;padding:24px}h1{font-size:32px;font-weight:600;margin:0 0 12px}p{font-size:17px;color:#a1a1a6;margin:4px 0}.b{font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:40px}</style></head>
+<body><main><div class="b">ProDuct</div><h1>Saytda texnik ishlar olib borilmoqda</h1><p>Tez orada qaytamiz.</p><p>На сайте ведутся технические работы. Скоро вернёмся.</p></main></body></html>`;
+const maintenance: express.RequestHandler = (req, res, next) => {
+  if (!MAINTENANCE || MAINTENANCE_OPEN.some((p) => req.path.startsWith(p))) return next();
+  res.status(503).set({ 'Retry-After': '86400', 'Cache-Control': 'no-store' }).type('html').send(MAINTENANCE_HTML);
+};
+
 if (isProd) {
   // Hashlangan assetlar — uzoq muddatli kesh; qolgan statik fayllar qisqa.
   app.use('/assets', express.static('build/client/assets', { immutable: true, maxAge: '1y' }));
@@ -77,11 +89,13 @@ if (isProd) {
   app.use(express.static('build/client', { maxAge: '1h', redirect: false, index: false }));
   // Build vaqtida yaratiladi — tsc uni ko'rmaydi, shu sabab tip aniqlanadi.
   const build = (await import('../build/server/index.js')) as unknown as ServerBuild;
+  app.use(maintenance);
   app.use(createRequestHandler({ build, getLoadContext: (req) => ({ env, billz, ip: req.ip ?? '' }) }));
 } else {
   const vite = await import('vite');
   const devServer = await vite.createServer({ server: { middlewareMode: true } });
   app.use(devServer.middlewares);
+  app.use(maintenance);
   app.use(
     createRequestHandler({
       build: () => devServer.ssrLoadModule('virtual:react-router/server-build') as Promise<ServerBuild>,
