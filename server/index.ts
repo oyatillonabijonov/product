@@ -72,7 +72,7 @@ if (!mountOAuth(app, env)) {
 
 // ponytail: e'longacha sayt yopiq — ochish uchun `false` qilib deploy qilinadi. 503 + Retry-After:
 // Google buni vaqtincha deb tushunadi (bir necha kun xavfsiz). Admin panel, uning API'si va rasmlar ochiq.
-const MAINTENANCE = true;
+const MAINTENANCE = false;
 const MAINTENANCE_OPEN = ['/admin', '/api/admin', '/images/', '/yuklash'];
 const MAINTENANCE_HTML = readFileSync(new URL('./maintenance.html', import.meta.url), 'utf8');
 const maintenance: express.RequestHandler = (req, res, next) => {
