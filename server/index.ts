@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import express from 'express';
@@ -71,12 +72,35 @@ if (!mountOAuth(app, env)) {
 }
 
 // ponytail: e'longacha sayt yopiq — ochish uchun `false` qilib deploy qilinadi. 503 + Retry-After:
-// Google buni vaqtincha deb tushunadi (bir necha kun xavfsiz). Admin panel, uning API'si va rasmlar ochiq.
-const MAINTENANCE = false;
+// Google buni vaqtincha deb tushunadi (bir necha kun xavfsiz). Admin panel, uning API'si va rasmlar ochiq;
+// admin panelga kirgan odam saytni odatdagidek ko'radi (tovar joylab tekshirish uchun).
+const MAINTENANCE = true;
 const MAINTENANCE_OPEN = ['/admin', '/api/admin', '/images/', '/yuklash'];
 const MAINTENANCE_HTML = readFileSync(new URL('./maintenance.html', import.meta.url), 'utf8');
-const maintenance: express.RequestHandler = (req, res, next) => {
+
+/**
+ * Admin `session` cookie'si haqiqiymi — `functions/lib/auth.ts` `verifySession` bilan bir format
+ * (`base64url(json).base64url(hmac)`). U yerdan import qilinmaydi: Docker `functions/`ni tashimaydi.
+ */
+async function isAdmin(cookie: string | undefined): Promise<boolean> {
+  const [payload, sig] = /(?:^|;\s*)session=([^;]+)/.exec(cookie ?? '')?.[1].split('.') ?? [];
+  if (!payload || !sig) return false;
+  const row = await env.DB.prepare('SELECT session_secret FROM admin_auth WHERE id = 1').first<{ session_secret: string }>();
+  if (!row) return false;
+  const expected = createHmac('sha256', row.session_secret).update(payload).digest('base64url');
+  if (sig.length !== expected.length || !timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return false;
+  try {
+    const { exp } = JSON.parse(Buffer.from(payload, 'base64url').toString()) as { exp: unknown };
+    return typeof exp === 'number' && exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+}
+
+const maintenance: express.RequestHandler = async (req, res, next) => {
   if (!MAINTENANCE || MAINTENANCE_OPEN.some((p) => req.path.startsWith(p))) return next();
+  // Adminga ko'rsatilgan haqiqiy sahifa umumiy keshga tushmasin — aks holda hammaga chiqib ketadi.
+  if (await isAdmin(req.headers.cookie)) { res.setHeader('Cache-Control', 'private, no-store'); return next(); }
   res.status(503).set({ 'Retry-After': '86400', 'Cache-Control': 'no-store' }).type('html').send(MAINTENANCE_HTML);
 };
 
