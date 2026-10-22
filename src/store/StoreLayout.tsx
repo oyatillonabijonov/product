@@ -13,7 +13,6 @@ import Header from './Header';
 import MobileTabBar from './MobileTabBar';
 import { parseAvatar } from '../../shared/avatar';
 import Footer from './Footer';
-import ContactFab from './ContactFab';
 import CookieBanner from './CookieBanner';
 import BetaBar from './BetaBar';
 import { CartProvider } from './CartContext';
@@ -104,7 +103,6 @@ export default function StoreLayout({
         <Footer t={t} locale={locale} config={config} pageLinks={pageLinks} categories={categories} hasDeals={hasDeals} />
         <div aria-hidden className="h-[calc(4rem+env(safe-area-inset-bottom))] lg:hidden" />
         <MobileTabBar t={t} locale={locale} signedIn={customer !== null} avatar={customerAvatar} unread={unread} hidden={chromeHidden} />
-        {!chromeHidden && <ContactFab t={t} config={config} />}
         <CookieBanner t={t} locale={locale} />
       </div>
      </CurrencyProvider>

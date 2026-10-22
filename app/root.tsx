@@ -58,7 +58,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ScrollRestoration />
         <Scripts />
         {/* ponytail: Lydya AI chat (mijozning xizmati) — faqat storefront'da; kalit ochiq widget kaliti. Kerak bo'lsa admin maydoniga ko'chiriladi. */}
-        {storeData && <script src="https://lydya.ai/widget.js" data-key="wk_VH1nhTM39Con62iwi9x-RkYf" async />}
+        {storeData && (
+          <>
+            <script src="https://lydya.ai/widget.js" data-key="wk_VH1nhTM39Con62iwi9x-RkYf" async />
+            {/* Pufakcha Shadow DOM'da (sahifa CSS'i yetmaydi) — `lg`gacha pastki panel (`MobileTabBar`, 64px + chiziq + safe-area) ustiga ko'taramiz. */}
+            <script dangerouslySetInnerHTML={{ __html: LYDYA_LIFT_JS }} />
+          </>
+        )}
         {metricaJs && (
           <>
             {/* eslint-disable-next-line react/no-danger */}
@@ -72,6 +78,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </html>
   );
 }
+
+const LYDYA_LIFT_JS = "new MutationObserver(function(_,o){var h=document.querySelector('[data-sales-manager-widget]');if(!h||!h.shadowRoot)return;o.disconnect();var s=document.createElement('style');s.textContent='@media (max-width:1023px){.launcher{bottom:calc(85px + env(safe-area-inset-bottom))}}';h.shadowRoot.append(s)}).observe(document.body,{childList:true})";
 
 export default function Root() {
   return <Outlet />;

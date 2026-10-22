@@ -15,7 +15,7 @@ import { useFavorites } from './FavoritesContext';
  * Mobil pastki navigatsiya (`lg`gacha) — ilova tab bar'i naqshi: Bosh sahifa · Katalog ·
  * Sevimlilar · Savat · Profil. Header'ning 1-qatoridagi ikonkalar `lg`gacha shu yerga ko'chgan —
  * bosh barmoq pastda yetadi. Joriy bo'lim `text-primary`, qolgani `text-muted-2`.
- * `StoreLayout` sahifa ostiga shu balandlikda bo'sh joy qoldiradi, `ContactFab` va cookie
+ * `StoreLayout` sahifa ostiga shu balandlikda bo'sh joy qoldiradi, Lydya chat pufakchasi (`root.tsx`) va cookie
  * banneri undan yuqorida turadi. iPhone'ning pastki "home" chizig'i uchun safe-area.
  * `hidden` — bosh sahifa hero'si ekranda turganda panel pastga yashirinadi (StoreLayout).
  */
