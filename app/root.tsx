@@ -57,6 +57,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        {/* ponytail: Lydya AI chat (mijozning xizmati) — faqat storefront'da; kalit ochiq widget kaliti. Kerak bo'lsa admin maydoniga ko'chiriladi. */}
+        {storeData && <script src="https://lydya.ai/widget.js" data-key="wk_VH1nhTM39Con62iwi9x-RkYf" async />}
         {metricaJs && (
           <>
             {/* eslint-disable-next-line react/no-danger */}
