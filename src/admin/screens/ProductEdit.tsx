@@ -16,7 +16,10 @@ import ModelCombobox from '../ModelCombobox';
 import PcPartValues from '../PcPartValues';
 import PriceInput from '../PriceInput';
 import ReviewsEditor from '../ReviewsEditor';
-import { normalizeImage } from '../lib/image-normalize';
+import { normalizeImage, type NormalizeOptions } from '../lib/image-normalize';
+
+/** Mahsulot rasmi chekkasi kesilmaydi: egasi 1440×1440 kvadrat tayyorlaydi, saytda u ramkani to'liq to'ldiradi (`object-cover`). */
+const PRODUCT_UPLOAD: NormalizeOptions = { maxSize: 1440, maxTrimRatio: 0 };
 import { mergeSpecs, modelToSpecs } from '../lib/models';
 import {
   COLOR_VALUES, EMPTY_FORM, STORAGE_VALUES, addAxisValue, detailToForm, formLocks, formToPayload, revertField, toggleAxisValue, validateForm, variantLabel,
@@ -166,7 +169,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
     if (!file) return;
     setBusyRow(i);
     try {
-      const { imageUrl } = await uploadImage(await normalizeImage(file));
+      const { imageUrl } = await uploadImage(await normalizeImage(file, PRODUCT_UPLOAD));
       updateVariant(i, { imageUrl });
     } catch (err) {
       toast(errText(err), 'error');
@@ -270,9 +273,9 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
         {error && <p className="text-para text-danger">{error}</p>}
 
         <Card title={t('productEdit.images.title')} actions={tag('images')} description={billz ? t('productEdit.images.billzHint') : undefined}>
-          <ImageUploader label={t('productEdit.images.main')} images={form.imageUrl ? [form.imageUrl] : []} onChange={(next) => set('imageUrl', next[0] ?? '')} />
+          <ImageUploader label={t('productEdit.images.main')} images={form.imageUrl ? [form.imageUrl] : []} onChange={(next) => set('imageUrl', next[0] ?? '')} normalize={PRODUCT_UPLOAD} />
           <div className="mt-4">
-            <ImageUploader label={t('productEdit.images.gallery')} images={form.images} onChange={(next) => set('images', next)} multiple reorderable />
+            <ImageUploader label={t('productEdit.images.gallery')} images={form.images} onChange={(next) => set('images', next)} multiple reorderable normalize={PRODUCT_UPLOAD} />
           </div>
         </Card>
 

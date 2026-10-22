@@ -39,7 +39,7 @@ const Gallery: FC<{ images: string[]; name: string }> = ({ images, name }) => {
 
   return (
     <div className="relative">
-      <div className="rounded-xl relative aspect-square overflow-hidden border border-line bg-white lg:aspect-[4/3]">
+      <div className="rounded-xl relative aspect-square w-full overflow-hidden border border-line bg-white lg:mx-auto lg:max-w-[78vh]">
         {images.length === 0 ? (
           <span className="flex h-full items-center justify-center text-muted-2">{name}</span>
         ) : (
@@ -56,7 +56,7 @@ const Gallery: FC<{ images: string[]; name: string }> = ({ images, name }) => {
                   draggable={false}
                   loading={i === 0 ? undefined : 'lazy'}
                   fetchPriority={i === 0 ? 'high' : undefined}
-                  className="h-full w-full object-contain p-6 md:p-10"
+                  className="h-full w-full object-cover"
                 />
               </div>
             ))}
