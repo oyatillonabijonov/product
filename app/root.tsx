@@ -61,8 +61,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {storeData && (
           <>
             <script src="https://lydya.ai/widget.js" data-key="wk_VH1nhTM39Con62iwi9x-RkYf" async />
-            {/* Pufakcha Shadow DOM'da (sahifa CSS'i yetmaydi) — `lg`gacha pastki panel (`MobileTabBar`, 64px + chiziq + safe-area) ustiga ko'taramiz. */}
-            <script dangerouslySetInnerHTML={{ __html: LYDYA_LIFT_JS }} />
+            {/* Pufakcha va oyna ramkasi Shadow DOM'da (sahifa CSS'i yetmaydi) — sayt uslubiga keltiramiz: tokenlardagi rang, soyasiz, 28px radius,
+                `lg`gacha pastki panel (`MobileTabBar`, 64px + chiziq + safe-area) ustida. Chat ichi lydya.ai iframe'i — unga yetib bo'lmaydi. */}
+            <script dangerouslySetInnerHTML={{ __html: LYDYA_STYLE_JS }} />
           </>
         )}
         {metricaJs && (
@@ -79,7 +80,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-const LYDYA_LIFT_JS = "new MutationObserver(function(_,o){var h=document.querySelector('[data-sales-manager-widget]');if(!h||!h.shadowRoot)return;o.disconnect();var s=document.createElement('style');s.textContent='@media (max-width:1023px){.launcher{bottom:calc(85px + env(safe-area-inset-bottom))}}';h.shadowRoot.append(s)}).observe(document.body,{childList:true})";
+const LYDYA_STYLE_JS = "new MutationObserver(function(_,o){var h=document.querySelector('[data-sales-manager-widget]');if(!h||!h.shadowRoot)return;o.disconnect();var s=document.createElement('style');s.textContent='/* Lydya bergan inline rang va soyalarni bosib o\\'tamiz \u2014 saytda soya yo\\'q, rang tokenlardan (mavzu bilan almashadi). */.launcher{width:52px;height:52px;background:var(--color-cta,#0071E3)!important;color:#fff!important;box-shadow:none;transition:transform .2s cubic-bezier(.25,.1,.25,1)}.launcher:hover{transform:none}.launcher:active{transform:scale(.97)}.launcher:focus-visible{outline:2px solid var(--color-cta,#0071E3);outline-offset:3px}.launcher svg{width:24px;height:24px}.badge{background:var(--color-sale,#E8404B);color:var(--color-bg,#fff)}.panel{width:380px;height:min(640px,calc(100vh - 120px));border-radius:28px;border:1px solid var(--color-line,#DCDFE4);box-shadow:none;bottom:84px}.right{right:var(--shell-pad,16px)!important}.left{left:var(--shell-pad,16px)!important}@media (max-width:1023px){.launcher{bottom:calc(81px + env(safe-area-inset-bottom))}.panel{bottom:calc(145px + env(safe-area-inset-bottom));height:min(640px,calc(100vh - 180px))}}@media (max-width:480px){.panel{inset:0;width:100%;height:100%;border-radius:0;border:0}}@media (prefers-reduced-motion:reduce){.launcher{transition:none}.launcher:active{transform:none;opacity:.7}}';h.shadowRoot.append(s)}).observe(document.body,{childList:true})";
 
 export default function Root() {
   return <Outlet />;
