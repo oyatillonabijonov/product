@@ -41,6 +41,7 @@ const MAX_ALIAS_LEN = 40;
 export type ProductInput = Omit<ApiProduct, 'id' | 'minPriceUzs' | 'billzId' | 'billzStock'> & {
   id: string;
   description: string | null;
+  descriptionRu: string | null;
   images: string[];
   specs: { label: string; value: string }[];
   options: { name: string; values: string[] }[];
@@ -97,6 +98,8 @@ export function parseProductInput(body: unknown): ProductInput {
   const oldPriceUzs = typeof o.oldPriceUzs === 'number' && Number.isFinite(o.oldPriceUzs) && o.oldPriceUzs > 0 ? o.oldPriceUzs : null;
   const description =
     typeof o.description === 'string' && o.description.trim() !== '' ? o.description.trim() : null;
+  const descriptionRu =
+    typeof o.descriptionRu === 'string' && o.descriptionRu.trim() !== '' ? o.descriptionRu.trim() : null;
   // Billz tovarida qo'lda tahrirlangan maydonlar — notanish kalit `parseManualFields`da tashlanadi.
   const manualFields = parseManualFields(
     Array.isArray(o.manualFields) ? o.manualFields.filter((x): x is string => typeof x === 'string').join(',') : '',
@@ -198,6 +201,7 @@ export function parseProductInput(body: unknown): ProductInput {
     type,
     oldPriceUzs,
     description,
+    descriptionRu,
     manualFields,
     images,
     specs,

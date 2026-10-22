@@ -12,7 +12,7 @@ function detail(over: Partial<AdminProductDetail> = {}): AdminProductDetail {
     imageUrl: '/images/products/main.webp', sortOrder: 0, isActive: true, categoryId: 'apple', type: 'iphone',
     oldPriceUzs: null, brandId: 'apple', slug: 'iphone-17', minPriceUzs: 900, ratingAvg: null, reviewCount: 0, preorder: false,
     pcHidden: false, pcWatts: null,
-    billzId: null, billzStock: null, manualFields: [], description: null, brand: null,
+    billzId: null, billzStock: null, manualFields: [], description: null, descriptionRu: null, brand: null,
     images: ['/images/products/main.webp', '/images/products/g1.webp'],
     specs: [{ label: 'Chip', value: 'A19' }],
     options: [{ id: 'o1', name: 'Xotira', sortOrder: 0, values: [{ id: 'v1', value: '128GB', sortOrder: 0 }, { id: 'v2', value: '256GB', sortOrder: 1 }] }],
@@ -93,7 +93,7 @@ describe('setAxisValues / toggleAxisValue / addAxisValue', () => {
 describe('aylanma (detail → forma → payload)', () => {
   it("tegilmagan mahsulotni saqlash: barcha maydon (slug, reyting, variant sku/eski narx/rasm/qoldiq) o'zgarishsiz qaytadi", () => {
     const d = detail({
-      conditionNote: 'Batafsil', oldPriceUzs: 1200, description: 'Tavsif', ratingAvg: 4.5, reviewCount: 3, sortOrder: 7, isActive: false, preorder: true,
+      conditionNote: 'Batafsil', oldPriceUzs: 1200, description: 'Tavsif', descriptionRu: 'Описание', ratingAvg: 4.5, reviewCount: 3, sortOrder: 7, isActive: false, preorder: true,
       pcHidden: true, pcWatts: 650,
       variants: [
         { id: 'var1', sku: 'A1', cashPriceUzs: 900, oldPriceUzs: 950, imageUrl: '/images/products/v.webp', inStock: false, sortOrder: 0, optionValueIds: ['v1'] },
@@ -104,7 +104,7 @@ describe('aylanma (detail → forma → payload)', () => {
     expect(p).toEqual({
       name: d.name, categoryId: d.categoryId, type: d.type, condition: d.condition,
       conditionNote: 'Batafsil', cashPriceUzs: d.cashPriceUzs,
-      oldPriceUzs: 1200, description: 'Tavsif', imageUrl: d.imageUrl, images: ['/images/products/g1.webp'],
+      oldPriceUzs: 1200, description: 'Tavsif', descriptionRu: 'Описание', imageUrl: d.imageUrl, images: ['/images/products/g1.webp'],
       specs: d.specs, sortOrder: 7, isActive: false, brandId: d.brandId, slug: d.slug,
       ratingAvg: 4.5, reviewCount: 3, preorder: true, manualFields: [],
       pcHidden: true, pcWatts: 650,

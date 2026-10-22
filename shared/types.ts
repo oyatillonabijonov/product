@@ -44,6 +44,8 @@ export interface ApiProduct {
   manualFields: ManualField[];
   /** Mahsulot tavsifi; qo'lda kiritilgan yoki Billz'dan — olinadi. */
   description: string | null;
+  /** Ruscha tavsif; bo'sh bo'lsa /ru sahifasida `description` chiqadi. */
+  descriptionRu: string | null;
 }
 
 export interface ApiReview {

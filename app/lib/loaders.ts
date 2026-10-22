@@ -147,12 +147,12 @@ export async function loadConfiguratorParts(env: Env): Promise<ConfiguratorData>
   }
 }
 
-export async function loadProductDetail(env: Env, id: string): Promise<ProductDetail | null> {
+export async function loadProductDetail(env: Env, id: string, locale: Locale = 'uz'): Promise<ProductDetail | null> {
   try {
     const d = await buildProductDetail(env, id);
     if (!d) throw new Error('not_found');
     return {
-      ...mapProduct(d), oldPriceUzs: d.oldPriceUzs, description: d.description, images: d.images, specs: d.specs,
+      ...mapProduct(d), oldPriceUzs: d.oldPriceUzs, description: (locale === 'ru' && d.descriptionRu) || d.description, images: d.images, specs: d.specs,
       brand: d.brand, options: d.options, variants: d.variants,
     };
   } catch (err) {

@@ -15,7 +15,7 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   if (!locale) throw new Response('Not Found', { status: 404 });
   const env = context.env;
   const [product, config, categories, reviews] = await Promise.all([
-    loadProductDetail(env, params.id as string), loadConfig(env), loadCategories(env),
+    loadProductDetail(env, params.id as string, locale), loadConfig(env), loadCategories(env),
     loadReviews(env, params.id as string),
   ]);
   if (!product) throw new Response('Not Found', { status: 404 });

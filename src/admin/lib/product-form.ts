@@ -23,6 +23,7 @@ export interface ProductFormState {
   cashPriceUzs: number;
   oldPriceUzs: number;
   description: string;
+  descriptionRu: string;
   imageUrl: string;
   images: string[];
   specs: ApiSpec[];
@@ -48,7 +49,7 @@ export interface ProductFormState {
 // i18n: ma'lumot — tarjima qilinmaydi ('yangi'/'ishlatilgan' server bilan solishtiriladigan qiymat)
 export const EMPTY_FORM: ProductFormState = {
   name: '', categoryId: null, type: null, condition: 'yangi', conditionNote: '',
-  cashPriceUzs: 0, oldPriceUzs: 0, description: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
+  cashPriceUzs: 0, oldPriceUzs: 0, description: '', descriptionRu: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
   brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, preorder: false,
   pcHidden: false, pcWatts: null,
   options: [], variants: [], billzId: null, billzStock: null, manualFields: [],
@@ -67,7 +68,7 @@ export function detailToForm(d: AdminProductDetail): ProductFormState {
   return {
     name: d.name, categoryId: d.categoryId, type: d.type, condition: d.condition,
     conditionNote: d.conditionNote ?? '', cashPriceUzs: d.cashPriceUzs, oldPriceUzs: d.oldPriceUzs ?? 0,
-    description: d.description ?? '', imageUrl: d.imageUrl, images: d.images.filter((u) => u !== d.imageUrl),
+    description: d.description ?? '', descriptionRu: d.descriptionRu ?? '', imageUrl: d.imageUrl, images: d.images.filter((u) => u !== d.imageUrl),
     specs: d.specs, sortOrder: d.sortOrder, isActive: d.isActive, brandId: d.brandId, slug: d.slug ?? '',
     ratingAvg: d.ratingAvg ?? 0, reviewCount: d.reviewCount ?? 0, preorder: d.preorder,
     pcHidden: d.pcHidden, pcWatts: d.pcWatts,
@@ -101,6 +102,7 @@ export function formToPayload(f: ProductFormState): AdminProductInput {
     name: f.name, categoryId: f.categoryId, type: f.type, condition: f.condition,
     conditionNote: f.conditionNote || null, cashPriceUzs,
     oldPriceUzs: f.oldPriceUzs > 0 ? f.oldPriceUzs : null, description: f.description || null,
+    descriptionRu: f.descriptionRu || null,
     imageUrl: f.imageUrl, images: f.images,
     specs: f.specs.filter((s) => s.label.trim() !== '' && s.value.trim() !== ''),
     sortOrder: f.sortOrder, isActive: f.isActive,

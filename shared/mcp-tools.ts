@@ -87,6 +87,7 @@ export interface ProductInputBody {
   cashPriceUzs: number;
   oldPriceUzs: number | null;
   description: string | null;
+  descriptionRu: string | null;
   imageUrl: string;
   images: string[];
   specs: ApiSpec[];
@@ -125,7 +126,7 @@ export function detailToInput(d: ApiProductDetail): ProductInputBody {
   return {
     name: d.name, categoryId: d.categoryId, type: d.type,
     condition: d.condition, conditionNote: d.conditionNote, cashPriceUzs: d.cashPriceUzs,
-    oldPriceUzs: d.oldPriceUzs, description: d.description, imageUrl: d.imageUrl,
+    oldPriceUzs: d.oldPriceUzs, description: d.description, descriptionRu: d.descriptionRu, imageUrl: d.imageUrl,
     images: d.images.filter((u) => u !== d.imageUrl),
     specs: d.specs, sortOrder: d.sortOrder, isActive: d.isActive,
     brandId: d.brandId, slug: d.slug, ratingAvg: d.ratingAvg, reviewCount: d.reviewCount,

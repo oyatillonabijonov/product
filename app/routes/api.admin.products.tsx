@@ -32,8 +32,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!(await typeExists(env, input.categoryId, input.type))) return json({ error: 'type_invalid' }, { status: 400 });
   if (input.slug) input.slug = await ensureUniqueSlug(env, input.slug, input.id);
   const insert = env.DB.prepare(
-    `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, type, old_price_uzs, description, brand_id, slug, rating_avg, review_count, preorder, pc_hidden, pc_watts, created_at)
-     VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch())`,
+    `INSERT INTO products (id, name, category, condition, condition_note, cash_price_uzs, image_url, sort_order, is_active, category_id, type, old_price_uzs, description, description_ru, brand_id, slug, rating_avg, review_count, preorder, pc_hidden, pc_watts, created_at)
+     VALUES (?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch())`,
   ).bind(
     input.id,
     input.name,
@@ -47,6 +47,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     input.type,
     input.oldPriceUzs,
     input.description,
+    input.descriptionRu,
     input.brandId,
     input.slug,
     input.ratingAvg,

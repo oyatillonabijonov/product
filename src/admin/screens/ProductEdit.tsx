@@ -366,6 +366,9 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                 <Textarea value={form.description} onChange={(v) => set('description', v)} rows={5} />
               </Field>
             </Tagged>
+            <Field label={t('productEdit.info.descriptionRuLabel')} hint={t('productEdit.info.descriptionRuHint')} className="md:col-span-2">
+              <Textarea value={form.descriptionRu} onChange={(v) => set('descriptionRu', v)} rows={5} />
+            </Field>
           </div>
         </Card>
 

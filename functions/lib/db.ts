@@ -57,6 +57,7 @@ export interface ProductRow {
   manual_fields: string | null;
   old_price_uzs: number | null;
   description: string | null;
+  description_ru: string | null;
   brand_id: string | null;
   slug: string | null;
   rating_avg: number | null;
@@ -103,6 +104,7 @@ export function rowToProduct(row: ProductRow): ApiProduct {
     billzStock: row.billz_stock ?? null,
     manualFields: parseManualFields(row.manual_fields),
     description: row.description ?? null,
+    descriptionRu: row.description_ru ?? null,
   };
 }
 

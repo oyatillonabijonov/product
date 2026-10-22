@@ -12,7 +12,7 @@ const p = (over: Partial<ApiProduct>): ApiProduct => ({
   cashPriceUzs: 1000, imageUrl: '/images/products/a.webp', sortOrder: 0, isActive: true,
   categoryId: 'apple', type: 'iphone', oldPriceUzs: null, brandId: 'apple', slug: null,
   minPriceUzs: 1000, ratingAvg: null, reviewCount: 0, preorder: false,
-  billzId: 'b1', billzStock: 3, manualFields: [], description: null, ...over,
+  billzId: 'b1', billzStock: 3, manualFields: [], description: null, descriptionRu: null, ...over,
 } as ApiProduct);
 
 describe('catalogStats', () => {
@@ -111,7 +111,7 @@ describe('variant narxlari', () => {
   const phone = (prices: [number, number, number, number], inStock = [true, true, true, true]) => ({
     ...p({ id: 'ip' }),
     name: 'iPhone 18 Pro',
-    description: null, images: [], specs: [], brand: null,
+    description: null, descriptionRu: null, images: [], specs: [], brand: null,
     options: [
       { id: 'o1', name: 'Xotira', sortOrder: 0, values: [
         { id: 's256', value: '256GB', sortOrder: 0 }, { id: 's512', value: '512GB', sortOrder: 1 },
@@ -252,7 +252,7 @@ describe('variant narxlari', () => {
 });
 
 const byStorageForDiscount = () => ({
-  id: 'ip', name: 'iPhone 18 Pro', description: null, images: [], specs: [], brand: null,
+  id: 'ip', name: 'iPhone 18 Pro', description: null, descriptionRu: null, images: [], specs: [], brand: null,
   options: [
     { id: 'o1', name: 'Xotira', sortOrder: 0, values: [{ id: 's256', value: '256GB', sortOrder: 0 }, { id: 's512', value: '512GB', sortOrder: 1 }] },
   ],
