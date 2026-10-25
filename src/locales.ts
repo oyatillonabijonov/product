@@ -302,7 +302,7 @@ export const translations = {
     reviewsOne: "{n} ta sharh",
     reviewsFew: "{n} ta sharh",
     reviewsMany: "{n} ta sharh",
-    cartAdd: "Savatga qo'shish",
+    cartAdd: 'Savatga',
     cartAdded: "Qo'shildi ✓",
     cartContinue: "Xaridni davom ettirish",
     cartClear: "Savatni tozalash",
