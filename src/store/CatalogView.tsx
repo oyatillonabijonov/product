@@ -87,7 +87,7 @@ const CatalogView: FC<{
 
         <div className="flex items-center gap-3">
           <span className="text-para tabular-nums text-muted">{result.total} {t.resultsCount}</span>
-          <button onClick={() => setSheetOpen(true)} className="press lg:hidden inline-flex h-11 items-center gap-2 rounded-full border border-line px-4 text-copy font-normal">
+          <button onClick={() => setSheetOpen(true)} className="press lg:hidden inline-flex h-11 items-center gap-2 rounded-btn border border-line px-4 text-copy font-normal">
             <SlidersHorizontal className="h-4 w-4" /> {t.filterTitle}{active > 0 ? ` · ${active}` : ''}
           </button>
           <SortSelect t={t} value={filters.sort} onChange={(v: SortKey) => update({ sort: v })} />
@@ -115,7 +115,7 @@ const CatalogView: FC<{
           {result.total === 0 &&
             (filters.brands.length > 0 || filters.priceMin !== null || filters.priceMax !== null || filters.condition !== null) && (
               <div className="mt-4 text-center">
-                <button onClick={clearAll} className="press h-11 px-6 rounded-full border border-line text-copy font-normal hover:border-accent hover:text-accent">
+                <button onClick={clearAll} className="press h-11 px-6 rounded-btn border border-line text-copy font-normal hover:border-accent hover:text-accent">
                   {t.filterClear}
                 </button>
               </div>

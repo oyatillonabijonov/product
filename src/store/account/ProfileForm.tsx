@@ -83,7 +83,7 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer; onSaved: (c: ApiC
           <button
             type="button"
             onClick={() => setPicking(true)}
-            className="press rounded-full h-9 border border-line-2 px-4 text-label font-medium text-primary hover:border-accent"
+            className="press rounded-xs h-9 border border-line-2 px-4 text-label font-medium text-primary hover:border-accent"
           >
             {t.profileAvatarChange}
           </button>

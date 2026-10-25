@@ -79,7 +79,7 @@ const JobApplyForm: FC<{ t: Translation; vacancyId: string | null; position: str
           <div className="py-6 text-center">
             <p className="text-control font-semibold text-primary">{t.careersDoneTitle}</p>
             <p className="text-label text-muted mt-2">{t.careersDoneText}</p>
-            <button onClick={() => setOpen(false)} className="press mt-5 w-full h-11 bg-primary text-bg font-normal text-copy rounded-full">
+            <button onClick={() => setOpen(false)} className="press mt-5 w-full h-11 bg-primary text-bg font-normal text-copy rounded-btn">
               {t.orderClose}
             </button>
           </div>
@@ -132,7 +132,7 @@ const JobApplyForm: FC<{ t: Translation; vacancyId: string | null; position: str
 
             <button
               type="submit" disabled={busy}
-              className="press w-full h-[52px] bg-cta text-white font-normal text-control rounded-full hover:bg-cta-hover flex items-center justify-center gap-2 disabled:opacity-50"
+              className="press w-full h-[52px] bg-cta text-white font-normal text-control rounded-btn-lg hover:bg-cta-hover flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Send className="w-4.5 h-4.5" /> {busy ? t.orderSending : t.careersSubmit}
             </button>

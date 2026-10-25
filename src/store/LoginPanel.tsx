@@ -71,7 +71,7 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string }> 
         {config.googleClientId && (
           <a
             href="/auth/google"
-            className="press flex h-11 w-full items-center justify-center gap-2.5 rounded-full border border-line text-copy font-medium text-primary hover:border-accent hover:bg-bg"
+            className="press flex h-11 w-full items-center justify-center gap-2.5 rounded-btn border border-line text-copy font-medium text-primary hover:border-accent hover:bg-bg"
           >
             <GoogleG /> {t.loginGoogle}
           </a>

@@ -23,13 +23,13 @@ export const SECTION_HEADING = 'text-heading md:text-title font-semibold text-ba
  * o'zi boshqargani uchun ustiga `transition-colors` qo'shilmaydi.
  */
 export const BTN_LG =
-  'press inline-flex h-[52px] items-center justify-center gap-2 rounded-full px-7 text-copy font-normal';
+  'press inline-flex h-[52px] items-center justify-center gap-2 rounded-btn-lg px-7 text-copy font-normal';
 
 export const PILL =
-  'press inline-flex h-11 items-center gap-2 rounded-full bg-primary px-[21px] text-copy font-normal text-bg hover:opacity-85';
+  'press inline-flex h-11 items-center gap-2 rounded-btn bg-primary px-[21px] text-copy font-normal text-bg hover:opacity-85';
 
 export const BTN_MD =
-  'press inline-flex h-11 items-center justify-center gap-2 rounded-full px-[21px] text-copy font-normal';
+  'press inline-flex h-11 items-center justify-center gap-2 rounded-btn px-[21px] text-copy font-normal';
 
 /** Ixcham tugma — Apple'da 36px balandlik va 8px radius (pill emas): chrome ichidagi
  *  ikkinchi darajali amal, asosiy CTA bilan vazn talashmasligi kerak. */

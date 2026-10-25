@@ -55,6 +55,11 @@
   --radius-md: 18px;   /* Apple kartasining aynan radiusi */
   --radius-lg: 20px;
   --radius-xl: 28px;   /* modal, cover, to'liq enli panel */
+  /* Tugma radiusi — logotipdagi PRO shaklining nisbati (rx 30 / balandlik 142 ≈ 0.21; 2026-10-25, egasining talabi):
+     44px tugmada 9px, 52px tugmada 11px, 36px ixcham tugma `rounded-xs` (8px). Pill faqat hero ustunlari, ikonka doiralari,
+     belgilar, almashtirgichlar va qidiruv maydonida qoladi. */
+  --radius-btn: 9px;
+  --radius-btn-lg: 11px;
 
   --ease-apple: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-apple-in: cubic-bezier(1, 0, 0.68, 0.28);

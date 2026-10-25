@@ -135,12 +135,12 @@ const OrderForm: FC<{
                   href={tgHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="press w-full h-11 border border-line-2 rounded-full font-normal text-copy text-primary hover:bg-bg flex items-center justify-center gap-2"
+                  className="press w-full h-11 border border-line-2 rounded-btn font-normal text-copy text-primary hover:bg-bg flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" /> {t.orderContactTg}
                 </a>
               )}
-              <button onClick={close} className="press w-full h-11 bg-primary text-bg font-normal text-copy rounded-full">
+              <button onClick={close} className="press w-full h-11 bg-primary text-bg font-normal text-copy rounded-btn">
                 {t.orderClose}
               </button>
             </div>
@@ -232,7 +232,7 @@ const OrderForm: FC<{
             <button
               type="submit"
               disabled={busy}
-              className="press w-full h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover flex items-center justify-center gap-2 disabled:opacity-50"
+              className="press w-full h-[52px] bg-accent text-bg font-semibold rounded-btn-lg hover:bg-accent-hover flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Send className="w-4.5 h-4.5" /> {busy ? t.orderSending : t.orderSubmit}
             </button>

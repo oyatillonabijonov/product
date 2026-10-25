@@ -28,7 +28,7 @@ const Pagination: FC<{ page: number; total: number; onPage: (n: number) => void 
   // marta ajratilgan, ya'ni "elevation bir marta e'lon qilinadi" qoidasiga zid.
   // Katak 44x44 (tegish maydonining pastki chegarasi), `tabular-nums` — raqam
   // almashganda kenglik sakramaydi.
-  const CELL = 'inline-flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-label tabular-nums';
+  const CELL = 'inline-flex h-11 min-w-11 items-center justify-center rounded-btn px-2 text-label tabular-nums';
   return (
     <nav className="mt-8 flex items-center justify-center gap-0.5">
       {withGaps.map((p, i) =>

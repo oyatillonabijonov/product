@@ -147,7 +147,7 @@ const ProductCard: FC<{
         <button
           type="button"
           onClick={addToCart}
-          className="press mt-3 inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-accent px-3 text-copy font-normal text-bg hover:opacity-85 md:text-copy"
+          className="press mt-3 inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-btn bg-cta px-3 text-copy font-normal text-white hover:bg-cta-hover md:text-copy"
         >
           {/* Ikonka tor mobil kartada matnni sig'maydigan qiladi — u yerda faqat yozuv qoladi. */}
           <ShoppingCart className="hidden h-4 w-4 md:block" /> {added ? t.cartAdded : t.cartAdd}

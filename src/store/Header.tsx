@@ -266,7 +266,7 @@ export default function Header({
 
         {/* `lg`gacha Sevimlilar · Savat · Profil pastki panelda (MobileTabBar), 1-qatorda esa til tanlagichi. */}
         <div className="lg:hidden relative">
-          <span className="press pointer-events-none flex h-9 items-center gap-1.5 rounded-full bg-segment pl-3 pr-2.5 text-label text-primary">
+          <span className="press pointer-events-none flex h-9 items-center gap-1.5 rounded-xs bg-segment pl-3 pr-2.5 text-label text-primary">
             <Globe className="h-4 w-4" />
             {locale === 'ru' ? 'Русский' : "O'zbek"}
             <ChevronDown className="h-4 w-4 text-muted-2" />

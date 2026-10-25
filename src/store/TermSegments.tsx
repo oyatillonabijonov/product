@@ -12,14 +12,14 @@ const TermSegments: FC<{
   className?: string;
 }> = ({ t, terms, months, onChange, className }) => (
   <div
-    className={`grid gap-1 bg-segment rounded-full p-1 ${className ?? ''}`}
+    className={`grid gap-1 bg-segment rounded-sm p-1 ${className ?? ''}`}
     style={{ gridTemplateColumns: `repeat(${Math.max(terms.length, 1)}, minmax(0, 1fr))` }}
   >
     {terms.map((x) => (
       <button
         key={x.months}
         onClick={() => onChange(x.months)}
-        className={`press py-2.5 rounded-full text-label font-semibold ${
+        className={`press py-2.5 rounded-xs text-label font-semibold ${
           x.months === months
             ? 'bg-surface text-primary'
             : 'text-muted hover:text-primary'

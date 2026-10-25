@@ -16,7 +16,7 @@ const Chip: FC<{ label: string; on: boolean; onToggle: () => void }> = ({ label,
     role="checkbox"
     aria-checked={on}
     onClick={onToggle}
-    className={`press inline-flex h-11 items-center gap-1.5 rounded-full border-[1.5px] px-5 text-para ${
+    className={`press inline-flex h-11 items-center gap-1.5 rounded-btn border-[1.5px] px-5 text-para ${
       on ? 'border-cta text-primary' : 'border-line text-body hover:border-muted-3'
     }`}
   >
@@ -160,7 +160,7 @@ const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config 
               <button
                 type="submit"
                 disabled={busy}
-                className="press h-14 rounded-full bg-cta px-8 text-copy text-white hover:bg-cta-hover disabled:opacity-60"
+                className="press h-14 rounded-btn-lg bg-cta px-8 text-copy text-white hover:bg-cta-hover disabled:opacity-60"
               >
                 {busy ? t.consultSending : t.consultSubmit}
               </button>

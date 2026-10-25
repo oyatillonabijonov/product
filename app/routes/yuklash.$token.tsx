@@ -148,7 +148,7 @@ export default function Yuklash() {
       ) : (
         <p className="text-para text-muted">Hozircha rasm yo'q.</p>
       )}
-      <label className={`press flex h-13 cursor-pointer items-center justify-center rounded-full bg-cta text-control text-white ${busy ? 'opacity-60' : ''}`}>
+      <label className={`press flex h-13 cursor-pointer items-center justify-center rounded-btn-lg bg-cta text-control text-white ${busy ? 'opacity-60' : ''}`}>
         {busy ? 'Yuklanmoqda…' : 'Rasm tanlash'}
         <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" disabled={busy} onChange={pick} />
       </label>

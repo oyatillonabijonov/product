@@ -160,7 +160,7 @@ export default function HeroNotch({ t, locale, categories }: {
               talabi — notch'da bitta kirish nuqtasi yetarli, kabinetga o'sha yerdan o'tiladi). */}
           <LocaleLink
             to="/kirish"
-            className="press flex h-9 items-center rounded-full bg-[#0071E3] px-5 text-label font-medium text-white hover:bg-[#0A84FF]"
+            className="press flex h-9 items-center rounded-xs bg-[#0071E3] px-5 text-label font-medium text-white hover:bg-[#0A84FF]"
           >
             {t.loginTitle}
           </LocaleLink>

@@ -23,7 +23,7 @@ export default function NotFound() {
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center px-4">
       <h1 className="text-title font-semibold">404</h1>
       <p className="text-muted">{t.notFoundTitle}</p>
-      <Link to={localizedPath(locale, '/')} className="px-6 py-3 bg-accent text-bg font-semibold rounded-full">
+      <Link to={localizedPath(locale, '/')} className="px-6 py-3 bg-accent text-bg font-semibold rounded-btn">
         {t.backHome}
       </Link>
     </div>

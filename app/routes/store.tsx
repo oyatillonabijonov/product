@@ -80,7 +80,7 @@ export function ErrorBoundary() {
       <title>{notFound ? `404 — ${t.notFoundTitle}` : heading}</title>
       <h1 className="text-title font-semibold">{heading}</h1>
       <p className="text-muted">{notFound ? t.notFoundTitle : t.errorGeneric}</p>
-      <a href={localizedPath(locale, '/')} className="px-6 py-3 bg-accent text-bg font-semibold rounded-full">
+      <a href={localizedPath(locale, '/')} className="px-6 py-3 bg-accent text-bg font-semibold rounded-btn">
         {t.backHome}
       </a>
     </div>

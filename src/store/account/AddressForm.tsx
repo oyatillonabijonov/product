@@ -118,7 +118,7 @@ const AddressForm: FC<{
         {err && <p className="mt-4 text-label text-sale" role="alert">{err}</p>}
 
         <div className="mt-6 flex items-center justify-end gap-3">
-          <button type="button" onClick={onClose} className="press rounded-full h-11 px-5 text-copy text-muted hover:text-primary">
+          <button type="button" onClick={onClose} className="press rounded-btn h-11 px-5 text-copy text-muted hover:text-primary">
             {t.addressCancel}
           </button>
           <button

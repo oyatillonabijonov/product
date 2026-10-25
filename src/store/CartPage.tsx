@@ -44,7 +44,7 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
       <div className="shell py-16 flex flex-col items-center gap-4 text-center">
         <ShoppingCart className="w-12 h-12 text-disabled" />
         <h1 className="text-subhead font-semibold">{t.cartEmpty}</h1>
-        <LocaleLink to="/katalog" className="press inline-flex h-[52px] items-center justify-center rounded-full bg-accent px-7 font-semibold text-bg">
+        <LocaleLink to="/katalog" className="press inline-flex h-[52px] items-center justify-center rounded-btn-lg bg-accent px-7 font-semibold text-bg">
           {t.cartContinue}
         </LocaleLink>
       </div>
@@ -106,12 +106,12 @@ const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteCon
           )}
           <div className="flex flex-col gap-2.5 mt-5">
             {showInstallment && (
-              <button onClick={() => openOrder('installment')} className="press h-[52px] bg-accent text-bg font-semibold rounded-full hover:bg-accent-hover">
+              <button onClick={() => openOrder('installment')} className="press h-[52px] bg-accent text-bg font-semibold rounded-btn-lg hover:bg-accent-hover">
                 {t.orderBuyInstallment}
               </button>
             )}
             {site.paymentMode !== 'installment' && (
-              <button onClick={() => openOrder('cash')} className="press h-[52px] bg-cta text-white font-semibold rounded-full hover:bg-cta-hover">
+              <button onClick={() => openOrder('cash')} className="press h-[52px] bg-cta text-white font-semibold rounded-btn-lg hover:bg-cta-hover">
                 {t.orderBuyCash}
               </button>
             )}

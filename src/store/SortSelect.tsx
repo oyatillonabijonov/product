@@ -22,7 +22,7 @@ const SortSelect: FC<{ t: Translation; value: SortKey; onChange: (v: SortKey) =>
         value={value}
         onChange={(e) => onChange(e.target.value as SortKey)}
         aria-label={t.sortLabel}
-        className="h-11 appearance-none rounded-full border border-line bg-transparent pl-4 pr-10 text-copy font-normal text-primary transition-colors hover:border-accent focus:outline-none focus:border-accent"
+        className="h-11 appearance-none rounded-btn border border-line bg-transparent pl-4 pr-10 text-copy font-normal text-primary transition-colors hover:border-accent focus:outline-none focus:border-accent"
       >
         {SORTS.map((s) => (
           <option key={s} value={s}>{labels[s]}</option>

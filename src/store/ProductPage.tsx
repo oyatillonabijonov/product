@@ -320,18 +320,18 @@ const ProductPage: FC<{
           <div className="grid gap-3 sm:grid-cols-2">
             {site.paymentMode !== 'installment' && (
               <button onClick={() => openOrder('cash')} disabled={outOfStock}
-                className="press h-[52px] w-full rounded-full bg-cta text-copy font-normal text-white hover:bg-cta-hover disabled:cursor-not-allowed disabled:opacity-50">
+                className="press h-[52px] w-full rounded-btn-lg bg-cta text-copy font-normal text-white hover:bg-cta-hover disabled:cursor-not-allowed disabled:opacity-50">
                 {product.preorder ? t.orderPreorder : t.orderBuyCash}
               </button>
             )}
             {showInstallment && (
               <button onClick={() => openOrder('installment')} disabled={outOfStock}
-                className="press h-[52px] w-full rounded-full bg-accent text-copy font-normal sm:order-first sm:col-span-2 text-bg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50">
+                className="press h-[52px] w-full rounded-btn-lg bg-accent text-copy font-normal sm:order-first sm:col-span-2 text-bg hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50">
                 {t.orderBuyInstallment}
               </button>
             )}
             <button onClick={addToCart} disabled={outOfStock}
-              className={`press flex h-[52px] w-full items-center justify-center gap-2 rounded-full text-copy font-normal text-bg disabled:cursor-not-allowed disabled:opacity-50 ${
+              className={`press flex h-[52px] w-full items-center justify-center gap-2 rounded-btn-lg text-copy font-normal text-bg disabled:cursor-not-allowed disabled:opacity-50 ${
                 added ? 'bg-trust' : 'bg-primary hover:bg-body'
               }`}>
               <ShoppingCart className="h-5 w-5" /> {added ? t.cartAdded : t.cartAdd}

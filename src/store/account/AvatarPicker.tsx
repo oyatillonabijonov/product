@@ -51,7 +51,7 @@ const AvatarPicker: FC<{
         <h2 className="text-lede font-semibold text-primary">{t.profileAvatarTitle}</h2>
 
         {/* Yuz almashtirgichi — segment; chegara doim `border`, tanlanganda rangi o'zgaradi (layout siljimaydi). */}
-        <div role="radiogroup" aria-label={t.profileAvatar} className="mt-4 inline-flex rounded-full bg-segment p-1">
+        <div role="radiogroup" aria-label={t.profileAvatar} className="mt-4 inline-flex rounded-sm bg-segment p-1">
           {faces.map((f) => (
             <button
               key={f.key}
@@ -59,7 +59,7 @@ const AvatarPicker: FC<{
               role="radio"
               aria-checked={draft.face === f.key}
               onClick={() => setDraft({ ...draft, face: f.key })}
-              className={`press h-9 rounded-full px-4 text-label font-medium ${
+              className={`press h-9 rounded-xs px-4 text-label font-medium ${
                 draft.face === f.key ? 'bg-surface text-primary' : 'text-muted hover:text-primary'
               }`}
             >
