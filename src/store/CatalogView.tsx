@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useSearchParams } from 'react-router';
 import { SlidersHorizontal, X } from 'lucide-react';
@@ -33,6 +33,7 @@ const CatalogView: FC<{
   const [sp, setSp] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
   const { currency } = useCurrency();
+  const head = useRef<HTMLElement | null>(null);
 
   function update(next: Partial<CatalogFilters>, resetPage = true) {
     const p = new URLSearchParams(sp);
@@ -46,8 +47,10 @@ const CatalogView: FC<{
     if (next.sort !== undefined) { next.sort === 'default' ? p.delete('sort') : p.set('sort', next.sort); }
     if (next.page !== undefined) { next.page <= 1 ? p.delete('page') : p.set('page', String(next.page)); }
     else if (resetPage) p.delete('page');
-    // Filtr o'zgarganda foydalanuvchi panel yonida qoladi; faqat sahifalashda tepaga chiqadi.
-    setSp(p, { preventScrollReset: next.page === undefined });
+    // Filtr o'zgarganda foydalanuvchi panel yonida qoladi. Sahifalashda sahifa tepasiga (cover'ga)
+    // emas, mahsulotlar sarlavhasiga qaytadi — ro'yxatni ko'rib turgan odam yana ro'yxat boshida bo'lsin.
+    setSp(p, { preventScrollReset: true });
+    if (next.page !== undefined) head.current?.scrollIntoView();
   }
   function clearAll() {
     const p = new URLSearchParams(sp);
@@ -79,7 +82,7 @@ const CatalogView: FC<{
     <div className="shell py-6 md:py-10">
       {/* Sarlavha va boshqaruvlar bitta qatorda. Natija soni chap tomonda emas,
           o'ng tomonda — u sarlavhaning bo'lagi emas, filtr va saralash natijasi. */}
-      <header className="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 md:mb-10">
+      <header ref={head} className="mb-8 scroll-mt-44 lg:scroll-mt-32 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 md:mb-10">
         <h1 className="text-heading md:text-title font-semibold text-balance text-primary">
           {title}
           {subtitle && <span className="font-normal text-muted-2"> — {subtitle}</span>}
