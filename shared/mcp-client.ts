@@ -19,7 +19,11 @@ export class AdminClient {
 
   private async send<T>(path: string, init: RequestInit & { tool?: string } = {}): Promise<T> {
     const { tool, ...rest } = init;
-    const res = await fetch(new URL(path, this.base), {
+    const url = new URL(path, this.base);
+    // `..`, `%2e%2e`, `?`, `#` yo'lni boshqa endpoint'ga burib yuborardi — so'ralgan yo'l
+    // o'zgarishsiz qolmasa token bilan so'rov umuman ketmaydi.
+    if (url.pathname + url.search !== path) throw new Error(`Noto'g'ri yo'l: ${path}`);
+    const res = await fetch(url, {
       ...rest,
       headers: {
         ...(rest.headers as Record<string, string> | undefined),

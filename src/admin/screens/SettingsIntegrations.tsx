@@ -7,7 +7,7 @@ import { createToken, getBillzShops, getBillzStatus, listTokens, revokeToken, ru
 import { errText } from '../errText';
 import { billzStatusText } from '../lib/billz-status';
 import SectionTabs from '../SectionTabs';
-import { useSiteConfig } from '../useSiteConfig';
+import { SECRET_SET, useSiteConfig } from '../useSiteConfig';
 import { Button, Card, EmptyState, Field, Input, Page, Select, Skeleton } from '../ui';
 import { useConfirm } from '../ui/confirm';
 import { useToast } from '../ui/toast';
@@ -123,6 +123,17 @@ const SettingsIntegrations: FC = () => {
     }
   }
 
+  // Sirlar serverdan qaytmaydi: saqlangan bo'lsa maydon bo'sh, placeholder nuqtalar bilan. Yozilsa — yangi qiymat;
+  // bo'shatilsa — belgi qaytadi va server saqlanganini qoldiradi.
+  const secret = (key: 'billzSecretToken' | 'telegramBotToken' | 'googleClientSecret') => {
+    const stored = cfg.saved?.[key] === SECRET_SET;
+    return {
+      value: config?.[key] === SECRET_SET ? '' : (config?.[key] ?? ''),
+      placeholder: stored ? '••••••••' : undefined,
+      onChange: (v: string) => cfg.set(key, v === '' && stored ? SECRET_SET : v),
+    };
+  };
+
   // Holat matni bosh sahifa bilan umumiy — egasi ikki ekranda bir xil gapni o'qiydi.
   const billzState = billzStatusText(status);
 
@@ -141,7 +152,7 @@ const SettingsIntegrations: FC = () => {
             <Card title={t('integrations.billz.title')} description={t('integrations.billz.description')}>
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label={t('integrations.billz.tokenLabel')} hint={t('integrations.billz.tokenHint')}>
-                  <Input type="password" value={config.billzSecretToken} onChange={(v) => cfg.set('billzSecretToken', v)} />
+                  <Input type="password" {...secret('billzSecretToken')} />
                 </Field>
                 <Field label={t('integrations.billz.shopLabel')} hint={t('integrations.billz.shopHint')}>
                   {shops.length > 0 ? (
@@ -167,7 +178,7 @@ const SettingsIntegrations: FC = () => {
             <Card title={t('integrations.telegram.title')} description={t('integrations.telegram.description')}>
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label={t('integrations.telegram.tokenLabel')} hint={t('integrations.telegram.tokenHint')}>
-                  <Input type="password" value={config.telegramBotToken} onChange={(v) => cfg.set('telegramBotToken', v)} />
+                  <Input type="password" {...secret('telegramBotToken')} />
                 </Field>
                 <Field label={t('integrations.telegram.chatLabel')} hint={t('integrations.telegram.chatHint')}>
                   <Input value={config.telegramOrderChatId} onChange={(v) => cfg.set('telegramOrderChatId', v)} placeholder="-1001234567890" />
@@ -181,7 +192,7 @@ const SettingsIntegrations: FC = () => {
                   <Input value={config.googleClientId} onChange={(v) => cfg.set('googleClientId', v)} />
                 </Field>
                 <Field label="Google Client Secret">
-                  <Input type="password" value={config.googleClientSecret} onChange={(v) => cfg.set('googleClientSecret', v)} />
+                  <Input type="password" {...secret('googleClientSecret')} />
                 </Field>
                 <Field label={t('integrations.customerAuth.telegramBotLabel')} hint={t('integrations.customerAuth.telegramBotHint')}>
                   <Input value={config.telegramLoginBot} onChange={(v) => cfg.set('telegramLoginBot', v)} placeholder="my_login_bot" />

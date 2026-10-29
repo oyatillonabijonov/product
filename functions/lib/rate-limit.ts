@@ -7,3 +7,6 @@ export { createLimiter };
 
 /** Ommaviy lead endpoint'lari (/api/order, /api/consult): bitta IP'dan 10 daqiqada 10 ta. */
 export const allowLead = createLimiter(10, 10 * 60 * 1000);
+
+/** Qidiruv tavsiyalari (GET /api/search-suggest): bitta IP'dan daqiqasiga 120 ta — yozish tezligiga yetarli. */
+export const allowSuggest = createLimiter(120, 60 * 1000);

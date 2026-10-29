@@ -1,8 +1,12 @@
 import type { Route } from './+types/oauth.consent';
-import { json, loadAdminAuth, updateLoginThrottle } from '../../functions/lib/db';
-import { lockDelaySeconds, verifyPassword } from '../../functions/lib/auth';
+import { json, loadAdminAuth, reserveLoginAttempt, updateLoginThrottle } from '../../functions/lib/db';
+import { verifyPassword } from '../../functions/lib/auth';
+import { readText } from '../../functions/lib/body';
 import { hashToken, newToken } from '../../shared/mcp-auth';
 import { buildRedirect, CODE_TTL, consentPage, parseConsentForm, redirectUriAllowed } from '../../shared/oauth';
+
+/** Rozilik formasi — bir necha maydon; autentifikatsiyasiz endpoint katta tanani xotiraga yig'masin. */
+const MAX_BODY = 8 * 1024;
 
 function html(status: number, body: string): Response {
   return new Response(body, { status, headers: { 'content-type': 'text/html; charset=utf-8' } });
@@ -20,13 +24,13 @@ export async function action({ request, context }: Route.ActionArgs) {
   const env = context.env;
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, { status: 405 });
 
+  // `formData()` o'rniga chegaralangan matn: forma `application/x-www-form-urlencoded`
+  // (`consentPage`), uni `URLSearchParams` o'zi tahlil qiladi.
+  const text = await readText(request, MAX_BODY);
+  if (text instanceof Response) return text;
   let form;
   try {
-    // `formData()` ham yiqilishi mumkin (masalan content-type form emas) — shuning uchun
-    // `parseConsentForm` bilan bitta `catch`da, ikkalasi ham bir xil 400ni beradi.
-    const formData = await request.formData();
-    const body: Record<string, unknown> = {};
-    for (const [key, value] of formData.entries()) body[key] = value;
+    const body: Record<string, unknown> = Object.fromEntries(new URLSearchParams(text));
     form = parseConsentForm(body);
   } catch {
     return new Response("So'rov to'liq emas", { status: 400, headers: { 'content-type': 'text/plain; charset=utf-8' } });
@@ -48,18 +52,17 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!auth) return new Response('Admin sozlanmagan', { status: 500, headers: { 'content-type': 'text/plain; charset=utf-8' } });
 
   const now = Math.floor(Date.now() / 1000);
-  if (auth.lockUntil > now) {
-    return html(429, page(`Juda ko'p urinish. ${auth.lockUntil - now} soniyadan keyin qayta urining.`));
+  // Login bilan bitta hisoblagich — urinish parol tekshiruvidan oldin atomik band qilinadi.
+  const slot = await reserveLoginAttempt(env, now);
+  if (!slot.ok) {
+    return html(429, page(`Juda ko'p urinish. ${slot.retryAfter} soniyadan keyin qayta urining.`));
   }
   // Parol tekshiruvi login bilan bir xil: noto'g'ri loginda ham sekin hisob bajariladi.
   const passwordOk = await verifyPassword(form.password, auth.passwordSalt, auth.passwordHash);
   if (form.username !== auth.username || !passwordOk) {
-    const failed = auth.failedAttempts + 1;
-    const delay = lockDelaySeconds(failed);
-    await updateLoginThrottle(env, failed, delay > 0 ? now + delay : 0);
     return html(401, page("Login yoki parol noto'g'ri"));
   }
-  if (auth.failedAttempts > 0 || auth.lockUntil > 0) await updateLoginThrottle(env, 0, 0);
+  await updateLoginThrottle(env, 0, 0);
 
   const code = newToken();
   await env.DB.prepare(

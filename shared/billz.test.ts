@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { ProductTypeRow } from './product-types';
 import {
   toUzs, htmlToText, asciiSlug, photoKey, hiddenIds, productsUrl, utcStamp, mapBillzProduct, nameKey, mergeDuplicates,
-  syncTarget, applyManualEdits, withHiddenLock, billzVisible, billzNameKey, billzUpdateColumns,
+  syncTarget, applyManualEdits, withHiddenLock, billzVisible, billzNameKey, billzUpdateColumns, readCapped,
   type BillzProduct, type MapContext, type LockSnapshot,
   parseManualFields,
   serializeManualFields,
@@ -56,6 +56,14 @@ describe('yordamchilar', () => {
   it('htmlToText: Lexical HTML → matn', () => {
     expect(htmlToText('<p class="x" dir="ltr"><span>Salom&nbsp;dunyo</span></p><p>Ikki<br>uch</p><p></p><p></p><p>&amp;</p>')).toBe('Salom dunyo\nIkki\nuch\n\n&');
     expect(htmlToText('<p></p>')).toBe('');
+    expect(htmlToText('a  \t<br>b \n c')).toBe('a\nb\n c');
+  });
+  it('htmlToText: yopilmagan teglar va uzun bo\'shliqlarda chiziqli, 20 000 belgida kesiladi', () => {
+    const t0 = Date.now();
+    htmlToText('<'.repeat(200_000));
+    htmlToText(' '.repeat(200_000) + 'x');
+    expect(Date.now() - t0).toBeLessThan(500);
+    expect(htmlToText('x'.repeat(50_000))).toHaveLength(20_000);
   });
   it('asciiSlug', () => {
     expect(asciiSlug('iPhone 17 Pro 256GB / Cosmic Orange')).toBe('iphone-17-pro-256gb-cosmic-orange');
@@ -67,6 +75,7 @@ describe('yordamchilar', () => {
     expect(photoKey('https://evil.example/7b57f5e0-c9c7-44f3-9f58-93f1a9564b11.jpg')).toBeNull();
     expect(photoKey('http://fra1.digitaloceanspaces.com/b/7b57f5e0-c9c7-44f3-9f58-93f1a9564b11.jpg')).toBeNull();
     expect(photoKey('https://fra1.digitaloceanspaces.com/b/photo one.png')).toMatch(/^products\/billz-[0-9a-f]{8}\.png$/);
+    expect(photoKey('https://fra1.digitaloceanspaces.com/b/%E0%A4%A.jpg')).toBeNull(); // buzuq %-kodlash — throw emas
   });
   it("hiddenIds: bazada bor, Billz'da ko'rinmaganlar", () => {
     expect(hiddenIds(['a', 'b', 'c'], new Set(['b']))).toEqual(['a', 'c']);
@@ -79,6 +88,9 @@ describe('yordamchilar', () => {
 });
 
 describe('mapBillzProduct', () => {
+  it('nom 200 belgigacha kesiladi', () => {
+    expect(mapBillzProduct(raw({ name: 'A'.repeat(5000) }), ctx)?.name).toHaveLength(200);
+  });
   it("to'liq namuna", () => {
     const m = mapBillzProduct(raw({ photos: [
       { photo_url: 'https://fra1.digitaloceanspaces.com/b/aaaaaaaa-0000-0000-0000-000000000002.jpg', sequence: 1, is_main: false },
@@ -360,5 +372,22 @@ describe('billzUpdateColumns — sinxronizatsiya nimani yozadi', () => {
     const r = billzUpdateColumns(m, ['images', 'category', 'price', 'description']);
     expect(r.cols).toEqual(['billz_name=?', 'billz_stock=?', 'is_active=?', 'name=?', 'brand_id=?']);
     expect(r.vals).toEqual(['iPhone 17 Pro Sim/E-sim / Silver', 2, 1, 'iPhone 17 Pro Sim/E-sim / Silver', 'apple']);
+  });
+});
+
+describe('readCapped', () => {
+  const stream = (chunks: number[]) => new ReadableStream<Uint8Array>({
+    start(c) { for (const n of chunks) c.enqueue(new Uint8Array(n)); c.close(); },
+  });
+  it('chegaradan kichik javobni to\'liq qaytaradi', async () => {
+    const buf = await readCapped(new Response(stream([3, 4])), 10);
+    expect(buf?.byteLength).toBe(7);
+  });
+  it('oqim chegaradan oshsa null', async () => {
+    expect(await readCapped(new Response(stream([6, 6])), 10)).toBeNull();
+  });
+  it('Content-Length katta bo\'lsa o\'qimasdan null', async () => {
+    const res = new Response(stream([1]), { headers: { 'content-length': '999999' } });
+    expect(await readCapped(res, 10)).toBeNull();
   });
 });

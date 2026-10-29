@@ -2,6 +2,7 @@ import type { Route } from './+types/api.job-apply';
 import { json, rowToSiteConfig, type SiteConfigRow } from '../../functions/lib/db';
 import { parseJobApplicationInput, ValidationError } from '../../functions/lib/validate';
 import { allowLead } from '../../functions/lib/rate-limit';
+import { readJson } from '../../functions/lib/body';
 import { composeJobApplicationMessage } from '../../shared/order';
 
 const MAX_LEAD_BYTES = 32 * 1024;
@@ -18,9 +19,11 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, { status: 405 });
   // Bitta IP'dan 10 daqiqada 10 ta — bot Telegram guruhini va jadvalni to'ldirib tashlamasin.
   if (!allowLead(context.ip || 'unknown')) return json({ error: 'too_many_requests' }, { status: 429 });
-  if (Number(request.headers.get('content-length') ?? '0') > MAX_LEAD_BYTES) return json({ error: 'too_large' }, { status: 413 });
 
-  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  // Lead JSON'i bir necha KB; kattasi o'qilgan baytlar bo'yicha (Content-Length'ga ishonmasdan) rad etiladi.
+  const raw = await readJson(request, MAX_LEAD_BYTES);
+  if (raw instanceof Response) return raw;
+  const body = raw as Record<string, unknown> | null;
   // Honeypot: bot bo'sh 'company' maydonini to'ldiradi → jimgina "qabul qildik" deymiz.
   if (body && typeof body.company === 'string' && body.company !== '') return json({ ok: true });
 

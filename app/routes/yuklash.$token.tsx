@@ -7,6 +7,7 @@ import { verifyUploadToken } from '../../functions/lib/upload-link';
 import { imagesStatements } from '../../shared/product-statements';
 import { billzVisible, parseManualFields, serializeManualFields, MANUAL_FIELDS, type ManualField } from '../../shared/billz';
 import { createLimiter } from '../../shared/rate-limit';
+import { sniffType } from '../../shared/image-magic';
 import { normalizeImage } from '../../src/admin/lib/image-normalize';
 
 /**
@@ -65,17 +66,22 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   if (files.length === 0) return data({ ok: false as const, error: 'Rasm tanlanmagan.' }, { status: 400 });
   if (files.length > MAX_FILES) return data({ ok: false as const, error: `Bir martada ${MAX_FILES} tagacha rasm.` }, { status: 400 });
   // Avval hammasi tekshiriladi — bittasi yaroqsiz bo'lsa hech narsa yozilmaydi.
+  // Tur baytlardan ham tekshiriladi — `f.type` ni mijoz yozadi.
+  const buffers: ArrayBuffer[] = [];
   for (const f of files) {
     if (!ALLOWED[f.type]) return data({ ok: false as const, error: 'Faqat JPG, PNG yoki WebP rasm.' }, { status: 400 });
     if (f.size > 5 * MB) return data({ ok: false as const, error: '5 MB dan katta rasm bor.' }, { status: 400 });
+    const buf = await f.arrayBuffer();
+    if (sniffType(new Uint8Array(buf)) !== f.type) return data({ ok: false as const, error: 'Faqat JPG, PNG yoki WebP rasm.' }, { status: 400 });
+    buffers.push(buf);
   }
   const p = await readProduct(env, id);
   if (!p) return data({ ok: false as const, error: EXPIRED }, { status: 404 });
 
   const urls: string[] = [];
-  for (const f of files) {
+  for (const [i, f] of files.entries()) {
     const key = `products/${crypto.randomUUID()}.${ALLOWED[f.type]}`;
-    await env.IMAGES.put(key, await f.arrayBuffer(), { httpMetadata: { contentType: f.type } });
+    await env.IMAGES.put(key, buffers[i], { httpMetadata: { contentType: f.type } });
     urls.push(`/images/${key}`);
   }
   const main = p.main || urls[0];

@@ -1,5 +1,5 @@
 import type { Route } from './+types/api.admin.account';
-import { json, loadAdminAuth, updateAdminAuth } from '../../functions/lib/db';
+import { json, loadAdminAuth, reserveLoginAttempt, updateAdminAuth, updateLoginThrottle } from '../../functions/lib/db';
 import {
   createSession,
   hashPassword,
@@ -10,11 +10,15 @@ import {
   verifyPassword,
 } from '../../functions/lib/auth';
 import { requireAdmin } from './api.admin.guard';
+import { tokenFromHeader } from '../../shared/mcp-auth';
 
 const TTL = 60 * 60 * 24 * 7; // 7 kun — api.admin.login bilan bir xil
 
 export async function loader({ request, context }: Route.LoaderArgs) {
   const env = context.env;
+  if (tokenFromHeader(request.headers.get('authorization'))) {
+    return json({ error: 'cookie_only' }, { status: 403 });
+  }
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
   const auth = await loadAdminAuth(env);
@@ -23,6 +27,11 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
 export async function action({ request, context }: Route.ActionArgs) {
   const env = context.env;
+  // Faqat cookie bilan (api.admin.tokens kabi): aks holda sizib ketgan MCP token parolni
+  // taxmin qilib, javobda cookie sessiyasini olib qo'yardi — tokenni bekor qilish foydasiz bo'lardi.
+  if (tokenFromHeader(request.headers.get('authorization'))) {
+    return json({ error: 'cookie_only' }, { status: 403 });
+  }
   const who = await requireAdmin(request, env);
   if (who instanceof Response) return who;
 
@@ -35,11 +44,21 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!body || !body.currentPassword) {
     return json({ error: 'current_password_required' }, { status: 400 });
   }
+  // Joriy parol tekshiruvi login bilan bitta qulf hisoblagichidan o'tadi — aks holda bu
+  // endpoint cheklovsiz parol taxmin qilish eshigi bo'lardi.
+  const slot = await reserveLoginAttempt(env, Math.floor(Date.now() / 1000));
+  if (!slot.ok) {
+    return json(
+      { error: 'too_many_attempts', retryAfter: slot.retryAfter },
+      { status: 429, headers: { 'retry-after': String(slot.retryAfter) } },
+    );
+  }
   if (!(await verifyPassword(body.currentPassword, auth.passwordSalt, auth.passwordHash))) {
     // 403, 401 emas: sessiya tirik, faqat qayta tasdiq xato. 401 bo'lsa `api.ts` sahifani
     // qayta yuklab yuboradi va egasi xato xabarini ko'rmaydi.
     return json({ error: 'invalid_current_password' }, { status: 403 });
   }
+  await updateLoginThrottle(env, 0, 0);
 
   const fields: { username?: string; passwordHash?: string; passwordSalt?: string; sessionSecret?: string; adminGoogleEmail?: string } = {};
 
@@ -74,6 +93,12 @@ export async function action({ request, context }: Route.ActionArgs) {
   }
 
   await updateAdminAuth(env, fields);
+  // Parol almashsa mijoz sessiya siri ham aylantiriladi: u admin sozlamalarida turadi va
+  // ilgari sizib chiqqan bo'lsa, eski nusxa bilan mijoz cookie'larini yasab bo'lmasin
+  // (hamma mijoz qayta kiradi).
+  if (fields.passwordHash !== undefined) {
+    await env.DB.prepare('UPDATE site_config SET customer_session_secret = ? WHERE id = 1').bind(randomSecretHex()).run();
+  }
 
   // Rotatsiya joriy klientning cookie'sini ham bekor qiladi — yangi secret bilan
   // qayta imzolangan sessiya beramiz, admin qayta login qilmasin.

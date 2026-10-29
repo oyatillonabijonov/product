@@ -6,7 +6,7 @@ import {
   type VariantPriceUpdate,
 } from './mcp-tools.ts';
 import { applyManualEdits } from './billz.ts';
-import { isSafeImageUrl, tooLarge } from './mcp-image.ts';
+import { fetchImage, isSafeImageUrl } from './mcp-image.ts';
 import type { AdminClient } from './mcp-client.ts';
 
 /**
@@ -26,6 +26,16 @@ export interface McpToolHost {
 export const text = (s: string) => ({ content: [{ type: 'text' as const, text: s }] });
 
 export const MAX_IMAGE = 5 * 1024 * 1024;
+
+/**
+ * Tovarga tegishli admin API yo'li. `id` model bergan qator — kodlanmasa
+ * `../site-config` products'dan chiqib boshqa admin endpoint'ini (sirlar bilan) ochardi.
+ * `.`/`..` ni `encodeURIComponent` o'zgartirmaydi, shuning uchun ular alohida rad etiladi.
+ */
+export function productPath(id: string, suffix = ''): string {
+  if (id === '' || id === '.' || id === '..') throw new Error(`Tovar id noto'g'ri: «${id}»`);
+  return `/api/admin/products/${encodeURIComponent(id)}${suffix}`;
+}
 
 export function registerSharedTools(server: McpToolHost, api: AdminClient, opts: { adminUrl: string }): void {
   const products = () => api.get<ApiProduct[]>('/api/admin/products');
@@ -52,7 +62,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     inputSchema: { id: z.string().optional(), q: z.string().optional() },
   }, async (args: unknown) => {
     const parsed = args as { id?: string; q?: string };
-    if (parsed.id) return text(JSON.stringify(await api.get<unknown>(`/api/admin/products/${parsed.id}`), null, 2));
+    if (parsed.id) return text(JSON.stringify(await api.get<unknown>(productPath(parsed.id)), null, 2));
     const q = (parsed.q ?? '').toLowerCase();
     const found = (await products()).filter((p) => p.name.toLowerCase().includes(q)).slice(0, 10);
     return text(JSON.stringify(found.map((p) => ({ id: p.id, name: p.name, isActive: p.isActive, cashPriceUzs: p.cashPriceUzs })), null, 2));
@@ -93,13 +103,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     for (const u of parsed.urls) {
       const safe = isSafeImageUrl(u);
       if (!safe.ok) throw new Error(safe.reason);
-      const res = await fetch(safe.url, { redirect: 'manual' });
-      if (!res.ok) throw new Error(`Rasm yuklanmadi (${res.status}): ${u}`);
-      const type = res.headers.get('content-type') ?? '';
-      if (!type.startsWith('image/')) throw new Error(`Bu rasm emas (${type}): ${u}`);
-      if (tooLarge(res.headers.get('content-length'), MAX_IMAGE)) throw new Error(`5 MB dan katta: ${u}`);
-      const bytes = new Uint8Array(await res.arrayBuffer());
-      if (bytes.byteLength > MAX_IMAGE) throw new Error(`5 MB dan katta: ${u}`);
+      const { type, bytes } = await fetchImage(safe.url, MAX_IMAGE);
       const name = safe.url.pathname.split('/').pop() || 'image';
       out.push(await api.upload(bytes, name, type, 'image_upload_from_url'));
     }
@@ -170,7 +174,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
       id: string; name?: string; description?: string; cashPriceUzs?: number; oldPriceUzs?: number | null;
       variantPrices?: VariantPriceUpdate[]; specs?: ApiSpec[]; removeSpecs?: string[];
     };
-    const current = await api.get<ApiProductDetail>(`/api/admin/products/${a.id}`);
+    const current = await api.get<ApiProductDetail>(productPath(a.id));
     const hasVariants = current.variants.length > 0;
     const pricing = a.cashPriceUzs !== undefined || a.oldPriceUzs !== undefined;
 
@@ -196,7 +200,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     if (!a.variantPrices && a.oldPriceUzs !== undefined) body.oldPriceUzs = a.oldPriceUzs;
     if (a.specs || a.removeSpecs) body.specs = upsertSpecs(current.specs, a.specs, a.removeSpecs);
     body.manualFields = current.billzId ? applyManualEdits(current.manualFields, before, body) : current.manualFields;
-    await api.write(`/api/admin/products/${a.id}`, 'PUT', body, 'product_update');
+    await api.write(productPath(a.id), 'PUT', body, 'product_update');
 
     const link = `${opts.adminUrl}/admin/products/${a.id}`;
     if (a.variantPrices) return text(`${priceChangeSummary(current, next)}\n${link}`);
@@ -220,11 +224,11 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     inputSchema: { id: z.string(), imageUrls: z.array(z.string()).min(1) },
   }, async (args: unknown) => {
     const parsed = args as { id: string; imageUrls: string[] };
-    const current = await api.get<ApiProductDetail>(`/api/admin/products/${parsed.id}`);
+    const current = await api.get<ApiProductDetail>(productPath(parsed.id));
     const before = detailToInput(current);
     const body = { ...before, imageUrl: parsed.imageUrls[0], images: parsed.imageUrls.slice(1) };
     body.manualFields = current.billzId ? applyManualEdits(current.manualFields, before, body) : current.manualFields;
-    const saved = await api.write<ApiProduct>(`/api/admin/products/${parsed.id}`, 'PUT', body, 'product_set_images');
+    const saved = await api.write<ApiProduct>(productPath(parsed.id), 'PUT', body, 'product_set_images');
     return text(`Rasmlar yangilandi (${parsed.imageUrls.length} ta). ${saved.isActive ? "Tovar saytda ko'rinadi." : 'Tovar saytda yashirin.'}\n${opts.adminUrl}/admin/products/${parsed.id}`);
   });
 
@@ -234,7 +238,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
   }, async (args: unknown) => {
     const parsed = args as { id: string; visible: boolean };
     // Admin toggle'i bilan bir xil `PATCH`: faqat `is_active` (va Billz tovarida `hidden` qulfi) yoziladi.
-    const updated = await api.write<ApiProduct>(`/api/admin/products/${parsed.id}`, 'PATCH', { isActive: parsed.visible }, 'product_set_visibility');
+    const updated = await api.write<ApiProduct>(productPath(parsed.id), 'PATCH', { isActive: parsed.visible }, 'product_set_visibility');
     const link = `${opts.adminUrl}/admin/products/${parsed.id}`;
     if (parsed.visible && !updated.isActive) {
       return text(`Saytda chiqmadi: tovarda rasm yo'q. Rasm qo'shilishi bilan o'zi chiqadi.\n${link}`);
@@ -247,7 +251,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
     inputSchema: { id: z.string() },
   }, async (args: unknown) => {
     const { id } = args as { id: string };
-    const r = await api.write<{ url: string; expiresAt: number }>(`/api/admin/products/${id}/upload-link`, 'POST', {}, 'image_upload_link');
+    const r = await api.write<{ url: string; expiresAt: number }>(productPath(id, '/upload-link'), 'POST', {}, 'image_upload_link');
     return text(`Rasm yuklash havolasi (30 daqiqa ishlaydi):\n${r.url}\n\nBosing → «Rasm tanlash» → galereyadan rasmlarni tanlang. Rasmlar tovarga o'zi qo'shiladi.`);
   });
 }

@@ -366,6 +366,30 @@ export async function updateLoginThrottle(env: Env, failedAttempts: number, lock
     .run();
 }
 
+/**
+ * Parol tekshiruvidan (sekin PBKDF2) **oldin** urinishni atomik band qiladi: hisoblagich
+ * SQL'ning o'zida oshiriladi va qulf yangi sondan hisoblanadi. Ilgari snapshot o'qilib,
+ * PBKDF2 kutilgandan keyin mutlaq qiymat yozilardi — parallel taxminlar bir-birining
+ * hisobini yo'qotib, qulfni chetlab o'tardi. Qulf faol bo'lsa hech narsa oshirilmaydi va
+ * `retryAfter` qaytadi. Muvaffaqiyatda chaqiruvchi `updateLoginThrottle(env, 0, 0)` qiladi.
+ * Formula `lockDelaySeconds` (auth.ts) bilan bir xil: 5-xatodan 60 s, har keyingisida ikki
+ * barobar, 600 s chegara (daraja 4 bilan cheklangan — siljish to'lib 0 ga aylanmasin).
+ * `?` anonim: better-sqlite3 adapteri `?1` ni nomli parametr deb oladi.
+ */
+export async function reserveLoginAttempt(env: Env, now: number): Promise<{ ok: true } | { ok: false; retryAfter: number }> {
+  const row = await env.DB.prepare(
+    `UPDATE admin_auth
+        SET failed_attempts = failed_attempts + 1,
+            lock_until = CASE WHEN failed_attempts + 1 >= 5
+              THEN ? + MIN(60 * (1 << MIN(failed_attempts + 1 - 5, 4)), 600) ELSE 0 END
+      WHERE id = 1 AND lock_until <= ?
+      RETURNING failed_attempts`,
+  ).bind(now, now).first<{ failed_attempts: number }>();
+  if (row) return { ok: true };
+  const lock = await env.DB.prepare('SELECT lock_until FROM admin_auth WHERE id = 1').first<{ lock_until: number }>();
+  return { ok: false, retryAfter: Math.max(1, (lock?.lock_until ?? now) - now) };
+}
+
 // Replace-all writers below return prepared statements instead of running them, so the
 // caller can execute the whole product write in one atomic env.DB.batch() — a mid-write
 // failure must not leave the old rows deleted and the new ones half-inserted.

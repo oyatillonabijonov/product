@@ -188,6 +188,41 @@ Clean premium palette (olcha *structure*, not its red brand), fully tokenized as
 
 **Category covers:** each category carries its **own** cover — `categories.cover_url` (migration `0024`), uploaded in admin → Kategoriyalar. An empty cover is fine: the page then opens with a plain title. The 4 `heroColumns()` stay **landing artwork** and serve as a category cover only when `col.primary === category.id` — never widen that match, the other matched categories get the wrong photo (Noutbuklar used to show the desktop-PC tower). **Cover ustida matn yo'q (2026-09)** — na tag, na sarlavha, na lede, na mahsulot soni: rasm/videoning o'zi bo'lim haqida gapiradi, `h1` esa pastdagi katalog qismida turadi (shu sababli `CatalogView`ning `hideTitle` propi ham olib tashlandi — sarlavha endi doim bitta joyda). Cover'da faqat "Kategoriyalar" qaytish havolasi qoladi — Apple ko'k tugmasi (`BTN_MD` + `bg-cta`, Yangiliklar CTA'si bilan bir xil; lucide `ChevronLeft` optik tekislangan). `cover_lede`/`cover_lede_ru` ustunlari bazada qoldi, kod ularni o'qimaydi ham, yozmaydi ham (sahifada cover'dan boshqa tavsif matni yo'q). **Video cover:** `heroColumns(t, asset)` ustunida `videos` bo'lsa (standart — faqat `apple`; admin'da har yo'nalishga 2 tagacha MP4, `site_assets` `hero.<id>.video1/2`), cover rasm o'rniga shu videolarni **ketma-ket** aylantiradi — biri tugagach `onEnded` keyingisiga o'tadi, oxirgisidan keyin yana birinchisiga. Bitta `<video>` elementi `key` bilan qayta yaratiladi; harakat kamaytirilganda video umuman yuklanmaydi va `poster` statik qoladi. Standart fayllar `src/assets/apple/` da (Vite bundle qiladi, `immutable` kesh bilan chiqadi); yuklanganlari `/images/products/*.mp4` — `server/index.ts`dagi `express.static` Range bilan beradi (Safari).
 
+## Xavfsizlik (2026-10-29 auditi, `~/security-audit-skill/product/run-2`)
+
+Audit topilmalari tuzatilgan. Quyidagi qoidalarni buzmang:
+
+**Admin kirishi va sessiyasi**
+- Login, OAuth consent va `/api/admin/account` urinish hisoblagichi atomik `reserveLoginAttempt` (`functions/lib/db.ts`) orqali ishlaydi. U PBKDF2'dan oldin chaqiriladi.
+- `/api/admin/account` faqat cookie bilan ishlaydi, bearer token qabul qilinmaydi.
+- Admin logout `session_secret`ni aylantiradi. Admin paroli almashganda `customer_session_secret` ham aylantiriladi.
+- `GET /api/admin/site-config` sirlarni qaytarmaydi. Saqlangan sir o'rniga `__set__` qaytadi. PUT shu qiymatni olsa, eskisini saqlab qoladi.
+
+**Mijoz sessiyasi**
+- Mijoz sessiyasi `"<id>:<session_epoch>"` ko'rinishida imzolanadi (migratsiya `0046`). Logout epoch'ni oshiradi. `customerIdFrom` uchinchi argument sifatida `env` oladi.
+- Telegram login callback rejimida ishlaydi: same-origin POST + Origin tekshiruvi. GET sessiya bermaydi.
+- `/auth/logout` faqat POST.
+
+**So'rov tanasi va kirish ma'lumotlari**
+- So'rov tanasi `functions/lib/body.ts` (`readJson`/`readText`) orqali o'qiladi. Bu baytlarni sanaydigan limit. `request.json()`ni to'g'ridan-to'g'ri chaqirmang.
+- Yuklangan rasm va video turi baytlardan aniqlanadi (`shared/image-magic.ts`).
+
+**Server (`shared/http-policy.ts`)**
+- So'rovdagi Host/proto `PUBLIC_URL` bo'yicha qayta yoziladi.
+- Texnik ishlar darvozasi va kesh qarori normallashtirilgan yo'l bo'yicha qabul qilinadi.
+- Sessiya cookie'si bor so'rovga `private, no-store` qo'yiladi.
+- Dev server faqat `127.0.0.1`da tinglaydi.
+- `TRUST_PROXY` env bilan sozlanadi, sukut bo'yicha 1.
+- Third-party skriptlar (Lydya, Metrica) admin kirgan brauzerda chizilmaydi (`adminViewer`).
+
+**MCP**
+- Tovar id'si `productPath` orqali encode qilinadi.
+- `image_upload_from_url` faqat tekshirilgan IP'ga ulanadi (`safeLookup`).
+- OAuth `/register` klient sirini bermaydi. Soatiga ko'pi bilan 50 ta, jami 500 ta klient. Ishlatilmagan klientlar 30 kundan keyin o'chiriladi.
+
+**Prod server**
+- Zaxira: host cron `/etc/cron.d/productstore-backup` har kuni 02:30 UTC da ishlaydi. Baza `server/backup.ts` orqali olinadi, rasmlar bilan birga `/var/backups/productstore` papkasida 14 kun saqlanadi.
+
 ## Known dead code
 
 **O'lik kod tozalash (2026-09-21, repo bo'ylab audit):** `products.category` (eski `'iphone'|'mac'|'ipad'|'pc'` enum — 0025'dan beri `category_id` bor) butunlay koddan chiqdi: `Category` tipi, `shared/legacy-category.ts`, `fallbackCategoryOf`, `ApiDeviceModel.legacyCategory`, `MappedProduct.legacyCategory`, `ProductFormState.category`. Ustunlar (`products.category`, `device_models.legacy_category`, `categories.icon`/`icon_url`/`cover_lede`/`cover_lede_ru`, `site_config.map_label`, `pages.title_en`/`title_cyrl`) bazada qoladi — INSERT'larda bo'sh satr yoziladi, UPDATE'lar tegmaydi. **Mijozning email+parol kirishi** to'liq olib tashlandi (`auth.email.tsx` va `routes.ts` qatori, `parseEmailAuthInput`, `findCustomerByEmail`/`createEmailCustomer`, `api.account.tsx` dagi `intent=password`, `parsePasswordInput`, `getCustomerAuth`/`setCustomerPassword`) — UI 2026-09-14'da ketgan, server eshigi ochiq qolgan edi; PBKDF2 yordamchilari admin kirishi uchun qoladi. Shuningdek `loadRail`, `EASE_APPLE`, `--color-surface-2`, `--color-accent-bright`, `admin_tokens.expires_at` tekshiruvi (hech qachon yozilmasdi). Havola qoidasi `shared/safe-href.ts` ga, `phoneFromDisplay` `src/lib/phone.ts` ga birlashdi. (`BTN_SM` ham o'chirilgan edi — 2026-09-23'da cookie bildirishnomasi uchun qaytarildi, endi haqiqiy ishlatuvchisi bor.) **Ma'lum ta'sir:** yo'nalishi (`category_id`) belgilanmagan mahsulot sahifasida endi "O'xshash mahsulotlar" bloki chiqmaydi (ilgari eski ustun orqali PC'ga tushardi) — bunday tovarlar baribir yo'nalish sahifalarida ko'rinmaydi, yechim admin'da yo'nalish qo'yish.

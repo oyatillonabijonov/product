@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import { InvalidGrantError, InvalidClientMetadataError } from '@modelcontextprotocol/sdk/server/auth/errors.js';
+import { InvalidGrantError, InvalidClientMetadataError, TooManyRequestsError } from '@modelcontextprotocol/sdk/server/auth/errors.js';
 import type { OAuthServerProvider, AuthorizationParams } from '@modelcontextprotocol/sdk/server/auth/provider.js';
 import type { OAuthRegisteredClientsStore } from '@modelcontextprotocol/sdk/server/auth/clients.js';
 import type { OAuthClientInformationFull, OAuthTokens, OAuthTokenRevocationRequest } from '@modelcontextprotocol/sdk/shared/auth.js';
@@ -8,6 +8,24 @@ import type { Env } from '../shared/runtime';
 import { hashToken, newToken } from '../shared/mcp-auth.ts';
 import { ACCESS_TTL, consentPage } from '../shared/oauth.ts';
 import { createTokenVerifier } from './mcp-auth.ts';
+
+/** Umumiy klientlar chegarasi va hech ishlatilmagan klientning umri (30 kun). */
+const MAX_CLIENTS = 500;
+const MAX_CLIENTS_PER_HOUR = 50;
+const CLIENT_UNUSED_TTL = 30 * 24 * 3600;
+
+/** Bizdagi yagona klient turi: public (`none`) + PKCE, sirsiz. */
+function publicClient(clientId: string, clientName: string, redirectUris: string[], issuedAt: number): OAuthClientInformationFull {
+  return {
+    client_id: clientId,
+    client_name: clientName,
+    redirect_uris: redirectUris,
+    client_id_issued_at: issuedAt,
+    token_endpoint_auth_method: 'none',
+    grant_types: ['authorization_code', 'refresh_token'],
+    response_types: ['code'],
+  };
+}
 
 /**
  * OAuth 2.1 avtorizatsiya serveri — `mcpAuthRouter` uchun.
@@ -29,15 +47,7 @@ export function createOAuthProvider(env: Env): OAuthServerProvider {
         .bind(clientId)
         .first<{ client_id: string; client_name: string; redirect_uris: string; created_at: number }>();
       if (!row) return undefined;
-      return {
-        client_id: row.client_id,
-        client_name: row.client_name,
-        redirect_uris: JSON.parse(row.redirect_uris) as string[],
-        client_id_issued_at: row.created_at,
-        token_endpoint_auth_method: 'none',
-        grant_types: ['authorization_code', 'refresh_token'],
-        response_types: ['code'],
-      };
+      return publicClient(row.client_id, row.client_name, JSON.parse(row.redirect_uris) as string[], row.created_at);
     },
     async registerClient(client): Promise<OAuthClientInformationFull> {
       // SDK'ning registratsiya sxemasida `redirect_uris` massivi uchun na uzunlik, na
@@ -51,16 +61,33 @@ export function createOAuthProvider(env: Env): OAuthServerProvider {
       if (client.redirect_uris.some((uri) => uri.length > 512)) {
         throw new InvalidClientMetadataError('redirect_uri juda uzun (512 belgidan ortiq)');
       }
+      const issuedAt = Math.floor(Date.now() / 1000);
+      // Umumiy chegara: `/register` ochiq, SDK'ning cheklovi esa IP bo'yicha — ko'p IP'dan
+      // jadval cheksiz o'sardi. Avval eski, hech qachon ishlatilmagan klientlar tozalanadi
+      // (kodi ham, tokeni ham yo'q — bekor qilingan token qatori ham «ishlatilgan» sanaladi).
+      await env.DB.prepare(
+        `DELETE FROM oauth_clients WHERE created_at < ?
+           AND NOT EXISTS (SELECT 1 FROM oauth_codes c WHERE c.client_id = oauth_clients.client_id)
+           AND NOT EXISTS (SELECT 1 FROM admin_tokens t WHERE t.client_id = oauth_clients.client_id)`,
+      ).bind(issuedAt - CLIENT_UNUSED_TTL).run();
+      const counts = await env.DB.prepare('SELECT COUNT(*) AS total, SUM(created_at > ?) AS recent FROM oauth_clients')
+        .bind(issuedAt - 3600)
+        .first<{ total: number; recent: number | null }>();
+      if ((counts?.total ?? 0) >= MAX_CLIENTS || (counts?.recent ?? 0) >= MAX_CLIENTS_PER_HOUR) {
+        throw new TooManyRequestsError("Juda ko'p konnektor ro'yxatdan o'tgan — keyinroq urinib ko'ring");
+      }
       // Public klient + PKCE — sir berilmaydi (spec §5).
       const clientId = crypto.randomUUID();
-      const issuedAt = Math.floor(Date.now() / 1000);
       // SDK'ning registratsiya sxemasida uzunlik chegarasi yo'q — cheksiz nom rozilik
       // sahifasining har renderiga tushib qolmasin (60 — `label` bilan bir xil chegara).
       const clientName = (client.client_name ?? 'Konnektor').slice(0, 60);
       await env.DB.prepare('INSERT INTO oauth_clients (client_id, client_name, redirect_uris, created_at) VALUES (?, ?, ?, ?)')
         .bind(clientId, clientName, JSON.stringify(client.redirect_uris), issuedAt)
         .run();
-      return { ...client, client_id: clientId, client_id_issued_at: issuedAt, client_name: clientName };
+      // Saqlangan narsaning o'zi qaytariladi: SDK so'rovga qarab `client_secret` va
+      // `client_secret_post` yasaydi, biz esa sirni saqlamaymiz va tekshirmaymiz — uni
+      // qaytarish klientga «sir himoya qiladi» degan yolg'on va'da edi.
+      return publicClient(clientId, clientName, client.redirect_uris, issuedAt);
     },
   };
 

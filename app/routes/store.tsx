@@ -1,12 +1,13 @@
-import { Outlet, isRouteErrorResponse, redirect, useLoaderData, useLocation, useRouteError } from 'react-router';
+import { Outlet, data, isRouteErrorResponse, redirect, useLoaderData, useLocation, useRouteError } from 'react-router';
 import type { Route } from './+types/store';
 import { resolveLocale, localeToLang, localizedPath, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
 import { loadSiteConfig, loadPages, loadCategories, loadConfig, hasDeals, publicSiteConfig, loadSiteTexts, loadSiteAssets, type PageLink } from '../lib/loaders';
 import type { OrgContact } from '../lib/seo';
 import { CURRENCY_COOKIE, parseCurrency } from '../../src/lib/currency';
 import { textOverrides } from '../../src/lib/site-content';
-import { loadCustomer, unreadNotificationCount } from '../../functions/lib/db';
+import { loadAdminAuth, loadCustomer, unreadNotificationCount } from '../../functions/lib/db';
 import { getCookie, verifySession } from '../../functions/lib/auth';
+import { customerIdFrom } from '../../functions/lib/customer-auth';
 import type { ApiCustomer } from '../../shared/types';
 import { translations, type Translation } from '../../src/locales';
 import StoreLayout from '../../src/store/StoreLayout';
@@ -28,12 +29,19 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
     loadSiteConfig(env), loadPages(env), loadCategories(env), hasDeals(env), loadConfig(env), loadSiteTexts(env), loadSiteAssets(env),
   ]);
   const pageLinks: PageLink[] = pages.map((p) => ({ slug: p.slug, title: p.title }));
-  // Kirgan mijoz — sessiya sirini allaqachon yuklangan siteConfig'dan olamiz (qo'shimcha D1 o'qishsiz).
-  const token = getCookie(request, 'customer_session');
+  // Kirgan mijoz — sessiya sirini allaqachon yuklangan siteConfig'dan olamiz; sessiya davri bazadan
+  // tekshiriladi (chiqishda bekor qilingan token o'tmasin).
   let customer: ApiCustomer | null = null;
-  if (token && siteConfig.customerSessionSecret) {
-    const cid = await verifySession(token, siteConfig.customerSessionSecret, Math.floor(Date.now() / 1000));
-    if (cid) customer = await loadCustomer(env, Number(cid));
+  const cid = siteConfig.customerSessionSecret ? await customerIdFrom(request, siteConfig.customerSessionSecret, env) : null;
+  if (cid) customer = await loadCustomer(env, cid);
+  // Admin cookie'si bilan ochilgan sahifa — root.tsx unda uchinchi tomon skriptlarini (Lydya, Metrica)
+  // chizmaydi: ular shu origin'dagi admin API'ga admin huquqi bilan murojaat qila olardi.
+  // Bitta SELECT faqat `session` cookie'si bor so'rovda.
+  const adminToken = getCookie(request, 'session');
+  let adminViewer = false;
+  if (adminToken) {
+    const auth = await loadAdminAuth(env);
+    adminViewer = Boolean(auth && await verifySession(adminToken, auth.sessionSecret, Math.floor(Date.now() / 1000)));
   }
   // O'qilmaganlar soni — profil tugmasidagi nuqta uchun. Faqat kirgan mijozda,
   // indeksli bitta COUNT (`idx_notifications_unread`).
@@ -50,10 +58,16 @@ export async function loader({ params, request, context }: Route.LoaderArgs) {
   const tt: Translation = { ...translations[localeToLang(locale)], ...texts };
   // Organization JSON-LD (root.tsx) — ko'cha manzili (2-qator; 1-qatordagi davlat va shahar JSON-LD'da alohida maydonlarda) va ish vaqti sayt matnlaridan.
   const orgContact: OrgContact = { address: tt.footerAddressText2, openingHours: tt.seoOpeningHours };
-  return {
+  return data({
     locale, siteConfig: publicSiteConfig(siteConfig), pageLinks, categories, customer, unread, deals, currency, usdRate: settings.usdToUzs,
-    origin: new URL(request.url).origin, texts, orgContact, assets,
-  };
+    origin: new URL(request.url).origin, texts, orgContact, assets, adminViewer,
+    // Admin varianti (skriptsiz HTML) umumiy proxy keshiga tushib mijozlarga berilmasin.
+  }, adminViewer ? { headers: { 'Cache-Control': 'private, no-store' } } : undefined);
+}
+
+/** Loader sarlavhalari (admin ko'rinishida `no-store`) hujjat javobiga o'tadi; ichki route'lar uni meros oladi. */
+export function headers({ loaderHeaders }: Route.HeadersArgs) {
+  return loaderHeaders;
 }
 
 export default function StoreRoot() {

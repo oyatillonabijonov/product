@@ -53,7 +53,8 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
   };
 
   return (
-    <div className="bg-bg min-h-[70vh]">
+    // `ym-hide-content` — Metrica Webvisor yozuvida mijozning shaxsiy ma'lumoti (ism, telefon, manzil, buyurtmalar) ko'rinmasin.
+    <div className="ym-hide-content bg-bg min-h-[70vh]">
       <div className="max-w-[1080px] mx-auto px-4 py-8 md:py-10">
         <div className="grid md:grid-cols-[270px_1fr] gap-5 items-start">
           {/* Sidebar */}
@@ -87,12 +88,15 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
               ))}
             </nav>
             <div className="p-2 border-t border-line/60">
-              <a
-                href="/auth/logout"
-                className="rounded-sm w-full flex items-center gap-3 px-3.5 py-2.5 text-label font-medium text-muted hover:bg-bg hover:text-sale transition-colors"
-              >
-                <LogOut className="w-[18px] h-[18px] shrink-0" /> {t.accountLogout}
-              </a>
+              {/* POST forma (havola emas): chiqish server tomonida sessiyani bekor qiladi, GET bilan boshqa sayt uni chaqira olmasin. */}
+              <form method="post" action="/auth/logout">
+                <button
+                  type="submit"
+                  className="rounded-sm w-full flex items-center gap-3 px-3.5 py-2.5 text-label font-medium text-muted hover:bg-bg hover:text-sale transition-colors"
+                >
+                  <LogOut className="w-[18px] h-[18px] shrink-0" /> {t.accountLogout}
+                </button>
+              </form>
             </div>
           </aside>
 

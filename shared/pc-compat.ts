@@ -153,8 +153,12 @@ function psuWatts(n: string): number | null {
   return null;
 }
 
+/** Bo'shliq qatorlari bittaga, nom 200 belgigacha: parserlardagi `\s*`/`.*?` regexlari ulkan Billz nomida
+ * kvadratik ishlamasin (patternlar uchun bitta bo'shliq ko'pi bilan bir xil). */
+const clip = (name: string): string => name.replace(/\s+/g, ' ').slice(0, 200);
+
 // ™/® savdo belgisi tier va model raqami orasiga tushib qolsa \s* uni bo'shliq deb qabul qilmaydi.
-const norm = (name: string): string => name.toLowerCase().replace(/[™®]/g, '');
+const norm = (name: string): string => clip(name).toLowerCase().replace(/[™®]/g, '');
 
 /** Iste'mol (CPU, GPU) yoki quvvat (blok), W: admin tuzatishi (> 0) → nomdan; boshqa bo'g'in — null. */
 export function partWatts(slot: SlotKey, name: string, override: number | null): number | null {
@@ -367,7 +371,7 @@ export interface PartGroup { slot: SlotKey; rep: ConfigPartRow; inStock: boolean
  * "... Black / Black") bilan kelishi mumkin.
  */
 function partKey(name: string): string {
-  const stripped = name
+  const stripped = clip(name)
     .toLowerCase()
     .replace(/[™®]/g, '')
     .replace(/^(?:cpu|gpu|psu|ram|motherboard)\s+/, '')

@@ -2,6 +2,10 @@ import type { Route } from './+types/api.addresses';
 import { parseAddressInput, ValidationError } from '../../functions/lib/validate';
 import { currentCustomerId } from '../../functions/lib/customer-auth';
 import { createAddress, loadAddresses } from '../../functions/lib/db';
+import { readJson } from '../../functions/lib/body';
+
+/** Bitta manzil — bir necha qisqa maydon. */
+const MAX_BODY = 16 * 1024;
 
 // Kabinet manzillari — `customer_session` bilan himoyalangan; `customerId` doim
 // cookie'dan olinadi, tanadan emas (aks holda boshqaning manziliga yozib bo'lardi).
@@ -16,9 +20,11 @@ export async function action({ request, context }: Route.ActionArgs) {
   const env = context.env;
   const id = await currentCustomerId(request, env);
   if (!id) return Response.json({ error: 'unauthorized' }, { status: 401 });
+  const body = await readJson(request, MAX_BODY);
+  if (body instanceof Response) return body;
   let input;
   try {
-    input = parseAddressInput(await request.json());
+    input = parseAddressInput(body);
   } catch (e) {
     return Response.json({ error: e instanceof ValidationError ? e.message : 'bad_request' }, { status: 400 });
   }

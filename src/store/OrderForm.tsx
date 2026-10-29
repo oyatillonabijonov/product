@@ -146,7 +146,7 @@ const OrderForm: FC<{
             </div>
           </div>
         ) : (
-          <form onSubmit={submit}>
+          <form onSubmit={submit} className="ym-disable-keys">
             <h2 className="text-lede font-semibold pr-8">{t.orderFormTitle}</h2>
             <p className="text-label text-muted mt-1 mb-3 line-clamp-2">{draft.title}</p>
 
@@ -189,7 +189,7 @@ const OrderForm: FC<{
               onChange={(e) => { setName(e.target.value); if (nameErr) setNameErr(''); }}
               autoFocus
               aria-invalid={Boolean(nameErr) || undefined}
-              className={`${inputCls(Boolean(nameErr))} ${nameErr ? 'mb-1' : 'mb-3'}`}
+              className={`ym-disable-keys ${inputCls(Boolean(nameErr))} ${nameErr ? 'mb-1' : 'mb-3'}`}
             />
             {nameErr && <p className="text-label text-danger mb-2">{nameErr}</p>}
             <label htmlFor="order-phone" className="block text-label text-muted mb-1">{t.orderPhone}</label>
@@ -200,7 +200,7 @@ const OrderForm: FC<{
               value={phone}
               onChange={(e) => { setPhone(formatUzPhone(e.target.value)); if (phoneErr) setPhoneErr(''); }}
               aria-invalid={Boolean(phoneErr) || undefined}
-              className={`${inputCls(Boolean(phoneErr))} tabular-nums ${phoneErr ? 'mb-1' : 'mb-4'}`}
+              className={`ym-disable-keys ${inputCls(Boolean(phoneErr))} tabular-nums ${phoneErr ? 'mb-1' : 'mb-4'}`}
             />
             {phoneErr && <p className="text-label text-danger mb-3">{phoneErr}</p>}
             {addrs.length > 0 && (
@@ -210,7 +210,7 @@ const OrderForm: FC<{
                   id="order-address"
                   value={String(addrId)}
                   onChange={(e) => setAddrId(Number(e.target.value))}
-                  className={`${inputCls(false)} mb-4`}
+                  className={`ym-disable-keys ${inputCls(false)} mb-4`}
                 >
                   {addrs.map((a) => <option key={a.id} value={String(a.id)}>{formatAddress(a)}</option>)}
                   <option value="0">{t.addressNone}</option>

@@ -8,6 +8,8 @@ export const ERR_MESSAGES = {
   title_uz_required: "Sarlavha (o'zbek lotin) majburiy",
   title_ru_required: 'Sarlavha (rus) majburiy',
   name_required: 'Nomi majburiy',
+  name_too_long: 'Nomi juda uzun (ko\'pi bilan 300 belgi)',
+  description_too_long: 'Tavsif juda uzun (ko\'pi bilan 20 000 belgi)',
   phone_required: 'Telefon majburiy',
   yandexMetricaId_invalid: 'Metrica raqami faqat raqamlardan iborat bo\'lishi kerak',
   id_taken: 'Bu ID allaqachon band',

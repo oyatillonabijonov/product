@@ -9,6 +9,7 @@ import { createEnv, IMAGES_DIR } from './env.ts';
 import { createBillzSync } from './billz-sync.ts';
 import { createUsdRate } from './usd-rate.ts';
 import { mountMcp, mountOAuth } from './mcp.ts';
+import { canonicalOrigin, isMaintenanceOpen, parseTrustProxy, storefrontCacheControl } from '../shared/http-policy.ts';
 
 /**
  * Ilova serveri — dev va production uchun bitta fayl.
@@ -31,33 +32,46 @@ createUsdRate(env).start();
 const app = express();
 app.disable('x-powered-by');
 // Oldinda reverse proxy (Coolify/Traefik yoki nginx) — `req.ip` haqiqiy mijoz manzili bo'lsin (rate limit uchun).
-app.set('trust proxy', 1);
+// Hop'lar soni `TRUST_PROXY`dan (sukut 1 — bitta Traefik); proxy'siz ishlatilsa `false`.
+app.set('trust proxy', parseTrustProxy(process.env.TRUST_PROXY));
+
+// Saytning manzili `PUBLIC_URL`dan, so'rovdagi `Host`/`X-Forwarded-Host`dan emas: sitemap, canonical,
+// OAuth redirect_uri va `Secure` cookie qarori shu manzilga qaraydi, javob esa umumiy keshga tushadi —
+// soxta sarlavha bilan kelgan bitta so'rov hammaga begona domenni ko'rsatmasin. `PUBLIC_URL` yo'q (dev) — tegilmaydi.
+const canonical = canonicalOrigin(process.env.PUBLIC_URL);
+if (canonical) {
+  app.use((req, _res, next) => {
+    req.headers.host = canonical.host;
+    delete req.headers['x-forwarded-host'];
+    req.headers['x-forwarded-proto'] = canonical.proto;
+    next();
+  });
+}
 // HTML/JS/JSON gzip — SSR sahifasi ~100 KB, siqilganda ~20 KB.
 app.use(compression());
 // Coolify/uptime tekshiruvi uchun.
 app.get('/health', (_req, res) => { res.type('text/plain').send('ok'); });
 
 // Minimal xavfsizlik sarlavhalari: MIME-sniffing va clickjacking'ga qarshi
-// (ayniqsa cookie bilan autentifikatsiyalanadigan /admin uchun).
-app.use((_req, res, next) => {
+// (ayniqsa cookie bilan autentifikatsiyalanadigan /admin uchun). CSP'da `script-src` ataylab yo'q —
+// inline skriptlar (mavzu, Metrica) va tashqi widget'lar (Lydya, Telegram) ishlashi kerak.
+app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'; object-src 'none'; base-uri 'self'");
+  if (req.secure) res.setHeader('Strict-Transport-Security', 'max-age=31536000');
   next();
 });
 
 // Storefront sahifalari uchun qisqa kesh + stale-while-revalidate. Keshlashni
-// oldindagi proxy bajaradi; dinamik va shaxsiy sahifalar keshlanmaydi.
-const NO_CACHE = ['/admin', '/api/', '/auth/', '/images/', '/assets/', '/mcp', '/oauth/', '/authorize', '/token', '/register', '/revoke', '/.well-known/', '/yuklash'];
-const NO_CACHE_EXACT = ['/search', '/savat', '/kirish', '/kabinet'];
+// oldindagi proxy bajaradi; dinamik va shaxsiy sahifalar keshlanmaydi. Yo'l React Router kabi
+// normallashtiriladi (`/Kabinet`, `/kabinet.data`), sessiya yoki USD cookie'li javob — `private, no-store`
+// (deploy/nginx.conf ham USD cookie bo'yicha bypass qiladi).
 app.use((req, res, next) => {
-  if (req.method !== 'GET') return next();
-  const path = req.path;
-  const skip = NO_CACHE.some((p) => path.startsWith(p))
-    || NO_CACHE_EXACT.some((p) => path === p || path.endsWith(p));
-  // USD tanlagan foydalanuvchi sahifasi boshqa narxda chiziladi — umumiy keshga tushmasin
-  // (deploy/nginx.conf ham shu cookie bo'yicha bypass qiladi).
-  const usd = /(?:^|;\s*)currency=USD(?:;|$)/.test(req.headers.cookie ?? '');
-  if (!skip) res.setHeader('Cache-Control', usd ? 'private, no-store' : 'public, max-age=0, s-maxage=60, stale-while-revalidate=240');
+  const cacheControl = storefrontCacheControl(req.method, req.originalUrl, req.headers.cookie);
+  if (cacheControl) res.setHeader('Cache-Control', cacheControl);
   next();
 });
 
@@ -83,12 +97,16 @@ const MAINTENANCE_HTML = readFileSync(new URL('./maintenance.html', import.meta.
  * (`base64url(json).base64url(hmac)`). U yerdan import qilinmaydi: Docker `functions/`ni tashimaydi.
  */
 async function isAdmin(cookie: string | undefined): Promise<boolean> {
-  const [payload, sig] = /(?:^|;\s*)session=([^;]+)/.exec(cookie ?? '')?.[1].split('.') ?? [];
+  const parts = /(?:^|;\s*)session=([^;]+)/.exec(cookie ?? '')?.[1].split('.') ?? [];
+  if (parts.length !== 2) return false;
+  const [payload, sig] = parts;
   if (!payload || !sig) return false;
   const row = await env.DB.prepare('SELECT session_secret FROM admin_auth WHERE id = 1').first<{ session_secret: string }>();
   if (!row) return false;
-  const expected = createHmac('sha256', row.session_secret).update(payload).digest('base64url');
-  if (sig.length !== expected.length || !timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return false;
+  const expected = Buffer.from(createHmac('sha256', row.session_secret).update(payload).digest('base64url'));
+  // Bayt uzunligi — ko'p baytli belgi bilan teng satr uzunligi `timingSafeEqual`da RangeError (500) bermasin.
+  const given = Buffer.from(sig);
+  if (given.length !== expected.length || !timingSafeEqual(given, expected)) return false;
   try {
     const { exp } = JSON.parse(Buffer.from(payload, 'base64url').toString()) as { exp: unknown };
     return typeof exp === 'number' && exp > Date.now() / 1000;
@@ -98,7 +116,8 @@ async function isAdmin(cookie: string | undefined): Promise<boolean> {
 }
 
 const maintenance: express.RequestHandler = async (req, res, next) => {
-  if (!MAINTENANCE || MAINTENANCE_OPEN.some((p) => req.path.startsWith(p))) return next();
+  // Qaror React Router marshrutlaydigan yo'lda va segment chegarasida (`/admin/../katalog` ochiq emas).
+  if (!MAINTENANCE || isMaintenanceOpen(req.originalUrl, MAINTENANCE_OPEN)) return next();
   // Adminga ko'rsatilgan haqiqiy sahifa umumiy keshga tushmasin — aks holda hammaga chiqib ketadi.
   if (await isAdmin(req.headers.cookie)) { res.setHeader('Cache-Control', 'private, no-store'); return next(); }
   res.status(503).set({ 'Retry-After': '86400', 'Cache-Control': 'no-store' }).type('html').send(MAINTENANCE_HTML);
@@ -127,6 +146,11 @@ if (isProd) {
   );
 }
 
-app.listen(PORT, () => {
-  console.log(`${isProd ? 'production' : 'dev'} → http://localhost:${PORT}`);
-});
+// Dev server faqat shu kompyuterdan ochiladi (Vite `data/` papkasini ham bera oladi); production konteynerda
+// hamma interfeysda. `HOST` ikkalasini ham almashtiradi.
+const HOST = process.env.HOST || (isProd ? undefined : '127.0.0.1');
+const onListen = () => {
+  console.log(`${isProd ? 'production' : 'dev'} → http://${HOST ?? 'localhost'}:${PORT}`);
+};
+if (HOST) app.listen(PORT, HOST, onListen);
+else app.listen(PORT, onListen);

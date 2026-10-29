@@ -39,6 +39,12 @@ sudo nginx -t && sudo systemctl reload nginx
 
 nginx shart emas — ilova o'zi ham 80/443 da tura oladi, lekin TLS, gzip va sahifa keshi qo'lda sozlanadi.
 
+Proxy bilan bog'liq sozlamalar (`.env.example`ga qarang):
+
+- `PUBLIC_URL` — saytning tashqi manzili. Berilsa, ilova so'rovdagi `Host`/`X-Forwarded-*` o'rniga shuni ishlatadi (sitemap, canonical, OAuth, `Secure` cookie, HSTS). Sayt boshqa domen yoki oddiy `http://` orqali ochilmasin — admin cookie'si `Secure` bo'ladi va HTTP'da saqlanmaydi.
+- `TRUST_PROXY` — ilova oldidagi proxy hop'lari soni (sukut 1: bitta nginx yoki Traefik). Port 3000 tashqariga ochilmasin: to'g'ridan-to'g'ri kelgan so'rov `X-Forwarded-For` bilan IP'ni o'zi tanlaydi va rate limit'dan qochadi. Proxy'siz — `TRUST_PROXY=false`.
+- `HOST` — tinglanadigan interfeys (sukut: production'da hammasi, dev'da `127.0.0.1`). systemd + nginx bir serverda bo'lsa `HOST=127.0.0.1` qo'ying.
+
 ## 3. Yangilash
 
 ```bash

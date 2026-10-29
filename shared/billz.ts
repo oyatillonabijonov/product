@@ -69,19 +69,25 @@ export function toUzs(amount: number, currency: string, rate: number): number | 
   return Math.round(uzs / 1000) * 1000;
 }
 
-/** Rich-editor HTML → oddiy matn (`ProductPage` `whitespace-pre-line` bilan ko'rsatadi). */
+/** Tavsif shu uzunlikdan keyin kesiladi — Billz javobidagi ulkan HTML sinxronizatsiyani qotirmasin. */
+const MAX_DESCRIPTION = 20_000;
+
+/** Rich-editor HTML → oddiy matn (`ProductPage` `whitespace-pre-line` bilan ko'rsatadi).
+ * Regexlar chiziqli: teg `<[^<>]*>` — yopilmagan `<` keyingisigacha skanerlanadi, oxirigacha emas;
+ * qator oxiridagi bo'shliq `trimEnd` bilan (`/[ \t]+\n/` uzun bo'shliq qatorida kvadratik edi). */
 export function htmlToText(html: string): string {
   return html
+    .slice(0, MAX_DESCRIPTION)
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
+    .replace(/<[^<>]*>/g, '')
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/[ \t]+\n/g, '\n')
+    .split('\n').map((l) => l.trimEnd()).join('\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
@@ -108,7 +114,8 @@ export function photoKey(url: string): string | null {
   let u: URL;
   try { u = new URL(url); } catch { return null; }
   if (u.protocol !== 'https:' || !BILLZ_CDN_HOSTS.includes(u.hostname)) return null;
-  const base = decodeURIComponent(u.pathname.split('/').pop() ?? '');
+  let base: string;
+  try { base = decodeURIComponent(u.pathname.split('/').pop() ?? ''); } catch { return null; } // buzuq %-kodlash
   const dot = base.lastIndexOf('.');
   if (dot < 0) return null;
   const ext = base.slice(dot + 1).toLowerCase();
@@ -116,6 +123,30 @@ export function photoKey(url: string): string | null {
   const stem = base.slice(0, dot);
   const name = UUID.test(stem) ? stem.toLowerCase() : fnv1a(url);
   return `products/billz-${name}.${ext}`;
+}
+
+/**
+ * Javob tanasini `max` baytgacha o'qiydi: `Content-Length` katta bo'lsa darhol, oqim chegaradan
+ * oshsa o'qish to'xtatiladi va `null` qaytadi — butun javob xotiraga yig'ilmaydi.
+ */
+export async function readCapped(res: Response, max: number): Promise<ArrayBuffer | null> {
+  if (Number(res.headers.get('content-length')) > max) { await res.body?.cancel(); return null; }
+  if (!res.body) return new ArrayBuffer(0);
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > max) { await reader.cancel(); return null; }
+    chunks.push(value);
+  }
+  const buf = new ArrayBuffer(total);
+  const out = new Uint8Array(buf);
+  let off = 0;
+  for (const c of chunks) { out.set(c, off); off += c.byteLength; }
+  return buf;
 }
 
 /** Bazada Billz'dan kelgan, lekin to'liq sinxronizatsiyada ko'rinmagan tovarlar. */
@@ -164,7 +195,7 @@ const SPEC_LABELS: Record<string, string> = { 'Память': 'Xotira', 'Цве�
 const JUNK = /^[\s_—–-]*$/;
 
 export function mapBillzProduct(raw: BillzProduct, ctx: MapContext): MappedProduct | null {
-  const name = (raw.name ?? '').trim();
+  const name = (raw.name ?? '').trim().slice(0, 200).trimEnd(); // ulkan nom slug/kalit/PC parserlarini qimmatlashtirmasin
   if (!name) return null;
   const price = raw.shop_prices?.find((p) => p.shop_id === ctx.shopId);
   if (!price) return null;

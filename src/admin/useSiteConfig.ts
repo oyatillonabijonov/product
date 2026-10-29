@@ -3,12 +3,20 @@ import { useTranslation } from 'react-i18next';
 import type { ApiSiteConfig } from '../../shared/types';
 import { getSiteConfig, updateSiteConfig } from './api';
 
+/**
+ * Saqlangan sir belgisi — server sirning o'zini qaytarmaydi, faqat shu belgini; forma uni o'zgartirmasdan
+ * qaytarsa server bazadagi qiymatni saqlaydi. Server nusxasi: `app/routes/api.admin.site-config.tsx`.
+ */
+export const SECRET_SET = '__set__';
+
 export interface SiteConfigState {
   loaded: boolean;
   error: string;
   config: ApiSiteConfig | null;
   set: <K extends keyof ApiSiteConfig>(k: K, v: ApiSiteConfig[K]) => void;
   dirty: boolean;
+  /** Oxirgi yuklangan/saqlangan holat — sir maydoni bo'shatilsa belgiga qaytarish uchun. */
+  saved: ApiSiteConfig | null;
   /** `PUT` javobi — server tozalagan qiymatlar (masalan bo'sh `seoTitleSuffix` do'kon nomiga aylanadi). */
   save: () => Promise<void>;
 }
@@ -39,6 +47,7 @@ export function useSiteConfig(): SiteConfigState {
     error: error as string,
     config,
     dirty: config !== null && JSON.stringify(config) !== saved,
+    saved: saved ? (JSON.parse(saved) as ApiSiteConfig) : null,
     set: (key, value) => setConfig((c: ApiSiteConfig | null) => (c ? { ...c, [key]: value } : c)),
     save: async () => {
       if (!config) return;

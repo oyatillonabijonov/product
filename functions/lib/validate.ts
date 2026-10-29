@@ -27,6 +27,11 @@ export class ValidationError extends Error {}
 
 // Payload chegaralari — chegarasiz massivlar minglab ketma-ket INSERT bo'lib ketardi.
 const MAX_IMAGES = 24;
+const MAX_PRODUCT_NAME = 300;
+const MAX_DESCRIPTION = 20_000;
+// Ommaviy lead'lar: telefon maydoni raqamlar + bo'shliq/qavs/tire — 32 belgidan uzuni yaroqsiz.
+const MAX_PHONE = 32;
+const MAX_ITEM_FIELD = 200;
 const MAX_SPECS = 60;
 const MAX_OPTIONS = 4;
 const MAX_OPTION_VALUES = 30;
@@ -75,6 +80,7 @@ function reqNumber(o: Record<string, unknown>, key: string): number {
 export function parseProductInput(body: unknown): ProductInput {
   const o = asRecord(body);
   const name = reqString(o, 'name');
+  if (name.length > MAX_PRODUCT_NAME) throw new ValidationError('name_too_long');
   const categoryId = typeof o.categoryId === 'string' ? o.categoryId : null;
   // Tur faqat shakl bo'yicha; yo'nalishga tegishliligi route'da bazadan (`typeExists`).
   const type = typeof o.type === 'string' && o.type.trim() !== '' ? o.type.trim() : null;
@@ -100,6 +106,9 @@ export function parseProductInput(body: unknown): ProductInput {
     typeof o.description === 'string' && o.description.trim() !== '' ? o.description.trim() : null;
   const descriptionRu =
     typeof o.descriptionRu === 'string' && o.descriptionRu.trim() !== '' ? o.descriptionRu.trim() : null;
+  if ((description?.length ?? 0) > MAX_DESCRIPTION || (descriptionRu?.length ?? 0) > MAX_DESCRIPTION) {
+    throw new ValidationError('description_too_long');
+  }
   // Billz tovarida qo'lda tahrirlangan maydonlar — notanish kalit `parseManualFields`da tashlanadi.
   const manualFields = parseManualFields(
     Array.isArray(o.manualFields) ? o.manualFields.filter((x): x is string => typeof x === 'string').join(',') : '',
@@ -542,6 +551,7 @@ export function parseConsultInput(body: unknown): ConsultInput {
   const o = asRecord(body);
   const name = reqString(o, 'name');
   const phone = reqString(o, 'phone');
+  if (phone.length > MAX_PHONE) throw new ValidationError('phone_invalid');
   const digits = phone.replace(/\D/g, '');
   if (digits.length < 7 || digits.length > 15) throw new ValidationError('phone_invalid');
   const raw = Array.isArray(o.topics) ? o.topics : [];
@@ -596,6 +606,7 @@ export function parseJobApplicationInput(body: unknown): JobApplicationInput {
   const o = asRecord(body);
   const name = reqString(o, 'name');
   const phone = reqString(o, 'phone');
+  if (phone.length > MAX_PHONE) throw new ValidationError('phone_invalid');
   const digits = phone.replace(/\D/g, '');
   if (digits.length < 7 || digits.length > 15) throw new ValidationError('phone_invalid');
   const resumeUrl = typeof o.resumeUrl === 'string' ? o.resumeUrl.trim() : '';
@@ -617,6 +628,7 @@ export function parseOrderInput(body: unknown): OrderInput {
   const o = asRecord(body);
   const name = reqString(o, 'name');
   const phone = reqString(o, 'phone');
+  if (phone.length > MAX_PHONE) throw new ValidationError('phone_invalid');
   const digits = phone.replace(/\D/g, '');
   if (digits.length < 7 || digits.length > 15) throw new ValidationError('phone_invalid');
   const paymentKind: OrderPaymentKind | null =
@@ -630,10 +642,13 @@ export function parseOrderInput(body: unknown): OrderInput {
     if (priceUzs <= 0) throw new ValidationError('price_positive');
     const qty = reqNumber(it, 'qty');
     if (!Number.isInteger(qty) || qty <= 0) throw new ValidationError('qty_positive');
+    const productId = reqString(it, 'productId');
+    if (productId.length > MAX_ITEM_FIELD) throw new ValidationError('items_invalid');
     return {
-      productId: reqString(it, 'productId'),
-      name: reqString(it, 'name'),
-      variantLabel: typeof it.variantLabel === 'string' ? it.variantLabel : '',
+      productId,
+      // Nom va variant — operator uchun nusxa: uzuni kesiladi (mahsulot nomi 300 belgigacha bo'lishi mumkin).
+      name: reqString(it, 'name').slice(0, MAX_ITEM_FIELD),
+      variantLabel: typeof it.variantLabel === 'string' ? it.variantLabel.slice(0, MAX_ITEM_FIELD) : '',
       qty,
       priceUzs,
     };
@@ -642,7 +657,7 @@ export function parseOrderInput(body: unknown): OrderInput {
     typeof o[k] === 'number' && Number.isFinite(o[k]) ? (o[k] as number) : null;
   const installment = paymentKind === 'installment';
   return {
-    name,
+    name: name.slice(0, 100),
     phone: phone.trim(),
     note: typeof o.note === 'string' ? o.note.trim().slice(0, 500) : '',
     paymentKind,

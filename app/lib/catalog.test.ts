@@ -112,3 +112,17 @@ describe('searchTerms', () => {
     expect(searchTerms('   ')).toEqual([]);
   });
 });
+
+describe('kiritish chegaralari', () => {
+  it('q 200 belgigacha, brendlar 50 tagacha kesiladi', () => {
+    const f = parseCatalogFilters(new URLSearchParams({ q: 'x'.repeat(5000), brand: Array.from({ length: 500 }, (_, i) => `b${i}`).join(',') }));
+    expect(f.q).toHaveLength(200);
+    expect(f.brands).toHaveLength(50);
+  });
+  it('searchTerms ko\'p takroriy so\'zda tez ishlaydi va 6 ta noyobni qaytaradi', () => {
+    const q = Array.from({ length: 100_000 }, (_, i) => `w${i % 3}`).join(' ') + ' a b c d e';
+    const t0 = Date.now();
+    expect(searchTerms(q)).toEqual(['w0', 'w1', 'w2', 'a', 'b', 'c']);
+    expect(Date.now() - t0).toBeLessThan(500);
+  });
+});

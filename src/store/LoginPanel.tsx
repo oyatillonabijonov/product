@@ -36,16 +36,24 @@ const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string }> 
     if (!config.telegramLoginBot || !host) return;
     const seen = new MutationObserver(() => setTgReady(Boolean(host.querySelector('iframe'))));
     seen.observe(host, { childList: true });
+    // Callback rejimi (redirect emas): vidjet foydalanuvchi obyektini shu funksiyaga beradi, biz uni
+    // same-origin POST qilamiz — server Origin'ni tekshirib, kirishni shu brauzerga bog'laydi.
+    const w = window as unknown as { onTelegramAuth?: (u: Record<string, string | number>) => void };
+    w.onTelegramAuth = (u) => {
+      fetch('/auth/telegram', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(u) })
+        .then((r) => location.assign(r.ok ? '/kabinet' : '/kirish?e=telegram'))
+        .catch(() => location.assign('/kirish?e=telegram'));
+    };
     const s = document.createElement('script');
     s.src = 'https://telegram.org/js/telegram-widget.js?22';
     s.async = true;
     s.setAttribute('data-telegram-login', config.telegramLoginBot);
     s.setAttribute('data-size', 'large');
     s.setAttribute('data-radius', '20');
-    s.setAttribute('data-auth-url', '/auth/telegram');
+    s.setAttribute('data-onauth', 'onTelegramAuth(user)');
     s.setAttribute('data-request-access', 'write');
     host.appendChild(s);
-    return () => { seen.disconnect(); host.innerHTML = ''; setTgReady(false); };
+    return () => { seen.disconnect(); host.innerHTML = ''; setTgReady(false); delete w.onTelegramAuth; };
   }, [config.telegramLoginBot]);
 
   const showDivider = Boolean(config.googleClientId && tgReady);

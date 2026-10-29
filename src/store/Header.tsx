@@ -368,7 +368,7 @@ export default function Header({
             Login sozlanmagan bo'lsa /kirish bosh sahifaga qaytaradi. */}
         <Link
           to={localizedPath(locale, customerName !== null ? '/kabinet' : '/kirish')}
-          className={`${ICON_COL} max-lg:hidden`}
+          className={`${ICON_COL} max-lg:hidden ym-hide-content`}
           aria-label={customerName || t.navProfile}
           title={customerName || t.navProfile}
         >

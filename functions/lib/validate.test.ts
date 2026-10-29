@@ -9,6 +9,7 @@ import {
   parseDeviceModelInput,
   parseSettingsInput,
   parseOrderInput,
+  parseConsultInput,
   parseProfileInput,
   parseVacancyInput,
   parseJobApplicationInput,
@@ -558,5 +559,32 @@ describe('parsePcPartsInput', () => {
     expect(() => parsePcPartsInput({ items: [{ productId: 'p', dimensionId: 1, valueIds: ['12'] }] })).toThrow('items_invalid');
     expect(() => parsePcPartsInput({ items: [{ productId: 'p', dimensionId: 1 }] })).toThrow('items_invalid');
     expect(() => parsePcPartsInput({ items: [{ productId: 'p', dimensionId: 1, valueIds: null }] })).toThrow('items_invalid');
+  });
+});
+
+describe('maydon uzunligi chegaralari', () => {
+  const item = { productId: 'imac', name: 'iMac', variantLabel: '256GB', qty: 1, priceUzs: 1000 };
+  const order = { name: 'Ali', phone: '+998 90 123 45 67', paymentKind: 'cash', items: [item] };
+  const bigPhone = `+998 90 123 45 67${'x'.repeat(40)}`;
+
+  it("buyurtma: ism 100 ga, nom/variant 200 ga kesiladi; uzun productId rad etiladi", () => {
+    const o = parseOrderInput({ ...order, name: 'A'.repeat(500), items: [{ ...item, name: 'N'.repeat(500), variantLabel: 'V'.repeat(500) }] });
+    expect(o.name).toHaveLength(100);
+    expect(o.items[0].name).toHaveLength(200);
+    expect(o.items[0].variantLabel).toHaveLength(200);
+    expect(() => parseOrderInput({ ...order, items: [{ ...item, productId: 'p'.repeat(201) }] })).toThrow('items_invalid');
+  });
+  it('telefon 32 belgidan uzun — phone_invalid (buyurtma, konsultatsiya, ariza)', () => {
+    expect(() => parseOrderInput({ ...order, phone: bigPhone })).toThrow('phone_invalid');
+    expect(() => parseConsultInput({ name: 'Ali', phone: bigPhone })).toThrow('phone_invalid');
+    expect(() => parseJobApplicationInput({ name: 'Ali', phone: bigPhone })).toThrow('phone_invalid');
+    expect(parseOrderInput(order).phone).toBe('+998 90 123 45 67');
+  });
+  it('mahsulot: nom ≤ 300, tavsif va ruscha tavsif ≤ 20 000', () => {
+    expect(() => parseProductInput({ ...base, name: 'A'.repeat(301) })).toThrow('name_too_long');
+    expect(parseProductInput({ ...base, name: 'A'.repeat(300) }).name).toHaveLength(300);
+    expect(() => parseProductInput({ ...base, description: 'd'.repeat(20_001) })).toThrow('description_too_long');
+    expect(() => parseProductInput({ ...base, descriptionRu: 'd'.repeat(20_001) })).toThrow('description_too_long');
+    expect(parseProductInput({ ...base, description: 'd'.repeat(20_000) }).description).toHaveLength(20_000);
   });
 });

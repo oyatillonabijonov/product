@@ -1,6 +1,7 @@
 import type { Route } from './+types/api.admin.upload';
 import { json } from '../../functions/lib/db';
 import { requireAdmin } from './api.admin.guard';
+import { sniffType } from '../../shared/image-magic';
 
 const ALLOWED: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -34,8 +35,13 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!ext) return json({ error: 'unsupported_type' }, { status: 400 });
   if (file.size > maxSize(file.type)) return json({ error: 'file_too_large' }, { status: 400 });
 
+  // Mijoz aytgan `type` ga emas, baytlarga qaraladi — `.jpg` deb yuborilgan HTML
+  // `/images/products/` dan ochiq tarqatilmasin.
+  const bytes = await file.arrayBuffer();
+  if (sniffType(new Uint8Array(bytes)) !== file.type) return json({ error: 'unsupported_type' }, { status: 400 });
+
   const key = `products/${crypto.randomUUID()}.${ext}`;
-  await env.IMAGES.put(key, await file.arrayBuffer(), {
+  await env.IMAGES.put(key, bytes, {
     httpMetadata: { contentType: file.type },
   });
   return json({ imageUrl: `/images/${key}` }, { status: 201 });

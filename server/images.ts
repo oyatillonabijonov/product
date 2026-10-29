@@ -1,7 +1,7 @@
 import { createReadStream, existsSync, mkdirSync, statSync } from 'node:fs';
 import { rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { dirname, join, normalize } from 'node:path';
+import { dirname, resolve, sep } from 'node:path';
 import { Readable } from 'node:stream';
 import type { ImageStore } from '../shared/runtime';
 
@@ -23,10 +23,11 @@ const MIME: Record<string, string> = {
   mp4: 'video/mp4',
 };
 
-function pathFor(dir: string, key: string): string | null {
-  const file = normalize(join(dir, key));
-  // `..` bilan papkadan chiqib ketishga yo'l yo'q.
-  return file.startsWith(normalize(dir)) ? file : null;
+export function pathFor(dir: string, key: string): string | null {
+  const root = resolve(dir);
+  const file = resolve(root, key);
+  // `..` bilan papkadan chiqib ketishga yo'l yo'q; `root + sep` — `images-to-copy.txt` kabi qo'shni nom ham emas.
+  return file.startsWith(root + sep) ? file : null;
 }
 
 export function openImageStore(dir: string): ImageStore {

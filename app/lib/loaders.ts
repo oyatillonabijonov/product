@@ -320,7 +320,12 @@ export async function loadSiteConfig(env: Env): Promise<ApiSiteConfig> {
 /** Storefront klientiga (loader → HTML) yuboriladigan config — sirlar olib tashlanadi.
  * Bot token / OAuth secret / sessiya siri faqat server-side (api.order, auth, admin) o'qiladi. */
 export function publicSiteConfig(cfg: ApiSiteConfig): ApiSiteConfig {
-  return { ...cfg, telegramBotToken: '', googleClientSecret: '', customerSessionSecret: '', billzSecretToken: '' };
+  // Sirlardan tashqari ichki identifikatorlar ham (buyurtma chati, Billz do'koni va holati) —
+  // storefront ularni o'qimaydi, admin o'zining maskasiz endpoint'idan oladi.
+  return {
+    ...cfg, telegramBotToken: '', googleClientSecret: '', customerSessionSecret: '', billzSecretToken: '',
+    telegramOrderChatId: '', billzShopId: '', billzLastSync: '',
+  };
 }
 
 export async function loadBanners(env: Env): Promise<ApiBanner[]> {

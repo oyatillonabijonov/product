@@ -13,7 +13,10 @@ import './styles.css';
 // it ever reaches <Meta />. Rendering them here in the root Layout (which always wraps
 // every page) guarantees they appear on every page regardless of leaf meta overrides.
 export function Layout({ children }: { children: React.ReactNode }) {
-  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig; origin?: string; orgContact?: OrgContact; assets?: SiteAssets } | undefined;
+  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig; origin?: string; orgContact?: OrgContact; assets?: SiteAssets; adminViewer?: boolean } | undefined;
+  // Admin cookie'si bilan ochilgan hujjatda uchinchi tomon kodi (Lydya, Metrica) ishlamaydi: admin API
+  // shu origin'da, cookie `Path=/` — begona skript admin nomidan so'rov yubora olardi.
+  const thirdParty = Boolean(storeData) && !storeData?.adminViewer;
   const lang = htmlLang(storeData?.locale ?? DEFAULT_LOCALE);
   const location = useLocation();
   const orgContact = storeData?.orgContact;
@@ -25,7 +28,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   // faqat storefront'da (storeData admin/resource routelarda yo'q). Id raqamligini
   // parseSiteConfigInput kafolatlaydi — baribir Number() bilan qo'shamiz (XSS himoyasi).
   const metricaId = /^\d+$/.test(storeData?.siteConfig?.yandexMetricaId ?? '') ? Number(storeData?.siteConfig?.yandexMetricaId) : null;
-  const metricaJs = metricaId === null ? '' :
+  const metricaJs = metricaId === null || !thirdParty ? '' :
     `(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');window.dataLayer=window.dataLayer||[];ym(${metricaId},'init',{ssr:true,ecommerce:'dataLayer',webvisor:true,clickmap:true,trackLinks:true,accurateTrackBounce:true});`;
   return (
     <html lang={lang}>
@@ -58,7 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ScrollRestoration />
         <Scripts />
         {/* ponytail: Lydya AI chat (mijozning xizmati) — faqat storefront'da; kalit ochiq widget kaliti. Kerak bo'lsa admin maydoniga ko'chiriladi. */}
-        {storeData && (
+        {thirdParty && (
           <>
             <script src="https://lydya.ai/widget.js" data-key="wk_VH1nhTM39Con62iwi9x-RkYf" async />
             {/* Pufakcha va oyna ramkasi Shadow DOM'da (sahifa CSS'i yetmaydi) — sayt uslubiga keltiramiz: tokenlardagi rang, soyasiz, 28px radius,

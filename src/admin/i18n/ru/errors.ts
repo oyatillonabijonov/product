@@ -11,6 +11,8 @@ const errors: Dict<typeof uz> = {
   title_uz_required: 'Укажите заголовок (узбекский, латиница)',
   title_ru_required: 'Укажите заголовок (русский)',
   name_required: 'Укажите название',
+  name_too_long: 'Название слишком длинное (не более 300 символов)',
+  description_too_long: 'Описание слишком длинное (не более 20 000 символов)',
   phone_required: 'Укажите телефон',
   yandexMetricaId_invalid: 'Номер Метрики должен состоять только из цифр',
   id_taken: 'Этот ID уже занят',

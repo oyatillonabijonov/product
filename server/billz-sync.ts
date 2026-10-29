@@ -1,6 +1,6 @@
 import type { Env, SqlStatement } from '../shared/runtime';
 import {
-  BILLZ_BASE, productsUrl, hiddenIds, syncTarget, mapBillzProduct, mergeDuplicates, nameKey, billzNameKey, billzUpdateColumns,
+  BILLZ_BASE, productsUrl, readCapped, hiddenIds, syncTarget, mapBillzProduct, mergeDuplicates, nameKey, billzNameKey, billzUpdateColumns,
   type BillzProduct, type BillzProductsPage, type BillzShop, type BillzSyncResult, type BillzSyncStatus, type MapContext, type MappedProduct,
   parseManualFields,
 } from '../shared/billz.ts';
@@ -35,6 +35,9 @@ const BOOT_DELAY_MS = 10 * 1000;
 const WRITE_BATCH = 200;
 const MIN_GAP_MS = 500; // Billz chegarasi 2 so'rov/s
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const MAX_JSON_BYTES = 20 * 1024 * 1024; // bitta API sahifasi (200 tovar) odatda ~1 MB
+const FETCH_TIMEOUT_MS = 30_000; // javob bermagan Billz/CDN qulfni abadiy ushlab turmasin
+const MAX_PAGES = 100; // 20 000 tovar; hozir ≈8 sahifa — buzuq `count` cheksiz aylantirmasin
 const PHOTO_PARALLEL = 4;
 
 interface Config { token: string; shopId: string; usdToUzs: number }
@@ -75,13 +78,20 @@ export function createBillzSync(env: Env): BillzSyncHandle {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret_token: secret }),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     if (!res.ok) throw new BillzError('login_failed', `login http_${res.status}`);
-    const body = (await res.json()) as { data?: { access_token?: string; expires_in?: number } };
+    const body = await readJson<{ data?: { access_token?: string; expires_in?: number } }>(res);
     const token = body.data?.access_token;
     if (!token) throw new BillzError('login_failed', "login: token yo'q");
     jwt = { token, expiresAt: Date.now() + ((body.data?.expires_in ?? 3600) - 60) * 1000 };
     return token;
+  }
+
+  async function readJson<T>(res: Response): Promise<T> {
+    const buf = await readCapped(res, MAX_JSON_BYTES);
+    if (!buf) throw new BillzError('response_too_large', `${res.url} → ${MAX_JSON_BYTES} baytdan katta`);
+    return JSON.parse(new TextDecoder().decode(buf)) as T;
   }
 
   /** GET JSON: throttle, 401 → bir marta qayta login, 429 → 2 s kutib qayta (3 marta). */
@@ -89,11 +99,11 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     const token = jwt && jwt.expiresAt > Date.now() ? jwt.token : await login(secret);
     for (let attempt = 0; ; attempt++) {
       await throttle();
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
       if (res.status === 429 && attempt < 3) { await sleep(2000); continue; }
       if (res.status === 401 && !retried) { jwt = null; return get<T>(url, secret, true); }
       if (!res.ok) throw new BillzError(`http_${res.status}`, `${url} → ${res.status}`);
-      return (await res.json()) as T;
+      return readJson<T>(res);
     }
   }
 
@@ -101,10 +111,10 @@ export function createBillzSync(env: Env): BillzSyncHandle {
   async function fetchPhoto(url: string, key: string): Promise<'downloaded' | 'exists' | 'failed'> {
     if (await env.IMAGES.has(key)) return 'exists';
     try {
-      const res = await fetch(url, { redirect: 'manual' });
-      if (!res.ok || !(res.headers.get('content-type') ?? '').startsWith('image/')) return 'failed';
-      const buf = await res.arrayBuffer();
-      if (buf.byteLength === 0 || buf.byteLength > MAX_PHOTO_BYTES) return 'failed';
+      const res = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+      if (!res.ok || !(res.headers.get('content-type') ?? '').startsWith('image/')) { await res.body?.cancel(); return 'failed'; }
+      const buf = await readCapped(res, MAX_PHOTO_BYTES);
+      if (!buf || buf.byteLength === 0) return 'failed';
       await env.IMAGES.put(key, buf);
       return 'downloaded';
     } catch {
@@ -182,7 +192,7 @@ export function createBillzSync(env: Env): BillzSyncHandle {
     //    avval hammasi o'qiladi. Billz sahifalashi beqaror: id bo'yicha noyoblanadi.
     const raws = new Map<string, BillzProduct>();
     let fetched = 0;
-    for (let page = 1; ; page++) {
+    for (let page = 1; page <= MAX_PAGES; page++) {
       const data = await get<BillzProductsPage>(productsUrl(page), cfg.token);
       result.count = data.count;
       const products = data.products ?? [];

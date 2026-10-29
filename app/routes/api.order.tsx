@@ -3,6 +3,7 @@ import { json, rowToSiteConfig, type SiteConfigRow } from '../../functions/lib/d
 import { parseOrderInput, ValidationError } from '../../functions/lib/validate';
 import { customerIdFrom } from '../../functions/lib/customer-auth';
 import { allowLead } from '../../functions/lib/rate-limit';
+import { readJson } from '../../functions/lib/body';
 
 const MAX_LEAD_BYTES = 32 * 1024;
 import { composeOrderMessage } from '../../shared/order';
@@ -13,10 +14,11 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, { status: 405 });
   // Bitta IP'dan 10 daqiqada 10 ta — bot Telegram guruhini va jadvalni to'ldirib tashlamasin.
   if (!allowLead(context.ip || 'unknown')) return json({ error: 'too_many_requests' }, { status: 429 });
-  // Lead JSON'i bir necha KB; kattasi body o'qilishidan oldin rad etiladi.
-  if (Number(request.headers.get('content-length') ?? '0') > MAX_LEAD_BYTES) return json({ error: 'too_large' }, { status: 413 });
 
-  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  // Lead JSON'i bir necha KB; kattasi o'qilgan baytlar bo'yicha (Content-Length'ga ishonmasdan) rad etiladi.
+  const raw = await readJson(request, MAX_LEAD_BYTES);
+  if (raw instanceof Response) return raw;
+  const body = raw as Record<string, unknown> | null;
   // Honeypot: bot bo'sh 'company' maydonini to'ldiradi → jimgina "qabul qildik" deymiz.
   if (body && typeof body.company === 'string' && body.company !== '') return json({ ok: true });
 
@@ -32,7 +34,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const cfgRow = await env.DB.prepare('SELECT * FROM site_config WHERE id = 1').first<SiteConfigRow>();
   const cfg = cfgRow ? rowToSiteConfig(cfgRow) : null;
   // customer_id sessiyadan (serverda) — klient body'siga ishonilmaydi.
-  const customerId = cfg?.customerSessionSecret ? await customerIdFrom(request, cfg.customerSessionSecret) : null;
+  const customerId = cfg?.customerSessionSecret ? await customerIdFrom(request, cfg.customerSessionSecret, env) : null;
 
   // Telegramga yuborish (xato bo'lsa ham quyida D1'ga saqlanadi — telegram_sent=0).
   // ponytail: mijoz yuborgan narxlar saqlanadi — bu lead, operator qo'ng'iroqda tasdiqlaydi;

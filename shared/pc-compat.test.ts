@@ -295,3 +295,27 @@ describe('graphicsIssue', () => {
     expect(graphicsIssue(undefined, false)).toBeNull();
   });
 });
+
+describe('ulkan nomlar — chiziqli', () => {
+  it("50k bo'shliqli nomda partGroups, partWatts, suggestValues, cpuHasGraphics tez tugaydi", () => {
+    const evil = `gpu ${' '.repeat(50_000)}x`;
+    const evil2 = `rtx${' '.repeat(50_000)}/`;
+    const t0 = Date.now();
+    partGroups([
+      { id: 'a', name: evil, image_url: '', type: 'gpu', price: 1, billz_id: 'b', billz_stock: 1, is_active: 1, pc_watts: null },
+      { id: 'b', name: evil2, image_url: '', type: 'cpu', price: 1, billz_id: 'c', billz_stock: 1, is_active: 1, pc_watts: null },
+    ]);
+    for (const n of [evil, evil2, `ryzen 5 ${'1 '.repeat(25_000)}`]) {
+      partWatts('gpu', n, null);
+      partWatts('cpu', n, null);
+      partWatts('psu', n, null);
+      suggestValues('mb', n, DIMS);
+      suggestValues('ram', n, DIMS);
+      cpuHasGraphics(n);
+    }
+    expect(Date.now() - t0).toBeLessThan(500);
+  });
+  it("bo'shliq qatorlari natijani o'zgartirmaydi", () => {
+    expect(partWatts('gpu', 'NVIDIA GeForce   RTX 4090', null)).toBe(partWatts('gpu', 'NVIDIA GeForce RTX 4090', null));
+  });
+});

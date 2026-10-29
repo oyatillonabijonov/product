@@ -4,6 +4,8 @@ export const PAGE_SIZE = 24;
 export const SORTS = ['default', 'arzon', 'qimmat', 'yangi'] as const;
 export type SortKey = (typeof SORTS)[number];
 const CONDITIONS = ['yangi', 'ishlatilgan'] as const;
+const MAX_Q = 200;
+const MAX_BRANDS = 50;
 const FILTER_PARAMS = ['brand', 'narx', 'holat', 'cat', 'sort', 'page', 'q', 'tur'] as const;
 
 export interface CatalogFilters {
@@ -31,7 +33,8 @@ function posInt(v: string | null): number | null {
 
 export function parseCatalogFilters(sp: URLSearchParams, base?: Partial<CatalogFilters>): CatalogFilters {
   const brandsRaw = sp.get('brand');
-  const brands = brandsRaw ? brandsRaw.split(',').map((s) => s.trim()).filter(Boolean) : [];
+  // Ko'pi bilan 50 ta brend — har biri SQL parametri bo'ladi.
+  const brands = brandsRaw ? brandsRaw.split(',').map((s) => s.trim()).filter(Boolean).slice(0, MAX_BRANDS) : [];
   let priceMin: number | null = null;
   let priceMax: number | null = null;
   const narx = sp.get('narx');
@@ -46,7 +49,9 @@ export function parseCatalogFilters(sp: URLSearchParams, base?: Partial<CatalogF
   const sort: SortKey = sortRaw && (SORTS as readonly string[]).includes(sortRaw) ? (sortRaw as SortKey) : 'default';
   const page = posInt(sp.get('page')) ?? 1;
   const qRaw = sp.get('q');
-  const q = qRaw && qRaw.trim() !== '' ? qRaw.trim() : null;
+  // So'rov 200 belgigacha kesiladi — undan uzuni qidiruv uchun ma'nosiz, ishlov berish esa qimmatlashadi.
+  const qCut = qRaw ? qRaw.slice(0, MAX_Q).trim() : '';
+  const q = qCut !== '' ? qCut : null;
   const cat = sp.get('cat');
   const turRaw = sp.get('tur');
   const type = turRaw && turRaw.trim() !== '' ? turRaw.trim() : null;
@@ -59,9 +64,12 @@ export function parseCatalogFilters(sp: URLSearchParams, base?: Partial<CatalogF
 
 /** Qidiruv so'zlari: bo'shliq bo'yicha, takrorsiz, ko'pi bilan 6 ta — har biri alohida LIKE bo'lib AND bilan bog'lanadi. */
 export function searchTerms(q: string): string[] {
-  const out: string[] = [];
-  for (const w of q.split(/\s+/)) if (w && !out.includes(w)) out.push(w);
-  return out.slice(0, 6);
+  const out = new Set<string>();
+  for (const w of q.split(/\s+/)) {
+    if (w) out.add(w);
+    if (out.size === 6) break;
+  }
+  return [...out];
 }
 
 export function hasActiveParams(sp: URLSearchParams): boolean {
