@@ -14,7 +14,6 @@ import MobileTabBar from './MobileTabBar';
 import { parseAvatar } from '../../shared/avatar';
 import Footer from './Footer';
 import CookieBanner from './CookieBanner';
-import BetaBar from './BetaBar';
 import { CartProvider } from './CartContext';
 import { FavoritesProvider } from './FavoritesContext';
 import { CurrencyProvider } from './CurrencyContext';
@@ -47,7 +46,7 @@ export default function StoreLayout({
   // Profil tugmasi — kirgan mijozda ikonka o'rniga o'z avatari (header va mobil panel).
   const customerAvatar = customer ? parseAvatar(customer.avatar, customer.id) : null;
   const header = (
-    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} avatar={customerAvatar} unread={unread} hasDeals={hasDeals} />
+    <Header t={t} lang={lang} locale={locale} categories={categories} brandName={config.name} customerName={customer ? customer.name : null} avatar={customerAvatar} unread={unread} hasDeals={hasDeals} directions={!isHome} />
   );
   // Bosh sahifada (mobil) hero to'liq ekran: header, pastki panel va aloqa tugmasi yashirin,
   // foydalanuvchi pastga aylantirgach chiqadi. Boshqa sahifalarda doim ko'rinadi. SSR'da yashirin.
@@ -76,7 +75,6 @@ export default function StoreLayout({
           o'sha selektor ostida qayta e'lon qilinadi (app/styles.css). Landing hero'si
           ikkala rejimda ham qora — u mavzu emas, rasm. */}
       <div className="min-h-screen flex flex-col bg-bg">
-        <BetaBar t={t} />
         {pending && (
           <div aria-hidden className="fixed top-0 inset-x-0 z-50 h-[3px] overflow-hidden bg-accent-soft">
             <div className="nav-progress h-full w-1/3 bg-accent rounded-full" />

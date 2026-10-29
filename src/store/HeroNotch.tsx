@@ -10,7 +10,6 @@ import ThemeToggle from './ThemeToggle';
 import { useAssets } from './SiteAssets';
 import { SPRING_UI as SPRING } from '../lib/motion';
 import SearchBox from './SearchBox';
-import { BETA_BAR_H } from './BetaBar';
 
 
 /** Nav'ning yumaloq ikon tugmasi — Kirish pill'i bilan bir balandlikda (36px). */
@@ -33,8 +32,6 @@ export default function HeroNotch({ t, locale, categories }: {
   const [menu, setMenu] = useState(false);
   const [pinned, setPinned] = useState(false);
   const [searching, setSearching] = useState(false);
-  // Beta qatori (vaqtinchalik) ko'rinib turganda notch uning ostidan boshlanadi, aks holda matnni yopardi.
-  const [barOffset, setBarOffset] = useState(BETA_BAR_H);
   const onSearchActive = useCallback((v: boolean) => setSearching(v), []);
   const navRef = useRef<HTMLDivElement | null>(null);
   const [navW, setNavW] = useState(0);
@@ -57,7 +54,6 @@ export default function HeroNotch({ t, locale, categories }: {
     // chegara qo'yilmasa notch birinchi kadrda ochiq bo'lib qotib qolardi.
     const onScroll = () => {
       setPinned(window.scrollY > Math.max(740, window.innerHeight) - 120);
-      setBarOffset(Math.max(0, BETA_BAR_H - window.scrollY));
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -72,7 +68,7 @@ export default function HeroNotch({ t, locale, categories }: {
   const open = hover || menu || pinned || (searching as boolean);
 
   // Chekkasidagi hairline (`border-white/[0.12]`): notch ham, hero ham qora — usiz
-  // qutining qayerda tugashi ko'rinmaydi. Tepasi ekrandan 14px yuqorida (`top` style'da, beta qatori ofseti bilan),
+  // qutining qayerda tugashi ko'rinmaydi. Tepasi ekrandan 14px yuqorida (`top` style'da),
   // shuning uchun faqat yon va pastki chetlari ko'zga tashlanadi.
   return (
     <motion.div
@@ -83,7 +79,7 @@ export default function HeroNotch({ t, locale, categories }: {
         ? { height: 92, paddingLeft: 24, paddingRight: 24, gap: 28 }
         : { height: 80.53, paddingLeft: 0, paddingRight: 0, gap: 0 }}
       transition={reduced ? { duration: 0 } : SPRING}
-      style={{ overflow: open ? 'visible' : 'hidden', top: (barOffset as number) - 14 }}
+      style={{ overflow: open ? 'visible' : 'hidden', top: -14 }}
       className="rounded-b-xl fixed left-1/2 z-40 hidden w-max md:flex max-w-[96vw] min-w-[231.65px] -translate-x-1/2 items-center justify-center border border-white/[0.12] bg-black pt-5"
     >
       <LocaleLink to="/" className="block flex-none">

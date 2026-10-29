@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router';
+import { Link, useNavigate, useLocation, useMatches } from 'react-router';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ShoppingCart, Menu, X, Globe, User, Heart, Wallet, ChevronDown } from 'lucide-react';
 import { BotAvatar } from 'bot-avatars';
@@ -52,6 +52,7 @@ export default function Header({
   avatar,
   unread,
   hasDeals,
+  directions = false,
 }: {
   t: Translation;
   lang: LangKey;
@@ -68,10 +69,15 @@ export default function Header({
   /** Kirmagan holatda akkaunt ikonkasi kirish drawer'ini ochadi. */
   /** Chegirma bormi — bo'lmasa menyuda "Chegirmalar" havolasi chiqmaydi (footer bilan bir qoida). */
   hasDeals: boolean;
+  /** Yo'nalishlar qatori (Apple · PC · Audio · Video) — bosh sahifadan tashqari hamma joyda; u yerda hero'ning o'zi shu 4 yo'nalish. */
+  directions?: boolean;
 }) {
   const asset = useAssets();
   const [catOpen, setCatOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // `lg`gacha: pastga aylantirganda qidiruv qatori yig'iladi, yuqoriga — qaytadi (Safari naqshi). Yo'nalishlar va logo qatori doim qoladi.
+  const [searchHidden, setSearchHidden] = useState(false);
+  const matches = useMatches();
   const navigate = useNavigate();
   const location = useLocation();
   const { count } = useCart();
@@ -86,7 +92,15 @@ export default function Header({
   }
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 8);
+      // Qidiruvga yozilayotganda yig'ilmaydi; 6px dan kichik silkinishga javob bermaydi.
+      if (y < 120) setSearchHidden(false);
+      else if (Math.abs(y - lastY) > 6 && !document.activeElement?.closest('[data-search-row]')) setSearchHidden(y > lastY);
+      lastY = y;
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -221,6 +235,34 @@ export default function Header({
     </AnimatePresence>
   );
 
+  // Faol yo'nalish: yo'nalish sahifasi, shu yo'nalishdagi mahsulot sahifasi yoki katalogdagi `cat` filtri.
+  const bare = stripLocale(location.pathname);
+  const active = bare.startsWith('/category/')
+    ? bare.split('/')[2]
+    : matches.map((m) => (m.data as { product?: { categoryId?: string | null } } | undefined)?.product?.categoryId).find(Boolean)
+      ?? new URLSearchParams(location.search).get('cat');
+  const directionBar = directions && (
+    <nav aria-label={t.navDirections} className="border-b border-divider">
+      <ul className="shell grid grid-flow-col auto-cols-fr lg:flex lg:justify-center lg:gap-12">
+        {cats.map((c) => {
+          const on = c.id === active;
+          return (
+            <li key={c.id}>
+              <Link
+                to={localizedPath(locale, `/category/${c.id}`)}
+                aria-current={on ? 'page' : undefined}
+                className={`press relative flex h-11 lg:h-10 items-center justify-center px-1 text-para lg:text-label ${on ? 'font-semibold text-primary' : 'text-muted hover:text-primary'}`}
+              >
+                {categoryLabel(c, locale)}
+                {on && <span aria-hidden className="absolute inset-x-1 bottom-0 h-0.5 rounded-full bg-primary" />}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+
   return (
     <header
       className={`sticky top-0 z-40 bg-bg border-b transition-colors duration-300 ${
@@ -228,6 +270,7 @@ export default function Header({
         scrolled && !catOpen ? 'border-line-2' : 'border-transparent'
       }`}
     >
+      {directionBar}
       <div className="shell h-14 lg:h-16 flex items-center gap-2 lg:gap-4">
         <Link to={localizedPath(locale, '/')} className="shrink-0 mr-auto lg:mr-0">
           <img src={asset('logo')} alt={brandName} className="logo-light h-8 lg:h-9" />
@@ -339,8 +382,9 @@ export default function Header({
         </Link>
       </div>
 
-      {/* `lg`gacha: Katalog (ikon) + to'liq enli qidiruv qatori. */}
-      <div className="lg:hidden shell pb-2.5 flex items-center gap-2">
+      {/* `lg`gacha: Katalog (ikon) + to'liq enli qidiruv qatori. Pastga aylantirganda yig'iladi (balandlik `grid-rows` bilan, layout sakramaydi). */}
+      <div className={`lg:hidden grid transition-[grid-template-rows] duration-300 ease-apple ${searchHidden && !catOpen ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'}`}>
+      <div data-search-row className="overflow-hidden"><div className="shell pb-2.5 flex items-center gap-2">
         {/* Desktop'dagi Katalog pill'ining ikonkali shakli — xuddi shu to'q urg'u. */}
         <button
           type="button"
@@ -352,6 +396,7 @@ export default function Header({
           {toggleIcon('size-5')}
         </button>
         <SearchBox t={t} locale={locale} />
+      </div></div>
       </div>
 
       {catMenu}
