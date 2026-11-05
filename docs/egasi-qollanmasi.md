@@ -48,7 +48,7 @@ Hammasi tayyor bo'lsa, tepada «Hamma qismlar tayyor» yozuvi chiqadi.
 
 **Yangi tovar** Billz'dan kelsa, u shu ekranda paydo bo'ladi — Bosh sahifadagi «Konfigurator qismlari» kartasi nechta qism kutayotganini ko'rsatadi.
 
-**«Tekshiruvlar»** (pastda) — sayt qismlarning nimasini solishtiradi. Har biri bitta jumla: *«Soket: protsessor va ona platada bir xil bo'lishi kerak»*, yonida holati — «Saytda ishlayapti» yoki «O'chiq». Kamdan-kam kerak: masalan, katta plata kichik korpusga sig'masligi uchun yangi tekshiruv. «Yangi tekshiruv qo'shish» uchta savol beradi — nomi (*Form-faktor*), qaysi qismlar mos bo'lishi kerak (*ona plata* va *korpus*), qanday variantlar bor (*ATX, mATX, ITX*) — ostida esa «Natija:» jumlasi tekshiruv nima qilishini oddiy tilda aytadi. Yangi tekshiruv o'chiq saqlanadi: avval qismlarga variant bering («Qo'lda tanlang»da chiqadi), keyin yoqing. Yoqishdan oldin sayt nechta qism vaqtincha yo'qolishini aytib, tasdiq so'raydi.
+**«Tekshiruvlar»** (pastda) — sayt qismlarning nimasini solishtiradi. Har biri bitta jumla: *«Soket: protsessor va platada bir xil bo'lishi kerak»*, yonida holati — «Saytda ishlayapti» yoki «O'chiq». Kamdan-kam kerak: masalan, katta plata kichik korpusga sig'masligi uchun yangi tekshiruv. «Yangi tekshiruv qo'shish» uchta savol beradi — nomi (*Form-faktor*), qaysi qismlar mos bo'lishi kerak (*plata* va *korpus*), qanday variantlar bor (*ATX, mATX, ITX*) — ostida esa «Natija:» jumlasi tekshiruv nima qilishini oddiy tilda aytadi. Yangi tekshiruv o'chiq saqlanadi: avval qismlarga variant bering («Qo'lda tanlang»da chiqadi), keyin yoqing. Yoqishdan oldin sayt nechta qism vaqtincha yo'qolishini aytib, tasdiq so'raydi.
 
 ## 5. Buyurtmalar
 

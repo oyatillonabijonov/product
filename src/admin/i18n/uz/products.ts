@@ -145,7 +145,7 @@ const products = {
     notFound: 'Hech narsa topilmadi',
     advancedTitle: 'Tekshiruvlar',
     advancedHint: "Sayt qismlarning nimasini solishtiradi. Kamdan-kam o'zgartiriladi.",
-    slots: { cpu: 'Protsessor', mb: 'Ona plata', ram: 'Operativ xotira', gpu: 'Videokarta', psu: 'Quvvat bloki', ssd: 'SSD disk', case: 'Korpus' },
+    slots: { cpu: 'Protsessor', mb: 'Plata', ram: 'Operativ xotira', gpu: 'Videokarta', psu: 'Quvvat bloki', ssd: 'SSD disk', case: 'Korpus' },
   },
   productEdit: {
     refsLoadError: "Ma'lumotnomalar (kategoriya, brend, tur) yuklanmadi",
