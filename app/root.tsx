@@ -14,8 +14,8 @@ import './styles.css';
 // every page) guarantees they appear on every page regardless of leaf meta overrides.
 export function Layout({ children }: { children: React.ReactNode }) {
   const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig; origin?: string; orgContact?: OrgContact; assets?: SiteAssets; adminViewer?: boolean } | undefined;
-  // Admin cookie'si bilan ochilgan hujjatda uchinchi tomon kodi (Lydya, Metrica) ishlamaydi: admin API
-  // shu origin'da, cookie `Path=/` — begona skript admin nomidan so'rov yubora olardi.
+  // Admin cookie'si bilan ochilgan hujjatda Metrica ishlamaydi (admin tashrifi statistikaga tushmasin).
+  // Lydya chati esa hammada, admin'da ham doim chiqadi — egasining qarori (2026-11-05).
   const thirdParty = Boolean(storeData) && !storeData?.adminViewer;
   const lang = htmlLang(storeData?.locale ?? DEFAULT_LOCALE);
   const location = useLocation();
@@ -61,7 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ScrollRestoration />
         <Scripts />
         {/* ponytail: Lydya AI chat (mijozning xizmati) — faqat storefront'da; kalit ochiq widget kaliti. Kerak bo'lsa admin maydoniga ko'chiriladi. */}
-        {thirdParty && (
+        {storeData && (
           <>
             <script src="https://lydya.ai/widget.js" data-key="wk_VH1nhTM39Con62iwi9x-RkYf" async />
             {/* Pufakcha va oyna ramkasi Shadow DOM'da (sahifa CSS'i yetmaydi) — sayt uslubiga keltiramiz: tokenlardagi rang, soyasiz, 28px radius,
