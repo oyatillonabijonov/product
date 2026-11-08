@@ -213,6 +213,7 @@ Audit topilmalari tuzatilgan. Quyidagi qoidalarni buzmang:
 - Sessiya cookie'si bor so'rovga `private, no-store` qo'yiladi.
 - Dev server faqat `127.0.0.1`da tinglaydi.
 - `TRUST_PROXY` env bilan sozlanadi, sukut bo'yicha 1.
+- Sayt Cloudflare ortida: Traefik `X-Forwarded-For`ga Cloudflare IP'sini yozadi, shuning uchun `server/index.ts` `req.ip`ni `shared/client-ip.ts` orqali tiklaydi (`CF-Connecting-IP` faqat ulangan tomon Cloudflare tarmog'ida bo'lsa o'qiladi). Traefik sozlanmaydi — u serverdagi boshqa loyihalar bilan umumiy.
 - Metrica admin kirgan brauzerda chizilmaydi (`adminViewer`). **Lydya chati esa doim, hamma brauzerda, admin'da ham chiqadi** — egasining qarori (2026-11-05): 29-oktabr tuzatishi uni admin'dan yashirgan, texnik ishlar rejimida esa saytni faqat admin ko'radi, natijada chat hech kimda chiqmay qolgan. Chatni hech qanday shart bilan yashirmang.
 
 **MCP**

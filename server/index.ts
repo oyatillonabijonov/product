@@ -10,6 +10,7 @@ import { createBillzSync } from './billz-sync.ts';
 import { createUsdRate } from './usd-rate.ts';
 import { mountMcp, mountOAuth } from './mcp.ts';
 import { canonicalOrigin, isMaintenanceOpen, parseTrustProxy, storefrontCacheControl } from '../shared/http-policy.ts';
+import { cloudflareClientIp } from '../shared/client-ip.ts';
 
 /**
  * Ilova serveri — dev va production uchun bitta fayl.
@@ -34,6 +35,13 @@ app.disable('x-powered-by');
 // Oldinda reverse proxy (Coolify/Traefik yoki nginx) — `req.ip` haqiqiy mijoz manzili bo'lsin (rate limit uchun).
 // Hop'lar soni `TRUST_PROXY`dan (sukut 1 — bitta Traefik); proxy'siz ishlatilsa `false`.
 app.set('trust proxy', parseTrustProxy(process.env.TRUST_PROXY));
+// Cloudflare ortida `req.ip` Cloudflare serverining IP'si bo'lib qoladi va rate limit ko'p mijozni bitta odam deb sanaydi.
+// Traefik serverdagi boshqa loyihalar bilan umumiy, shuning uchun haqiqiy IP shu yerda tiklanadi (`req.ip` hamma joyda to'g'ri bo'ladi).
+app.use((req, _res, next) => {
+  const ip = cloudflareClientIp(req.ip, req.get('cf-connecting-ip'));
+  if (ip) req.headers['x-forwarded-for'] = ip;
+  next();
+});
 
 // Saytning manzili `PUBLIC_URL`dan, so'rovdagi `Host`/`X-Forwarded-Host`dan emas: sitemap, canonical,
 // OAuth redirect_uri va `Secure` cookie qarori shu manzilga qaraydi, javob esa umumiy keshga tushadi —
