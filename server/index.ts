@@ -7,6 +7,7 @@ import { createRequestHandler } from '@react-router/express';
 import type { ServerBuild } from 'react-router';
 import { createEnv, IMAGES_DIR, THUMBS_DIR } from './env.ts';
 import { thumbs } from './thumbs.ts';
+import { pageCache } from './page-cache.ts';
 import { createBillzSync } from './billz-sync.ts';
 import { createUsdRate } from './usd-rate.ts';
 import { mountMcp, mountOAuth } from './mcp.ts';
@@ -146,6 +147,8 @@ if (isProd) {
   // Build vaqtida yaratiladi — tsc uni ko'rmaydi, shu sabab tip aniqlanadi.
   const build = (await import('../build/server/index.js')) as unknown as ServerBuild;
   app.use(maintenance);
+  // Mehmon sahifalari 60 soniya xotiradan beriladi — har ochilishda SSR qilinmaydi (`server/page-cache.ts`).
+  app.use(pageCache());
   app.use(createRequestHandler({ build, getLoadContext: (req) => ({ env, billz, ip: req.ip ?? '' }) }));
 } else {
   const vite = await import('vite');
