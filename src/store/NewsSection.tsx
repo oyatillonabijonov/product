@@ -3,7 +3,9 @@ import { Link } from 'react-router';
 import type { ApiNews } from '../../shared/types';
 import type { Translation } from '../locales';
 import { localeField, localizedPath, type Locale } from '../../app/lib/i18n';
+import { fillNewsPrice } from '../../shared/news-price';
 import { safeHref } from '../../shared/safe-href';
+import { useCurrency } from './CurrencyContext';
 import { BTN_MD, SECTION_HEADING } from './ui';
 
 const CTA_CLS = `${BTN_MD} mt-6 bg-cta text-white hover:bg-cta-hover`;
@@ -27,7 +29,8 @@ const Tile: FC<{ item: ApiNews; locale: Locale; t: Translation; layout: 'stack' 
 }) => {
   const badge = localeField(item.badge, item.badgeRu, locale);
   const tag = localeField(item.tag, item.tagRu, locale);
-  const text = localeField(item.text, item.textRu, locale);
+  const { price } = useCurrency();
+  const text = fillNewsPrice(localeField(item.text, item.textRu, locale), item.priceUzs != null ? price(item.priceUzs) : null);
   const split = layout === 'split';
   return (
     <article

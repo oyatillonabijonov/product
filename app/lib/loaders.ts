@@ -1,6 +1,7 @@
 import type { Env } from '../../functions/env';
 import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiNews, ApiPage, ApiPost, ApiReview, ApiSiteConfig, ApiVacancy, LocalizedText } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
+import { needsNewsPrice, newsProductId } from '../../shared/news-price';
 import {
   installmentConfig as fallbackConfig,
   products as fallbackProducts,
@@ -342,7 +343,12 @@ export async function loadBanners(env: Env): Promise<ApiBanner[]> {
 export async function loadNews(env: Env): Promise<ApiNews[]> {
   try {
     const { results } = await env.DB.prepare('SELECT * FROM news WHERE is_active = 1 ORDER BY sort_order ASC, id ASC LIMIT 3').all<NewsRow>();
-    return results.map(rowToNews);
+    return await Promise.all(results.map(rowToNews).map(async (n) => {
+      const id = newsProductId(n.linkUrl);
+      if (!id || !needsNewsPrice(n)) return n;
+      const row = await env.DB.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE id = ? AND is_active = 1`).bind(id).first<ProductRow>();
+      return { ...n, priceUzs: row ? rowToProduct(row).minPriceUzs ?? null : null };
+    }));
   } catch (err) {
     console.error('loadNews fallback:', err);
     return []; // bo'lim bezak — bazasiz landing usiz ochilaveradi

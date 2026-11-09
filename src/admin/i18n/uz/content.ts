@@ -86,7 +86,7 @@ const content = {
     },
     text: {
       titleHint: '80 belgigacha',
-      textHint: 'Bir-ikki qator, 200 belgigacha',
+      textHint: "Bir-ikki qator, 200 belgigacha. Narx uchun {narx} yozing: havola /product/… bo'lsa, o'sha mahsulotning joriy narxi o'zi chiqadi",
       badgeLabel: 'Yorliq',
       badgeHint: "To'q sariq, masalan «Yangi»",
       tagLabel: 'Teg',

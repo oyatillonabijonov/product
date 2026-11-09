@@ -167,6 +167,8 @@ export interface ApiNews {
   imageUrl: string;
   sortOrder: number;
   isActive: boolean;
+  /** Faqat landing: matnda `{narx}` bo'lsa havoladagi mahsulotning joriy narxi; null — mahsulot ko'rinmaydi. */
+  priceUzs?: number | null;
 }
 
 /** Bandlik turi — `vacancies.employment`. */
