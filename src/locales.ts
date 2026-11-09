@@ -20,7 +20,7 @@ export const translations = {
     proTitle: "Professional yondashuv",
     // Landing yo'nalish kartalari (admin → Kontent → Bosh sahifa); `\n` — yangi qator.
     heroApple: "Apple",
-    heroPc: "Personal\nComputers",
+    heroPc: "PC",
     heroAudio: "Audio",
     heroVideo: "Video",
     metaCatalogDesc: "{title} — original texnika, rasmiy kafolat, Toshkent bo'ylab 1–4 kunda yetkazib berish. {store}.",
@@ -344,7 +344,7 @@ export const translations = {
     consultError: "Ошибка отправки. Попробуйте ещё раз чуть позже.",
     proTitle: "Профессиональный подход",
     heroApple: "Apple",
-    heroPc: "Personal\nComputers",
+    heroPc: "PC",
     heroAudio: "Audio",
     heroVideo: "Video",
     metaCatalogDesc: "{title} — оригинальная техника, официальная гарантия, доставка по Ташкенту за 1–4 дня. {store}.",

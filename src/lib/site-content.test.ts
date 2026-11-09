@@ -40,7 +40,7 @@ describe('registr', () => {
     expect(ASSET_FIELDS.map((f) => f.key)).toEqual([...ASSET_KEYS]);
   });
   it("yangi matnlarning standarti", () => {
-    expect(uz.heroPc).toBe('Personal\nComputers');
+    expect(uz.heroPc).toBe('PC');
     expect(ru.heroApple).toBe('Apple');
     expect(uz.seoOpeningHours).toBe('Mo-Su 10:00-21:00');
     expect(ru.seoOpeningHours).toBe('Mo-Su 10:00-21:00');

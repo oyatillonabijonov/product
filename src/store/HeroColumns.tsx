@@ -1,22 +1,20 @@
 import { useRef, useState } from 'react';
 import { Link, useOutletContext } from 'react-router';
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'motion/react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { localizedPath } from '../../app/lib/i18n';
 import type { ApiCategory } from '../../shared/types';
 import type { StoreContext } from './StoreLayout';
 import { columnHref, heroColumns, type HeroColumn } from './hero-columns';
 import { useAssets } from './SiteAssets';
-import proMark from '../assets/hero/pro.svg';
 import { EASE_GLIDE as GLIDE } from '../lib/motion';
 
 
-function HeroCard({ col, href, index, hovered, onHover, proY }: {
+function HeroCard({ col, href, index, hovered, onHover }: {
   col: HeroColumn;
   href: string;
   index: number;
   hovered: number | null;
   onHover: (i: number | null) => void;
-  proY: MotionValue<string>;
 }) {
   const on = hovered === index;
   return (
@@ -55,14 +53,6 @@ function HeroCard({ col, href, index, hovered, onHover, proY }: {
         →
       </div>
 
-      <motion.img
-        src={proMark}
-        alt=""
-        aria-hidden
-        style={{ y: proY }}
-        className="absolute left-[5%] bottom-[4%] w-[94%] h-auto select-none pointer-events-none"
-      />
-
       <div
         className="absolute left-[5%] right-[5%] bottom-[22px] pb-[3.2%]"
         style={{
@@ -70,7 +60,7 @@ function HeroCard({ col, href, index, hovered, onHover, proY }: {
           transition: 'transform 600ms cubic-bezier(.2,.7,.2,1)',
         }}
       >
-        <div className="whitespace-pre-line text-[clamp(22px,2.6vw,40px)] font-medium leading-[1.16] tracking-[-1.2px] text-white">
+        <div className="whitespace-pre-line text-center text-[clamp(22px,2.6vw,40px)] font-medium leading-[1.16] tracking-[-1.2px] text-white">
           {col.label}
         </div>
       </div>
@@ -86,11 +76,9 @@ export default function HeroColumns({ categories }: { categories: ApiCategory[] 
   const [hovered, setHovered] = useState<number | null>(null);
   const reduced = useReducedMotion();
 
-  // Hero bo'ylab scroll — panjara sekin yuqoriga suriladi, "PRO" yozuvi undan ham
-  // tezroq: dizayndagi ikki qatlamli parallaks.
+  // Hero bo'ylab scroll — panjara sekin yuqoriga suriladi.
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const gridY = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [0, -64]);
-  const proY = useTransform(scrollYProgress, [0, 1], reduced ? ['0%', '0%'] : ['0%', '-24%']);
 
   return (
     <div
@@ -119,7 +107,6 @@ export default function HeroColumns({ categories }: { categories: ApiCategory[] 
               index={i}
               hovered={hovered}
               onHover={setHovered}
-              proY={proY}
             />
           </motion.div>
         ))}
