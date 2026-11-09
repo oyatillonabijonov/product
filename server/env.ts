@@ -7,6 +7,9 @@ const DATA_DIR = process.env.DATA_DIR ?? 'data';
 /** Yuklangan rasm va videolar papkasi — `createEnv` va `server/index.ts`dagi statik `/images/products` shu yerdan. */
 export const IMAGES_DIR = process.env.IMAGES_DIR ?? `${DATA_DIR}/images`;
 
+/** Kichraytirilgan rasmlar keshi (`server/thumbs.ts`). Rasm papkasidan tashqarida: qayta yasaladi, zaxiraga kirmaydi. */
+export const THUMBS_DIR = `${DATA_DIR}/thumbs`;
+
 /**
  * Ilova muhiti — loaderlarga `context.env` sifatida uzatiladi.
  *

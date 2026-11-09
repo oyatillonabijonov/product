@@ -10,6 +10,7 @@ import LocaleLink from './LocaleLink';
 import { useCart } from './CartContext';
 import { useCurrency } from './CurrencyContext';
 import { SPRING_UI } from '../lib/motion';
+import { thumbSrcSet } from '../../shared/thumb';
 import Stars from './Stars';
 import FavoriteButton from './FavoriteButton';
 import type { StoreContext } from './StoreLayout';
@@ -57,6 +58,9 @@ const ProductCard: FC<{
           {product.image ? (
             <img
               src={product.image}
+              // Karta ~300px: 1440px li asl rasm o'rniga kichik nusxa. `sizes` — to'r ustunlari (2 / 4 / 5).
+              srcSet={thumbSrcSet(product.image)}
+              sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 25vw, 50vw"
               alt={product.name}
               className="w-full h-full object-cover"
               loading={eager ? 'eager' : 'lazy'}

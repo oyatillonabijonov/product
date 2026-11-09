@@ -1,5 +1,5 @@
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import type { Translation } from '../locales';
 import LocaleLink from './LocaleLink';
@@ -28,8 +28,17 @@ export default function CategoryCover({ img, videos, poster, t }: {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const mediaY = useTransform(scrollYProgress, [0, 1], reduced ? ['0%', '0%'] : ['0%', '12%']);
   const [clip, setClip] = useState(0);
+  // Video (5–6 MB) sahifa yuklanib bo'lgach boshlanadi — aks holda mahsulot rasmlari bilan tarmoqni talashib,
+  // sekin internetda kartalar bo'sh qolardi. Ungacha poster turadi; video ham shu posterdan boshlanadi.
+  const [pageLoaded, setPageLoaded] = useState(false);
+  useEffect(() => {
+    if (document.readyState === 'complete') { setPageLoaded(true); return; }
+    const onLoad = () => setPageLoaded(true);
+    window.addEventListener('load', onLoad, { once: true });
+    return () => window.removeEventListener('load', onLoad);
+  }, []);
 
-  const playVideo = !reduced && videos !== undefined && videos.length > 0;
+  const playVideo = pageLoaded && !reduced && videos !== undefined && videos.length > 0;
   const still = poster ?? img;
 
   return (

@@ -5,7 +5,8 @@ import express from 'express';
 import compression from 'compression';
 import { createRequestHandler } from '@react-router/express';
 import type { ServerBuild } from 'react-router';
-import { createEnv, IMAGES_DIR } from './env.ts';
+import { createEnv, IMAGES_DIR, THUMBS_DIR } from './env.ts';
+import { thumbs } from './thumbs.ts';
 import { createBillzSync } from './billz-sync.ts';
 import { createUsdRate } from './usd-rate.ts';
 import { mountMcp, mountOAuth } from './mcp.ts';
@@ -85,6 +86,8 @@ app.use((req, res, next) => {
 
 // Yuklangan rasm va videolar diskdan to'g'ridan-to'g'ri: Range va ETag Express'dan (Safari `<video>` Range'siz
 // o'ynamaydi). Fayl bo'lmasa keyingi qatlamga o'tadi — `images.$` route'i 404 beradi.
+// `?w=320|640` — kichraytirilgan nusxa (kartalar); `w`siz so'rov pastdagi statik qatlamga o'tadi.
+app.use('/images/products', thumbs(IMAGES_DIR, THUMBS_DIR));
 app.use('/images/products', express.static(join(IMAGES_DIR, 'products'), { immutable: true, maxAge: '1y', index: false, redirect: false }));
 
 // Remote MCP va OAuth — React Router handler'idan oldin, aks holda `*` route'i ularni 404 qiladi.

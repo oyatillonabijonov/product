@@ -8,6 +8,7 @@ import {
   PC_SLOTS, REQUIRED_SLOTS, candidateState, graphicsIssue, hasMatch, issueFor, needsVerify, summaryIssues,
   type ConfigPart, type Issue, type PcDimension, type Picked, type SlotKey,
 } from '../../shared/pc-compat';
+import { thumbUrl } from '../../shared/thumb';
 import { useCart } from './CartContext';
 import { useCurrency } from './CurrencyContext';
 import { SECTION_HEADING, BTN_LG, LINK_MORE } from './ui';
@@ -266,7 +267,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
                     </span>
                     <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xs border border-line img-frame">
                       {part.image
-                        ? <img src={part.image} alt="" loading="lazy" className="h-full w-full object-cover" />
+                        ? <img src={thumbUrl(part.image)} alt="" loading="lazy" className="h-full w-full object-cover" />
                         : <Icon aria-hidden className="h-6 w-6 text-muted-3" strokeWidth={1.5} />}
                     </span>
                     <span className="min-w-0 flex-1">
