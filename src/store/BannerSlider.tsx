@@ -1,10 +1,12 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FC } from 'react';
 import { Link } from 'react-router';
 import type { ApiBanner } from '../../shared/types';
 import type { Translation } from '../locales';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
 import { safeHref } from '../../shared/safe-href';
+
+const AUTOPLAY_MS = 5000;
 
 const Slide: FC<{ banner: ApiBanner; locale: Locale; eager: boolean }> = ({ banner, locale, eager }) => {
   const img = (
@@ -25,11 +27,14 @@ const Slide: FC<{ banner: ApiBanner; locale: Locale; eager: boolean }> = ({ bann
 
 const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale; t: Translation }> = ({ banners, locale, t }) => {
   const track = useRef<HTMLDivElement | null>(null);
+  const root = useRef<HTMLDivElement | null>(null);
+  const lastMove = useRef(0);
   const [active, setActive] = useState(0);
 
   function onScroll() {
     const el = track.current;
     if (!el) return;
+    lastMove.current = Date.now();
     setActive(Math.round(el.scrollLeft / el.clientWidth));
   }
   function goTo(i: number) {
@@ -38,9 +43,28 @@ const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale; t: Translation }>
     el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
   }
 
+  // Avtomatik aylanish. Har surish (barmoq, nuqta yoki o'zi) hisobni qaytadan boshlaydi, shuning uchun
+  // barmoq tagidagi slayd qochmaydi. Ustida turganda, klaviatura fokusida va yashirin tabda to'xtaydi.
+  useEffect(() => {
+    if (banners.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    lastMove.current = Date.now();
+    const id = setInterval(() => {
+      const el = track.current;
+      if (!el || !root.current) return;
+      if (document.hidden || root.current.matches(':hover') || root.current.querySelector(':focus-visible')) {
+        lastMove.current = Date.now();
+        return;
+      }
+      if (Date.now() - lastMove.current < AUTOPLAY_MS) return;
+      lastMove.current = Date.now();
+      goTo((Math.round(el.scrollLeft / el.clientWidth) + 1) % banners.length);
+    }, 500);
+    return () => clearInterval(id);
+  }, [banners.length]);
+
   if (banners.length === 0) return null;
   return (
-    <div className=" rounded-xl relative overflow-hidden">
+    <div ref={root} className=" rounded-xl relative overflow-hidden">
       <div
         ref={track}
         onScroll={onScroll}
