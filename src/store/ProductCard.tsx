@@ -52,7 +52,7 @@ const ProductCard: FC<{
       <div className="relative">
         <LocaleLink
           to={`/product/${product.id}`}
-          className="rounded-sm aspect-square w-full flex items-center justify-center overflow-hidden border border-line bg-white"
+          className="rounded-sm aspect-square w-full flex items-center justify-center overflow-hidden border border-line bg-white bg-clip-padding"
         >
           {product.image ? (
             <img

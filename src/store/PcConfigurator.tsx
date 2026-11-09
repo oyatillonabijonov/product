@@ -264,7 +264,7 @@ const PcConfigurator: FC<{ t: Translation; locale: Locale; parts: Partial<Record
                     >
                       {on && <Check className="size-3.5" strokeWidth={3} />}
                     </span>
-                    <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xs border border-line bg-white">
+                    <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xs border border-line bg-white bg-clip-padding">
                       {part.image
                         ? <img src={part.image} alt="" loading="lazy" className="h-full w-full object-cover" />
                         : <Icon aria-hidden className="h-6 w-6 text-muted-3" strokeWidth={1.5} />}
