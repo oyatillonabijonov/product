@@ -134,6 +134,9 @@ const maintenance: express.RequestHandler = async (req, res, next) => {
 if (isProd) {
   // Hashlangan assetlar — uzoq muddatli kesh; qolgan statik fayllar qisqa.
   app.use('/assets', express.static('build/client/assets', { immutable: true, maxAge: '1y' }));
+  // Deploy paytida eski va yangi konteyner birga ishlaydi: yangi sahifaning fayli eskisida yo'q. Bu 404
+  // keshlanmasin — Cloudflare uni bir necha daqiqa ushlab, sayt stilsiz ochilardi (2026-11-09).
+  app.use('/assets', (_req, res) => { res.status(404).set('Cache-Control', 'no-store').end(); });
   // `redirect: false` — `public/blog/` kabi papka nomi marshrutga to'g'ri kelsa,
   // static qatlam uni /blog/ ga 301 qilib, sahifani o'g'irlab ketmasin.
   app.use(express.static('build/client', { maxAge: '1h', redirect: false, index: false }));
@@ -160,5 +163,11 @@ const HOST = process.env.HOST || (isProd ? undefined : '127.0.0.1');
 const onListen = () => {
   console.log(`${isProd ? 'production' : 'dev'} → http://${HOST ?? 'localhost'}:${PORT}`);
 };
-if (HOST) app.listen(PORT, HOST, onListen);
-else app.listen(PORT, onListen);
+const server = HOST ? app.listen(PORT, HOST, onListen) : app.listen(PORT, onListen);
+
+// Deploy: Docker eski konteynerga SIGTERM yuboradi. Javobsiz qolsa 30 soniya kutib o'ldiradi va shu vaqt
+// ichida Traefik so'rovlarni eski va yangi versiyaga aralash beradi. Boshlangan so'rovlar tugatiladi.
+process.on('SIGTERM', () => {
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 5000).unref();
+});

@@ -223,6 +223,8 @@ Audit topilmalari tuzatilgan. Quyidagi qoidalarni buzmang:
 
 **Prod server**
 - Zaxira: host cron `/etc/cron.d/productstore-backup` har kuni 02:30 UTC da ishlaydi. Baza `server/backup.ts` orqali olinadi, rasmlar bilan birga `/var/backups/productstore` papkasida 14 kun saqlanadi.
+- Monitoring (2026-11-10): host cron `/etc/cron.d/productstore-uptime` har 2 daqiqada `/usr/local/bin/productstore-uptime.py` ni ishga tushiradi (manba — `deploy/uptime-check.py`, o'zgarsa serverga qayta nusxalanadi). U bosh sahifani va asosiy JS/CSS fayllarini tashqi manzil orqali tekshiradi; 20 soniya oralatib ikki marta ochilmasa, buyurtmalar guruhiga («PRODUCT | Site») xabar beradi, tiklanganda yana bitta. Token va guruh id'si `site_config`dan o'qiladi. Butun server o'chsa, cron ham o'chadi — bu holat kuzatilmaydi.
+- Deploy (2026-11-10): Coolify rolling update paytida eski va yangi konteyner qisqa vaqt birga ishlaydi. Shuning uchun topilmagan `/assets/*` fayl `no-store` 404 qaytaradi (Cloudflare uni keshlab, saytni bir necha daqiqa stilsiz qoldirardi) va `server/index.ts` SIGTERM'da darhol o'chadi (`Dockerfile`da `exec node` — usiz eski konteyner 30 soniya yashardi).
 
 ## Known dead code
 

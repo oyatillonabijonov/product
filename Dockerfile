@@ -37,4 +37,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD node -e "fetch('h
 
 # Har ishga tushishda yangi migratsiyalar qo'llanadi, so'ng server ko'tariladi.
 # Zaxira: `node server/backup.ts` (Coolify Scheduled Task, har kuni).
-CMD ["sh", "-c", "node server/migrate.ts && node server/index.ts"]
+# `exec` — node PID 1 bo'ladi va Docker'ning SIGTERM'ini o'zi oladi (sh uni uzatmaydi).
+CMD ["sh", "-c", "node server/migrate.ts && exec node server/index.ts"]
