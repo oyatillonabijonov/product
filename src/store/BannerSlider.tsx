@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC } from 'react';
 import { Link } from 'react-router';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ApiBanner } from '../../shared/types';
 import type { Translation } from '../locales';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
 import { safeHref } from '../../shared/safe-href';
 
 const AUTOPLAY_MS = 5000;
+const ARROW =
+  'press absolute top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-fill-2/80 text-primary backdrop-blur hover:bg-fill-2 pointer-fine:flex';
 
 const Slide: FC<{ banner: ApiBanner; locale: Locale; eager: boolean }> = ({ banner, locale, eager }) => {
   const img = (
@@ -74,6 +77,17 @@ const BannerSlider: FC<{ banners: ApiBanner[]; locale: Locale; t: Translation }>
           <Slide key={b.id} banner={b} locale={locale} eager={i === 0} />
         ))}
       </div>
+      {banners.length > 1 && (
+        <>
+          {/* Sensorli ekranda barmoq bilan suriladi, strelka faqat sichqoncha/trackpad'da. */}
+          <button type="button" onClick={() => goTo((active - 1 + banners.length) % banners.length)} aria-label={t.slidePrev} className={`${ARROW} left-3 md:left-4`}>
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button type="button" onClick={() => goTo((active + 1) % banners.length)} aria-label={t.slideNext} className={`${ARROW} right-3 md:right-4`}>
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </>
+      )}
       {banners.length > 1 && (
         <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
           {banners.map((b, i) => (
