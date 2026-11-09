@@ -276,9 +276,9 @@ body {
    Bitta joyda turishining sababi: harakat kamaytirilganda transform emas,
    shaffoflik o'zgarishi qoladi (§14 — javob yo'qolmaydi, faqat vestibulyar
    qismi olib tashlanadi). 60ms — sezilmaydigan, lekin darhol. */
-/* Mahsulot rasmi ramkasi: shaffof rasm orqasidagi oq fon burchakdan 1px ichkarida turadi.
-   Oq fon ramka yoki rasmning o'zida bo'lsa, rasm kechikib yuklanganda dumaloq burchakda ingichka
-   oq yoy qolardi (hover qayta chizgach yo'qolardi). `background-clip` va `transform-gpu` hal qilmadi. */
+/* Mahsulot rasmi ramkasi: rasm yuklanguncha ko'rinadigan fon. Oq bo'lmaydi — qorong'i mavzuda
+   yuklanayotgan rasm oq blok bo'lib chiqardi. Fon burchakdan 1px ichkarida turadi: ramka yoki
+   rasmning o'zida bo'lsa, dumaloq burchakda ingichka yoy qolardi. */
 .img-frame {
   position: relative;
   isolation: isolate;
@@ -289,7 +289,7 @@ body {
   inset: 1px;
   z-index: -1;
   border-radius: inherit;
-  background: #fff;
+  background: var(--color-fill-2);
 }
 
 .press {
