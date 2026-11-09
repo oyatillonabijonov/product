@@ -71,9 +71,9 @@ const OrdersList: FC<{ t: Translation; orders: ApiOrder[]; itemImages: Record<st
               <ul className="flex flex-col gap-3">
                 {o.items.map((it, i) => (
                   <li key={`${it.productId}-${i}`} className="flex items-start gap-3">
-                    <span className="size-14 shrink-0 overflow-hidden rounded-sm border border-line">
+                    <span className="size-14 shrink-0 overflow-hidden rounded-sm border border-line img-frame">
                       {itemImages[it.productId] && (
-                        <img src={itemImages[it.productId]} alt="" loading="lazy" className="size-full bg-white object-cover" />
+                        <img src={itemImages[it.productId]} alt="" loading="lazy" className="size-full object-cover" />
                       )}
                     </span>
                     <span className="min-w-0 flex-1">

@@ -135,8 +135,8 @@ const SearchBox: FC<{
                     onMouseEnter={() => setActive(i)}
                     className={`flex items-center gap-3 rounded-sm px-2 py-1.5 ${i === active ? 'bg-fill-2' : ''}`}
                   >
-                    <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xs border border-line">
-                      {s.image && <img src={s.image} alt="" loading="lazy" className="h-full w-full bg-white object-cover" />}
+                    <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xs border border-line img-frame">
+                      {s.image && <img src={s.image} alt="" loading="lazy" className="h-full w-full object-cover" />}
                     </span>
                     {/* Narx nom ostida — telefonda yonma-yon turganda nom 12 belgigacha kesilib qolardi. */}
                     <span className="min-w-0 flex-1">

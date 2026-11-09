@@ -276,6 +276,22 @@ body {
    Bitta joyda turishining sababi: harakat kamaytirilganda transform emas,
    shaffoflik o'zgarishi qoladi (§14 — javob yo'qolmaydi, faqat vestibulyar
    qismi olib tashlanadi). 60ms — sezilmaydigan, lekin darhol. */
+/* Mahsulot rasmi ramkasi: shaffof rasm orqasidagi oq fon burchakdan 1px ichkarida turadi.
+   Oq fon ramka yoki rasmning o'zida bo'lsa, rasm kechikib yuklanganda dumaloq burchakda ingichka
+   oq yoy qolardi (hover qayta chizgach yo'qolardi). `background-clip` va `transform-gpu` hal qilmadi. */
+.img-frame {
+  position: relative;
+  isolation: isolate;
+}
+.img-frame::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: #fff;
+}
+
 .press {
   /* Bitta klass — bosiladigan elementning butun o'tish shartnomasi. Bosish darhol
      (60ms, sezilmaydi), rang esa biroz yumshoqroq. Alohida `transition-colors`
