@@ -17,7 +17,7 @@ import type {
   Term,
 } from '../../shared/types';
 import { SAFE_HREF_RE } from '../../shared/safe-href';
-import { clampNewsScale } from '../../shared/news-price';
+import { clampNewsScale, newsProductId } from '../../shared/news-price';
 import { isAvatar } from '../../shared/avatar';
 import type { AddressFields } from '../../shared/address';
 import { districtById, regionById } from '../../shared/uz-regions';
@@ -333,6 +333,9 @@ export function parseNewsInput(body: unknown): NewsInput {
   const str = (k: string, max: number) => (typeof o[k] === 'string' ? (o[k] as string).trim().slice(0, max) : '');
   const linkUrl = str('linkUrl', 500);
   if (linkUrl !== '' && !SAFE_HREF_RE.test(linkUrl)) throw new ValidationError('link_invalid');
+  const manualPriceUzs = typeof o.manualPriceUzs === 'number' && Number.isFinite(o.manualPriceUzs) && o.manualPriceUzs > 0 ? Math.round(o.manualPriceUzs) : null;
+  // Manbasiz rejim saqlanmaydi: tovar narxi — havola tovarga bo'lsa, qo'lda — narx kiritilgan bo'lsa.
+  const priceMode = o.priceMode === 'product' && newsProductId(linkUrl) ? 'product' : o.priceMode === 'manual' && manualPriceUzs ? 'manual' : 'none';
   return {
     id: typeof o.id === 'string' && o.id.trim() !== '' ? o.id.trim() : crypto.randomUUID(),
     badge: str('badge', 40), badgeRu: str('badgeRu', 40),
@@ -342,6 +345,7 @@ export function parseNewsInput(body: unknown): NewsInput {
     cta: str('cta', 40), ctaRu: str('ctaRu', 40),
     linkUrl, imageUrl,
     imageScale: clampNewsScale(o.imageScale),
+    priceMode, manualPriceUzs: priceMode === 'manual' ? manualPriceUzs : null,
     sortOrder: typeof o.sortOrder === 'number' ? o.sortOrder : 0,
     isActive: o.isActive === undefined ? true : Boolean(o.isActive),
   };

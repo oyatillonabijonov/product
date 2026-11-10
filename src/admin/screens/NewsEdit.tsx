@@ -2,18 +2,19 @@ import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import type { ApiNews, ApiProduct } from '../../../shared/types';
-import { NEWS_SCALE_MAX, NEWS_SCALE_MIN, PRICE_TOKEN, newsProductId } from '../../../shared/news-price';
-import { localeToLang } from '../../../app/lib/i18n';
+import type { ApiNews, ApiProduct, NewsPriceMode } from '../../../shared/types';
+import { NEWS_SCALE_MAX, NEWS_SCALE_MIN, newsProductId } from '../../../shared/news-price';
+import { localeToLang, type Locale } from '../../../app/lib/i18n';
 import { translations } from '../../locales';
 import { CurrencyProvider } from '../../store/CurrencyContext';
 import { NewsTile, newsLayout } from '../../store/NewsSection';
 import { createNews, deleteNews, listNews, listProducts, updateNews } from '../api';
 import { errText } from '../errText';
 import ImageUploader from '../ImageUploader';
+import PriceInput from '../PriceInput';
 import { withoutId } from '../lib/content-form';
 import { formatSum } from '../lib/format';
-import { Badge, Button, Card, Field, Input, LangPair, Page, Skeleton, SwitchRow } from '../ui';
+import { Badge, Button, Card, Field, INPUT_CLS, Input, Page, Segmented, Skeleton, SwitchRow, Textarea } from '../ui';
 import { useConfirm } from '../ui/confirm';
 import { useToast } from '../ui/toast';
 
@@ -23,12 +24,27 @@ type Form = Omit<ApiNews, 'id'>;
 const EMPTY: Form = {
   badge: '', badgeRu: '', tag: '', tagRu: '', title: '', titleRu: '', text: '', textRu: '',
   cta: '', ctaRu: '', linkUrl: '', imageUrl: '', imageScale: 100, sortOrder: 0, isActive: true,
+  priceMode: 'none', manualPriceUzs: null,
 };
 
-/** Ko'rinish saytdagi kartaning o'zi (`NewsTile`) — o'zbekcha matn bilan. */
-const SITE_T = translations[localeToLang('uz')];
+/** Ikki tilli maydonlar: o'zbekcha kalit → ruscha jufti. */
+const RU_KEY = { title: 'titleRu', text: 'textRu', badge: 'badgeRu', tag: 'tagRu', cta: 'ctaRu' } as const;
+type TextKey = keyof typeof RU_KEY;
 
-/** Yangilik (landing tile'i) tahriri. `id` = 'new' yoki yangilik id'si. */
+/** Tayyor matnlar [o'zbekcha, ruscha] — bosilsa ikkala tilga birdan yoziladi. Bazaga tushadigan matn, admin tiliga bog'liq emas. */
+type Preset = readonly [string, string];
+const BADGES: Preset[] = [['Yangi', 'Новинка'], ['Chegirma', 'Скидка'], ['Xit', 'Хит']];
+const TAGS: Preset[] = [['Sotuvda', 'В продаже'], ['Tez orada', 'Скоро'], ['Oldindan buyurtma', 'Предзаказ']];
+const CTAS: Preset[] = [['Xarid qilish', 'Купить'], ['Batafsil', 'Подробнее'], ['Oldindan buyurtma', 'Предзаказ']];
+
+/** Tugma qayerga olib boradi: tovar sahifasi, boshqa havola yoki tugmasiz. */
+type CtaMode = 'product' | 'link' | 'none';
+const ctaModeOf = (linkUrl: string): CtaMode => (linkUrl === '' ? 'none' : newsProductId(linkUrl) ? 'product' : 'link');
+
+/**
+ * Yangilik (landing tile'i) tahriri. `id` = 'new' yoki yangilik id'si. Chapda qadamlar, o'ngda joyida turadigan
+ * jonli karta (saytdagi `NewsTile`ning o'zi) — tanlangan tilda.
+ */
 const NewsEdit: FC<{ id: string }> = ({ id }) => {
   const { t } = useTranslation('content');
   const sum = useTranslation('common').t('sum');
@@ -45,10 +61,15 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
   // Boshqa yangiliklar — bu karta bosh sahifada qaysi ko'rinishda (katta/yon) chiqishini bilish uchun.
   const [rawOthers, setOthers] = useState([] as ApiNews[]);
   const others = rawOthers as ApiNews[];
-  const [rawProducts, setProducts] = useState([] as ApiProduct[]);
-  const products = rawProducts as ApiProduct[];
+  const [rawProducts, setProducts] = useState(null as ApiProduct[] | null);
+  const products = rawProducts as ApiProduct[] | null;
   const [rawQuery, setQuery] = useState('');
   const query = rawQuery as string;
+  const [rawLang, setLang] = useState('uz');
+  const lang = rawLang as Locale;
+  // Yangi kartada odatiy yo'l — tovar haqida; mavjudida havoladan aniqlanadi.
+  const [rawCtaMode, setCtaMode] = useState('product');
+  const ctaMode = rawCtaMode as CtaMode;
 
   useEffect(() => {
     listNews().then((all) => {
@@ -57,29 +78,27 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
       const n = all.find((x) => x.id === id);
       if (!n) { setError(t('newsEdit.notFound')); return; }
       setForm(withoutId(n));
+      setCtaMode(ctaModeOf(n.linkUrl));
       setLoaded(true);
     }).catch(() => { if (!isNew) setError(t('shared.loadError')); });
     // Tovarlar yuklanmasa forma baribir ishlaydi — faqat qidiruv bo'sh qoladi.
-    listProducts().then(setProducts).catch(() => {});
+    listProducts().then(setProducts).catch(() => setProducts([]));
   }, [id, isNew]);
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => { setForm((f: Form) => ({ ...f, [k]: v })); setDirty(true); };
 
-  const product = products.find((p) => p.id === newsProductId(form.linkUrl));
+  const linkedId = newsProductId(form.linkUrl);
+  const product = products?.find((p) => p.id === linkedId);
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const matches = words.length === 0 ? [] : products
+  const matches = words.length === 0 ? [] : (products ?? [])
     .filter((p) => words.every((w) => p.name.toLowerCase().includes(w)))
     .sort((a, b) => Number(b.isActive) - Number(a.isActive))
     .slice(0, 8);
-  const priceLinked = form.text.includes(PRICE_TOKEN);
 
-  /** `{narx}` ni matn boshiga qo'yadi. Ruscha matn bo'sh bo'lsa tegilmaydi — sayt u holda o'zbekchasini ko'rsatadi. */
-  function addPrice() {
-    setForm((f: Form) => ({
-      ...f,
-      text: f.text.includes(PRICE_TOKEN) ? f.text : `${PRICE_TOKEN} dan. ${f.text}`.trim(),
-      textRu: f.textRu === '' || f.textRu.includes(PRICE_TOKEN) ? f.textRu : `От ${PRICE_TOKEN}. ${f.textRu}`,
-    }));
+  /** Rejim almashganda havola tozalanadi; tovar narxi tovarsiz qolmasin. */
+  function changeCta(mode: string) {
+    setCtaMode(mode);
+    setForm((f: Form) => ({ ...f, linkUrl: '', priceMode: f.priceMode === 'product' ? 'none' : f.priceMode }));
     setDirty(true);
   }
 
@@ -89,8 +108,10 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
     .sort((a, b) => a.sortOrder - b.sortOrder || (a.id < b.id ? -1 : 1))
     .slice(0, 3);
   const position = shown.findIndex((n) => n.id === id);
-  // Narx saytdagidek: faqat tovar ko'rinadigan bo'lsa; aks holda `{narx}`li gap tushib qoladi.
-  const preview: ApiNews = { ...form, id, priceUzs: product?.isActive ? product.minPriceUzs : null };
+  // Narx saytdagidek: qo'lda kiritilgani yoki ko'rinadigan tovarniki; yashirin tovarda narx chiqmaydi.
+  const priceUzs = form.priceMode === 'manual' ? form.manualPriceUzs : product?.isActive ? product.minPriceUzs : null;
+  const preview: ApiNews = { ...form, id, priceUzs };
+  const siteT = translations[localeToLang(lang)];
 
   async function save() {
     setBusy(true); setError('');
@@ -101,7 +122,8 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
         toast(t('newsEdit.toastCreated'));
         navigate(LIST, { state: { leave: true } });
       } else {
-        await updateNews(id, form);
+        // Server manbasiz narx rejimini «ko'rsatilmasin»ga qaytaradi — forma saqlangan holatni ko'rsatsin.
+        setForm(withoutId(await updateNews(id, form)));
         setDirty(false);
         toast(t('shared.savedLive'));
       }
@@ -129,6 +151,36 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
     }
   }
 
+  /**
+   * Tanlangan tildagi bitta maydon. Ruschada bo'sh maydon ichida o'zbekchasi xira ko'rinadi — sayt shuni chiqaradi.
+   * Tayyor matn bosilsa ikkala tilga birdan yoziladi.
+   */
+  function textField(k: TextKey, label: string, hint: string, opts: { textarea?: boolean; required?: boolean; presets?: Preset[] } = {}) {
+    const key = lang === 'uz' ? k : RU_KEY[k];
+    const fallback = lang === 'ru' && form[key] === '' && form[k] !== '';
+    const fill = (uz: string, ru: string) => { setForm((f: Form) => ({ ...f, [k]: uz, [RU_KEY[k]]: ru })); setDirty(true); };
+    const chip = 'press h-11 rounded-full border border-line px-3.5 text-label text-body hover:bg-fill-2 md:h-9';
+    return (
+      <div>
+        <Field label={label} hint={fallback ? t('newsEdit.ruFallback') : hint} required={opts.required && lang === 'uz'}>
+          {opts.textarea
+            ? <Textarea value={form[key]} onChange={(v) => set(key, v)} rows={2} placeholder={lang === 'ru' ? form[k] : undefined} />
+            : <Input value={form[key]} onChange={(v) => set(key, v)} placeholder={lang === 'ru' ? form[k] : undefined} />}
+        </Field>
+        {opts.presets && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {opts.presets.map(([uz, ru]) => (
+              <button key={uz} type="button" className={chip} onClick={() => fill(uz, ru)}>{lang === 'uz' ? uz : ru}</button>
+            ))}
+            {(form[k] !== '' || form[RU_KEY[k]] !== '') && (
+              <button type="button" className={`${chip} text-muted-2`} onClick={() => fill('', '')}>{t('newsEdit.presetNone')}</button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const canSave = dirty && !busy && form.title.trim() !== '' && form.imageUrl !== '';
 
   return (
@@ -139,105 +191,167 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
       actions={<Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>}
     >
       {!loaded && !error ? <Skeleton rows={6} /> : (
-        <div className="flex flex-col gap-4">
-          {error && <p className="text-para text-danger">{error}</p>}
-          <Card title={t('newsEdit.preview.title')} description={t('newsEdit.preview.description')}>
-            {form.imageUrl === '' ? (
-              <p className="rounded-lg bg-bg px-4 py-10 text-center text-para text-muted">{t('newsEdit.preview.noImage')}</p>
-            ) : (
-              // Bosilmaydi: ichidagi tugma havola, tahrir paytida sahifadan chiqarib yubormasin.
-              // Kichraytirilgan (`zoom`): karta va ostidagi surgich bitta ekranga sig'adi, nisbatlar saytdagidek qoladi.
-              <div className="pointer-events-none rounded-lg bg-bg p-4" aria-hidden="true">
-                <div className="mx-auto max-w-[760px] [zoom:0.7]">
-                  <CurrencyProvider initial="UZS" rate={0} sum={SITE_T.sum}>
-                    <NewsTile item={preview} locale="uz" t={SITE_T} layout={position < 0 ? 'stack' : newsLayout(shown.length, position)} />
-                  </CurrencyProvider>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-start lg:gap-6">
+          {/* Jonli karta: telefonda tepada, `lg`dan o'ng ustunda va aylantirganda joyida turadi (sahifa sarlavhasi ostida). */}
+          <div className="lg:sticky lg:top-32 lg:col-start-2 lg:row-start-1">
+            <Card title={t('newsEdit.preview.title')} description={t('newsEdit.preview.description')}>
+              {form.imageUrl === '' ? (
+                <p className="rounded-lg bg-bg px-4 py-10 text-center text-para text-muted">{t('newsEdit.preview.noImage')}</p>
+              ) : (
+                // Bosilmaydi: ichidagi tugma havola, tahrir paytida sahifadan chiqarib yubormasin.
+                // Kichraytirilgan (`zoom`): karta saytdagi enida chiziladi va ustunga sig'adi — nisbatlar saytdagidek.
+                <div className="pointer-events-none rounded-lg bg-bg p-3" aria-hidden="true">
+                  <div className="mx-auto max-w-[680px] [zoom:0.6]">
+                    <CurrencyProvider key={lang} initial="UZS" rate={0} sum={siteT.sum}>
+                      <NewsTile item={preview} locale={lang} t={siteT} layout={position < 0 ? 'stack' : newsLayout(shown.length, position)} />
+                    </CurrencyProvider>
+                  </div>
                 </div>
-              </div>
-            )}
-            {position < 0 && <p className="mt-3 text-label text-muted-2">{t('newsEdit.preview.notOnHome')}</p>}
-            <Field label={t('newsEdit.scale.label')} hint={t('newsEdit.scale.hint')} className="mt-4">
-              <span className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={NEWS_SCALE_MIN}
-                  max={NEWS_SCALE_MAX}
-                  step={5}
-                  value={form.imageScale}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('imageScale', Number(e.target.value))}
-                  className="h-11 w-full accent-cta md:h-9"
-                />
-                <span className="w-14 text-right text-para tabular-nums text-primary">{form.imageScale}%</span>
-              </span>
-            </Field>
-          </Card>
-          <Card title={t('shared.image')} description={t('newsEdit.image.description')}>
-            <ImageUploader label={t('shared.image')} images={form.imageUrl ? [form.imageUrl] : []} onChange={(next) => set('imageUrl', next[0] ?? '')} />
-          </Card>
-          <Card title={t('newsEdit.product.title')} description={t('newsEdit.product.description')}>
-            {product ? (
-              <div className="flex flex-wrap items-center gap-3">
-                <img src={product.imageUrl} alt="" className="size-11 rounded-xs border border-line bg-fill-2 object-cover" />
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-para text-primary">{product.name}</span>
-                  <span className="text-label text-muted-2">
-                    {product.isActive
-                      ? t('newsEdit.product.currentPrice', { price: formatSum(product.minPriceUzs, sum) })
-                      : t('newsEdit.product.hiddenNote')}
-                  </span>
+              )}
+              {position < 0 && <p className="mt-3 text-label text-muted-2">{t('newsEdit.preview.notOnHome')}</p>}
+            </Card>
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-4 lg:col-start-1 lg:row-start-1">
+            {error && <p className="text-para text-danger">{error}</p>}
+
+            <Card title={t('newsEdit.lang.title')} description={t('newsEdit.lang.description')}>
+              <Segmented
+                label={t('newsEdit.lang.title')}
+                value={lang}
+                onChange={setLang}
+                options={[{ id: 'uz', label: t('newsEdit.lang.uz') }, { id: 'ru', label: t('newsEdit.lang.ru') }]}
+              />
+            </Card>
+
+            <Card title={t('newsEdit.image.title')} description={t('newsEdit.image.description')}>
+              <ImageUploader label={t('shared.image')} images={form.imageUrl ? [form.imageUrl] : []} onChange={(next) => set('imageUrl', next[0] ?? '')} />
+              <Field label={t('newsEdit.scale.label')} hint={t('newsEdit.scale.hint')} className="mt-4">
+                <span className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min={NEWS_SCALE_MIN}
+                    max={NEWS_SCALE_MAX}
+                    step={5}
+                    value={form.imageScale}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('imageScale', Number(e.target.value))}
+                    className="h-11 w-full accent-cta md:h-9"
+                  />
+                  <span className="w-14 text-right text-para tabular-nums text-primary">{form.imageScale}%</span>
                 </span>
-                {priceLinked
-                  ? <Badge tone="ok">{t('newsEdit.product.priceLinked')}</Badge>
-                  : <Button variant="secondary" onClick={addPrice}>{t('newsEdit.product.addPrice')}</Button>}
-                <Button variant="quiet" onClick={() => set('linkUrl', '')}>{t('newsEdit.product.unlink')}</Button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <Input value={query} onChange={setQuery} placeholder={t('newsEdit.product.searchPlaceholder')} />
-                {matches.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    className="press flex items-center gap-3 rounded-xs px-2 py-1.5 text-left hover:bg-fill-2"
-                    onClick={() => { set('linkUrl', `/product/${p.id}`); setQuery(''); }}
-                  >
-                    <img src={p.imageUrl} alt="" className="size-9 rounded-xs border border-line bg-fill-2 object-cover" />
-                    <span className="min-w-0 flex-1 truncate text-para text-primary">{p.name}</span>
-                    {!p.isActive && <Badge>{t('newsEdit.product.hidden')}</Badge>}
-                    <span className="text-label text-muted-2">{formatSum(p.minPriceUzs, sum)}</span>
-                  </button>
-                ))}
-                {words.length > 0 && matches.length === 0 && <p className="text-label text-muted-2">{t('newsEdit.product.notFound')}</p>}
-              </div>
-            )}
-          </Card>
-          <Card title={t('shared.text')}>
-            <div className="flex flex-col gap-4">
-              <LangPair label={t('shared.title')} required hint={t('newsEdit.text.titleHint')} uz={form.title} ru={form.titleRu} onUz={(v) => set('title', v)} onRu={(v) => set('titleRu', v)} />
-              <LangPair label={t('shared.text')} kind="textarea" rows={2} hint={t('newsEdit.text.textHint')} uz={form.text} ru={form.textRu} onUz={(v) => set('text', v)} onRu={(v) => set('textRu', v)} />
-              <LangPair label={t('newsEdit.text.badgeLabel')} hint={t('newsEdit.text.badgeHint')} uz={form.badge} ru={form.badgeRu} onUz={(v) => set('badge', v)} onRu={(v) => set('badgeRu', v)} />
-              <LangPair label={t('newsEdit.text.tagLabel')} hint={t('newsEdit.text.tagHint')} uz={form.tag} ru={form.tagRu} onUz={(v) => set('tag', v)} onRu={(v) => set('tagRu', v)} />
-              <LangPair label={t('newsEdit.text.ctaLabel')} hint={t('newsEdit.text.ctaHint')} uz={form.cta} ru={form.ctaRu} onUz={(v) => set('cta', v)} onRu={(v) => set('ctaRu', v)} />
-            </div>
-          </Card>
-          <Card title={t('newsEdit.linkAndVisibility')}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label={t('shared.link')} hint={t('newsEdit.linkHint')}>
-                <Input value={form.linkUrl} onChange={(v) => set('linkUrl', v)} placeholder="/category/apple?tur=iphone" />
               </Field>
-              <Field label={t('shared.sortOrder')} hint={t('newsEdit.sortHint')}>
+            </Card>
+
+            <Card title={t('newsEdit.text.title')} description={t('newsEdit.text.description')}>
+              <div className="flex flex-col gap-4">
+                {textField('title', t('newsEdit.text.titleLabel'), t('newsEdit.text.titleHint'), { required: true })}
+                {textField('text', t('newsEdit.text.textLabel'), t('newsEdit.text.textHint'), { textarea: true })}
+                {textField('badge', t('newsEdit.text.badgeLabel'), t('newsEdit.text.badgeHint'), { presets: BADGES })}
+                {textField('tag', t('newsEdit.text.tagLabel'), t('newsEdit.text.tagHint'), { presets: TAGS })}
+              </div>
+            </Card>
+
+            <Card title={t('newsEdit.cta.title')} description={t('newsEdit.cta.description')}>
+              <div className="flex flex-col gap-4">
+                <Segmented
+                  label={t('newsEdit.cta.title')}
+                  value={ctaMode}
+                  onChange={changeCta}
+                  options={[
+                    { id: 'product', label: t('newsEdit.cta.product') },
+                    { id: 'link', label: t('newsEdit.cta.link') },
+                    { id: 'none', label: t('newsEdit.cta.none') },
+                  ]}
+                />
+                {ctaMode === 'none' && <p className="text-para text-muted">{t('newsEdit.cta.noneNote')}</p>}
+                {ctaMode === 'link' && (
+                  <Field label={t('newsEdit.cta.linkLabel')} hint={t('newsEdit.cta.linkHint')}>
+                    <Input value={form.linkUrl} onChange={(v) => set('linkUrl', v)} placeholder="/category/apple" />
+                  </Field>
+                )}
+                {ctaMode === 'product' && (linkedId ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    {product && <img src={product.imageUrl} alt="" className="size-11 rounded-xs border border-line bg-fill-2 object-cover" />}
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate text-para text-primary">{product ? product.name : products ? t('newsEdit.cta.missing') : '…'}</span>
+                      {product && (
+                        <span className="text-label text-muted-2">
+                          {product.isActive ? formatSum(product.minPriceUzs, sum) : t('newsEdit.cta.hidden')}
+                        </span>
+                      )}
+                    </span>
+                    <Button variant="secondary" onClick={() => set('linkUrl', '')}>{t('newsEdit.cta.change')}</Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <Field label={t('newsEdit.cta.searchLabel')} hint={t('newsEdit.cta.searchHint')}>
+                      <Input value={query} onChange={setQuery} placeholder={t('newsEdit.cta.searchPlaceholder')} />
+                    </Field>
+                    {matches.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        className="press flex items-center gap-3 rounded-xs px-2 py-1.5 text-left hover:bg-fill-2"
+                        onClick={() => { set('linkUrl', `/product/${p.id}`); setQuery(''); }}
+                      >
+                        <img src={p.imageUrl} alt="" className="size-9 rounded-xs border border-line bg-fill-2 object-cover" />
+                        <span className="min-w-0 flex-1 truncate text-para text-primary">{p.name}</span>
+                        {!p.isActive && <Badge>{t('newsEdit.cta.hidden')}</Badge>}
+                        <span className="text-label text-muted-2">{formatSum(p.minPriceUzs, sum)}</span>
+                      </button>
+                    ))}
+                    {words.length > 0 && matches.length === 0 && <p className="text-label text-muted-2">{t('newsEdit.cta.notFound')}</p>}
+                  </div>
+                ))}
+                {ctaMode !== 'none' && textField('cta', t('newsEdit.cta.textLabel'), t('newsEdit.cta.textHint'), { presets: CTAS })}
+              </div>
+            </Card>
+
+            <Card title={t('newsEdit.price.title')} description={t('newsEdit.price.description')}>
+              <div className="flex flex-col gap-4">
+                <Segmented
+                  label={t('newsEdit.price.title')}
+                  value={form.priceMode}
+                  onChange={(v) => set('priceMode', v as NewsPriceMode)}
+                  options={[
+                    { id: 'none', label: t('newsEdit.price.none') },
+                    { id: 'product', label: t('newsEdit.price.product') },
+                    { id: 'manual', label: t('newsEdit.price.manual') },
+                  ]}
+                />
+                {form.priceMode === 'none' && <p className="text-para text-muted">{t('newsEdit.price.noneNote')}</p>}
+                {form.priceMode === 'product' && (
+                  <p className="text-para text-muted">
+                    {!linkedId
+                      ? t('newsEdit.price.needProduct')
+                      : product && !product.isActive
+                        ? t('newsEdit.price.hiddenNote')
+                        : t('newsEdit.price.productNote', { price: product ? formatSum(product.minPriceUzs, sum) : '…' })}
+                  </p>
+                )}
+                {form.priceMode === 'manual' && (
+                  <Field label={t('newsEdit.price.manualLabel')} hint={t('newsEdit.price.manualHint')}>
+                    <PriceInput value={form.manualPriceUzs ?? 0} onChange={(v) => set('manualPriceUzs', v > 0 ? v : null)} placeholder="21 000 000" className={INPUT_CLS} />
+                  </Field>
+                )}
+              </div>
+            </Card>
+
+            <Card title={t('newsEdit.visibility.title')}>
+              <div className="divide-y divide-line">
+                <SwitchRow label={t('shared.showOnSite')} on={form.isActive} onChange={(v) => set('isActive', v)} />
+              </div>
+              <Field label={t('shared.sortOrder')} hint={t('newsEdit.visibility.sortHint')} className="mt-4 max-w-xs">
                 <Input type="number" value={String(form.sortOrder)} onChange={(v) => set('sortOrder', Number(v) || 0)} />
               </Field>
-            </div>
-            <div className="mt-2 divide-y divide-line">
-              <SwitchRow label={t('shared.showOnSite')} on={form.isActive} onChange={(v) => set('isActive', v)} />
-            </div>
-          </Card>
-          {!isNew && (
-            <Card title={t('shared.dangerZone')}>
-              <Button variant="destructive" onClick={remove}>{t('newsEdit.deleteButton')}</Button>
             </Card>
-          )}
+
+            {!isNew && (
+              <Card title={t('shared.dangerZone')}>
+                <Button variant="destructive" onClick={remove}>{t('newsEdit.deleteButton')}</Button>
+              </Card>
+            )}
+          </div>
         </div>
       )}
     </Page>

@@ -344,8 +344,10 @@ export async function loadNews(env: Env): Promise<ApiNews[]> {
   try {
     const { results } = await env.DB.prepare('SELECT * FROM news WHERE is_active = 1 ORDER BY sort_order ASC, id ASC LIMIT 3').all<NewsRow>();
     return await Promise.all(results.map(rowToNews).map(async (n) => {
+      if (n.priceMode === 'manual') return { ...n, priceUzs: n.manualPriceUzs };
       const id = newsProductId(n.linkUrl);
-      if (!id || !needsNewsPrice(n)) return n;
+      // `needsNewsPrice` — eski kartalar: matnda `{narx}` belgisi qolgan bo'lsa ham narx to'ldiriladi.
+      if (!id || (n.priceMode !== 'product' && !needsNewsPrice(n))) return n;
       const row = await env.DB.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE id = ? AND is_active = 1`).bind(id).first<ProductRow>();
       return { ...n, priceUzs: row ? rowToProduct(row).minPriceUzs ?? null : null };
     }));

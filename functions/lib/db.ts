@@ -499,6 +499,7 @@ export interface NewsRow {
   id: string; badge: string; badge_ru: string; tag: string; tag_ru: string;
   title: string; title_ru: string; text: string; text_ru: string; cta: string; cta_ru: string;
   link_url: string; image_url: string; image_scale: number; sort_order: number; is_active: number;
+  price_mode: string; price_uzs: number | null;
 }
 
 export function rowToNews(r: NewsRow): ApiNews {
@@ -506,6 +507,7 @@ export function rowToNews(r: NewsRow): ApiNews {
     id: r.id, badge: r.badge, badgeRu: r.badge_ru, tag: r.tag, tagRu: r.tag_ru,
     title: r.title, titleRu: r.title_ru, text: r.text, textRu: r.text_ru, cta: r.cta, ctaRu: r.cta_ru,
     linkUrl: r.link_url, imageUrl: r.image_url, imageScale: r.image_scale, sortOrder: r.sort_order, isActive: r.is_active === 1,
+    priceMode: r.price_mode === 'product' || r.price_mode === 'manual' ? r.price_mode : 'none', manualPriceUzs: r.price_uzs,
   };
 }
 

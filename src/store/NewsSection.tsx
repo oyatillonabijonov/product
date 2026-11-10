@@ -37,7 +37,12 @@ export const NewsTile: FC<{ item: ApiNews; locale: Locale; t: Translation; layou
   const badge = localeField(item.badge, item.badgeRu, locale);
   const tag = localeField(item.tag, item.tagRu, locale);
   const { price } = useCurrency();
-  const text = fillNewsPrice(localeField(item.text, item.textRu, locale), item.priceUzs != null ? price(item.priceUzs) : null);
+  const shown = item.priceUzs != null ? price(item.priceUzs) : null;
+  // Narx matn boshida, karta o'zi yozadi («… so'm dan.»); `fillNewsPrice` — matnida eski `{narx}` belgisi qolgan kartalar uchun.
+  const text = [
+    item.priceMode !== 'none' && shown ? t.newsPriceFrom.replace('{narx}', shown) : '',
+    fillNewsPrice(localeField(item.text, item.textRu, locale), shown),
+  ].filter(Boolean).join(' ');
   const split = layout === 'split';
   return (
     <article

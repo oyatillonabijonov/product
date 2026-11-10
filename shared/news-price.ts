@@ -7,7 +7,7 @@ export function clampNewsScale(v: unknown): number {
 }
 
 /** Yangiliklar matnidagi belgi: o'rniga tugma havolasidagi mahsulotning joriy narxi qo'yiladi. */
-export const PRICE_TOKEN = '{narx}';
+const PRICE_TOKEN = '{narx}';
 
 /** `/product/<id>` havolasidan mahsulot id'si; boshqa havolada null. */
 export function newsProductId(linkUrl: string): string | null {

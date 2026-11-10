@@ -13,9 +13,9 @@ export async function action({ request, context, params }: Route.ActionArgs) {
     const n = parseBody({ ...(((await request.json().catch(() => null)) ?? {}) as object), id }, parseNewsInput);
     if (n instanceof Response) return n;
     await env.DB.prepare(
-      'UPDATE news SET badge=?, badge_ru=?, tag=?, tag_ru=?, title=?, title_ru=?, text=?, text_ru=?, cta=?, cta_ru=?, link_url=?, image_url=?, image_scale=?, sort_order=?, is_active=? WHERE id=?',
+      'UPDATE news SET badge=?, badge_ru=?, tag=?, tag_ru=?, title=?, title_ru=?, text=?, text_ru=?, cta=?, cta_ru=?, link_url=?, image_url=?, image_scale=?, sort_order=?, is_active=?, price_mode=?, price_uzs=? WHERE id=?',
     )
-      .bind(n.badge, n.badgeRu, n.tag, n.tagRu, n.title, n.titleRu, n.text, n.textRu, n.cta, n.ctaRu, n.linkUrl, n.imageUrl, n.imageScale, n.sortOrder, n.isActive ? 1 : 0, id)
+      .bind(n.badge, n.badgeRu, n.tag, n.tagRu, n.title, n.titleRu, n.text, n.textRu, n.cta, n.ctaRu, n.linkUrl, n.imageUrl, n.imageScale, n.sortOrder, n.isActive ? 1 : 0, n.priceMode, n.manualPriceUzs, id)
       .run();
     const row = await env.DB.prepare('SELECT * FROM news WHERE id = ?').bind(id).first<NewsRow>();
     if (!row) return json({ error: 'not_found' }, { status: 404 });

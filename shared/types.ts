@@ -147,6 +147,8 @@ export interface ApiBanner {
   isActive: boolean;
 }
 
+export type NewsPriceMode = 'none' | 'product' | 'manual';
+
 /** Landing "Yangiliklar" tile'i. uz maydonlari asosiy, `*Ru` bo'sh bo'lsa UI o'zbekchasiga tushadi. */
 export interface ApiNews {
   id: string;
@@ -169,7 +171,10 @@ export interface ApiNews {
   imageScale: number;
   sortOrder: number;
   isActive: boolean;
-  /** Faqat landing: matnda `{narx}` bo'lsa havoladagi mahsulotning joriy narxi; null — mahsulot ko'rinmaydi. */
+  /** Narx manbai: yo'q · tugma olib boradigan tovarning joriy narxi · admin qo'lda kiritgan (`manualPriceUzs`). */
+  priceMode: NewsPriceMode;
+  manualPriceUzs: number | null;
+  /** Faqat landing: kartada chiqadigan narx (`priceMode` bo'yicha); null — narx yo'q yoki tovar ko'rinmaydi. */
   priceUzs?: number | null;
 }
 

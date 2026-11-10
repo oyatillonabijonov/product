@@ -181,6 +181,14 @@ describe('parseNewsInput', () => {
   it('uzun matn kesiladi', () => {
     expect(parseNewsInput({ ...base, text: 'a'.repeat(500) }).text).toHaveLength(200);
   });
+  it("narx rejimi manbasiz saqlanmaydi", () => {
+    expect(parseNewsInput(base)).toMatchObject({ priceMode: 'none', manualPriceUzs: null });
+    expect(parseNewsInput({ ...base, priceMode: 'product', linkUrl: '/product/iphone-18-pro' }).priceMode).toBe('product');
+    expect(parseNewsInput({ ...base, priceMode: 'product', linkUrl: '/category/apple' }).priceMode).toBe('none');
+    expect(parseNewsInput({ ...base, priceMode: 'manual', manualPriceUzs: 21_000_000 })).toMatchObject({ priceMode: 'manual', manualPriceUzs: 21_000_000 });
+    expect(parseNewsInput({ ...base, priceMode: 'manual', manualPriceUzs: 0 }).priceMode).toBe('none');
+    expect(parseNewsInput({ ...base, priceMode: 'none', manualPriceUzs: 5 }).manualPriceUzs).toBeNull();
+  });
   it("rasm o'lchami: berilmasa 100, chegaradan chiqsa qisiladi", () => {
     expect(parseNewsInput(base).imageScale).toBe(100);
     expect(parseNewsInput({ ...base, imageScale: 72.4 }).imageScale).toBe(72);
