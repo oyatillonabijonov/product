@@ -15,14 +15,14 @@ import BannerSlider from './BannerSlider';
  * katalog/mahsulot sahifalarida qoladi.
  */
 export default function HomePage({
-  t, categories, locale, site, news, banners, brands,
+  t, categories, locale, site, news, banners, brands, signedIn,
 }: {
-  t: Translation; categories: ApiCategory[]; locale: Locale;
+  t: Translation; categories: ApiCategory[]; locale: Locale; signedIn: boolean;
   site: ApiSiteConfig; news: ApiNews[]; banners: ApiBanner[]; brands: ApiBrand[];
 }) {
   return (
     <>
-      <HeroNotch t={t} locale={locale} categories={categories} />
+      <HeroNotch t={t} locale={locale} categories={categories} signedIn={signedIn} />
       {/* Hero'da ko'rinadigan h1 yo'q (kartalar o'zi sarlavha) — ierarxiya uchun sr-only. */}
       <h1 className="sr-only">{`${site.name} — ${t.proTitle}`}</h1>
       <HeroColumns categories={categories} />

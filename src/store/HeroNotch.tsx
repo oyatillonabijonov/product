@@ -24,8 +24,8 @@ const ICON_BTN =
  * Faqat `md`dan yuqorida: ochilish hover'ga bog'liq, sensorli ekranda esa hover
  * yo'q — mobilda o'rniga saytning odatdagi headeri qoladi.
  */
-export default function HeroNotch({ t, locale, categories }: {
-  t: Translation; locale: Locale; categories: ApiCategory[];
+export default function HeroNotch({ t, locale, categories, signedIn }: {
+  t: Translation; locale: Locale; categories: ApiCategory[]; signedIn: boolean;
 }) {
   const asset = useAssets();
   const [hover, setHover] = useState(false);
@@ -152,13 +152,13 @@ export default function HeroNotch({ t, locale, categories }: {
           <div className="hidden lg:block">
             <SearchBox t={t} locale={locale} dark onActiveChange={onSearchActive} />
           </div>
-          {/* "Kirish" doim ko'rinadi; profil ikonkasi 2026-09-18'da olib tashlandi (egasining
-              talabi — notch'da bitta kirish nuqtasi yetarli, kabinetga o'sha yerdan o'tiladi). */}
+          {/* Notch'da bitta kirish nuqtasi (2026-09-18, egasining talabi): mehmonga "Kirish", kirgan mijozga
+              "Profil" → kabinet. Kirgandan keyin ham "Kirish" turishi xato edi (2026-11-10). */}
           <LocaleLink
-            to="/kirish"
+            to={signedIn ? '/kabinet' : '/kirish'}
             className="press flex h-9 items-center rounded-xs bg-[#0071E3] px-5 text-label font-medium text-white hover:bg-[#0A84FF]"
           >
-            {t.loginTitle}
+            {signedIn ? t.navProfile : t.loginTitle}
           </LocaleLink>
           <Link
             to={locale === 'ru' ? '/' : '/ru'}

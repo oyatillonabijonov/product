@@ -42,7 +42,7 @@ export default function HomeRoute() {
   return (
     <HomePage
       t={ctx.t} categories={categories} locale={locale}
-      site={ctx.config} news={news} banners={banners} brands={brands}
+      site={ctx.config} news={news} banners={banners} brands={brands} signedIn={ctx.customer !== null}
     />
   );
 }
