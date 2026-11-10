@@ -89,6 +89,13 @@ const content = {
       noImage: "Rasm yuklang — karta shu yerda ko'rinadi",
       notOnHome: "Bu yangilik hozir bosh sahifada chiqmaydi: yashirilgan yoki birinchi 3 talikka kirmagan.",
     },
+    place: {
+      title: 'Bosh sahifadagi joyi',
+      one: "Bosh sahifada bitta yangilik bo'ladi — u keng karta bo'lib chiqadi: rasm chapda, matn o'ngda.",
+      two: "Bosh sahifada 2 ta yangilik yonma-yon turadi: matn tepada, rasm pastda.",
+      threeBig: "Bosh sahifada 3 ta yangilik bo'ladi. Bu karta chapda, katta ko'rinishda turadi.",
+      threeSmall: "Bosh sahifada 3 ta yangilik bo'ladi, shuning uchun bu karta o'ngda kichik ko'rinishda chiqadi: rasm chapda, matn o'ngda. Chapdagi katta joy uchun 5-qadamda «Tartib» raqamini eng kichik qiling; ikkita yonma-yon karta kerak bo'lsa, bittasini yashiring.",
+    },
     lang: {
       title: 'Matn tili',
       description: "Qaysi tildagi matnni yozyapsiz? Karta ham shu tilda ko'rinadi. Rasm, tugma manzili va narx ikkala tilda bir xil.",

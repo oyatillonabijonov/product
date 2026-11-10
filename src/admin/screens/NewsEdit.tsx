@@ -208,7 +208,27 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
                   </div>
                 </div>
               )}
-              {position < 0 && <p className="mt-3 text-label text-muted-2">{t('newsEdit.preview.notOnHome')}</p>}
+              {position < 0 ? <p className="mt-3 text-label text-muted-2">{t('newsEdit.preview.notOnHome')}</p> : (
+                // Bosh sahifadagi joy sxemasi: karta ko'rinishi (katta yoki yon) yangiliklar soniga bog'liq — nega shundayligi ko'rinsin.
+                <div className="mt-4">
+                  <p className="text-label font-medium text-muted">{t('newsEdit.place.title')}</p>
+                  <div className={`mt-2 grid gap-1.5 ${shown.length > 1 ? 'grid-cols-2' : ''}`}>
+                    {shown.map((n, i) => (
+                      <div
+                        key={n.id}
+                        className={`flex min-h-10 items-center justify-center rounded-xs border-2 px-2 text-label ${
+                          shown.length === 3 && i === 0 ? 'row-span-2' : ''
+                        } ${n.id === id ? 'border-cta bg-cta/8 font-medium text-primary' : 'border-line text-muted-2'}`}
+                      >
+                        <span className="truncate">{n.title || t('newsEdit.untitled')}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-label text-muted-2">
+                    {shown.length === 1 ? t('newsEdit.place.one') : shown.length === 2 ? t('newsEdit.place.two') : position === 0 ? t('newsEdit.place.threeBig') : t('newsEdit.place.threeSmall')}
+                  </p>
+                </div>
+              )}
             </Card>
           </div>
 
