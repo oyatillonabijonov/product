@@ -165,6 +165,8 @@ export interface ApiNews {
   ctaRu: string;
   linkUrl: string;
   imageUrl: string;
+  /** Rasm o'lchami foizda (50–130, 100 — odatdagi); admin surgichi. */
+  imageScale: number;
   sortOrder: number;
   isActive: boolean;
   /** Faqat landing: matnda `{narx}` bo'lsa havoladagi mahsulotning joriy narxi; null — mahsulot ko'rinmaydi. */

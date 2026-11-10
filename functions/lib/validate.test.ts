@@ -181,6 +181,13 @@ describe('parseNewsInput', () => {
   it('uzun matn kesiladi', () => {
     expect(parseNewsInput({ ...base, text: 'a'.repeat(500) }).text).toHaveLength(200);
   });
+  it("rasm o'lchami: berilmasa 100, chegaradan chiqsa qisiladi", () => {
+    expect(parseNewsInput(base).imageScale).toBe(100);
+    expect(parseNewsInput({ ...base, imageScale: 72.4 }).imageScale).toBe(72);
+    expect(parseNewsInput({ ...base, imageScale: 999 }).imageScale).toBe(130);
+    expect(parseNewsInput({ ...base, imageScale: 1 }).imageScale).toBe(50);
+    expect(parseNewsInput({ ...base, imageScale: 'katta' }).imageScale).toBe(100);
+  });
 });
 
 describe('parseBannerInput linkUrl', () => {

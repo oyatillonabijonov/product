@@ -20,11 +20,18 @@ const Cta: FC<{ item: ApiNews; locale: Locale; t: Translation }> = ({ item, loca
     : <a href={href} target="_blank" rel="noopener noreferrer" className={CTA_CLS}>{label}</a>;
 };
 
+export type NewsLayout = 'stack' | 'split';
+
+/** Tile ko'rinishi: 1 ta — keng split; 2 ta — ikkalasi stack; 3 ta — birinchisi stack, qolgani split. Admin ko'rinishi ham shuni o'qiydi. */
+export function newsLayout(count: number, index: number): NewsLayout {
+  return count === 1 || (count === 3 && index > 0) ? 'split' : 'stack';
+}
+
 /**
  * Bitta tile. `stack` — matn tepada, rasm pastda (katta tile va mobil);
  * `split` — md'dan yuqorida rasm chapda, matn o'ngda (yon tile'lar).
  */
-const Tile: FC<{ item: ApiNews; locale: Locale; t: Translation; layout: 'stack' | 'split'; className?: string }> = ({
+export const NewsTile: FC<{ item: ApiNews; locale: Locale; t: Translation; layout: NewsLayout; className?: string }> = ({
   item, locale, t, layout, className = '',
 }) => {
   const badge = localeField(item.badge, item.badgeRu, locale);
@@ -51,13 +58,17 @@ const Tile: FC<{ item: ApiNews; locale: Locale; t: Translation; layout: 'stack' 
         {text && <p className="mt-2 max-w-[34ch] text-copy text-pretty text-body">{text}</p>}
         <Cta item={item} locale={locale} t={t} />
       </div>
-      {/* Rasm dekor (sarlavha yonida) — alt bo'sh. Shaffof fonli render ikkala temada ham toza turadi. */}
+      {/* Rasm dekor (sarlavha yonida) — alt bo'sh. Shaffof fonli render ikkala temada ham toza turadi.
+          O'lcham admin surgichidan (`imageScale`): bo'y va en birga o'zgaradi, en karta ichidan chiqmaydi — rasm kesilmaydi. */}
       <img
         src={item.imageUrl}
         alt=""
         loading="lazy"
-        className={`w-auto max-w-full object-contain ${
-          split ? 'max-h-[220px] md:order-first md:max-h-[260px] md:justify-self-center' : 'mt-auto max-h-[300px] md:max-h-[420px]'
+        style={{ '--news-scale': item.imageScale / 100 }}
+        className={`w-auto max-w-[min(100%,calc(100%*var(--news-scale)))] object-contain ${
+          split
+            ? 'max-h-[calc(220px*var(--news-scale))] md:order-first md:max-h-[calc(260px*var(--news-scale))] md:justify-self-center'
+            : 'mt-auto max-h-[calc(300px*var(--news-scale))] md:max-h-[calc(420px*var(--news-scale))]'
         }`}
       />
     </article>
@@ -71,21 +82,20 @@ const Tile: FC<{ item: ApiNews; locale: Locale; t: Translation; layout: 'stack' 
  */
 const NewsSection: FC<{ t: Translation; news: ApiNews[]; locale: Locale }> = ({ t, news, locale }) => {
   if (news.length === 0) return null;
-  const [first, ...rest] = news;
   return (
     <section className="flex flex-col gap-8 md:gap-10">
       <h2 className={SECTION_HEADING}>{t.newsTitle}</h2>
       {/* 3 ta bo'lsa qatorlar teng (`grid-rows-2`) — o'ngdagi ikki tile rasmiga qarab har xil bo'yda chiqmasin. */}
       <div className={`grid gap-4 ${news.length > 1 ? 'lg:grid-cols-2' : ''} ${news.length === 3 ? 'lg:grid-rows-2' : ''}`}>
-        <Tile
-          item={first}
-          locale={locale}
-          t={t}
-          layout={news.length === 1 ? 'split' : 'stack'}
-          className={news.length === 3 ? 'lg:row-span-2' : ''}
-        />
-        {rest.map((item) => (
-          <Tile key={item.id} item={item} locale={locale} t={t} layout={news.length === 3 ? 'split' : 'stack'} />
+        {news.map((item, i) => (
+          <NewsTile
+            key={item.id}
+            item={item}
+            locale={locale}
+            t={t}
+            layout={newsLayout(news.length, i)}
+            className={news.length === 3 && i === 0 ? 'lg:row-span-2' : ''}
+          />
         ))}
       </div>
     </section>

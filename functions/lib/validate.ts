@@ -17,6 +17,7 @@ import type {
   Term,
 } from '../../shared/types';
 import { SAFE_HREF_RE } from '../../shared/safe-href';
+import { clampNewsScale } from '../../shared/news-price';
 import { isAvatar } from '../../shared/avatar';
 import type { AddressFields } from '../../shared/address';
 import { districtById, regionById } from '../../shared/uz-regions';
@@ -340,6 +341,7 @@ export function parseNewsInput(body: unknown): NewsInput {
     text: str('text', 200), textRu: str('textRu', 200),
     cta: str('cta', 40), ctaRu: str('ctaRu', 40),
     linkUrl, imageUrl,
+    imageScale: clampNewsScale(o.imageScale),
     sortOrder: typeof o.sortOrder === 'number' ? o.sortOrder : 0,
     isActive: o.isActive === undefined ? true : Boolean(o.isActive),
   };

@@ -1,5 +1,13 @@
+/** Kartadagi rasm o'lchami chegaralari (foiz). 100 — odatdagi o'lcham; surgich va server bitta qoidani o'qiydi. */
+export const NEWS_SCALE_MIN = 50;
+export const NEWS_SCALE_MAX = 130;
+
+export function clampNewsScale(v: unknown): number {
+  return typeof v === 'number' && Number.isFinite(v) ? Math.min(NEWS_SCALE_MAX, Math.max(NEWS_SCALE_MIN, Math.round(v))) : 100;
+}
+
 /** Yangiliklar matnidagi belgi: o'rniga tugma havolasidagi mahsulotning joriy narxi qo'yiladi. */
-const PRICE_TOKEN = '{narx}';
+export const PRICE_TOKEN = '{narx}';
 
 /** `/product/<id>` havolasidan mahsulot id'si; boshqa havolada null. */
 export function newsProductId(linkUrl: string): string | null {
