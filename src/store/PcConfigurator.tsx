@@ -1,6 +1,6 @@
 import { useState, type FC } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Cpu, CircuitBoard, MemoryStick, MonitorPlay, HardDrive, Zap, Box, Check, ChevronRight, AlertTriangle, Search } from 'lucide-react';
+import { Cpu, CircuitBoard, MemoryStick, MonitorPlay, HardDrive, Zap, Box, Fan, Check, ChevronRight, AlertTriangle, Search } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { Translation } from '../locales';
 import { localizedPath, type Locale } from '../../app/lib/i18n';
@@ -18,6 +18,7 @@ const SLOT_UI: Record<SlotKey, { icon: LucideIcon; label: (t: Translation) => st
   mb: { icon: CircuitBoard, label: (t) => t.cfgMb },
   ram: { icon: MemoryStick, label: (t) => t.cfgRam },
   gpu: { icon: MonitorPlay, label: (t) => t.cfgGpu },
+  cooler: { icon: Fan, label: (t) => t.cfgCooler },
   psu: { icon: Zap, label: (t) => t.cfgPsu },
   ssd: { icon: HardDrive, label: (t) => t.cfgSsd },
   case: { icon: Box, label: (t) => t.cfgCase },

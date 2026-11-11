@@ -6,7 +6,7 @@
  * Spec: docs/superpowers/specs/2026-10-13-pc-moslik-guruhlari-design.md
  */
 
-export type SlotKey = 'cpu' | 'mb' | 'ram' | 'gpu' | 'psu' | 'ssd' | 'case';
+export type SlotKey = 'cpu' | 'mb' | 'ram' | 'gpu' | 'cooler' | 'psu' | 'ssd' | 'case';
 
 /** Bo'g'in → tovar turi (`product_types`, `pc` yo'nalishi). Tartib — UI'dagi qadamlar tartibi. */
 export const PC_SLOTS: readonly { key: SlotKey; type: string }[] = [
@@ -14,6 +14,9 @@ export const PC_SLOTS: readonly { key: SlotKey; type: string }[] = [
   { key: 'mb', type: 'motherboard' },
   { key: 'ram', type: 'ram' },
   { key: 'gpu', type: 'gpu' },
+  // Ixtiyoriy bo'g'in, moslik tekshiruvi yo'q (sovutgichlar AM4/AM5/LGA1700/1851 ga deyarli hammasi mos);
+  // kerak bo'lsa admin «Soket» tekshiruviga shu bo'g'inni qo'shadi.
+  { key: 'cooler', type: 'sovutish' },
   { key: 'psu', type: 'psu' },
   { key: 'ssd', type: 'xotira' },
   { key: 'case', type: 'korpus' },
@@ -388,10 +391,12 @@ function partKey(name: string): string {
  */
 export function partGroups(rows: ConfigPartRow[]): PartGroup[] {
   const map = new Map<string, PartGroup>();
+  // «Sovutish» turiga Billz'dan korpus ventilyatorlari ham tushadi ("Fan", "Case Cooler …") — ular protsessor sovutgichi emas.
+  const caseFan = /^(?:case (?:cooler|fan)|fans?)\b/i;
   const rank = (row: ConfigPartRow, inStock: boolean) => (inStock ? 2 : 0) + (row.is_active === 1 ? 1 : 0);
   for (const row of rows) {
     const slot = slotForType(row.type);
-    if (!slot) continue;
+    if (!slot || (slot === 'cooler' && caseFan.test(row.name.trim()))) continue;
     const inStock = (row.billz_stock ?? 0) > 0 || (row.billz_id === null && row.is_active === 1);
     const key = `${slot}|${partKey(row.name)}`;
     const cur = map.get(key);

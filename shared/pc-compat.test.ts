@@ -105,8 +105,22 @@ describe('slotForType', () => {
   it("tur → bo'g'in", () => {
     expect(slotForType('motherboard')).toBe('mb');
     expect(slotForType('korpus')).toBe('case');
+    expect(slotForType('sovutish')).toBe('cooler');
     expect(slotForType('noutbuk')).toBeNull();
     expect(slotForType(null)).toBeNull();
+  });
+  it("sovutish bo'g'iniga korpus ventilyatori kirmaydi", () => {
+    const row = (id: string, name: string) => ({
+      id, name, image_url: '', type: 'sovutish', price: 100_000, billz_id: 'b', billz_stock: 1, is_active: 1, pc_watts: null,
+    });
+    const names = partGroups([
+      row('1', 'CPU Cooler Azza R600 Black / Black'),
+      row('2', 'Liquid Cooler Arctic Freezer III Pro 360 ARGB White / White'),
+      row('3', 'Case Cooler Alseye W12Plus / White'),
+      row('4', 'Fan Azza Hurricane 120 / Black'),
+      row('5', 'Fans 2E Gaming F120 3in1 / Black'),
+    ]).map((g) => g.rep.name);
+    expect(names).toEqual(['CPU Cooler Azza R600 Black / Black', 'Liquid Cooler Arctic Freezer III Pro 360 ARGB White / White']);
   });
 });
 
