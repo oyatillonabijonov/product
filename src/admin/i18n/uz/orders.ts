@@ -47,6 +47,7 @@ const orders = {
     sourceLabel: 'Manba',
     addressLabel: 'Manzil',
     noteLabel: 'Izoh',
+    approx: "taxminiy narx — tovar qolmagan",
     cashTotal: 'Naqd narxi',
     total: 'Jami',
     installmentCard: "Muddatli to'lov",

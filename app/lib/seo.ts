@@ -36,12 +36,15 @@ export function ogMeta(o: { title: string; description?: string; image?: string;
   ];
 }
 
-/** Mahsulot tavsifi bo'sh bo'lganda (Billz tovarlarining ko'pchiligi) meta description shablondan yasaladi. */
-export function productDescriptionFallback(locale: 'uz' | 'ru', name: string, brand: string | null, price: string, store: string): string {
+/**
+ * Mahsulot tavsifi bo'sh bo'lganda (Billz tovarlarining ko'pchiligi) meta description shablondan yasaladi.
+ * `price: null` — «buyurtma asosida» tovar: narx saytda yashirin, qidiruv natijasiga ham berilmaydi.
+ */
+export function productDescriptionFallback(locale: 'uz' | 'ru', name: string, brand: string | null, price: string | null, store: string): string {
   const b = brand ? `${brand}, ` : '';
   return locale === 'ru'
-    ? `${name} — ${b}оригинал с официальной гарантией. Цена ${price}. ${store}, Ташкент.`
-    : `${name} — ${b}original, rasmiy kafolat bilan. Narxi ${price}. ${store}, Toshkent.`;
+    ? `${name} — ${b}оригинал с официальной гарантией. ${price ? `Цена ${price}. ` : ''}${store}, Ташкент.`
+    : `${name} — ${b}original, rasmiy kafolat bilan. ${price ? `Narxi ${price}. ` : ''}${store}, Toshkent.`;
 }
 
 /** JSON-LD uchun manzil va ish vaqti — sayt matnlaridan (store loader `orgContact`), admin'da tahrirlanadi. */

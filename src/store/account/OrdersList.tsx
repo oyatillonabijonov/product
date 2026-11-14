@@ -80,7 +80,7 @@ const OrdersList: FC<{ t: Translation; orders: ApiOrder[]; itemImages: Record<st
                       <span className="block text-para text-primary">{it.name}</span>
                       {it.variantLabel && <span className="block text-label text-muted-2">{it.variantLabel}</span>}
                       <span className="mt-0.5 block text-label text-muted tabular-nums">
-                        {it.qty} {t.orderQty} × {formatUzs(it.priceUzs, t.sum)}
+                        {it.qty} {t.orderQty} × {it.approx && '≈ '}{formatUzs(it.priceUzs, t.sum)}{it.approx && ` · ${t.cfgApprox}`}
                       </span>
                     </span>
                   </li>

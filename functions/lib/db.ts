@@ -63,6 +63,8 @@ export interface ProductRow {
   rating_avg: number | null;
   review_count: number;
   preorder: number;
+  on_order: number;
+  approx_price_uzs: number | null;
   pc_hidden: number;
   pc_watts: number | null;
   min_variant_price?: number | null;
@@ -98,6 +100,8 @@ export function rowToProduct(row: ProductRow): ApiProduct {
     ratingAvg: row.rating_avg,
     reviewCount: row.review_count ?? 0,
     preorder: row.preorder === 1,
+    onOrder: row.on_order === 1,
+    approxPriceUzs: row.approx_price_uzs ?? null,
     pcHidden: row.pc_hidden === 1,
     pcWatts: row.pc_watts ?? null,
     billzId: row.billz_id ?? null,

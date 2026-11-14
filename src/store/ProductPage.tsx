@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
-import { ShieldCheck, ChevronRight, Truck, ShoppingCart, Wallet } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, ChevronRight, Truck, ShoppingCart, Wallet } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
 import type { ApiOption, ApiReview, ApiSiteConfig } from '../../shared/types';
@@ -53,7 +53,11 @@ const ProductPage: FC<{
   // Default — sozlamalardagi eng uzun muddat (qattiq 12 emas: admin muddatlarni o'zgartirsa
   // tanlanmagan segment + noto'g'ri yorliq chiqib qolardi).
   const [months, setMonths] = useState(() => config.terms[config.terms.length - 1]?.months ?? 12);
-  const showInstallment = site.paymentMode !== 'cash';
+  // «Buyurtma asosida» (tovar tugagan): narx yashirin — xaridor taxminiy narxni o'zi ochadi; muddatli to'lov
+  // hisobi va savat yo'q, bitta tugma — «Oldindan buyurtma» (aniq narxni operator aytadi).
+  const onOrder = product.onOrder === true;
+  const [approxShown, setApproxShown] = useState(false);
+  const showInstallment = site.paymentMode !== 'cash' && !onOrder;
   const { price } = useCurrency();
   // Boshlang'ich to'lov foizi — min (config.downPaymentPercent) dan max (downPaymentMaxPercent) gacha slider.
   const [downPct, setDownPct] = useState(config.downPaymentPercent);
@@ -67,7 +71,7 @@ const ProductPage: FC<{
   const displayCash = variant?.cashPriceUzs ?? product.cashPriceUzs;
   const displayOld = variant ? variant.oldPriceUzs : product.oldPriceUzs;
   const outOfStock = variant !== null && !variant.inStock;
-  const disc = discountPercent(displayCash, displayOld);
+  const disc = onOrder ? null : discountPercent(displayCash, displayOld);
   const term = config.terms.find((x) => x.months === months) ?? config.terms[config.terms.length - 1];
   const result = useMemo(
     () => calcInstallment({ ...product, cashPriceUzs: displayCash }, term, config, displayCash * (downPct / 100)),
@@ -101,6 +105,7 @@ const ProductPage: FC<{
       totalUzs: installment ? Math.round(result.total) : null,
       items: [{ productId: product.id, name: product.name, variantLabel: label, qty: 1, priceUzs: displayCash }],
       source: 'product',
+      approx: onOrder || undefined,
     });
   }
 
@@ -160,7 +165,7 @@ const ProductPage: FC<{
                 {(product.reviewCount ?? 0) > 0 && <Stars t={t} rating={product.ratingAvg} count={product.reviewCount ?? 0} />}
               </div>
               <FavoriteButton
-                item={{ productId: product.id, name: product.name, image: product.image, priceUzs: product.minPriceUzs }}
+                item={{ productId: product.id, name: product.name, image: product.image, priceUzs: product.minPriceUzs, onOrder }}
                 addLabel={t.favAdd}
                 removeLabel={t.favRemove}
                 className="h-10 w-10 shrink-0"
@@ -175,7 +180,9 @@ const ProductPage: FC<{
             </div>
 
             <div className="mt-1.5 flex flex-wrap items-baseline gap-2.5">
-              <span className="text-heading md:text-title font-semibold tabular-nums text-primary">{price(displayCash)}</span>
+              <span className="text-heading md:text-title font-semibold tabular-nums text-primary">
+                {!onOrder ? price(displayCash) : approxShown ? `≈ ${price(displayCash)}` : t.cfgOnOrder}
+              </span>
               {displayOld && disc !== null && (
                 <>
                   <span className="text-control md:text-copy tabular-nums text-disabled-2 line-through">{price(displayOld)}</span>
@@ -183,6 +190,19 @@ const ProductPage: FC<{
                 </>
               )}
             </div>
+            {onOrder && (
+              <div className="mt-1.5">
+                <p className="text-para text-muted">{t.approxNote}</p>
+                <button
+                  type="button"
+                  onClick={() => setApproxShown(!approxShown)}
+                  aria-pressed={approxShown}
+                  className="press mt-1 inline-flex h-11 items-center gap-1.5 text-para text-link"
+                >
+                  {approxShown ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />} {t.approxPrice}
+                </button>
+              </div>
+            )}
             {/* Qoldiq yozuvi faqat istisnoda — "Sotuvda bor" axborot bermaydi. */}
             {(outOfStock || product.preorder) && (
               <div className={`mt-1.5 text-label font-semibold ${outOfStock ? 'text-sale' : 'text-trust'}`}>
@@ -252,9 +272,9 @@ const ProductPage: FC<{
                           <span className={`text-copy font-semibold ${available ? 'text-primary' : 'text-disabled line-through'}`}>
                             {v.value}
                           </span>
-                          {cash !== null && (
+                          {cash !== null && (!onOrder || approxShown) && (
                             <span className="text-label text-muted-2 tabular-nums">
-                              {price(cash)}
+                              {onOrder && '≈ '}{price(cash)}
                               {showInstallment && <span className="block">{price(monthlyOf(cash))} × {months} {t.calcMonths}</span>}
                             </span>
                           )}
@@ -318,10 +338,10 @@ const ProductPage: FC<{
 
           {/* sm'dan tugmalar yonma-yon; muddatli to'lov tugmasi (bo'lsa) tepada, to'liq enda. */}
           <div className="grid gap-3 sm:grid-cols-2">
-            {site.paymentMode !== 'installment' && (
+            {(site.paymentMode !== 'installment' || onOrder) && (
               <button onClick={() => openOrder('cash')} disabled={outOfStock}
-                className="press h-[52px] w-full rounded-btn-lg bg-cta text-copy font-normal text-white hover:bg-cta-hover disabled:cursor-not-allowed disabled:opacity-50">
-                {product.preorder ? t.orderPreorder : t.orderBuyCash}
+                className={`press h-[52px] w-full rounded-btn-lg bg-cta text-copy font-normal text-white hover:bg-cta-hover disabled:cursor-not-allowed disabled:opacity-50 ${onOrder ? 'sm:col-span-2' : ''}`}>
+                {product.preorder || onOrder ? t.orderPreorder : t.orderBuyCash}
               </button>
             )}
             {showInstallment && (
@@ -330,12 +350,14 @@ const ProductPage: FC<{
                 {t.orderBuyInstallment}
               </button>
             )}
-            <button onClick={addToCart} disabled={outOfStock}
-              className={`press flex h-[52px] w-full items-center justify-center gap-2 rounded-btn-lg text-copy font-normal text-bg disabled:cursor-not-allowed disabled:opacity-50 ${
-                added ? 'bg-trust' : 'bg-primary hover:bg-body'
-              }`}>
-              <ShoppingCart className="h-5 w-5" /> {added ? t.cartAdded : t.cartAdd}
-            </button>
+            {!onOrder && (
+              <button onClick={addToCart} disabled={outOfStock}
+                className={`press flex h-[52px] w-full items-center justify-center gap-2 rounded-btn-lg text-copy font-normal text-bg disabled:cursor-not-allowed disabled:opacity-50 ${
+                  added ? 'bg-trust' : 'bg-primary hover:bg-body'
+                }`}>
+                <ShoppingCart className="h-5 w-5" /> {added ? t.cartAdded : t.cartAdd}
+              </button>
+            )}
           </div>
 
         </div>

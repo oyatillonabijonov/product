@@ -3,6 +3,7 @@ import type { ApiSpec, Condition } from '../../../shared/types';
 import type { AdminProductDetail, AdminProductInput, AdminVariantInput } from '../api';
 import { generateVariants, type OptionDraft } from './variant-gen';
 import { applyManualEdits, type LockSnapshot, type ManualField } from '../../../shared/billz.ts';
+import { isOnOrder } from '../../../shared/on-order';
 
 // i18n: ma'lumot — tarjima qilinmaydi (variant qiymati bo'lib bazaga yoziladi va saytda chip bo'lib chiqadi)
 /** Variant o'qlari — chiplar shu qiymatlardan; boshqa rang qo'lda yoziladi. */
@@ -35,6 +36,10 @@ export interface ProductFormState {
   ratingAvg: number;
   reviewCount: number;
   preorder: boolean;
+  /** «Tovar qolmadi» — qo'lda kiritilgan tovar belgisi (Billz tovarida rejimni qoldiq hal qiladi). */
+  onOrder: boolean;
+  /** Taxminiy narx; 0 — kiritilmagan (odatdagi narx ko'rsatiladi). */
+  approxPriceUzs: number;
   pcHidden: boolean;
   pcWatts: number | null;
   options: OptionDraft[];
@@ -50,7 +55,7 @@ export interface ProductFormState {
 export const EMPTY_FORM: ProductFormState = {
   name: '', categoryId: null, type: null, condition: 'yangi', conditionNote: '',
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', descriptionRu: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
-  brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, preorder: false,
+  brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, preorder: false, onOrder: false, approxPriceUzs: 0,
   pcHidden: false, pcWatts: null,
   options: [], variants: [], billzId: null, billzStock: null, manualFields: [],
 };
@@ -71,6 +76,7 @@ export function detailToForm(d: AdminProductDetail): ProductFormState {
     description: d.description ?? '', descriptionRu: d.descriptionRu ?? '', imageUrl: d.imageUrl, images: d.images.filter((u) => u !== d.imageUrl),
     specs: d.specs, sortOrder: d.sortOrder, isActive: d.isActive, brandId: d.brandId, slug: d.slug ?? '',
     ratingAvg: d.ratingAvg ?? 0, reviewCount: d.reviewCount ?? 0, preorder: d.preorder,
+    onOrder: d.onOrder, approxPriceUzs: d.approxPriceUzs ?? 0,
     pcHidden: d.pcHidden, pcWatts: d.pcWatts,
     options: d.options.map((o) => ({ name: o.name, values: o.values.map((v) => v.value) })),
     variants: d.variants.map((v) => ({
@@ -81,6 +87,11 @@ export function detailToForm(d: AdminProductDetail): ProductFormState {
     })),
     billzId: d.billzId, billzStock: d.billzStock, manualFields: d.manualFields,
   };
+}
+
+/** Tovar hozir saytda «buyurtma asosida» (narxi yashirin) chiqadimi — `shared/on-order.ts` qoidasi forma holati ustida. */
+export function formOnOrder(f: ProductFormState): boolean {
+  return isOnOrder({ billzId: f.billzId, billzStock: f.billzStock, onOrder: f.onOrder });
 }
 
 /** Saqlashdan oldingi tekshiruv — xato matni yoki null. */
@@ -108,6 +119,9 @@ export function formToPayload(f: ProductFormState): AdminProductInput {
     sortOrder: f.sortOrder, isActive: f.isActive,
     brandId: f.brandId, slug: f.slug || null,
     ratingAvg: f.ratingAvg > 0 ? f.ratingAvg : null, reviewCount: f.reviewCount, preorder: f.preorder,
+    onOrder: f.onOrder,
+    // Taxminiy narx faqat rejim yoqiq va variantsiz tovarda (variantli tovarda — har variantning o'z narxi).
+    approxPriceUzs: formOnOrder(f) && priced.length === 0 && f.approxPriceUzs > 0 ? f.approxPriceUzs : null,
     pcHidden: f.pcHidden, pcWatts: f.pcWatts,
     options: f.options.filter((o) => o.name.trim() && o.values.length),
     variants: priced,

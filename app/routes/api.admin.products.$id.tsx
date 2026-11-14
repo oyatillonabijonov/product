@@ -43,7 +43,7 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       ? billzVisible({ hasImage: input.imageUrl !== '', hiddenLocked: input.manualFields.includes('hidden') })
       : input.isActive;
     const update = env.DB.prepare(
-      `UPDATE products SET name=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, type=?, old_price_uzs=?, description=?, description_ru=?, brand_id=?, slug=?, rating_avg=?, review_count=?, preorder=?, manual_fields=?, pc_hidden=?, pc_watts=? WHERE id=?`,
+      `UPDATE products SET name=?, condition=?, condition_note=?, cash_price_uzs=?, image_url=?, sort_order=?, is_active=?, category_id=?, type=?, old_price_uzs=?, description=?, description_ru=?, brand_id=?, slug=?, rating_avg=?, review_count=?, preorder=?, on_order=?, approx_price_uzs=?, manual_fields=?, pc_hidden=?, pc_watts=? WHERE id=?`,
     ).bind(
       input.name,
       input.condition,
@@ -62,6 +62,8 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       input.ratingAvg,
       input.reviewCount,
       input.preorder ? 1 : 0,
+      input.onOrder ? 1 : 0,
+      input.approxPriceUzs,
       serializeManualFields(input.manualFields),
       input.pcHidden ? 1 : 0,
       input.pcWatts,

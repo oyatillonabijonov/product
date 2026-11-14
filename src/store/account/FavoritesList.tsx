@@ -33,7 +33,7 @@ const FavoritesList: FC<{ t: Translation }> = ({ t }) => {
           <LocaleLink to={`/product/${f.productId}`} className="text-label font-medium mt-2.5 line-clamp-2 hover:text-accent transition-colors">
             {f.name}
           </LocaleLink>
-          <div className="text-para font-semibold text-primary mt-1 tabular-nums">{price(f.priceUzs)}</div>
+          <div className="text-para font-semibold text-primary mt-1 tabular-nums">{f.onOrder ? t.cfgOnOrder : price(f.priceUzs)}</div>
         </div>
       ))}
     </div>

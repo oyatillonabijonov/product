@@ -44,7 +44,7 @@ export function meta({ data, matches }: Route.MetaArgs) {
   // Billz tovarlarining 90%+ da tavsif yo'q — bo'sh description o'rniga shablon (nom, brend, narx, do'kon).
   const desc = own || productDescriptionFallback(
     data.locale === 'ru' ? 'ru' : 'uz', data.product.name, data.product.brand?.name ?? null,
-    formatUzs(data.product.minPriceUzs, t.sum), cfg?.name ?? siteConfig.name,
+    data.product.onOrder ? null : formatUzs(data.product.minPriceUzs, t.sum), cfg?.name ?? siteConfig.name,
   );
   const title = pageTitle(data.product.name, cfg?.seoTitleSuffix);
   const img = data.product.images[0];
@@ -59,7 +59,8 @@ export function meta({ data, matches }: Route.MetaArgs) {
       url,
       type: 'product',
     }),
-    { 'script:ld+json': productJsonLd(data.product, url) },
+    // «Buyurtma asosida» tovarda Product JSON-LD yo'q: narxsiz `offers` yaroqsiz, narxli esa eski narxni Google'ga chiqarardi.
+    ...(data.product.onOrder ? [] : [{ 'script:ld+json': productJsonLd(data.product, url) }]),
     { 'script:ld+json': breadcrumbJsonLd([
       { name: t.breadcrumbHome, url: data.origin + localizedPath(data.locale, '/') },
       ...(data.categoryName && data.product.categoryId

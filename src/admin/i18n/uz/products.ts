@@ -179,6 +179,9 @@ const products = {
       notShownNoImage: "Hozir saytda ko'rinmaydi — rasm qo'shilsa chiqadi.",
       preorderLabel: 'Pre-order',
       preorderHint: "Sotuvga hali chiqmagan: saytda «Pre-order» yorlig'i, tugma — «Oldindan buyurtma berish».",
+      onOrderLabel: 'Tovar qolmadi',
+      onOrderHint: "Saytda narx yashiriladi, tugma «Oldindan buyurtma» bo'ladi. Xaridor taxminiy narxni ko'z belgisini bosib ko'radi.",
+      onOrderBillz: "Billz'da qoldiq 0 — saytda narx yashirilgan, tugma «Oldindan buyurtma». Qoldiq kelsa narx o'zi qaytadi.",
       conditionLabel: 'Holati',
       conditionUsedHint: "Ishlatilgan — bitta dona, variantsiz.",
       sortLabel: 'Tartib raqami',
@@ -203,6 +206,8 @@ const products = {
       oldFieldHint: 'Chegirma belgisi uchun; ixtiyoriy',
       billzStockNote: "Qoldiq: {{count}} — Billz'dan.",
       cashHintVariants: "Bo'sh qolsa eng arzon variant narxi olinadi",
+      approxLabel: "Taxminiy narx (so'm)",
+      approxHint: "Tovar qolmaganda xaridor ko'radigan narx. Bo'sh qoldirsangiz — yuqoridagi narx ko'rsatiladi.",
     },
     variants: {
       title: 'Variantlar',

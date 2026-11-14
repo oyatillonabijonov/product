@@ -6,6 +6,8 @@ export interface FavoriteItem {
   name: string;
   image: string;
   priceUzs: number;
+  /** Qo'shilgan paytda tovar «buyurtma asosida» edi — narx o'rnida shu yozuv (narx kabi nusxa, jonli emas). */
+  onOrder?: boolean;
 }
 
 export const FAVORITES_KEY = 'product-favorites-v1';

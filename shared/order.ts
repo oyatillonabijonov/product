@@ -13,7 +13,8 @@ export function composeOrderMessage(o: OrderInput, brand: string): string {
   const lines: string[] = [`🛒 ${brand} — yangi buyurtma (${kind})`, '', `👤 ${o.name}`, `📞 ${o.phone}`, ''];
   for (const it of o.items) {
     const label = it.variantLabel ? ` (${it.variantLabel})` : '';
-    lines.push(`• ${it.name}${label} ×${it.qty} — ${fmt(it.priceUzs * it.qty)} so'm`);
+    // Taxminiy narx (tovar tugagan, «buyurtma asosida») — operator aniq narxni o'zi aytishi kerak.
+    lines.push(`• ${it.name}${label} ×${it.qty} — ${it.approx ? '≈ ' : ''}${fmt(it.priceUzs * it.qty)} so'm${it.approx ? " (taxminiy, qoldiq yo'q)" : ''}`);
   }
   lines.push('');
   if (o.paymentKind === 'installment') {
@@ -23,7 +24,8 @@ export function composeOrderMessage(o: OrderInput, brand: string): string {
     if (o.totalUzs != null) lines.push(`💰 Jami: ${fmt(o.totalUzs)} so'm`);
   } else {
     const cash = o.items.reduce((s, it) => s + it.priceUzs * it.qty, 0);
-    lines.push(`💰 Naqd narx: ${fmt(cash)} so'm`);
+    const approx = o.items.some((it) => it.approx);
+    lines.push(`💰 Naqd narx: ${approx ? '≈ ' : ''}${fmt(cash)} so'm${approx ? ' (taxminiy)' : ''}`);
   }
   if (o.addressText) lines.push('', `📍 ${o.addressText}`);
   if (o.note) lines.push('', `📝 ${o.note}`);

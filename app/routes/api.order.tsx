@@ -7,6 +7,7 @@ import { readJson } from '../../functions/lib/body';
 
 const MAX_LEAD_BYTES = 32 * 1024;
 import { composeOrderMessage } from '../../shared/order';
+import { ON_ORDER_SQL } from '../../shared/on-order';
 
 // Ommaviy buyurtma endpoint'i (auth yo'q). Honeypot + validatsiya + IP rate limit spam'ga qarshi.
 export async function action({ request, context }: Route.ActionArgs) {
@@ -28,6 +29,16 @@ export async function action({ request, context }: Route.ActionArgs) {
   } catch (e) {
     if (e instanceof ValidationError) return json({ error: e.message }, { status: 400 });
     return json({ error: 'invalid' }, { status: 400 });
+  }
+
+  // «Taxminiy narx» belgisi bazadan: tovar hozir «buyurtma asosida» bo'lsa (qoldiq 0), savatga qachon tushganidan
+  // qat'i nazar operator buni ko'radi. Mijoz yuborgan belgiga ishonilmaydi (`parseOrderInput` uni o'tkazmaydi).
+  const ids = [...new Set(input.items.map((it) => it.productId))];
+  if (ids.length > 0) {
+    const { results } = await env.DB.prepare(`SELECT id FROM products WHERE id IN (${ids.map(() => '?').join(',')}) AND ${ON_ORDER_SQL}`)
+      .bind(...ids).all<{ id: string }>();
+    const approx = new Set(results.map((r) => r.id));
+    input.items = input.items.map((it) => (approx.has(it.productId) ? { ...it, approx: true } : it));
   }
 
   // site_config — bot token/chat + brend nomi.

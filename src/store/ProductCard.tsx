@@ -1,7 +1,8 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import type { FC } from 'react';
-import { ShieldCheck, ShoppingCart } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Eye, EyeOff, ShieldCheck, ShoppingCart } from 'lucide-react';
 import { useOutletContext } from 'react-router';
 import type { Translation } from '../locales';
 import type { InstallmentConfig, Product } from '../data/products';
@@ -14,6 +15,7 @@ import { thumbSrcSet } from '../../shared/thumb';
 import Stars from './Stars';
 import FavoriteButton from './FavoriteButton';
 import type { StoreContext } from './StoreLayout';
+import OrderForm, { type OrderDraft } from './OrderForm';
 
 const ProductCard: FC<{
   t: Translation;
@@ -32,6 +34,20 @@ const ProductCard: FC<{
   const cart = useCart();
   const { price } = useCurrency();
   const [added, setAdded] = useState(false);
+  // «Buyurtma asosida» (tovar tugagan): narx yashirin, xaridor taxminiy narxni o'zi ochadi — har kartada alohida,
+  // eslab qolinmaydi (bir bosishda butun saytda ochilsa, yashirishning ma'nosi qolmasdi).
+  const onOrder = product.onOrder === true;
+  const [approxShown, setApproxShown] = useState(false);
+  const [draft, setDraft] = useState<OrderDraft | null>(null);
+
+  // Savat o'rniga to'g'ridan-to'g'ri ariza: savatdagi jami summa taxminiy narx bilan aralashmasin.
+  function preorder(): void {
+    setDraft({
+      title: product.name, paymentKind: 'cash', termMonths: null, downPaymentUzs: null, monthlyUzs: null, totalUzs: null,
+      items: [{ productId: product.id, name: product.name, variantLabel: '', qty: 1, priceUzs: product.minPriceUzs }],
+      source: 'product', approx: true,
+    });
+  }
 
   // ponytail: karta variantlarni bilmaydi — eng arzon variant narxi bilan variantsiz
   // qator qo'shiladi. Variant tanlash kerak bo'lsa mahsulot sahifasiga o'tiladi.
@@ -87,7 +103,7 @@ const ProductCard: FC<{
           )}
         </div>
         <FavoriteButton
-          item={{ productId: product.id, name: product.name, image: product.image, priceUzs: product.minPriceUzs }}
+          item={{ productId: product.id, name: product.name, image: product.image, priceUzs: product.minPriceUzs, onOrder }}
           addLabel={t.favAdd}
           removeLabel={t.favRemove}
           className="absolute top-3 right-3 w-9 h-9"
@@ -115,7 +131,22 @@ const ProductCard: FC<{
           <div className="mb-1.5 inline-flex items-center gap-1 text-label font-medium text-verified">
             <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> {t.badgeOriginal}
           </div>
-          {pv.monthlyPrimary ? (
+          {onOrder ? (
+            <>
+              {/* 15px: karta ~170px, «Buyurtma asosida» va «≈ narx» bir qatorga faqat shu o'lchamda sig'adi. */}
+              <div className="text-para 2xl:text-lede font-semibold text-primary leading-tight tabular-nums whitespace-nowrap">
+                {approxShown ? `≈ ${price(product.minPriceUzs)}` : t.cfgOnOrder}
+              </div>
+              <button
+                type="button"
+                onClick={() => setApproxShown(!approxShown)}
+                aria-pressed={approxShown}
+                className="press -mb-1.5 inline-flex h-9 items-center gap-1.5 text-label text-link"
+              >
+                {approxShown ? <EyeOff className="h-4 w-4 shrink-0" /> : <Eye className="h-4 w-4 shrink-0" />} {t.approxPrice}
+              </button>
+            </>
+          ) : pv.monthlyPrimary ? (
             <>
               <div className="text-copy md:text-lede font-semibold text-primary leading-tight tabular-nums">
                 {price(pv.monthlyUzs)}
@@ -148,15 +179,27 @@ const ProductCard: FC<{
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={addToCart}
-          className="press mt-3 inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-btn bg-cta px-3 text-copy font-normal text-white hover:bg-cta-hover md:text-copy"
-        >
-          {/* Ikonka tor mobil kartada matnni sig'maydigan qiladi — u yerda faqat yozuv qoladi. */}
-          <ShoppingCart className="hidden h-4 w-4 md:block" /> {added ? t.cartAdded : t.cartAdd}
-        </button>
+        {onOrder ? (
+          <button
+            type="button"
+            onClick={preorder}
+            className="press mt-3 inline-flex h-11 w-full items-center justify-center whitespace-nowrap rounded-btn bg-cta px-1 text-label font-normal text-white hover:bg-cta-hover 2xl:text-copy"
+          >
+            {t.orderPreorderShort}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={addToCart}
+            className="press mt-3 inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-btn bg-cta px-3 text-copy font-normal text-white hover:bg-cta-hover md:text-copy"
+          >
+            {/* Ikonka tor mobil kartada matnni sig'maydigan qiladi — u yerda faqat yozuv qoladi. */}
+            <ShoppingCart className="hidden h-4 w-4 md:block" /> {added ? t.cartAdded : t.cartAdd}
+          </button>
+        )}
       </div>
+      {/* Portal: karta hover'da `transform` oladi — ichidagi `fixed` modal sahifaga emas, kartaga yopishib qolardi. */}
+      {draft && createPortal(<OrderForm t={t} draft={draft} onClose={() => setDraft(null)} />, document.body)}
     </motion.div>
   );
 };

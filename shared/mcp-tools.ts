@@ -98,6 +98,8 @@ export interface ProductInputBody {
   ratingAvg: number | null;
   reviewCount: number;
   preorder: boolean;
+  onOrder: boolean;
+  approxPriceUzs: number | null;
   pcHidden: boolean;
   pcWatts: number | null;
   options: { name: string; values: string[] }[];
@@ -130,7 +132,7 @@ export function detailToInput(d: ApiProductDetail): ProductInputBody {
     images: d.images.filter((u) => u !== d.imageUrl),
     specs: d.specs, sortOrder: d.sortOrder, isActive: d.isActive,
     brandId: d.brandId, slug: d.slug, ratingAvg: d.ratingAvg, reviewCount: d.reviewCount,
-    preorder: d.preorder, pcHidden: d.pcHidden, pcWatts: d.pcWatts,
+    preorder: d.preorder, onOrder: d.onOrder, approxPriceUzs: d.approxPriceUzs, pcHidden: d.pcHidden, pcWatts: d.pcWatts,
     options: d.options.map((o) => ({ name: o.name, values: o.values.map((v) => v.value) })),
     variants: d.variants.map((v) => ({
       sku: v.sku, cashPriceUzs: v.cashPriceUzs, oldPriceUzs: v.oldPriceUzs,

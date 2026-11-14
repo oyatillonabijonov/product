@@ -111,7 +111,8 @@ const OrderDetail: FC<{ id: string; onCountsChange: () => void }> = ({ id, onCou
                     {it.variantLabel && <p className="text-label text-muted-2">{it.variantLabel}</p>}
                   </div>
                   <div className="shrink-0 text-right tabular-nums">
-                    <p className="text-primary">{formatSum(it.priceUzs * it.qty, sum)}</p>
+                    <p className="text-primary">{it.approx && '≈ '}{formatSum(it.priceUzs * it.qty, sum)}</p>
+                    {it.approx && <p className="text-label text-new">{t('orderDetail.approx')}</p>}
                     {it.qty > 1 && <p className="text-label text-muted-2">{it.qty} × {formatSum(it.priceUzs, sum)}</p>}
                   </div>
                 </li>

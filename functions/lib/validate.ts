@@ -139,6 +139,9 @@ export function parseProductInput(body: unknown): ProductInput {
       ? Math.floor(o.reviewCount)
       : 0;
   const preorder = o.preorder === true;
+  const onOrder = o.onOrder === true;
+  const approxPriceUzs =
+    typeof o.approxPriceUzs === 'number' && Number.isInteger(o.approxPriceUzs) && o.approxPriceUzs > 0 ? o.approxPriceUzs : null;
   const pcHidden = o.pcHidden === true;
   const pcWatts =
     typeof o.pcWatts === 'number' && Number.isInteger(o.pcWatts) && o.pcWatts > 0 && o.pcWatts <= 3000 ? o.pcWatts : null;
@@ -220,6 +223,8 @@ export function parseProductInput(body: unknown): ProductInput {
     ratingAvg,
     reviewCount,
     preorder,
+    onOrder,
+    approxPriceUzs,
     pcHidden,
     pcWatts,
     options,

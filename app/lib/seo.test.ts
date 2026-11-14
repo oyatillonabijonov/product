@@ -92,6 +92,10 @@ describe('productDescriptionFallback', () => {
     expect(d).toContain("30 240 000 so'm");
     expect(d).toContain('ProDuct');
   });
+  it("narxsiz («buyurtma asosida» tovar) — narx gapi umuman chiqmaydi", () => {
+    expect(productDescriptionFallback('uz', 'RAM 32GB', null, null, 'ProDuct')).toBe('RAM 32GB — original, rasmiy kafolat bilan. ProDuct, Toshkent.');
+    expect(productDescriptionFallback('ru', 'RAM 32GB', null, null, 'ProDuct')).not.toContain('Цена');
+  });
   it('ruscha va brendsiz', () => {
     const d = productDescriptionFallback('ru', 'HomePod', null, '5 000 000 сум', 'ProDuct');
     expect(d).toContain('Ташкент');

@@ -350,15 +350,21 @@ describe('billzUpdateColumns — sinxronizatsiya nimani yozadi', () => {
 
   it("qulf yo'q — hamma Billz ustuni yoziladi", () => {
     expect(cols([])).toEqual([
-      'billz_name=?', 'billz_stock=?', 'is_active=?', 'name=?', 'brand_id=?', 'image_url=?',
+      'billz_name=?', 'billz_stock=?', 'is_active=?', 'approx_price_uzs=?', 'name=?', 'brand_id=?', 'image_url=?',
       'category_id=?', 'type=?', 'cash_price_uzs=?', 'old_price_uzs=?', 'description=?',
     ]);
   });
 
   it("qulflangan guruh butunlay chiqariladi, Billz nomi, qoldiq va ko'rinish doim yoziladi", () => {
     expect(cols(['name', 'brand', 'images', 'category', 'price', 'description', 'hidden', 'specs'])).toEqual([
-      'billz_name=?', 'billz_stock=?', 'is_active=?',
+      'billz_name=?', 'billz_stock=?', 'is_active=?', 'approx_price_uzs=?',
     ]);
+  });
+
+  it("qoldiq qaytsa admin kiritgan taxminiy narx tozalanadi, qoldiq 0 da unga tegilmaydi", () => {
+    const r = billzUpdateColumns(m, ['name', 'brand', 'images', 'category', 'price', 'description']);
+    expect(r.vals[r.cols.indexOf('approx_price_uzs=?')]).toBeNull();
+    expect(billzUpdateColumns({ ...m, stock: 0 }, []).cols).not.toContain('approx_price_uzs=?');
   });
 
   it("Billz rasmi ishlatilmasa (`syncTarget` photos'ni bo'shatgan) image_url yozilmaydi — run davomida yuklangan rasm o'chmaydi", () => {
@@ -370,8 +376,8 @@ describe('billzUpdateColumns — sinxronizatsiya nimani yozadi', () => {
 
   it("qiymatlar ustunlar bilan bir tartibda", () => {
     const r = billzUpdateColumns(m, ['images', 'category', 'price', 'description']);
-    expect(r.cols).toEqual(['billz_name=?', 'billz_stock=?', 'is_active=?', 'name=?', 'brand_id=?']);
-    expect(r.vals).toEqual(['iPhone 17 Pro Sim/E-sim / Silver', 2, 1, 'iPhone 17 Pro Sim/E-sim / Silver', 'apple']);
+    expect(r.cols).toEqual(['billz_name=?', 'billz_stock=?', 'is_active=?', 'approx_price_uzs=?', 'name=?', 'brand_id=?']);
+    expect(r.vals).toEqual(['iPhone 17 Pro Sim/E-sim / Silver', 2, 1, null, 'iPhone 17 Pro Sim/E-sim / Silver', 'apple']);
   });
 });
 

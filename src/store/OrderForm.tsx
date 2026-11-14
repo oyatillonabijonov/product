@@ -14,7 +14,11 @@ import type { ApiAddress } from '../../shared/address';
 import { formatAddress } from '../../shared/address';
 
 /** Ism/telefonsiz tayyor buyurtma — chaqiruvchi (ProductPage/CartPage) to'ldiradi. */
-export type OrderDraft = Omit<OrderInput, 'name' | 'phone' | 'note' | 'addressText'> & { title: string };
+export type OrderDraft = Omit<OrderInput, 'name' | 'phone' | 'note' | 'addressText'> & {
+  title: string;
+  /** Narx taxminiy («buyurtma asosida» tovar) — xulosada shunday ko'rsatiladi. */
+  approx?: boolean;
+};
 
 const OrderForm: FC<{
   t: Translation;
@@ -175,11 +179,12 @@ const OrderForm: FC<{
                 </div>
               )}
               <div className="flex justify-between gap-3">
-                <span className="text-muted">{t.calcTotal}</span>
+                <span className="text-muted">{draft.approx ? t.approxPrice : t.calcTotal}</span>
                 <span className="font-semibold tabular-nums">
-                  {price(installment && draft.totalUzs !== null ? draft.totalUzs : cashTotal)}
+                  {draft.approx && '≈ '}{price(installment && draft.totalUzs !== null ? draft.totalUzs : cashTotal)}
                 </span>
               </div>
+              {draft.approx && <p className="text-muted">{t.approxNote}</p>}
             </div>
 
             <label htmlFor="order-name" className="block text-label text-muted mb-1">{t.orderName}</label>

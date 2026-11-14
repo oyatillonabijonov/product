@@ -28,3 +28,17 @@ describe('composeOrderMessage — manzil', () => {
     expect(msg).toContain('iPhone 18 Pro (256GB) ×1');
   });
 });
+
+describe('composeOrderMessage — taxminiy narx', () => {
+  it("«buyurtma asosida» tovar qatori va jami summa taxminiy deb belgilanadi", () => {
+    const base = order().items[0];
+    const msg = composeOrderMessage(order({ items: [{ ...base, approx: true }] }), 'ProDuct');
+    expect(msg).toContain("— ≈ 12 000 000 so'm (taxminiy, qoldiq yo'q)");
+    expect(msg).toContain("💰 Naqd narx: ≈ 12 000 000 so'm (taxminiy)");
+  });
+  it("oddiy buyurtmada belgi yo'q", () => {
+    const msg = composeOrderMessage(order(), 'ProDuct');
+    expect(msg).not.toContain('≈');
+    expect(msg).not.toContain('taxminiy');
+  });
+});

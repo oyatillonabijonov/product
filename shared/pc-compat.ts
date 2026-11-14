@@ -363,6 +363,8 @@ export interface ConfigPartRow {
   id: string; name: string; image_url: string; type: string | null; price: number;
   billz_id: string | null; billz_stock: number | null; is_active: number;
   pc_watts: number | null;
+  /** Qo'lda kiritilgan tovarda «Tovar qolmadi» belgisi va taxminiy narx (`shared/on-order.ts`). */
+  on_order?: number; approx_price_uzs?: number | null;
 }
 export interface ConfigPart { id: string; name: string; image: string; priceUzs: number; inStock: boolean; attrs: PartAttrs }
 export interface PartGroup { slot: SlotKey; rep: ConfigPartRow; inStock: boolean; ids: string[] }
@@ -385,7 +387,8 @@ function partKey(name: string): string {
 }
 
 /**
- * Bo'g'in + yaqin-dublikat nom bo'yicha guruhlar. Omborda: Billz qoldig'i > 0 yoki qo'lda kiritilgan faol tovar.
+ * Bo'g'in + yaqin-dublikat nom bo'yicha guruhlar. Omborda: Billz qoldig'i > 0 yoki qo'lda kiritilgan faol tovar
+ * («Tovar qolmadi» belgilanmagan).
  * Vakil — omborda bori, keyin faoli (sinxronizatsiya eski dublikatni `is_active=0, billz_stock=0` qilib qoldiradi).
  * `ids` — guruhning hamma qatorlari: admin yozuvi ularning hammasiga tushadi.
  */
@@ -397,7 +400,7 @@ export function partGroups(rows: ConfigPartRow[]): PartGroup[] {
   for (const row of rows) {
     const slot = slotForType(row.type);
     if (!slot || (slot === 'cooler' && caseFan.test(row.name.trim()))) continue;
-    const inStock = (row.billz_stock ?? 0) > 0 || (row.billz_id === null && row.is_active === 1);
+    const inStock = (row.billz_stock ?? 0) > 0 || (row.billz_id === null && row.is_active === 1 && row.on_order !== 1);
     const key = `${slot}|${partKey(row.name)}`;
     const cur = map.get(key);
     if (!cur) { map.set(key, { slot, rep: row, inStock, ids: [row.id] }); continue; }
@@ -430,7 +433,7 @@ export function toConfigParts(rows: ConfigPartRow[], byProduct: Map<string, numb
     const values = groupValues(g.ids, byProduct, dims);
     if (!isTagged(g.slot, values, dims)) continue;
     (out[g.slot] ??= []).push({
-      id: g.rep.id, name: g.rep.name.trim(), image: g.rep.image_url, priceUzs: g.rep.price, inStock: g.inStock,
+      id: g.rep.id, name: g.rep.name.trim(), image: g.rep.image_url, priceUzs: g.inStock ? g.rep.price : g.rep.approx_price_uzs ?? g.rep.price, inStock: g.inStock,
       attrs: { values, watts: partWatts(g.slot, g.rep.name, g.rep.pc_watts) },
     });
   }

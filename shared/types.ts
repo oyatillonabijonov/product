@@ -32,6 +32,10 @@ export interface ApiProduct {
   reviewCount: number;
   /** Oldindan buyurtma (pre-order): sahifada "Yangi" o'rniga "Pre-order", tugma matni boshqa. */
   preorder: boolean;
+  /** «Tovar qolmadi» — admin belgisi (qo'lda kiritilgan tovar); Billz tovarida rejimni qoldiq hal qiladi (`isOnOrder`). */
+  onOrder: boolean;
+  /** «Buyurtma asosida» rejimida ko'rsatiladigan taxminiy narx; `null` — odatdagi narx. */
+  approxPriceUzs: number | null;
   /** PC konfiguratorida ko'rsatilmasin (egasi eskirgan modelni chiqaradi). */
   pcHidden: boolean;
   /** Iste'mol/quvvat (W) admin tuzatishi; null — nomdan avtomatik. Moslik qiymatlari — `pc_part_values` (admin → Konfigurator). */
@@ -314,6 +318,8 @@ export interface OrderItemInput {
   variantLabel: string;
   qty: number;
   priceUzs: number;
+  /** Narx taxminiy (tovar «buyurtma asosida»). Server bazadan tekshirib qo'yadi — mijozdan olinmaydi. */
+  approx?: boolean;
 }
 
 export interface OrderInput {

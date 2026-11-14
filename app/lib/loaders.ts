@@ -2,6 +2,7 @@ import type { Env } from '../../functions/env';
 import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiNews, ApiPage, ApiPost, ApiReview, ApiSiteConfig, ApiVacancy, LocalizedText } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
 import { needsNewsPrice, newsProductId } from '../../shared/news-price';
+import { isOnOrder, ON_ORDER_SQL } from '../../shared/on-order';
 import {
   installmentConfig as fallbackConfig,
   products as fallbackProducts,
@@ -34,13 +35,16 @@ export interface ProductDetail extends Product {
 }
 
 function mapProduct(p: ApiProduct): Product {
+  // «Buyurtma asosida»: narx taxminiy — admin kiritgani, bo'lmasa odatdagi narx; chegirma ko'rsatilmaydi.
+  const onOrder = isOnOrder(p);
+  const approx = onOrder ? p.approxPriceUzs : null;
   return {
     id: p.id, name: p.name, condition: p.condition,
     conditionNote: p.conditionNote ?? undefined, image: p.imageUrl,
-    cashPriceUzs: p.cashPriceUzs, oldPriceUzs: p.oldPriceUzs ?? null,
-    minPriceUzs: p.minPriceUzs, brandId: p.brandId, categoryId: p.categoryId, type: p.type,
+    cashPriceUzs: approx ?? p.cashPriceUzs, oldPriceUzs: onOrder ? null : p.oldPriceUzs ?? null,
+    minPriceUzs: approx ?? p.minPriceUzs, brandId: p.brandId, categoryId: p.categoryId, type: p.type,
     ratingAvg: p.ratingAvg, reviewCount: p.reviewCount,
-    preorder: p.preorder,
+    preorder: p.preorder, onOrder,
   };
 }
 function mapConfig(s: ApiSettings): InstallmentConfig {
@@ -152,8 +156,9 @@ export async function loadProductDetail(env: Env, id: string, locale: Locale = '
   try {
     const d = await buildProductDetail(env, id);
     if (!d) throw new Error('not_found');
+    const base = mapProduct(d);
     return {
-      ...mapProduct(d), oldPriceUzs: d.oldPriceUzs, description: (locale === 'ru' && d.descriptionRu) || d.description, images: d.images, specs: d.specs,
+      ...base, oldPriceUzs: base.oldPriceUzs ?? null, description: (locale === 'ru' && d.descriptionRu) || d.description, images: d.images, specs: d.specs,
       brand: d.brand, options: d.options, variants: d.variants,
     };
   } catch (err) {
@@ -206,6 +211,7 @@ export async function loadTypes(env: Env): Promise<ProductTypeRow[]> {
   }
 }
 
+// ponytail: «buyurtma asosida» tovar saralash/filtrda odatdagi narxi bilan qatnashadi (admin kiritgan taxminiy narx emas).
 const EFFECTIVE = 'COALESCE(min_variant_price, cash_price_uzs)';
 
 function buildConds(f: CatalogFilters, opts: { skipBrands?: boolean; skipPrice?: boolean } = {}): { sql: string; binds: unknown[] } {
@@ -225,7 +231,8 @@ function buildConds(f: CatalogFilters, opts: { skipBrands?: boolean; skipPrice?:
       binds.push(like, like, like);
     }
   }
-  if (f.onlyDeals) conds.push('old_price_uzs IS NOT NULL AND old_price_uzs > cash_price_uzs');
+  // Narxi yashirin («buyurtma asosida») tovarda chegirma ko'rsatilmaydi — Chegirmalar'ga ham chiqmaydi.
+  if (f.onlyDeals) conds.push(`old_price_uzs IS NOT NULL AND old_price_uzs > cash_price_uzs AND NOT ${ON_ORDER_SQL}`);
   if (!opts.skipBrands && f.brands.length > 0) {
     conds.push(`brand_id IN (${f.brands.map(() => '?').join(',')})`);
     binds.push(...f.brands);
@@ -349,7 +356,9 @@ export async function loadNews(env: Env): Promise<ApiNews[]> {
       // `needsNewsPrice` — eski kartalar: matnda `{narx}` belgisi qolgan bo'lsa ham narx to'ldiriladi.
       if (!id || (n.priceMode !== 'product' && !needsNewsPrice(n))) return n;
       const row = await env.DB.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE id = ? AND is_active = 1`).bind(id).first<ProductRow>();
-      return { ...n, priceUzs: row ? rowToProduct(row).minPriceUzs ?? null : null };
+      // Tovar «buyurtma asosida» bo'lsa narx kartada ham chiqmaydi (yashirin tovar kabi).
+      const product = row ? rowToProduct(row) : null;
+      return { ...n, priceUzs: product && !isOnOrder(product) ? product.minPriceUzs : null };
     }));
   } catch (err) {
     console.error('loadNews fallback:', err);
@@ -371,7 +380,7 @@ export async function loadVacancies(env: Env): Promise<ApiVacancy[]> {
 /** Chegirmadagi mahsulot bormi — footer'dagi "Chegirmalar" havolasi bo'sh sahifaga olib bormasin. */
 export async function hasDeals(env: Env): Promise<boolean> {
   try {
-    const row = await env.DB.prepare('SELECT 1 AS x FROM products WHERE is_active = 1 AND old_price_uzs > cash_price_uzs LIMIT 1').first<{ x: number }>();
+    const row = await env.DB.prepare(`SELECT 1 AS x FROM products WHERE is_active = 1 AND old_price_uzs > cash_price_uzs AND NOT ${ON_ORDER_SQL} LIMIT 1`).first<{ x: number }>();
     return row !== null;
   } catch (err) {
     console.error('hasDeals fallback:', err);
@@ -465,7 +474,7 @@ export async function loadT(env: Env, locale: Locale): Promise<Translation> {
   return mergeTexts(translations[localeToLang(locale)], await loadSiteTexts(env), locale === 'ru' ? 'ru' : 'uz');
 }
 
-export interface SearchSuggestion { id: string; name: string; image: string; priceUzs: number }
+export interface SearchSuggestion { id: string; name: string; image: string; priceUzs: number; onOrder: boolean }
 
 /**
  * Qidiruv maydonidagi tavsiyalar ("ip" → iPhone'lar). Moslik qoidasi katalog qidiruvi bilan bir xil
@@ -476,7 +485,7 @@ export interface SearchSuggestion { id: string; name: string; image: string; pri
 export async function loadSearchSuggestions(env: Env, q: string, limit = 8): Promise<SearchSuggestion[]> {
   const terms = searchTerms(q);
   if (terms.length === 0) return [];
-  const toSuggestion = (p: Product): SearchSuggestion => ({ id: p.id, name: p.name, image: p.image, priceUzs: p.minPriceUzs });
+  const toSuggestion = (p: Product): SearchSuggestion => ({ id: p.id, name: p.name, image: p.image, priceUzs: p.minPriceUzs, onOrder: p.onOrder === true });
   try {
     const w = buildConds({ ...parseCatalogFilters(new URLSearchParams()), q });
     const first = escapeLike(terms[0]);

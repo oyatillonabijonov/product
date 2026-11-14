@@ -141,7 +141,7 @@ const SearchBox: FC<{
                     {/* Narx nom ostida — telefonda yonma-yon turganda nom 12 belgigacha kesilib qolardi. */}
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-para text-primary">{s.name}</span>
-                      <span className="block text-label tabular-nums text-muted-2">{price(s.priceUzs)}</span>
+                      <span className="block text-label tabular-nums text-muted-2">{s.onOrder ? t.cfgOnOrder : price(s.priceUzs)}</span>
                     </span>
                   </Link>
                 </li>

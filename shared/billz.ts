@@ -332,6 +332,8 @@ export function billzNameKey(r: { name: string; billz_name: string | null }): st
 export function billzUpdateColumns(m: MappedProduct, locks: readonly ManualField[]): { cols: string[]; vals: unknown[] } {
   const cols = ['billz_name=?', 'billz_stock=?', 'is_active=?'];
   const vals: unknown[] = [m.name, m.stock, m.isActive ? 1 : 0];
+  // Qoldiq qaytdi — «buyurtma asosida» rejimi o'chadi; admin kiritgan taxminiy narx keyingi safar eskirib chiqmasin.
+  if (m.stock > 0) { cols.push('approx_price_uzs=?'); vals.push(null); }
   const add = (lock: ManualField, pairs: [string, unknown][]) => {
     if (locks.includes(lock)) return;
     for (const [c, v] of pairs) { cols.push(`${c}=?`); vals.push(v); }

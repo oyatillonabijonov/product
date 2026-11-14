@@ -38,7 +38,7 @@ export async function readConfigRows(env: Env, opts: { includeHidden?: boolean }
     `SELECT id, name, image_url, type, COALESCE(
        (SELECT MIN(v.cash_price_uzs) FROM product_variants v WHERE v.product_id = products.id AND v.in_stock = 1),
        cash_price_uzs) AS price,
-     billz_id, billz_stock, is_active, pc_watts
+     billz_id, billz_stock, is_active, pc_watts, on_order, approx_price_uzs
      FROM products
      WHERE category_id = 'pc' AND type IN (${types.map(() => '?').join(', ')})
        ${opts.includeHidden ? '' : 'AND pc_hidden = 0'}

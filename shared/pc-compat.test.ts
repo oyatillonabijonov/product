@@ -253,6 +253,12 @@ describe('guruhlar va toConfigParts', () => {
     );
     expect(out.psu?.[0]).toMatchObject({ id: 'man', inStock: true, attrs: { values: {}, watts: 750 } });
   });
+  it("«Tovar qolmadi» belgili qo'lda qism — buyurtma asosida, taxminiy narxi bilan", () => {
+    const out = toConfigParts(
+      [row({ id: 'man', name: 'SAMA K650W', type: 'psu', billz_id: null, billz_stock: null, on_order: 1, approx_price_uzs: 1600 })], new Map(), DIMS,
+    );
+    expect(out.psu?.[0]).toMatchObject({ id: 'man', inStock: false, priceUzs: 1600 });
+  });
   it("groupValues begona (o'chirilgan turdagi) qiymatni tashlaydi", () => {
     expect(groupValues(['a'], vals({ a: [14, 999] }), DIMS)).toEqual({ 1: [14] });
   });

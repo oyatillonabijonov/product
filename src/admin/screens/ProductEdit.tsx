@@ -22,7 +22,7 @@ import { normalizeImage, type NormalizeOptions } from '../lib/image-normalize';
 const PRODUCT_UPLOAD: NormalizeOptions = { maxSize: 1440, maxTrimRatio: 0 };
 import { mergeSpecs, modelToSpecs } from '../lib/models';
 import {
-  COLOR_VALUES, EMPTY_FORM, STORAGE_VALUES, addAxisValue, detailToForm, formLocks, formToPayload, revertField, toggleAxisValue, validateForm, variantLabel,
+  COLOR_VALUES, EMPTY_FORM, STORAGE_VALUES, addAxisValue, detailToForm, formLocks, formOnOrder, formToPayload, revertField, toggleAxisValue, validateForm, variantLabel,
   type ProductFormState,
 } from '../lib/product-form';
 import { Button, Card, EmptyState, Field, INPUT_CLS, Input, Page, Segmented, Select, Skeleton, SwitchRow, Textarea } from '../ui';
@@ -226,6 +226,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
   }
 
   const billz = form.billzId !== null;
+  const onOrderNow = formOnOrder(form);
   // PC bo'g'in turlarida — konfigurator kartasi; "Avtomatik" qiymatlar tuzatishsiz, faqat nomdan.
   const pcSlot = form.categoryId === 'pc' ? slotForType(form.type) : null;
   const autoWatts = pcSlot ? partWatts(pcSlot, form.name, null) : null;
@@ -300,6 +301,16 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
               on={form.preorder}
               onChange={(v) => set('preorder', v)}
             />
+            {billz ? onOrderNow && (
+              <p className="py-3 text-label text-muted-2">{t('productEdit.status.onOrderBillz')}</p>
+            ) : (
+              <SwitchRow
+                label={t('productEdit.status.onOrderLabel')}
+                hint={t('productEdit.status.onOrderHint')}
+                on={form.onOrder}
+                onChange={(v) => set('onOrder', v)}
+              />
+            )}
             <div className="flex flex-wrap items-center justify-between gap-4 py-3">
               <div>
                 <p className="text-para text-primary">{t('productEdit.status.conditionLabel')}</p>
@@ -384,6 +395,11 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
             <Field label={t('productEdit.price.oldFieldLabel')} hint={t('productEdit.price.oldFieldHint')}>
               <PriceInput className={INPUT_CLS} value={form.oldPriceUzs} onChange={(v) => set('oldPriceUzs', v)} />
             </Field>
+            {onOrderNow && form.variants.length === 0 && (
+              <Field label={t('productEdit.price.approxLabel')} hint={t('productEdit.price.approxHint')}>
+                <PriceInput className={INPUT_CLS} value={form.approxPriceUzs} onChange={(v) => set('approxPriceUzs', v)} />
+              </Field>
+            )}
           </div>
           {billz && <p className="mt-3 text-label text-muted-2">{t('productEdit.price.billzStockNote', { count: form.billzStock ?? 0 })}</p>}
         </Card>

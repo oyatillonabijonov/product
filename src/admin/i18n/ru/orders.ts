@@ -48,6 +48,7 @@ const orders: Dict<typeof uz> = {
     sourceLabel: 'Источник',
     addressLabel: 'Адрес',
     noteLabel: 'Комментарий',
+    approx: 'примерная цена — товара нет в наличии',
     cashTotal: 'Цена за наличные',
     total: 'Итого',
     installmentCard: 'Рассрочка',

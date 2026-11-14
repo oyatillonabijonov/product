@@ -10,7 +10,7 @@ function detail(over: Partial<AdminProductDetail> = {}): AdminProductDetail {
   return {
     id: 'p1', name: 'iPhone 17', condition: 'yangi', conditionNote: null, cashPriceUzs: 1000,
     imageUrl: '/images/products/main.webp', sortOrder: 0, isActive: true, categoryId: 'apple', type: 'iphone',
-    oldPriceUzs: null, brandId: 'apple', slug: 'iphone-17', minPriceUzs: 900, ratingAvg: null, reviewCount: 0, preorder: false,
+    oldPriceUzs: null, brandId: 'apple', slug: 'iphone-17', minPriceUzs: 900, ratingAvg: null, reviewCount: 0, preorder: false, onOrder: false, approxPriceUzs: null,
     pcHidden: false, pcWatts: null,
     billzId: null, billzStock: null, manualFields: [], description: null, descriptionRu: null, brand: null,
     images: ['/images/products/main.webp', '/images/products/g1.webp'],
@@ -106,7 +106,7 @@ describe('aylanma (detail → forma → payload)', () => {
       conditionNote: 'Batafsil', cashPriceUzs: d.cashPriceUzs,
       oldPriceUzs: 1200, description: 'Tavsif', descriptionRu: 'Описание', imageUrl: d.imageUrl, images: ['/images/products/g1.webp'],
       specs: d.specs, sortOrder: 7, isActive: false, brandId: d.brandId, slug: d.slug,
-      ratingAvg: 4.5, reviewCount: 3, preorder: true, manualFields: [],
+      ratingAvg: 4.5, reviewCount: 3, preorder: true, onOrder: false, approxPriceUzs: null, manualFields: [],
       pcHidden: true, pcWatts: 650,
       options: [{ name: 'Xotira', values: ['128GB', '256GB'] }],
       variants: [
@@ -185,5 +185,22 @@ describe('revertField — «Billz\'ga qaytarish»', () => {
   it("qaytarilgan maydon endi qulf sifatida hisoblanmaydi", () => {
     const edited = { ...loaded, name: 'Tahrirlangan' };
     expect(formLocks(revertField(edited, loaded, 'name'), loaded)).toEqual([]);
+  });
+});
+
+describe('taxminiy narx («buyurtma asosida»)', () => {
+  const flat = { options: [], variants: [] };
+  it("qo'lda tovar: «Tovar qolmadi» yoqilgan bo'lsa taxminiy narx yoziladi, o'chirilgan bo'lsa — yo'q", () => {
+    const on = detailToForm(detail({ ...flat, onOrder: true, approxPriceUzs: 1600 }));
+    expect(formToPayload(on)).toMatchObject({ onOrder: true, approxPriceUzs: 1600 });
+    expect(formToPayload({ ...on, onOrder: false })).toMatchObject({ onOrder: false, approxPriceUzs: null });
+  });
+  it("Billz tovari: rejimni qoldiq hal qiladi — 0 da yoziladi, qoldiq borida tashlanadi", () => {
+    const f = detailToForm(detail({ ...flat, billzId: 'b1', billzStock: 0, approxPriceUzs: 1600 }));
+    expect(formToPayload(f).approxPriceUzs).toBe(1600);
+    expect(formToPayload({ ...f, billzStock: 3 }).approxPriceUzs).toBeNull();
+  });
+  it("variantli tovarda taxminiy narx yozilmaydi — har variantning o'z narxi", () => {
+    expect(formToPayload(detailToForm(detail({ onOrder: true, approxPriceUzs: 1600 }))).approxPriceUzs).toBeNull();
   });
 });

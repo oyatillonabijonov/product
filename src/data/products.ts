@@ -39,6 +39,8 @@ export interface Product {
   reviewCount?: number;
   /** Oldindan buyurtma (pre-order). */
   preorder?: boolean;
+  /** «Buyurtma asosida»: tovar tugagan — narx yashirin (taxminiy), tugma «Oldindan buyurtma». `shared/on-order.ts`. */
+  onOrder?: boolean;
 }
 
 export interface Term {
