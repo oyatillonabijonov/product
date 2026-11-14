@@ -78,8 +78,9 @@ export default function CategoryCover({ img, videos, poster, t }: {
         initial={reduced ? false : { opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.38, delay: 0.2, ease: GLIDE }}
-        className="absolute left-3 top-3 z-[4] md:left-8 md:top-6"
+        className="absolute left-8 top-6 z-[4] hidden md:block"
       >
+        {/* Faqat `md`dan: mobilda blok past, tugma kadrni yopardi — qaytish pastki paneldagi «Bosh sahifa» orqali. */}
         {/* Apple ko'k tugmasi — Yangiliklar CTA'si bilan bir xil (`BTN_MD` + `cta`). */}
         <LocaleLink to="/" className={`${BTN_MD} bg-cta text-white hover:bg-cta-hover`}>
           {/* Chevron qutisidagi ichki bo'shliq chap tomonni kengroq ko'rsatardi — optik tekislash. */}
