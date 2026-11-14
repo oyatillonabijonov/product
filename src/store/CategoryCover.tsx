@@ -35,7 +35,10 @@ export default function CategoryCover({ img, videos, poster, t }: {
     if (document.readyState === 'complete') { setPageLoaded(true); return; }
     const onLoad = () => setPageLoaded(true);
     window.addEventListener('load', onLoad, { once: true });
-    return () => window.removeEventListener('load', onLoad);
+    // `load`ni uchinchi tomon resursi (xarita, chat) uzoq ushlab turishi mumkin — iPhone'da mahsuloti kam
+    // yo'nalishlarda video umuman boshlanmasdi. 3 soniyadan ortiq kutilmaydi.
+    const timer = window.setTimeout(onLoad, 3000);
+    return () => { window.removeEventListener('load', onLoad); window.clearTimeout(timer); };
   }, []);
 
   const playVideo = pageLoaded && !reduced && videos !== undefined && videos.length > 0;
