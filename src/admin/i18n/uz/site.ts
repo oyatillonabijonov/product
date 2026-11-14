@@ -18,7 +18,7 @@ const site = {
   sections: {
     heroApple: 'Apple kartasi', heroPc: 'PC kartasi', heroAudio: 'Audio kartasi', heroVideo: 'Video kartasi',
     services: "Xizmat va'dalari", consult: 'Konsultatsiya', homeTitles: 'Sarlavhalar',
-    productPage: 'Mahsulot sahifasi', orderCookie: 'Buyurtma va cookie', logo: 'Logo va favicon',
+    productPage: 'Mahsulot sahifasi', orderCookie: 'Buyurtma', logo: 'Logo va favicon',
     contact: 'Manzil va ish vaqti',
     aboutIntro: 'Kirish', aboutExperts: 'Mutaxassislar', aboutWarranty: 'Kafolat va servis', aboutBuy: 'Qulay xarid',
     aboutPersonal: 'Shaxsiy yondashuv', aboutNear: 'Doim yaqinda', aboutNews: 'Yangiliklar',
@@ -64,8 +64,6 @@ const site = {
     setupText: { label: 'Apple sozlash — matn' },
     setupCta: { label: 'Apple sozlash — tugma' },
     orderSuccessNote: { label: 'Buyurtmadan keyingi xabar', hint: "Qo'ng'iroq muddati va'dasi shu yerda" },
-    cookieText: { label: 'Cookie ogohlantirishi' },
-    cookieAccept: { label: 'Cookie tugmasi' },
     footerAddressText1: { label: 'Manzil — 1-qator', hint: "Masalan: O'zbekiston, Toshkent shahar," },
     footerAddressText2: { label: 'Manzil — 2-qator' },
     footerTime: { label: 'Ish vaqti', hint: 'Saytda shunday chiqadi: Du–Yak, 10:00–21:00' },

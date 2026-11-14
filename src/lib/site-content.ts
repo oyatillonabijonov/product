@@ -98,8 +98,6 @@ export const TEXT_FIELDS: TextField[] = [
   productPage('setupCta'),
 
   orderCookie('orderSuccessNote', 'textarea'),
-  orderCookie('cookieText', 'textarea'),
-  orderCookie('cookieAccept'),
 
   contact('footerAddressText1'),
   contact('footerAddressText2'),

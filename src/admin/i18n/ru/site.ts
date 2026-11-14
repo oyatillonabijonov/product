@@ -16,7 +16,7 @@ const site: Dict<typeof uz> = {
   sections: {
     heroApple: 'Карточка Apple', heroPc: 'Карточка PC', heroAudio: 'Карточка Audio', heroVideo: 'Карточка Video',
     services: 'Обещания сервиса', consult: 'Консультация', homeTitles: 'Заголовки',
-    productPage: 'Страница товара', orderCookie: 'Заказ и cookie', logo: 'Логотип и favicon',
+    productPage: 'Страница товара', orderCookie: 'Заказ', logo: 'Логотип и favicon',
     contact: 'Адрес и время работы',
     aboutIntro: 'Вступление', aboutExperts: 'Специалисты', aboutWarranty: 'Гарантия и сервис', aboutBuy: 'Удобная покупка',
     aboutPersonal: 'Индивидуальный подход', aboutNear: 'Всегда рядом', aboutNews: 'Новости',
@@ -62,8 +62,6 @@ const site: Dict<typeof uz> = {
     setupText: { label: 'Настройка Apple — текст' },
     setupCta: { label: 'Настройка Apple — кнопка' },
     orderSuccessNote: { label: 'Сообщение после заказа', hint: 'Здесь обещание, когда вам перезвонят' },
-    cookieText: { label: 'Уведомление о cookie' },
-    cookieAccept: { label: 'Кнопка cookie' },
     footerAddressText1: { label: 'Адрес — строка 1', hint: 'Например: Узбекистан, город Ташкент,' },
     footerAddressText2: { label: 'Адрес — строка 2' },
     footerTime: { label: 'Время работы', hint: 'На сайте выглядит так: Пн–Вс, 10:00–21:00' },
