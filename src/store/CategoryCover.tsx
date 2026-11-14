@@ -44,7 +44,8 @@ export default function CategoryCover({ img, videos, poster, t }: {
   return (
     <div
       ref={ref}
-      className="rounded-xl shell-box relative mt-4 h-[min(76vh,700px)] overflow-hidden bg-black"
+      // `md`gacha blok videoning o'z nisbatida (2280×1100) — tik ekranda baland blok kadrning uchdan ikkisini kesardi.
+      className="rounded-xl shell-box relative mt-4 aspect-[114/55] overflow-hidden bg-black md:aspect-auto md:h-[min(76vh,700px)]"
     >
       {playVideo ? (
         <motion.video
@@ -74,7 +75,7 @@ export default function CategoryCover({ img, videos, poster, t }: {
         initial={reduced ? false : { opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.38, delay: 0.2, ease: GLIDE }}
-        className="absolute left-6 top-6 z-[4] md:left-8"
+        className="absolute left-3 top-3 z-[4] md:left-8 md:top-6"
       >
         {/* Apple ko'k tugmasi — Yangiliklar CTA'si bilan bir xil (`BTN_MD` + `cta`). */}
         <LocaleLink to="/" className={`${BTN_MD} bg-cta text-white hover:bg-cta-hover`}>
