@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FC } from 'react';
-import { BotAvatar } from 'bot-avatars';
+import CustomerAvatar from '../CustomerAvatar';
 import type { Translation } from '../../locales';
 import type { ApiCustomer } from '../../../shared/types';
 import { parseAvatar, serializeAvatar } from '../../../shared/avatar';
@@ -10,6 +10,21 @@ import { BTN_MD } from '../ui';
 import AvatarPicker from './AvatarPicker';
 import { inputCls, labelCls } from './fields';
 
+
+/** Rasmni markazdan kvadrat qilib 256 px ga kichraytiradi — serverga kichik JPEG ketadi (kabinetda 72 px chiziladi). */
+async function squareJpeg(file: Blob): Promise<Blob> {
+  const img = await createImageBitmap(file);
+  const side = Math.min(img.width, img.height);
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('canvas');
+  // Shaffof PNG JPEG'da qora bo'lib qolmasin.
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, 256, 256);
+  ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, 256, 256);
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('blob'))), 'image/jpeg', 0.88));
+}
 
 /**
  * Kabinet → Profil: avatar, ism va telefon.
@@ -26,6 +41,8 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer; onSaved: (c: ApiC
   const [rawEmail, setEmail] = useState(customer.email ?? '');
   const [rawAvatar, setAvatar] = useState(parseAvatar(customer.avatar, customer.id));
   const [rawPicking, setPicking] = useState(false);
+  const [rawUploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const [rawBusy, setBusy] = useState(false);
   const [rawSaved, setSaved] = useState(false);
   const [rawErr, setErr] = useState('');
@@ -42,6 +59,23 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer; onSaved: (c: ApiC
     || serializeAvatar(avatar) !== serializeAvatar(parseAvatar(customer.avatar, customer.id));
 
   const touch = () => { setSaved(false); setErr(''); };
+
+  // Rasm faqat yuklanadi va qoralamaga tushadi — profilga «Saqlash» yozadi (avatar tanlash bilan bir yo'l).
+  async function upload(file: Blob | undefined) {
+    if (!file) return;
+    touch();
+    setUploading(true);
+    try {
+      const res = await fetch('/api/account/avatar', { method: 'POST', headers: { 'content-type': 'image/jpeg' }, body: await squareJpeg(file) });
+      const body = res.ok ? ((await res.json().catch(() => null)) as { avatarUrl?: string } | null) : null;
+      if (!body?.avatarUrl) { setErr(t.profilePhotoError); return; }
+      setAvatar({ ...avatar, photo: body.avatarUrl });
+    } catch {
+      setErr(t.profilePhotoError);
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function submit(e: { preventDefault: () => void }) {
     e.preventDefault();
@@ -77,16 +111,35 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer; onSaved: (c: ApiC
   return (
     <form onSubmit={submit} className="max-w-lg">
       <div className="flex items-center gap-4 pb-6 border-b border-divider">
-        <BotAvatar type={avatar.type} face={avatar.face} size={72} />
+        <CustomerAvatar avatar={avatar} size={72} />
         <div className="min-w-0">
           <div className={labelCls}>{t.profileAvatar}</div>
-          <button
-            type="button"
-            onClick={() => setPicking(true)}
-            className="press rounded-xs h-9 border border-line-2 px-4 text-label font-medium text-primary hover:border-accent"
-          >
-            {t.profileAvatarChange}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={rawUploading as boolean}
+              className="press rounded-xs h-9 border border-line-2 px-4 text-label font-medium text-primary hover:border-accent disabled:opacity-40"
+            >
+              {rawUploading as boolean ? t.loginSubmitting : t.profilePhotoUpload}
+            </button>
+            <button
+              type="button"
+              onClick={() => setPicking(true)}
+              className="press rounded-xs h-9 border border-line-2 px-4 text-label font-medium text-primary hover:border-accent"
+            >
+              {t.profileAvatarTitle}
+            </button>
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden
+            onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = ''; }}
+          />
         </div>
       </div>
 
@@ -143,7 +196,7 @@ const ProfileForm: FC<{ t: Translation; customer: ApiCustomer; onSaved: (c: ApiC
         t={t}
         open={rawPicking as boolean}
         value={avatar}
-        onPick={(a) => { setAvatar(a); setPicking(false); touch(); }}
+        onPick={(a) => { setAvatar({ type: a.type, face: a.face }); setPicking(false); touch(); }}
         onClose={() => setPicking(false)}
       />
     </form>

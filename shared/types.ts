@@ -3,6 +3,7 @@ import type { ProductTypeRow } from './product-types';
 import type { PartValues, PcDimension, SlotKey } from './pc-compat';
 
 export type Condition = 'yangi' | 'ishlatilgan';
+export type Authenticity = 'original' | 'replica' | 'none';
 export type PaymentMode = 'both' | 'cash' | 'installment';
 
 export interface Term {
@@ -32,6 +33,8 @@ export interface ApiProduct {
   reviewCount: number;
   /** Oldindan buyurtma (pre-order): sahifada "Yangi" o'rniga "Pre-order", tugma matni boshqa. */
   preorder: boolean;
+  /** Narx ustidagi asllik belgisi; `none` — belgi chiqmaydi (no-name tovar). Egasi admin'da tanlaydi, Billz tegmaydi. */
+  authenticity: Authenticity;
   /** «Tovar qolmadi» — admin belgisi (qo'lda kiritilgan tovar); Billz tovarida rejimni qoldiq hal qiladi (`isOnOrder`). */
   onOrder: boolean;
   /** «Buyurtma asosida» rejimida ko'rsatiladigan taxminiy narx; `null` — odatdagi narx. */

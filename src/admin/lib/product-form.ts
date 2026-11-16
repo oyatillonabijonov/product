@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import type { ApiSpec, Condition } from '../../../shared/types';
+import type { ApiSpec, Authenticity, Condition } from '../../../shared/types';
 import type { AdminProductDetail, AdminProductInput, AdminVariantInput } from '../api';
 import { generateVariants, type OptionDraft } from './variant-gen';
 import { applyManualEdits, type LockSnapshot, type ManualField } from '../../../shared/billz.ts';
@@ -36,6 +36,8 @@ export interface ProductFormState {
   ratingAvg: number;
   reviewCount: number;
   preorder: boolean;
+  /** Narx ustidagi asllik belgisi (`none` — belgisiz). */
+  authenticity: Authenticity;
   /** «Tovar qolmadi» — qo'lda kiritilgan tovar belgisi (Billz tovarida rejimni qoldiq hal qiladi). */
   onOrder: boolean;
   /** Taxminiy narx; 0 — kiritilmagan (odatdagi narx ko'rsatiladi). */
@@ -55,7 +57,7 @@ export interface ProductFormState {
 export const EMPTY_FORM: ProductFormState = {
   name: '', categoryId: null, type: null, condition: 'yangi', conditionNote: '',
   cashPriceUzs: 0, oldPriceUzs: 0, description: '', descriptionRu: '', imageUrl: '', images: [], specs: [], sortOrder: 0, isActive: true,
-  brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, preorder: false, onOrder: false, approxPriceUzs: 0,
+  brandId: null, slug: '', ratingAvg: 0, reviewCount: 0, preorder: false, authenticity: 'original', onOrder: false, approxPriceUzs: 0,
   pcHidden: false, pcWatts: null,
   options: [], variants: [], billzId: null, billzStock: null, manualFields: [],
 };
@@ -75,7 +77,7 @@ export function detailToForm(d: AdminProductDetail): ProductFormState {
     conditionNote: d.conditionNote ?? '', cashPriceUzs: d.cashPriceUzs, oldPriceUzs: d.oldPriceUzs ?? 0,
     description: d.description ?? '', descriptionRu: d.descriptionRu ?? '', imageUrl: d.imageUrl, images: d.images.filter((u) => u !== d.imageUrl),
     specs: d.specs, sortOrder: d.sortOrder, isActive: d.isActive, brandId: d.brandId, slug: d.slug ?? '',
-    ratingAvg: d.ratingAvg ?? 0, reviewCount: d.reviewCount ?? 0, preorder: d.preorder,
+    ratingAvg: d.ratingAvg ?? 0, reviewCount: d.reviewCount ?? 0, preorder: d.preorder, authenticity: d.authenticity,
     onOrder: d.onOrder, approxPriceUzs: d.approxPriceUzs ?? 0,
     pcHidden: d.pcHidden, pcWatts: d.pcWatts,
     options: d.options.map((o) => ({ name: o.name, values: o.values.map((v) => v.value) })),
@@ -118,7 +120,7 @@ export function formToPayload(f: ProductFormState): AdminProductInput {
     specs: f.specs.filter((s) => s.label.trim() !== '' && s.value.trim() !== ''),
     sortOrder: f.sortOrder, isActive: f.isActive,
     brandId: f.brandId, slug: f.slug || null,
-    ratingAvg: f.ratingAvg > 0 ? f.ratingAvg : null, reviewCount: f.reviewCount, preorder: f.preorder,
+    ratingAvg: f.ratingAvg > 0 ? f.ratingAvg : null, reviewCount: f.reviewCount, preorder: f.preorder, authenticity: f.authenticity,
     onOrder: f.onOrder,
     // Taxminiy narx faqat rejim yoqiq va variantsiz tovarda (variantli tovarda — har variantning o'z narxi).
     approxPriceUzs: formOnOrder(f) && priced.length === 0 && f.approxPriceUzs > 0 ? f.approxPriceUzs : null,

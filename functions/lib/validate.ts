@@ -1,5 +1,6 @@
 import type {
   ApiNews,
+  Authenticity,
   ApiSiteText,
   ApiVacancy,
   EmploymentType,
@@ -18,7 +19,7 @@ import type {
 } from '../../shared/types';
 import { SAFE_HREF_RE } from '../../shared/safe-href';
 import { clampNewsScale, newsProductId } from '../../shared/news-price';
-import { isAvatar } from '../../shared/avatar';
+import { isAvatar, isAvatarPhoto } from '../../shared/avatar';
 import type { AddressFields } from '../../shared/address';
 import { districtById, regionById } from '../../shared/uz-regions';
 import { parseManualFields } from '../../shared/billz';
@@ -139,6 +140,7 @@ export function parseProductInput(body: unknown): ProductInput {
       ? Math.floor(o.reviewCount)
       : 0;
   const preorder = o.preorder === true;
+  const authenticity: Authenticity = o.authenticity === 'replica' || o.authenticity === 'none' ? o.authenticity : 'original';
   const onOrder = o.onOrder === true;
   const approxPriceUzs =
     typeof o.approxPriceUzs === 'number' && Number.isInteger(o.approxPriceUzs) && o.approxPriceUzs > 0 ? o.approxPriceUzs : null;
@@ -223,6 +225,7 @@ export function parseProductInput(body: unknown): ProductInput {
     ratingAvg,
     reviewCount,
     preorder,
+    authenticity,
     onOrder,
     approxPriceUzs,
     pcHidden,
@@ -483,7 +486,7 @@ export function parseAddressInput(body: unknown): AddressFields & { isDefault: b
 }
 
 /** Kabinet profil tahriri — ism (majburiy) + telefon (ixtiyoriy, bo'lsa UZ format) + avatar. */
-export function parseProfileInput(body: unknown): { name: string; phone: string; avatar: string; email: string } {
+export function parseProfileInput(body: unknown, customerId: number): { name: string; phone: string; avatar: string; email: string } {
   const o = asRecord(body);
   const name = (typeof o.name === 'string' ? o.name : '').trim().slice(0, 80);
   if (!name) throw new ValidationError('name_required');
@@ -492,9 +495,9 @@ export function parseProfileInput(body: unknown): { name: string; phone: string;
     const digits = phone.replace(/\D/g, '');
     if (digits.length < 9 || digits.length > 12) throw new ValidationError('phone_invalid');
   }
-  // Bo'sh — avatar tanlanmagan (shakl `id` dan chiqadi); aks holda faqat ro'yxatdagi qiymat.
+  // Bo'sh — avatar tanlanmagan (shakl `id` dan chiqadi); aks holda ro'yxatdagi shakl yoki mijozning o'zi yuklagan rasm.
   const avatar = (typeof o.avatar === 'string' ? o.avatar : '').trim();
-  if (avatar && !isAvatar(avatar)) throw new ValidationError('avatar_invalid');
+  if (avatar && !isAvatar(avatar) && !isAvatarPhoto(avatar, customerId)) throw new ValidationError('avatar_invalid');
   // Email — aloqa uchun, ixtiyoriy; kirish identifikatori emas (u OAuth tomonda).
   const email = (typeof o.email === 'string' ? o.email : '').trim().toLowerCase().slice(0, 120);
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new ValidationError('email_invalid');

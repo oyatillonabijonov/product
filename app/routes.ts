@@ -40,6 +40,7 @@ export default [
   route('oauth/consent', 'routes/oauth.consent.tsx'),
   route('yuklash/:token', 'routes/yuklash.$token.tsx'),
   route('api/account', 'routes/api.account.tsx'),
+  route('api/account/avatar', 'routes/api.account.avatar.tsx'),
   route('api/addresses', 'routes/api.addresses.tsx'),
   route('api/notifications', 'routes/api.notifications.tsx'),
   route('api/addresses/:id', 'routes/api.addresses.$id.tsx'),

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useRevalidator, useSearchParams } from 'react-router';
 import type { FC } from 'react';
-import { BotAvatar } from 'bot-avatars';
+import CustomerAvatar from './CustomerAvatar';
 import { User, Package, Heart, MapPin, Bell, LogOut } from 'lucide-react';
 import { parseAvatar } from '../../shared/avatar';
 import type { Translation } from '../locales';
@@ -26,6 +26,9 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
 }) => {
   // Saqlangandan keyin yon panel ham yangilansin — server qaytargan mijoz shu yerda turadi.
   const [rawCust, setCust] = useState(customer);
+  // Saqlangach layout loader'i qayta o'qiladi — header va pastki paneldagi avatar ham yangilanadi
+  // (almashtirilgan profil rasmi diskdan o'chadi, eski manzil 404 berardi).
+  const { revalidate } = useRevalidator();
   const [rawAddrs, setAddrs] = useState(addresses);
   const addrs = rawAddrs as ApiAddress[];
   const cust = rawCust as ApiCustomer;
@@ -60,7 +63,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
           {/* Sidebar */}
           <aside className=" rounded-lg bg-surface overflow-hidden md:sticky md:top-24">
             <div className="flex items-center gap-3 p-5 border-b border-line/60">
-              <BotAvatar type={avatar.type} face={avatar.face} size={48} />
+              <CustomerAvatar avatar={avatar} size={48} />
               <div className="min-w-0">
                 <div className="font-semibold text-para text-primary truncate">{cust.name || '—'}</div>
                 {cust.email && <div className="text-label text-muted truncate">{cust.email}</div>}
@@ -106,7 +109,7 @@ const AccountPage: FC<{ t: Translation; customer: ApiCustomer; orders: ApiOrder[
               <ActiveIcon className="w-5 h-5 text-accent" />
               <h1 className="text-lede font-semibold text-primary">{active.label}</h1>
             </div>
-            {tab === 'profile' && <ProfileForm t={t} customer={cust} onSaved={setCust} />}
+            {tab === 'profile' && <ProfileForm t={t} customer={cust} onSaved={(c) => { setCust(c); void revalidate(); }} />}
             {tab === 'orders' && <OrdersList t={t} orders={orders} itemImages={itemImages} />}
             {tab === 'addresses' && <AddressList t={t} addresses={addrs} onChange={setAddrs} />}
             {tab === 'notifications' && <NotificationsList t={t} items={notifications} />}

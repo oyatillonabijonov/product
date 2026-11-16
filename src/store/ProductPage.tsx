@@ -156,11 +156,9 @@ const ProductPage: FC<{
           <div>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                {/* Apple uslubidagi matn-yorliq: pill emas, sarlavha ustidagi
-                    kichik qalin yozuv. Yangi va pre-order — to'q sariq, ishlatilgan — neytral. */}
-                <div className={`text-label font-semibold ${isNew ? 'text-new' : 'text-trust'}`}>
-                  {product.preorder ? t.badgePreorder : isNew ? t.badgeNew : t.badgeUsed}
-                </div>
+                {/* Apple uslubidagi matn-yorliq: pill emas, sarlavha ustidagi kichik qalin yozuv.
+                    Faqat pre-order — yangi/ishlatilgan narx ustidagi belgi qatoriga ko'chdi. */}
+                {product.preorder && <div className="text-label font-semibold text-new">{t.badgePreorder}</div>}
                 <h1 className="mt-1.5 text-subhead md:text-heading font-normal text-balance text-primary">{product.name}</h1>
                 {(product.reviewCount ?? 0) > 0 && <Stars t={t} rating={product.ratingAvg} count={product.reviewCount ?? 0} />}
               </div>
@@ -175,8 +173,15 @@ const ProductPage: FC<{
             {/* Narx ustidagi haqiqiylik belgisi — rasmiy import va kafolat
                 va'dasi xarid qarorining bir qismi, shuning uchun narxdan
                 oldin turadi. `verified` — palitradagi yagona yashil. */}
-            <div className="mt-4 inline-flex items-center gap-1.5 text-label font-medium text-verified">
-              <ShieldCheck className="h-4 w-4" /> {t.badgeOriginal}
+            <div className="mt-4 flex flex-wrap items-center gap-x-2 text-label font-medium">
+              {/* Asllik — egasi har tovarda tanlaydi: Original · Replika · belgisiz (no-name tovar). */}
+              {product.authenticity === 'replica' ? (
+                <span className="text-muted">{t.badgeReplica}</span>
+              ) : product.authenticity !== 'none' && (
+                <span className="inline-flex items-center gap-1.5 text-verified"><ShieldCheck className="h-4 w-4" /> {t.badgeOriginal}</span>
+              )}
+              {product.authenticity !== 'none' && <span aria-hidden className="text-muted-3">·</span>}
+              <span className={isNew ? 'text-new' : 'text-trust'}>{isNew ? t.badgeNew : t.badgeUsed}</span>
             </div>
 
             <div className="mt-1.5 flex flex-wrap items-baseline gap-2.5">

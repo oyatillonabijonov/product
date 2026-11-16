@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation, useMatches } from 'react-router';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ShoppingCart, Menu, X, Globe, User, Heart, Wallet, ChevronDown } from 'lucide-react';
-import { BotAvatar } from 'bot-avatars';
+import CustomerAvatar from './CustomerAvatar';
 import type { Avatar } from '../../shared/avatar';
 import type { LangKey, Translation } from '../locales';
 import type { ApiCategory } from '../../shared/types';
@@ -374,7 +374,7 @@ export default function Header({
         >
           <span className="relative">
             {avatar
-              ? <BotAvatar type={avatar.type} face={avatar.face} size={22} interactive={false} />
+              ? <CustomerAvatar avatar={avatar} size={22} interactive={false} />
               : <User className="w-5 h-5" />}
             {unread > 0 && <span aria-hidden className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-sale ring-2 ring-bg" />}
           </span>

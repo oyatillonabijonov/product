@@ -44,7 +44,7 @@ function mapProduct(p: ApiProduct): Product {
     cashPriceUzs: approx ?? p.cashPriceUzs, oldPriceUzs: onOrder ? null : p.oldPriceUzs ?? null,
     minPriceUzs: approx ?? p.minPriceUzs, brandId: p.brandId, categoryId: p.categoryId, type: p.type,
     ratingAvg: p.ratingAvg, reviewCount: p.reviewCount,
-    preorder: p.preorder, onOrder,
+    preorder: p.preorder, authenticity: p.authenticity, onOrder,
   };
 }
 function mapConfig(s: ApiSettings): InstallmentConfig {

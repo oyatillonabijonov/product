@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router';
 import { motion } from 'motion/react';
 import { SPRING_UI } from '../lib/motion';
 import { Home, TextSearch, Heart, ShoppingCart, User } from 'lucide-react';
-import { BotAvatar } from 'bot-avatars';
+import CustomerAvatar from './CustomerAvatar';
 import type { Avatar } from '../../shared/avatar';
 import type { LucideIcon } from 'lucide-react';
 import type { Translation } from '../locales';
@@ -61,7 +61,7 @@ const MobileTabBar: FC<{ t: Translation; locale: Locale; signedIn: boolean; avat
             >
               <span className="relative">
                 {tabAvatar
-                  ? <BotAvatar type={tabAvatar.type} face={tabAvatar.face} size={26} interactive={false} />
+                  ? <CustomerAvatar avatar={tabAvatar} size={26} interactive={false} />
                   : <Icon className="h-6 w-6" strokeWidth={active ? 2 : 1.6} />}
                 {dot && <span aria-hidden className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-sale ring-2 ring-bg" />}
                 {!!badge && (

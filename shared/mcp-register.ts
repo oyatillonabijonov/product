@@ -140,7 +140,7 @@ export function registerSharedTools(server: McpToolHost, api: AdminClient, opts:
       oldPriceUzs: parsed.oldPriceUzs ?? null, description: parsed.description ?? null,
       imageUrl: images[0] ?? '', images: images.slice(1), specs: upsertSpecs([], parsed.specs ?? []),
       sortOrder: 0, isActive: true, brandId: parsed.brandId ?? null, slug: null,
-      ratingAvg: null, reviewCount: 0, preorder: false, onOrder: false, approxPriceUzs: null, options: [], variants: [], manualFields: [],
+      ratingAvg: null, reviewCount: 0, preorder: false, authenticity: 'original', onOrder: false, approxPriceUzs: null, options: [], variants: [], manualFields: [],
     }, 'product_create');
     const link = `${opts.adminUrl}/admin/products/${created.id}`;
     return text(images.length > 0

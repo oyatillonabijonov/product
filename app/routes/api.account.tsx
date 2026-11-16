@@ -3,6 +3,7 @@ import { parseProfileInput, ValidationError } from '../../functions/lib/validate
 import { currentCustomerId } from '../../functions/lib/customer-auth';
 import { updateCustomerProfile, loadCustomer } from '../../functions/lib/db';
 import { readJson } from '../../functions/lib/body';
+import { isAvatarPhoto } from '../../shared/avatar';
 
 /** Profil formasi — bir necha maydon. */
 const MAX_BODY = 16 * 1024;
@@ -22,11 +23,15 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (intent === 'profile') {
     let input;
     try {
-      input = parseProfileInput(body);
+      input = parseProfileInput(body, id);
     } catch (e) {
       return Response.json({ error: e instanceof ValidationError ? e.message : 'bad_request' }, { status: 400 });
     }
+    const before = await loadCustomer(env, id);
     await updateCustomerProfile(env, id, input.name, input.phone, input.avatar, input.email);
+    // Almashtirilgan yoki olib tashlangan profil rasmi diskda qolmasin.
+    const old = before?.avatar ?? '';
+    if (old !== input.avatar && isAvatarPhoto(old, id)) await env.IMAGES.delete(old.slice('/images/'.length));
     const customer = await loadCustomer(env, id);
     return Response.json({ ok: true, customer });
   }

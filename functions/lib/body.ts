@@ -11,10 +11,10 @@ export function tooLarge(): Response {
   return Response.json({ error: 'too_large' }, { status: 413, headers: { connection: 'close' } });
 }
 
-/** Tana matni yoki 413 `Response` (chaqiruvchi `instanceof Response` bilan tekshiradi). */
-export async function readText(request: Request, maxBytes: number): Promise<string | Response> {
+/** Tana baytlari yoki 413 `Response` (chaqiruvchi `instanceof Response` bilan tekshiradi). */
+export async function readBytes(request: Request, maxBytes: number): Promise<Uint8Array | Response> {
   if (Number(request.headers.get('content-length') ?? '0') > maxBytes) return tooLarge();
-  if (!request.body) return '';
+  if (!request.body) return new Uint8Array(0);
   const reader = request.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
@@ -28,7 +28,13 @@ export async function readText(request: Request, maxBytes: number): Promise<stri
   const all = new Uint8Array(size);
   let at = 0;
   for (const c of chunks) { all.set(c, at); at += c.byteLength; }
-  return new TextDecoder().decode(all);
+  return all;
+}
+
+/** Tana matni yoki 413 `Response`. */
+export async function readText(request: Request, maxBytes: number): Promise<string | Response> {
+  const bytes = await readBytes(request, maxBytes);
+  return bytes instanceof Response ? bytes : new TextDecoder().decode(bytes);
 }
 
 /**

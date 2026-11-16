@@ -337,30 +337,36 @@ describe('parseOrderInput', () => {
 
 describe('parseProfileInput', () => {
   it('ism trim, qolgani ixtiyoriy', () => {
-    expect(parseProfileInput({ name: '  Ali  ' })).toEqual({ name: 'Ali', phone: '', avatar: '', email: '' });
+    expect(parseProfileInput({ name: '  Ali  ' }, 7)).toEqual({ name: 'Ali', phone: '', avatar: '', email: '' });
   });
   it('bo\'sh ismni rad etadi', () => {
-    expect(() => parseProfileInput({ name: '   ' })).toThrow('name_required');
+    expect(() => parseProfileInput({ name: '   ' }, 7)).toThrow('name_required');
   });
   it('qisqa telefonni rad etadi', () => {
-    expect(() => parseProfileInput({ name: 'Ali', phone: '123' })).toThrow('phone_invalid');
+    expect(() => parseProfileInput({ name: 'Ali', phone: '123' }, 7)).toThrow('phone_invalid');
   });
   it('to\'g\'ri telefonni qabul qiladi', () => {
-    expect(parseProfileInput({ name: 'Ali', phone: '+998 90 123 45 67' }))
+    expect(parseProfileInput({ name: 'Ali', phone: '+998 90 123 45 67' }, 7))
       .toEqual({ name: 'Ali', phone: '+998 90 123 45 67', avatar: '', email: '' });
   });
   it('avatarni qabul qiladi', () => {
-    expect(parseProfileInput({ name: 'Ali', avatar: 'cat.mouth' }).avatar).toBe('cat.mouth');
+    expect(parseProfileInput({ name: 'Ali', avatar: 'cat.mouth' }, 7).avatar).toBe('cat.mouth');
   });
   it('emailni kichik harfga o\'tkazadi', () => {
-    expect(parseProfileInput({ name: 'Ali', email: '  Ali@Example.COM ' }).email).toBe('ali@example.com');
+    expect(parseProfileInput({ name: 'Ali', email: '  Ali@Example.COM ' }, 7).email).toBe('ali@example.com');
   });
   it('yaroqsiz emailni rad etadi', () => {
-    expect(() => parseProfileInput({ name: 'Ali', email: 'pochta' })).toThrow('email_invalid');
+    expect(() => parseProfileInput({ name: 'Ali', email: 'pochta' }, 7)).toThrow('email_invalid');
   });
   it('ro\'yxatda yo\'q avatarni rad etadi', () => {
-    expect(() => parseProfileInput({ name: 'Ali', avatar: 'yoq-shakl' })).toThrow('avatar_invalid');
-    expect(() => parseProfileInput({ name: 'Ali', avatar: '<script>' })).toThrow('avatar_invalid');
+    expect(() => parseProfileInput({ name: 'Ali', avatar: 'yoq-shakl' }, 7)).toThrow('avatar_invalid');
+    expect(() => parseProfileInput({ name: 'Ali', avatar: '<script>' }, 7)).toThrow('avatar_invalid');
+  });
+  it("yuklangan rasm faqat o'z egasiga yoziladi", () => {
+    const own = '/images/products/avatar-7-0123456789abcdef.jpg';
+    expect(parseProfileInput({ name: 'Ali', avatar: own }, 7).avatar).toBe(own);
+    expect(() => parseProfileInput({ name: 'Ali', avatar: own }, 8)).toThrow('avatar_invalid');
+    expect(() => parseProfileInput({ name: 'Ali', avatar: '/images/products/boshqa.jpg' }, 7)).toThrow('avatar_invalid');
   });
 });
 

@@ -39,6 +39,8 @@ export interface Product {
   reviewCount?: number;
   /** Oldindan buyurtma (pre-order). */
   preorder?: boolean;
+  /** Asllik belgisi; yo'q bo'lsa — `original`. */
+  authenticity?: 'original' | 'replica' | 'none';
   /** «Buyurtma asosida»: tovar tugagan — narx yashirin (taxminiy), tugma «Oldindan buyurtma». `shared/on-order.ts`. */
   onOrder?: boolean;
 }

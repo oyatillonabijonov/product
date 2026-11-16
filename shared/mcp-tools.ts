@@ -1,5 +1,5 @@
 import type { ManualField } from './billz.ts';
-import type { ApiProduct, ApiProductDetail, ApiSpec } from './types.ts';
+import type { ApiProduct, ApiProductDetail, ApiSpec, Authenticity } from './types.ts';
 
 /**
  * MCP tool'larining sof mantig'i. Tool'larning o'zi `mcp/tools.ts`da (MCP SDK va fayl
@@ -98,6 +98,7 @@ export interface ProductInputBody {
   ratingAvg: number | null;
   reviewCount: number;
   preorder: boolean;
+  authenticity: Authenticity;
   onOrder: boolean;
   approxPriceUzs: number | null;
   pcHidden: boolean;
@@ -132,7 +133,7 @@ export function detailToInput(d: ApiProductDetail): ProductInputBody {
     images: d.images.filter((u) => u !== d.imageUrl),
     specs: d.specs, sortOrder: d.sortOrder, isActive: d.isActive,
     brandId: d.brandId, slug: d.slug, ratingAvg: d.ratingAvg, reviewCount: d.reviewCount,
-    preorder: d.preorder, onOrder: d.onOrder, approxPriceUzs: d.approxPriceUzs, pcHidden: d.pcHidden, pcWatts: d.pcWatts,
+    preorder: d.preorder, authenticity: d.authenticity, onOrder: d.onOrder, approxPriceUzs: d.approxPriceUzs, pcHidden: d.pcHidden, pcWatts: d.pcWatts,
     options: d.options.map((o) => ({ name: o.name, values: o.values.map((v) => v.value) })),
     variants: d.variants.map((v) => ({
       sku: v.sku, cashPriceUzs: v.cashPriceUzs, oldPriceUzs: v.oldPriceUzs,

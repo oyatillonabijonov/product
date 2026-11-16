@@ -127,10 +127,14 @@ const ProductCard: FC<{
 
         {/* Hamma qator chapdan bir tekis (chip/inset yo'q); oylik doim muddati bilan: "X so'm × 12 oy". */}
         <div className="mt-auto pt-3">
-          {/* Mahsulot sahifasidagi kabi — narx ustidagi haqiqiylik belgisi. */}
-          <div className="mb-1.5 inline-flex items-center gap-1 text-label font-medium text-verified">
-            <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> {t.badgeOriginal}
-          </div>
+          {/* Mahsulot sahifasidagi kabi — narx ustidagi asllik belgisi; egasi har tovarda tanlaydi (`none` — belgisiz). */}
+          {product.authenticity === 'replica' ? (
+            <div className="mb-1.5 text-label font-medium text-muted">{t.badgeReplica}</div>
+          ) : product.authenticity !== 'none' && (
+            <div className="mb-1.5 inline-flex items-center gap-1 text-label font-medium text-verified">
+              <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> {t.badgeOriginal}
+            </div>
+          )}
           {onOrder ? (
             <>
               {/* 15px: karta ~170px, «Buyurtma asosida» va «≈ narx» bir qatorga faqat shu o'lchamda sig'adi. */}

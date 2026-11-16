@@ -324,6 +324,22 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                 options={[{ id: 'yangi', label: t('shared.conditionNew') }, { id: 'ishlatilgan', label: t('shared.conditionUsed') }]}
               />
             </div>
+            <div className="flex flex-wrap items-center justify-between gap-4 py-3">
+              <div>
+                <p className="text-para text-primary">{t('productEdit.status.authLabel')}</p>
+                <p className="text-label text-muted-2">{t('productEdit.status.authHint')}</p>
+              </div>
+              <Segmented
+                label={t('productEdit.status.authLabel')}
+                value={form.authenticity}
+                onChange={(v) => set('authenticity', v as ProductFormState['authenticity'])}
+                options={[
+                  { id: 'original', label: t('productEdit.status.authOriginal') },
+                  { id: 'replica', label: t('productEdit.status.authReplica') },
+                  { id: 'none', label: t('productEdit.status.authNone') },
+                ]}
+              />
+            </div>
             <div className="py-3">
               <Field label={t('productEdit.status.sortLabel')} hint={t('productEdit.status.sortHint')} className="max-w-40">
                 <Input type="number" value={String(form.sortOrder)} onChange={(v) => set('sortOrder', Number(v) || 0)} />

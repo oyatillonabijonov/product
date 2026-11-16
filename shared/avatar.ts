@@ -19,6 +19,24 @@ export type AvatarFace = (typeof AVATAR_FACES)[number];
 export interface Avatar {
   type: AvatarType;
   face: AvatarFace;
+  /** Mijoz yuklagan rasm manzili; bo'lsa bot o'rniga shu chiziladi. */
+  photo?: string;
+}
+
+/**
+ * Yuklangan profil rasmi: `/images/products/avatar-<mijoz id>-<16 hex>.<ext>` (`api.account.avatar`).
+ * Mijoz id'si nomning ichida — begona rasmni o'z profiliga yozib bo'lmaydi (yozilsa, almashtirganda
+ * birovning fayli o'chib ketardi).
+ */
+const PHOTO_RE = /^\/images\/products\/avatar-(\d+)-[0-9a-f]{16}\.(?:jpg|png|webp)$/;
+
+export function avatarPhotoUrl(customerId: number, rand: string, ext: string): string {
+  return `/images/products/avatar-${customerId}-${rand}.${ext}`;
+}
+
+export function isAvatarPhoto(raw: string, customerId: number): boolean {
+  const m = PHOTO_RE.exec(raw);
+  return m !== null && Number(m[1]) === customerId;
 }
 
 /**
@@ -46,6 +64,7 @@ export function isAvatar(raw: string): boolean {
 
 /** Bazadagi satr → avatar; bo'sh yoki yaroqsiz bo'lsa `id` dan avtomatik. */
 export function parseAvatar(raw: string | null, customerId: number): Avatar {
+  if (raw && isAvatarPhoto(raw, customerId)) return { ...autoAvatar(customerId), photo: raw };
   if (!raw || !isAvatar(raw)) return autoAvatar(customerId);
   const [type, face] = raw.split('.');
   return { type: type as AvatarType, face: face === undefined ? 'eyes' : (face as AvatarFace) };
@@ -53,5 +72,5 @@ export function parseAvatar(raw: string | null, customerId: number): Avatar {
 
 /** Avatar → bazaga yoziladigan satr. */
 export function serializeAvatar(a: Avatar): string {
-  return `${a.type}.${a.face}`;
+  return a.photo ?? `${a.type}.${a.face}`;
 }
