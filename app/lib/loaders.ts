@@ -2,7 +2,7 @@ import type { Env } from '../../functions/env';
 import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiNews, ApiPage, ApiPost, ApiReview, ApiSiteConfig, ApiVacancy, LocalizedText } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
 import { needsNewsPrice, newsProductId } from '../../shared/news-price';
-import { isOnOrder, ON_ORDER_SQL } from '../../shared/on-order';
+import { isOnOrder, ON_ORDER_SQL, showsPreorder } from '../../shared/on-order';
 import {
   installmentConfig as fallbackConfig,
   products as fallbackProducts,
@@ -44,7 +44,7 @@ function mapProduct(p: ApiProduct): Product {
     cashPriceUzs: approx ?? p.cashPriceUzs, oldPriceUzs: onOrder ? null : p.oldPriceUzs ?? null,
     minPriceUzs: approx ?? p.minPriceUzs, brandId: p.brandId, categoryId: p.categoryId, type: p.type,
     ratingAvg: p.ratingAvg, reviewCount: p.reviewCount,
-    preorder: p.preorder, authenticity: p.authenticity, onOrder,
+    preorder: showsPreorder(p), authenticity: p.authenticity, onOrder,
   };
 }
 function mapConfig(s: ApiSettings): InstallmentConfig {

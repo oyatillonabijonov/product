@@ -295,12 +295,15 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                 </p>
               )}
             </div>
-            <SwitchRow
-              label={t('productEdit.status.preorderLabel')}
-              hint={t('productEdit.status.preorderHint')}
-              on={form.preorder}
-              onChange={(v) => set('preorder', v)}
-            />
+            {/* Billz tovarida «Pre-order» o'qilmaydi — holatni qoldiq hal qiladi (`showsPreorder`). */}
+            {!billz && (
+              <SwitchRow
+                label={t('productEdit.status.preorderLabel')}
+                hint={t('productEdit.status.preorderHint')}
+                on={form.preorder}
+                onChange={(v) => set('preorder', v)}
+              />
+            )}
             {billz ? onOrderNow && (
               <p className="py-3 text-label text-muted-2">{t('productEdit.status.onOrderBillz')}</p>
             ) : (

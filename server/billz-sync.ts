@@ -30,7 +30,8 @@ export interface BillzSyncHandle {
   start(): void;
 }
 
-const EVERY_MS = 30 * 60 * 1000;
+// 10 daqiqa: Billz'da sotilgan/kelgan tovar saytda shuncha vaqtda ko'rinadi (bir run ≈ 10 GET, arzon).
+const EVERY_MS = 10 * 60 * 1000;
 const BOOT_DELAY_MS = 10 * 1000;
 const WRITE_BATCH = 200;
 const MIN_GAP_MS = 500; // Billz chegarasi 2 so'rov/s
