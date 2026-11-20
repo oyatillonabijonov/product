@@ -48,7 +48,9 @@ export function createVisitTracker(env: Env): RequestHandler {
     // Admin cookie'si bilan kelgan so'rov — do'kon egasining o'zi; tashrif statistikasiga tushmaydi.
     if (visit && !/(?:^|;\s*)session=/.test(req.headers.cookie ?? '')) {
       res.once('finish', () => {
-        if (res.statusCode === 200) record(visit.productId, req.ip ?? '', req.get('user-agent') ?? '');
+        // Hisoblagich xatosi (masalan, migratsiyasiz baza) serverni yiqitmasin — `prepare` sinxron otishi mumkin.
+        if (res.statusCode !== 200) return;
+        try { record(visit.productId, req.ip ?? '', req.get('user-agent') ?? ''); } catch (err) { console.error('tashrif yozilmadi:', err); }
       });
     }
     next();

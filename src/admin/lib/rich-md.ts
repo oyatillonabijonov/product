@@ -21,7 +21,8 @@ export function mdToHtml(md: string): string {
     if (b.type === 'p') return `<p>${inlineHtml(b.inlines)}</p>`;
     if (b.type === 'img') return `<p><img src="${esc(b.src)}" alt="${esc(b.alt)}"></p>`;
     if (b.type === 'ul') return `<ul>${b.items.map((it) => `<li>${inlineHtml(it)}</li>`).join('')}</ul>`;
-    if (b.type === 'ol') return `<ol>${b.items.map((it) => `<li>${inlineHtml(it.inlines)}</li>`).join('')}</ol>`;
+    // Band raqami (oferta'dagi «1.1.») `data-num`da — saqlashda o'zi qaytadi, aks holda «1.», «2.» bo'lib ketardi.
+    if (b.type === 'ol') return `<ol>${b.items.map((it) => `<li data-num="${esc(it.num)}">${inlineHtml(it.inlines)}</li>`).join('')}</ol>`;
     return '';
   }).join('');
   return html || '<p><br></p>';
@@ -85,8 +86,15 @@ export function richToMd(root: RichNode): string {
     if (t === 'H1' || t === 'H2') { const s = inlineMd(n).trim(); if (s) out.push(`## ${s}`); continue; }
     if (t === 'H3' || t === 'H4') { const s = inlineMd(n).trim(); if (s) out.push(`### ${s}`); continue; }
     if (t === 'UL' || t === 'OL') {
-      const items = kids(n).filter((c) => tag(c) === 'LI').map((c) => inlineMd(c).trim()).filter(Boolean);
-      if (items.length) out.push(items.map((s, i) => (t === 'UL' ? `- ${s}` : `${i + 1}. ${s}`)).join('\n'));
+      const lis = kids(n).filter((c) => tag(c) === 'LI').map((c) => ({ text: inlineMd(c).trim(), num: c.getAttribute?.('data-num') ?? '' })).filter((x) => x.text);
+      // Enter yangi bandga oldingisining `data-num`ini ko'chiradi — takrorlangan raqam o'rniga tartib raqami.
+      const used = new Set<string>();
+      const nums = lis.map((x, i) => {
+        const num = /^\d+(?:\.\d+)*$/.test(x.num) && !used.has(x.num) ? x.num : String(i + 1);
+        used.add(num);
+        return num;
+      });
+      if (lis.length) out.push(lis.map((x, i) => (t === 'UL' ? `- ${x.text}` : `${nums[i]}. ${x.text}`)).join('\n'));
       continue;
     }
     if (t === '#TEXT' || t === 'B' || t === 'STRONG' || t === 'A' || t === 'SPAN') { const s = inlineMd(n).trim(); if (s) out.push(s); continue; }

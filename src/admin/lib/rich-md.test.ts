@@ -10,7 +10,7 @@ describe('rich-md', () => {
   it('mdToHtml: saytdagi bloklar, matn ekranlanadi', () => {
     expect(mdToHtml('## Sar\n\nOddiy **qalin** [h](/katalog) <b>\n\n![izoh](/a.webp)\n\n- bir\n- ikki\n\n1. a\n2. b')).toBe(
       '<h2>Sar</h2><p>Oddiy <strong>qalin</strong> <a href="/katalog">h</a> &lt;b&gt;</p><p><img src="/a.webp" alt="izoh"></p>'
-      + '<ul><li>bir</li><li>ikki</li></ul><ol><li>a</li><li>b</li></ol>',
+      + '<ul><li>bir</li><li>ikki</li></ul><ol><li data-num="1">a</li><li data-num="2">b</li></ol>',
     );
     expect(mdToHtml('')).toBe('<p><br></p>');
   });
@@ -28,5 +28,16 @@ describe('rich-md', () => {
     expect(richToMd(root)).toBe(
       '## Protsessor\n\nOling **12 yadro** — [katalog](/katalog)\n\nRasm oldidan\n\n![](/a.webp)\n\nkeyin\n\n- bir\n- ikki\n\n1. a\n2. b\n\ndiv ham xat boshi',
     );
+  });
+
+  it("raqamli band «1.1.» saqlanadi, takrorlangani tartib raqamiga o'tadi", () => {
+    expect(mdToHtml('1.1. Bir\n1.2. Ikki')).toBe('<ol><li data-num="1.1">Bir</li><li data-num="1.2">Ikki</li></ol>');
+    const root = el('DIV', [el('OL', [
+      el('LI', [txt('Bir')], { 'data-num': '1.1' }),
+      el('LI', [txt('Ikki')], { 'data-num': '1.2' }),
+      el('LI', [txt('Yangi')], { 'data-num': '1.2' }),
+      el('LI', [txt('Oddiy')]),
+    ])]);
+    expect(richToMd(root)).toBe('1.1. Bir\n1.2. Ikki\n3. Yangi\n4. Oddiy');
   });
 });

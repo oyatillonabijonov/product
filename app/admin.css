@@ -323,3 +323,6 @@ td img { max-width: none; }
 }
 
 .hatch { background-image: repeating-linear-gradient(135deg, currentColor 0 1.5px, transparent 1.5px 6px); }
+
+/* Muharrirdagi raqamli band o'z raqami bilan ko'rinadi (oferta'dagi «1.1.») — saqlanadigan raqam shu (`rich-md.ts`). */
+[role="textbox"] li[data-num]::marker { content: attr(data-num) ". "; }
