@@ -13,6 +13,8 @@ declare namespace React {
 
   interface DragEvent<T = Element> extends SyntheticEvent<T> {
     readonly dataTransfer: DataTransfer;
+    readonly clientY: number;
+    stopPropagation(): void;
   }
 
   interface KeyboardEvent<T = Element> extends SyntheticEvent<T> {

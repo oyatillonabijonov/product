@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { ArrowRight, ArrowSquareOut, Briefcase, CalendarBlank, CheckCircle, Clock, FileText, Kanban as KanbanIcon, ListBullets, Phone, Tray, Users, WarningCircle } from '@phosphor-icons/react';
+import { ArrowRight, ArrowSquareOut, CalendarBlank, CheckCircle, Clock, FileText, Kanban as KanbanIcon, ListBullets, Phone, Tray, Users, WarningCircle } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import type { ApiJobApplication, OrderStatus } from '../../../shared/types';
 import { safeHref } from '../../../shared/safe-href';
@@ -97,52 +97,34 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
   const card = (a: ApiJobApplication, move: (to: string) => void) => {
     const resume = safeHref(a.resumeUrl);
     return (
-      <article
-        onClick={() => open(a)}
-        className="group rounded-control bg-surface p-4 transition-transform duration-200 hover:-translate-y-px"
-      >
-        <div className="flex items-start gap-2.5">
+      <article onClick={() => open(a)} className="group rounded-control-lg bg-surface p-3.5">
+        <div className="flex items-start gap-3">
           <Avatar name={a.name} size="md" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-base font-semibold text-text">{a.name}</p>
-            <p className="text-sm tabular-nums text-text-faint">№{a.id} · {timeAgo(a.createdAt)}</p>
+            <p className="truncate text-base font-semibold text-text group-hover:text-accent-text">{a.name}</p>
+            <p className="truncate text-sm text-text-faint">{a.position}</p>
           </div>
-          {!a.telegramSent && <span title={t('shared.tgNotSent')}><WarningCircle weight="fill" className="size-4 text-danger" /></span>}
+          {!a.telegramSent && <span title={t('shared.tgNotSent')} className="flex h-[1lh] items-center text-base"><WarningCircle weight="fill" className="size-4 text-danger" /></span>}
         </div>
-        <div className="mt-3 rounded-item bg-surface-sunken px-3 py-2.5">
-          <p className="flex items-center gap-2 text-sm font-medium text-text">
-            <Briefcase weight="fill" className="size-4 shrink-0 text-text-muted" />
-            <span className="truncate">{a.position}</span>
-          </p>
-          {a.message && <p className="mt-1 line-clamp-2 text-sm text-text-muted">{a.message}</p>}
-        </div>
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <a href={telHref(a.phone)} onClick={stop} className="truncate text-sm tabular-nums text-text-muted hover:text-text hover:underline">{a.phone}</a>
-          <span className="flex shrink-0 items-center gap-1.5">
-            {resume && (
-              <a
-                href={resume} target="_blank" rel="noopener noreferrer" onClick={stop}
-                aria-label={t('applicationDetail.resumeOpen')} title={t('applicationDetail.resumeOpen')}
-                className="grid size-8 place-items-center rounded-full text-text-muted transition-colors hover:bg-surface-sunken hover:text-text"
-              >
-                <FileText weight="fill" className="size-3.5" />
-              </a>
-            )}
-            <a
-              href={telHref(a.phone)} onClick={stop} aria-label={t('shared.call')} title={t('shared.call')}
-              className="grid size-8 place-items-center rounded-full text-text-muted transition-colors hover:bg-surface-sunken hover:text-text"
-            >
-              <Phone weight="fill" className="size-3.5" />
+        {a.message && <p className="mt-2.5 line-clamp-2 text-sm text-text-muted">{a.message}</p>}
+        <div className="mt-3 flex items-center gap-3 text-sm text-text-faint">
+          <span className="tabular-nums">№{a.id}</span>
+          <a href={telHref(a.phone)} onClick={stop} title={t('shared.call')} className="flex min-w-0 items-center gap-1 tabular-nums transition-colors hover:text-text">
+            <Phone weight="fill" className="size-3.5 shrink-0" /><span className="truncate">{a.phone}</span>
+          </a>
+          {resume && (
+            <a href={resume} target="_blank" rel="noopener noreferrer" onClick={stop} title={t('applicationDetail.resumeOpen')} aria-label={t('applicationDetail.resumeOpen')} className="shrink-0 transition-colors hover:text-text">
+              <FileText weight="fill" className="size-3.5" />
             </a>
-          </span>
-        </div>
-        <div className="mt-3 flex justify-end">
+          )}
+          <span className="ml-auto shrink-0 tabular-nums">{timeAgo(a.createdAt)}</span>
           <button
             type="button"
             onClick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); move(NEXT[a.status]); }}
-            className="inline-flex h-7 items-center gap-1 rounded-full bg-surface-sunken px-3 text-sm font-medium text-text-muted transition-colors hover:bg-primary hover:text-text-on-primary"
+            title={t(`applicationsList.next.${a.status}`)}
+            aria-label={t(`applicationsList.next.${a.status}`)}
+            className="-my-1 -mr-1 grid size-7 shrink-0 place-items-center rounded-full text-text-muted transition-colors hover:bg-primary hover:text-text-on-primary"
           >
-            {t(`applicationsList.next.${a.status}`)}
             <ArrowRight weight="bold" className="size-3.5" />
           </button>
         </div>

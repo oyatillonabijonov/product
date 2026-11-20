@@ -90,60 +90,55 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
   }
 
 
-  /** CRM kartasi: raqam va vaqt, mijoz, telefon (qo'ng'iroq tugmasi), tovarlar eskizi, summa va to'lov turi. */
+  /** Ixcham CRM kartasi: tovar eskizi, mijoz va tarkib, summa va to'lov turi, pastda raqam, telefon, vaqt va keyingi holat. */
   const card = (o: ApiOrder, move: (to: string) => void) => {
     const total = orderTotal(o);
     const first = o.items[0];
     const img = first ? o.images?.[first.productId] : undefined;
+    const consult = o.source === 'consult';
     return (
       <article
         onClick={() => navigate(`${LIST}/${o.id}`, { state: { search: params.toString() } })}
-        className="group rounded-control bg-surface p-4 transition-transform duration-200 hover:-translate-y-px"
+        className="group rounded-control-lg bg-surface p-3.5"
       >
-        <div className="flex items-center justify-between gap-2 text-sm text-text-faint">
-          <span className="tabular-nums">№{o.id} · {timeAgo(o.createdAt)}</span>
-          {!o.telegramSent && <span title={t('shared.tgNotSent')}><WarningCircle weight="fill" className="size-4 text-danger" /></span>}
+        <div className="flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-control bg-surface-sunken">
+            {consult
+              ? <ChatCircleText weight="fill" className="size-5 text-text-muted" />
+              : img ? <img src={img} alt="" className="size-full object-contain p-0.5" /> : <Package className="size-4 text-text-faint" />}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-base font-semibold text-text group-hover:text-accent-text">{o.name}</p>
+            <p className="truncate text-sm text-text-faint">{consult ? (o.note || t('source.consult')) : orderSummary(o)}</p>
+          </div>
+          {!o.telegramSent && <span title={t('shared.tgNotSent')} className="flex h-[1lh] items-center text-base"><WarningCircle weight="fill" className="size-4 text-danger" /></span>}
         </div>
-        <p className="mt-1.5 truncate text-base font-semibold text-text">{o.name}</p>
-        <div className="mt-0.5 flex items-center justify-between gap-2">
-          <a href={telHref(o.phone)} onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()} className="truncate text-sm tabular-nums text-text-muted hover:text-text hover:underline">{o.phone}</a>
+        <div className="mt-3 flex items-center justify-between gap-2">
+          {total != null ? <span className="text-md font-bold tabular-nums text-text">{compact(total)}</span> : <span />}
+          {consult
+            ? <Badge tone="info" className="h-6">{t('source.consult')}</Badge>
+            : o.paymentKind === 'installment'
+              ? <Badge tone="accent" className="h-6">{t('source.installment')}{o.termMonths ? ` · ${t('board.term', { n: o.termMonths })}` : ''}</Badge>
+              : <Badge className="h-6">{t('source.cash')}</Badge>}
+        </div>
+        <div className="mt-3 flex items-center gap-3 text-sm text-text-faint">
+          <span className="tabular-nums">№{o.id}</span>
           <a
             href={telHref(o.phone)}
             onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}
-            aria-label={t('shared.call')}
             title={t('shared.call')}
-            className="grid size-8 shrink-0 place-items-center rounded-full text-text-muted transition-colors hover:bg-surface-sunken hover:text-text"
+            className="flex min-w-0 items-center gap-1 tabular-nums transition-colors hover:text-text"
           >
-            <Phone weight="fill" className="size-3.5" />
+            <Phone weight="fill" className="size-3.5 shrink-0" /><span className="truncate">{o.phone}</span>
           </a>
-        </div>
-        <div className="mt-3 flex items-center gap-2.5 rounded-item bg-surface-sunken p-2">
-          {o.source === 'consult' ? (
-            <span className="grid size-9 shrink-0 place-items-center text-text-muted"><ChatCircleText weight="fill" className="size-5" /></span>
-          ) : (
-            <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-[7px] bg-surface">
-              {img ? <img src={img} alt="" className="size-full object-contain p-0.5" /> : <Package className="size-4 text-text-faint" />}
-            </span>
-          )}
-          <span className="line-clamp-2 min-w-0 flex-1 text-sm text-text">{o.source === 'consult' ? (o.note || t('source.consult')) : orderSummary(o)}</span>
-        </div>
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="flex min-w-0 flex-wrap items-center gap-1.5">
-            {o.source === 'consult'
-              ? <Badge tone="info">{t('source.consult')}</Badge>
-              : o.paymentKind === 'installment'
-                ? <Badge tone="accent">{t('source.installment')}{o.termMonths ? ` · ${t('board.term', { n: o.termMonths })}` : ''}</Badge>
-                : <Badge tone="neutral">{t('source.cash')}</Badge>}
-          </span>
-          {total != null && <span className="shrink-0 text-base font-bold tabular-nums text-text">{compact(total)}</span>}
-        </div>
-        <div className="mt-3 flex justify-end">
+          <span className="ml-auto shrink-0 tabular-nums">{timeAgo(o.createdAt)}</span>
           <button
             type="button"
             onClick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); move(NEXT[o.status]); }}
-            className="inline-flex h-7 items-center gap-1 rounded-full bg-surface-sunken px-3 text-sm font-medium text-text-muted transition-colors hover:bg-primary hover:text-text-on-primary"
+            title={t(`board.next.${o.status}`)}
+            aria-label={t(`board.next.${o.status}`)}
+            className="-my-1 -mr-1 grid size-7 shrink-0 place-items-center rounded-full text-text-muted transition-colors hover:bg-primary hover:text-text-on-primary"
           >
-            {t(`board.next.${o.status}`)}
             <ArrowRight weight="bold" className="size-3.5" />
           </button>
         </div>
