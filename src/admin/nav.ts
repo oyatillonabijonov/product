@@ -1,20 +1,17 @@
-import type { LucideIcon } from 'lucide-react';
-import {
-  BookOpen, Boxes, Briefcase, Cpu, FileText, House, Image, Inbox, LayoutDashboard, LayoutGrid, Megaphone, Newspaper, Package, Phone, Plug,
-  Receipt, Search, Settings, Shapes, Smartphone, Store, Tag, UserRound, Users, UsersRound, Wallet,
-} from 'lucide-react';
+import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { BookOpen, Cube, Briefcase, Cpu, FileText, House, Image, Tray, SquaresFour, GridFour, Megaphone, Newspaper, Package, Phone, Plug, Receipt, MagnifyingGlass, Gear, Shapes, DeviceMobile, Storefront, Tag, UserCircle, Users, UsersThree, Wallet } from '@phosphor-icons/react';
 import type { ParseKeys } from 'i18next';
 import type { AdminRoute, SectionId } from './lib/admin-path';
 
 /** Tab — sidebar sub-bandi; `Icon` sub-bandda ham chiziladi (egasining talabi, 2026-09-16). */
 export interface TabDef {
-  id: string; segment: string; labelKey: ParseKeys<'shell'>; Icon: LucideIcon;
+  id: string; segment: string; labelKey: ParseKeys<'shell'>; Icon: PhIcon;
   /** Tab'ning id-ekrani (masalan TypeEdit) o'z `Page`ini chizadi — qobiq tashqi sarlavha va tablarni chizmaydi. */
   detail?: boolean;
   /** Tab'ning asosiy ekrani forma (landing muharriri) — o'z `Page`ini (Saqlash bilan) va mobil tablarni (`SectionTabs`) chizadi. */
   ownPage?: boolean;
 }
-export interface SectionDef { id: SectionId; labelKey: ParseKeys<'shell'>; shortKey: ParseKeys<'shell'>; Icon: LucideIcon; tabs: TabDef[] }
+export interface SectionDef { id: SectionId; labelKey: ParseKeys<'shell'>; shortKey: ParseKeys<'shell'>; Icon: PhIcon; tabs: TabDef[] }
 
 /**
  * Navigatsiya registri — bo'limlar va tablar bitta joyda; keyingi bosqichlar shu yerga tab
@@ -23,23 +20,23 @@ export interface SectionDef { id: SectionId; labelKey: ParseKeys<'shell'>; short
  * 375px'ga sig'ishi uchun qisqa).
  */
 export const SECTIONS: SectionDef[] = [
-  { id: 'home', labelKey: 'nav.home.label', shortKey: 'nav.home.short', Icon: LayoutDashboard, tabs: [] },
+  { id: 'home', labelKey: 'nav.home.label', shortKey: 'nav.home.short', Icon: SquaresFour, tabs: [] },
   {
     id: 'products', labelKey: 'nav.products.label', shortKey: 'nav.products.short', Icon: Package,
     tabs: [
-      { id: 'list', segment: '', labelKey: 'nav.products.list', Icon: Boxes, detail: true },
+      { id: 'list', segment: '', labelKey: 'nav.products.list', Icon: Cube, detail: true },
       { id: 'types', segment: 'types', labelKey: 'nav.products.types', Icon: Shapes, detail: true },
-      { id: 'categories', segment: 'categories', labelKey: 'nav.products.categories', Icon: LayoutGrid, detail: true },
+      { id: 'categories', segment: 'categories', labelKey: 'nav.products.categories', Icon: GridFour, detail: true },
       { id: 'brands', segment: 'brands', labelKey: 'nav.products.brands', Icon: Tag, detail: true },
-      { id: 'models', segment: 'models', labelKey: 'nav.products.models', Icon: Smartphone, detail: true },
+      { id: 'models', segment: 'models', labelKey: 'nav.products.models', Icon: DeviceMobile, detail: true },
       { id: 'configurator', segment: 'configurator', labelKey: 'nav.products.configurator', Icon: Cpu },
     ],
   },
   {
     id: 'orders', labelKey: 'nav.orders.label', shortKey: 'nav.orders.short', Icon: Receipt,
     tabs: [
-      { id: 'list', segment: '', labelKey: 'nav.orders.list', Icon: Inbox, detail: true },
-      { id: 'customers', segment: 'customers', labelKey: 'nav.orders.customers', Icon: UsersRound, detail: true },
+      { id: 'list', segment: '', labelKey: 'nav.orders.list', Icon: Tray, detail: true },
+      { id: 'customers', segment: 'customers', labelKey: 'nav.orders.customers', Icon: UsersThree, detail: true },
       { id: 'applications', segment: 'applications', labelKey: 'nav.orders.applications', Icon: Users, detail: true },
       { id: 'announcements', segment: 'announcements', labelKey: 'nav.orders.announcements', Icon: Megaphone, ownPage: true },
     ],
@@ -56,14 +53,14 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
-    id: 'settings', labelKey: 'nav.settings.label', shortKey: 'nav.settings.short', Icon: Settings,
+    id: 'settings', labelKey: 'nav.settings.label', shortKey: 'nav.settings.short', Icon: Gear,
     tabs: [
-      { id: 'store', segment: 'store', labelKey: 'nav.settings.store', Icon: Store, ownPage: true },
+      { id: 'store', segment: 'store', labelKey: 'nav.settings.store', Icon: Storefront, ownPage: true },
       { id: 'contact', segment: 'contact', labelKey: 'nav.settings.contact', Icon: Phone, ownPage: true },
       { id: 'payment', segment: 'payment', labelKey: 'nav.settings.payment', Icon: Wallet, ownPage: true },
       { id: 'integrations', segment: 'integrations', labelKey: 'nav.settings.integrations', Icon: Plug, ownPage: true },
-      { id: 'seo', segment: 'seo', labelKey: 'nav.settings.seo', Icon: Search, ownPage: true },
-      { id: 'account', segment: 'account', labelKey: 'nav.settings.account', Icon: UserRound, ownPage: true },
+      { id: 'seo', segment: 'seo', labelKey: 'nav.settings.seo', Icon: MagnifyingGlass, ownPage: true },
+      { id: 'account', segment: 'account', labelKey: 'nav.settings.account', Icon: UserCircle, ownPage: true },
     ],
   },
 ];

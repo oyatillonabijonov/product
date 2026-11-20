@@ -3,7 +3,8 @@ import { htmlLang, DEFAULT_LOCALE, type Locale } from './lib/i18n';
 import { hreflangLinks, organizationJsonLd, type OrgContact } from './lib/seo';
 import type { ApiSiteConfig } from '../shared/types';
 import type { SiteAssets } from '../src/lib/site-content';
-import './styles.css';
+// Sayt va admin uslublari alohida build — tokenlar nomi bir xil, ma'nosi boshqa (admin: `app/admin.css`, admin route'ning `links`i).
+import storeCss from './styles.css?url';
 
 // NOTE: RR v7's `meta` export uses "last matching route wins, entire array replaced"
 // semantics (docs: start/framework/route-module.md "The meta of the last matching
@@ -31,7 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const metricaJs = metricaId === null || !thirdParty ? '' :
     `(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');window.dataLayer=window.dataLayer||[];ym(${metricaId},'init',{ssr:true,ecommerce:'dataLayer',webvisor:true,clickmap:true,trackLinks:true,accurateTrackBounce:true});`;
   return (
-    <html lang={lang}>
+    <html lang={lang} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -53,6 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             )}
           </>
         )}
+        {!/^\/admin(\/|$)/.test(location.pathname) && <link rel="stylesheet" href={storeCss} />}
         <Meta />
         <Links />
       </head>

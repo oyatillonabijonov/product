@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
+import { Article, LinkSimple, TextAa } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import type { ApiPage } from '../../../shared/types';
 import { ABOUT_SLUG, LEGAL_LEDE_KEYS } from '../../lib/page-slugs';
 import { createPage, deletePage, listPages, updatePage } from '../api';
-import { ContentFields, useSiteContent } from '../ContentFields';
+import { ContentFields, delay, EditColumns, FormError, PublishCard, useSiteContent } from '../ContentFields';
 import { errText } from '../errText';
 import MarkdownHelp from '../MarkdownHelp';
-import { Button, Card, Field, Input, LangPair, Page, Skeleton, SwitchRow } from '../ui';
+import { Button, Card, Field, Input, LangPair, Page, Skeleton } from '../ui';
 import { useConfirm } from '../ui/confirm';
 import { useToast } from '../ui/toast';
 
@@ -24,6 +25,7 @@ function toForm(p: ApiPage): Form {
 /**
  * Sahifa tahriri. `biz-haqimizda` — markdown o'rniga `about` matnlari va fotolari; huquqiy sahifalarda sarlavha
  * ostidagi izoh (sayt matni). Shablon saqlangan slug'ga bog'liq — maxsus sahifaning slug'i o'zgarmaydi, o'chirilmaydi.
+ * Chapda forma kartalari, o'ngda holat paneli (ko'rinish, manzil, tartib).
  */
 const PageEdit: FC<{ id: string }> = ({ id }) => {
   const { t } = useTranslation('content');
@@ -113,6 +115,9 @@ const PageEdit: FC<{ id: string }> = ({ id }) => {
   }
 
   const canSave = (dirty || content.dirty) && !busy && form.titleUz.trim() !== '' && form.slug.trim() !== '';
+  const siteHref = initial?.isActive ? `/page/${savedSlug}` : undefined;
+  // Maxsus sahifa kartalari (`ContentFields`) o'z `stagger`i bilan keladi — keyingi kartalar ulardan keyin.
+  const after = special ? content.sections.length + 1 : 1;
 
   return (
     <Page
@@ -121,46 +126,59 @@ const PageEdit: FC<{ id: string }> = ({ id }) => {
       dirty={dirty || content.dirty}
       actions={(
         <>
-          {initial?.isActive && <Button variant="quiet" href={`/page/${savedSlug}`} external>{t('shared.viewOnSite')}</Button>}
+          {siteHref && <Button variant="outline" href={siteHref} external className="max-sm:hidden">{t('shared.viewOnSite')}</Button>}
           <Button onClick={save} disabled={!canSave}>{busy ? t('shared.saving') : t('shared.save')}</Button>
         </>
       )}
     >
       {!loaded && !error ? <Skeleton rows={6} /> : (
-        <div className="flex flex-col gap-4">
-          {error && <p className="text-para text-danger">{error}</p>}
-          <Card title={t('shared.title')} description={isAbout ? t('pageEdit.aboutTitleHint') : undefined}>
-            <LangPair label={t('shared.title')} required uz={form.titleUz} ru={form.titleRu} onUz={(v) => set('titleUz', v)} onRu={(v) => set('titleRu', v)} />
-          </Card>
-          {special && <ContentFields content={content} />}
-          {!isAbout && (
-            <Card title={t('shared.text')} description={t('pageEdit.contentDescription')}>
-              <div className="flex flex-col gap-3">
-                <LangPair label={t('shared.text')} kind="textarea" rows={16} mono uz={form.contentUz} ru={form.contentRu} onUz={(v) => set('contentUz', v)} onRu={(v) => set('contentRu', v)} />
-                <MarkdownHelp />
+        <EditColumns
+          main={(
+            <>
+              {error && <FormError text={error} />}
+              <div className="stagger" style={delay(0)}>
+                <Card icon={TextAa} hue="violet" title={t('shared.title')} description={isAbout ? t('pageEdit.aboutTitleHint') : undefined}>
+                  <LangPair label={t('shared.title')} required uz={form.titleUz} ru={form.titleRu} onUz={(v) => set('titleUz', v)} onRu={(v) => set('titleRu', v)} />
+                </Card>
               </div>
-            </Card>
+              {special && <ContentFields content={content} />}
+              {!isAbout && (
+                <div className="stagger" style={delay(after)}>
+                  <Card icon={Article} hue="blue" title={t('shared.text')} description={t('pageEdit.contentDescription')}>
+                    <div className="flex flex-col gap-4">
+                      <LangPair label={t('shared.text')} kind="textarea" rows={16} mono uz={form.contentUz} ru={form.contentRu} onUz={(v) => set('contentUz', v)} onRu={(v) => set('contentRu', v)} />
+                      <MarkdownHelp />
+                    </div>
+                  </Card>
+                </div>
+              )}
+              <div className="stagger" style={delay(after + 1)}>
+                <Card icon={LinkSimple} hue="teal" title={t('pageEdit.addressTitle')}>
+                  <Field label={t('shared.slug')} required hint={special ? t('pageEdit.slugRequiredHint') : t('pageEdit.slugHint')} className="md:max-w-sm">
+                    {/* i18n: ma'lumot — tarjima qilinmaydi (placeholder — saytdagi haqiqiy sahifa slug'i) */}
+                    <Input value={form.slug} onChange={(v) => set('slug', v)} disabled={special} placeholder="qaytarish" />
+                  </Field>
+                </Card>
+              </div>
+            </>
           )}
-          <Card title={t('shared.slugAndVisibility')}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label={t('shared.slug')} required hint={special ? t('pageEdit.slugRequiredHint') : t('pageEdit.slugHint')}>
-                {/* i18n: ma'lumot — tarjima qilinmaydi (placeholder — saytdagi haqiqiy sahifa slug'i) */}
-                <Input value={form.slug} onChange={(v) => set('slug', v)} disabled={special} placeholder="qaytarish" />
-              </Field>
-              <Field label={t('shared.sortOrder')} hint={t('pageEdit.sortHint')}>
-                <Input type="number" value={String(form.sortOrder)} onChange={(v) => set('sortOrder', Number(v) || 0)} />
-              </Field>
+          aside={(
+            <div className="stagger" style={delay(1)}>
+              <PublishCard
+                active={form.isActive}
+                onActive={(v) => set('isActive', v)}
+                activeHint={t('pageEdit.visibilityHint')}
+                sortOrder={form.sortOrder}
+                onSort={(n) => set('sortOrder', n)}
+                sortHint={t('pageEdit.sortHint')}
+                address={savedSlug ? `/page/${savedSlug}` : ''}
+                siteHref={siteHref}
+                onDelete={!isNew && !special ? remove : undefined}
+                deleteLabel={t('pageEdit.deleteButton')}
+              />
             </div>
-            <div className="mt-2 divide-y divide-line">
-              <SwitchRow label={t('shared.showOnSite')} hint={t('pageEdit.visibilityHint')} on={form.isActive} onChange={(v) => set('isActive', v)} />
-            </div>
-          </Card>
-          {!isNew && !special && (
-            <Card title={t('shared.dangerZone')}>
-              <Button variant="destructive" onClick={remove}>{t('pageEdit.deleteButton')}</Button>
-            </Card>
           )}
-        </div>
+        />
       )}
     </Page>
   );

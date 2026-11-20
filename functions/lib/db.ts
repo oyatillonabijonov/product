@@ -843,7 +843,7 @@ export interface OrderRow {
   id: number; created_at: number; name: string; phone: string; note: string;
   payment_kind: string; term_months: number | null; down_payment_uzs: number | null;
   monthly_uzs: number | null; total_uzs: number | null; items_json: string;
-  source: string; status: string; telegram_sent: number; address_text: string | null;
+  source: string; status: string; telegram_sent: number; address_text: string | null; customer_id?: number | null;
 }
 
 export function rowToOrder(r: OrderRow): ApiOrder {
@@ -857,6 +857,7 @@ export function rowToOrder(r: OrderRow): ApiOrder {
     addressText: r.address_text ?? '',
     status: r.status as OrderStatus,
     telegramSent: r.telegram_sent === 1,
+    customerId: r.customer_id ?? null,
   };
 }
 

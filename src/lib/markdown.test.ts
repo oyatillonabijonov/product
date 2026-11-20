@@ -47,6 +47,16 @@ describe('renderMarkdown', () => {
     expect(inl[inl.length - 1].text).toBe(' matn');
   });
 
+  it("alohida qatordagi rasm — blok; xavfli manzil oddiy matn bo'lib qoladi", () => {
+    expect(renderMarkdown('Matn\n![Kompyuter](/images/products/a.webp)\nDavomi')).toEqual([
+      { type: 'p', inlines: [{ text: 'Matn' }] },
+      { type: 'img', src: '/images/products/a.webp', alt: 'Kompyuter' },
+      { type: 'p', inlines: [{ text: 'Davomi' }] },
+    ]);
+    expect(renderMarkdown('![x](javascript:alert(1))')[0].type).toBe('p');
+    expect(renderMarkdown('![x](//evil.com/a.png)')[0].type).toBe('p');
+  });
+
   it('returns [] for empty/whitespace input', () => {
     expect(renderMarkdown('')).toEqual([]);
     expect(renderMarkdown('  \n\n  ')).toEqual([]);

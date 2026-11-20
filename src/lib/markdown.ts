@@ -7,7 +7,8 @@ export interface MdInline {
 export type MdBlock =
   | { type: 'h2' | 'h3' | 'p'; inlines: MdInline[] }
   | { type: 'ul'; items: MdInline[][] }
-  | { type: 'ol'; items: { num: string; inlines: MdInline[] }[] };
+  | { type: 'ol'; items: { num: string; inlines: MdInline[] }[] }
+  | { type: 'img'; src: string; alt: string };
 
 /**
  * Raqamli band yoki qadam: "1.1. Matn", "2. Matn". Raqamdan keyin nuqta va bo'shliq shart —
@@ -18,6 +19,9 @@ const NUMBERED_RE = /^(\d+(?:\.\d+)*)\.\s+(.+)$/;
 const INLINE_RE = /\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
 // `\/(?!\/)` — protokol-nisbiy `//evil.com` ichki link sifatida o'tib ketmasin (safe-href.ts bilan bir xil).
 const SAFE_HREF_RE = /^(\/(?!\/)|https?:|mailto:|tel:)/i;
+/** Alohida qatordagi rasm: `![izoh](/images/products/…)` — faqat ichki yoki https manzil. */
+const IMAGE_RE = /^!\[([^\]]*)\]\(([^)\s]+)\)$/;
+const SAFE_SRC_RE = /^(\/(?!\/)|https:)/i;
 
 function parseInlines(src: string): MdInline[] {
   const out: MdInline[] = [];
@@ -57,6 +61,8 @@ export function renderMarkdown(src: string): MdBlock[] {
   for (const raw of src.split(/\r?\n/)) {
     const line = raw.trim();
     if (line === '') { flushPara(); flushList(); continue; }
+    const img = IMAGE_RE.exec(line);
+    if (img && SAFE_SRC_RE.test(img[2])) { flushPara(); flushList(); blocks.push({ type: 'img', src: img[2], alt: img[1] }); continue; }
     if (line.startsWith('### ')) { flushPara(); flushList(); blocks.push({ type: 'h3', inlines: parseInlines(line.slice(4)) }); continue; }
     if (line.startsWith('## ')) { flushPara(); flushList(); blocks.push({ type: 'h2', inlines: parseInlines(line.slice(3)) }); continue; }
     if (line.startsWith('- ')) {

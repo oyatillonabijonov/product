@@ -5,6 +5,7 @@ import type {
   ApiAdminToken,
   ApiCategory,
   ApiDashboard,
+  ApiAdminStats,
   ApiDeviceModel,
   ApiNews,
   ApiOption,
@@ -420,6 +421,13 @@ export async function revokeToken(id: number): Promise<void> {
 // ── Bosh sahifa ─────────────────────────────────────────────────────────────
 export async function getDashboard(): Promise<ApiDashboard> {
   return handle(await fetch('/api/admin/dashboard'));
+}
+
+/** Bosh sahifa statistikasi: davr — 7, 30 yoki 90 kun. */
+/** Davr: oxirgi `days` kun yoki kalendar oralig'i (`from`/`to` — `YYYY-MM-DD`). */
+export async function getStats(period: number | { from: string; to: string }): Promise<ApiAdminStats> {
+  const q = typeof period === 'number' ? `days=${period}` : `from=${period.from}&to=${period.to}`;
+  return handle(await fetch(`/api/admin/stats?${q}`));
 }
 
 // ── Tovar turlari ───────────────────────────────────────────────────────────

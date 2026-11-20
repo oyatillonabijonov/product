@@ -41,6 +41,22 @@ const settings = {
       label: "Narx ko'rsatish rejimi",
       hint: "Mahsulot narxi qanday ko'rsatiladi. «Faqat naqd» — oylik to'lov qatori va muddatli tugma chiqmaydi.",
     },
+    identityDesc: "Sayt sarlavhasi, footer va Telegram xabarlaridagi nom",
+    modeHints: {
+      cash: "Faqat naqd narx — oylik to'lov va muddatli tugma chiqmaydi",
+      both: "Naqd narx, ostida oylik to'lov; ikkala tugma ham bor",
+      installment: "Oylik to'lov katta raqam bo'lib, naqd narx ikkinchi qatorda",
+    },
+    logoCard: {
+      description: "Logo yorug' va qorong'i fonda qanday ko'rinadi; favicon — brauzer tabidagi kichik belgi",
+      onLight: "Yorug' fonda",
+      onDark: "Qorong'i fonda",
+      inTab: 'Brauzer tabida',
+    },
+    sectionHints: {
+      productPage: "Mahsulot sahifasidagi yetkazish, kafolat va bepul sozlash va'dalari",
+      orderCookie: "Buyurtma yuborilgach mijoz ko'radigan xabar",
+    },
   },
   contact: {
     title: 'Aloqa',
@@ -65,6 +81,14 @@ const settings = {
       description: "Footer'dagi «Xaritada ko'rish» havolasi shu koordinataga olib boradi.",
       coordLabel: 'Koordinata',
       coordHint: "Yandex Xaritada do'konni toping → o'ng tugma → koordinatani nusxalang (lon,lat)",
+      open: 'Xaritada tekshirish',
+    },
+    addressDesc: "Footer'dagi manzil qatori va «Biz haqimizda» sahifasi",
+    preview: {
+      title: "Saytda shunday ko'rinadi",
+      description: "Footer'dagi «Aloqa» ustuni va manzil qatori — yozganingiz darhol shu yerda",
+      mapLink: "Xaritada ko'rish",
+      empty: "Hali hech narsa to'ldirilmagan",
     },
   },
   payment: {
@@ -88,7 +112,6 @@ const settings = {
       add: "Muddat qo'shish",
     },
     sampleNote: "Oylik to'lov namunasi {{price}} narxli mahsulot uchun.",
-    perMonth: '{{sum}}/oy',
     usd: {
       title: 'Dollar kursi',
       description: "Billz narxlari USD'da keladi; saytdagi so'm narxlar shu kurs bilan hisoblanadi.",
@@ -97,11 +120,20 @@ const settings = {
       markupPlaceholder: "o'chiq",
       manualLabel: "Kurs (so'm)",
       manualHint: "1 dollar necha so'm",
-      storeLabel: "Do'kon kursi",
-      storeHint: 'Markaziy bank kursi + ustama; avtomatik yangilanadi',
       noCbRate: 'Markaziy bank kursi hali olinmadi.',
     },
-    cbRate: 'Markaziy bank: {{rate}} ({{date}})',
+    downSample: '{{price}} narxda: {{min}} — {{max}}',
+    monthlyLabel: "Oylik to'lov",
+    chartTitle: "Muddat bo'yicha oylik to'lov",
+    usdTiles: {
+      cb: 'Markaziy bank',
+      markup: 'Ustama',
+      store: "Do'kon kursi",
+      auto: 'Avtomatik',
+      manual: "Qo'lda",
+      autoNote: "Har 6 soatda Markaziy bank kursi + ustama bilan o'zi yangilanadi",
+      manualNote: "Kurs qo'lda kiritilgan — o'zgartirmaguningizcha shunday qoladi",
+    },
   },
   integrations: {
     title: 'Integratsiyalar',
@@ -160,6 +192,15 @@ const settings = {
       confirmRevokeYes: "Ha, o'chirilsin",
       created: "Token yaratildi — nusxa oling, u boshqa ko'rsatilmaydi",
       revoked: 'Token bekor qilindi',
+      copy: 'Nusxalash',
+      copied: 'Nusxa olindi',
+      active: 'Faol: {{n}}',
+    },
+    status: {
+      connected: 'Ulangan',
+      notConnected: 'Ulanmagan',
+      error: 'Xato',
+      running: 'Yangilanmoqda',
     },
   },
   seo: {
@@ -176,6 +217,14 @@ const settings = {
       description: "Bosh sahifa havolasi Telegram, WhatsApp yoki ijtimoiy tarmoqda tashlanganda shu rasm chiqadi (mahsulot havolasida mahsulot rasmi). 1200×630, PNG yoki JPG — rasm o'zgarishsiz yuklanadi.",
       hint: "Bo'sh qolsa ulashishda rasm ko'rsatilmaydi.",
     },
+    preview: {
+      googleTitle: "Google'da shunday ko'rinadi",
+      googleDesc: "Bosh sahifaning qidiruv natijasidagi ko'rinishi — yozganingiz darhol shu yerda",
+      tooLong: "Google {{max}} belgidan keyingisini kesib tashlaydi",
+      shareTitle: "Telegram'da shunday ko'rinadi",
+      noImage: 'Rasm yuklanmagan',
+    },
+    catalogDesc: "Yo'nalish, katalog va brend sahifalari tavsifi shabloni",
   },
   account: {
     language: 'Til',
@@ -202,9 +251,34 @@ const settings = {
     appearance: {
       title: "Ko'rinish",
     },
-    darkTheme: "Qorong'i mavzu",
     darkThemeHint: "Faqat admin panelda va faqat shu brauzerda — do'kon sahifalari o'zgarmaydi",
     saved: 'Saqlandi · keyingi kirishda yangi maʼlumotlardan foydalaning',
+    profile: {
+      role: 'Administrator',
+      password: 'Parol',
+      passwordDefault: 'Standart',
+      off: "o'chiq",
+    },
+    password: {
+      title: 'Parolni almashtirish',
+      description: "Kamida 8 belgi; harf, raqam va belgi aralash bo'lsa yaxshi",
+    },
+    strength: {
+      label: 'Parol kuchi',
+      short: 'Juda qisqa',
+      weak: 'Kuchsiz',
+      medium: "O'rtacha",
+      strong: 'Kuchli',
+    },
+    confirm: {
+      title: 'Tasdiqlash',
+      description: 'Saqlash uchun joriy parolingizni kiriting',
+    },
+    theme: {
+      label: 'Mavzu',
+      light: "Yorug'",
+      dark: "Qorong'i",
+    },
   },
 } as const;
 

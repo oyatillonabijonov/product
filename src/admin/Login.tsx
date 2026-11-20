@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import type { TFunction } from 'i18next';
+import { ChartLineUp, LockSimple, Package, Receipt, SignIn } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { login, getLoginOptions } from './api';
 import logo from '../assets/logo.svg';
 import logoDark from '../assets/hero/wordmark.webp';
-import { Button, Field, Input } from './ui';
+import { Button, Field, IconTile, Input } from './ui';
 
+// Google brend belgisi rangli bo'lishi shart (Google'ning tugma qoidasi) — shuning uchun o'z ranglari bilan.
 const GoogleG = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -16,6 +18,13 @@ const GoogleG = () => (
   </svg>
 );
 
+const FEATURES = [
+  { icon: Package, hue: 'violet', key: 'f1' },
+  { icon: Receipt, hue: 'orange', key: 'f2' },
+  { icon: ChartLineUp, hue: 'green', key: 'f3' },
+] as const;
+const FIELD_CLS = 'lg:h-control-lg';
+
 function oauthError(code: string | null, t: TFunction<'shell'>): string {
   if (code === 'google_denied') return t('login.errors.googleDenied');
   if (code === 'google_off') return t('login.errors.googleOff');
@@ -24,6 +33,11 @@ function oauthError(code: string | null, t: TFunction<'shell'>): string {
   return '';
 }
 
+/**
+ * Kirish ekrani: `lg`dan ikki qism — chapda brend paneli (teskari fon, shior, uch afzallik), o'ngda forma.
+ * Telefonda faqat forma. Brend panelining foni mavzu bilan teskari (`bg-inverted`), shuning uchun logo ham
+ * teskari almashadi: yorug' mavzuda och wordmark, qorong'ida to'q `logo.svg`.
+ */
 export default function Login({ onSuccess }: { onSuccess: (defaultPassword: boolean) => void }) {
   const { t } = useTranslation('shell');
   const location = useLocation();
@@ -61,38 +75,75 @@ export default function Login({ onSuccess }: { onSuccess: (defaultPassword: bool
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-bg px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 flex flex-col items-center gap-2.5">
-          <img src={logo} alt="ProDuct" className="logo-light h-9 w-auto" />
-          <img src={logoDark} alt="" aria-hidden className="logo-dark h-9 w-auto" />
-          <p className="text-label text-muted-2">{t('login.title')}</p>
+    <div className="grid min-h-dvh bg-bg lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <aside className="relative isolate m-3 hidden flex-col justify-between overflow-hidden rounded-overlay bg-inverted p-10 text-text-on-inverted lg:flex xl:p-14">
+        {/* Bezak: nuqtali to'r va ikki yumshoq rangli dog'. */}
+        <span aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(currentColor_1px,transparent_1px)] [background-size:22px_22px] opacity-[0.07]" />
+        <span aria-hidden className="absolute -right-24 -top-28 -z-10 size-[420px] rounded-full bg-c-violet/35 blur-3xl" />
+        <span aria-hidden className="absolute -bottom-36 -left-20 -z-10 size-[380px] rounded-full bg-c-blue/25 blur-3xl" />
+
+        <div className="animate-fade-in">
+          <img src={logoDark} alt="ProDuct" className="h-8 w-auto dark:hidden" />
+          <img src={logo} alt="ProDuct" className="hidden h-8 w-auto dark:block" />
         </div>
 
-        <form onSubmit={submit} className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-7">
-          <Field label={t('login.usernameLabel')}>
-            <Input value={username} onChange={setUsername} autoComplete="username" />
-          </Field>
-          <Field label={t('login.passwordLabel')} error={error || undefined}>
-            <Input type="password" value={password} onChange={setPassword} autoComplete="current-password" invalid={Boolean(error)} />
-          </Field>
+        <div className="max-w-md">
+          <p className="stagger text-3xl font-semibold text-balance" style={{ ['--i' as string]: 1 } as Record<string, number>}>{t('login.brand.title')}</p>
+          <p className="stagger mt-3 text-md leading-relaxed opacity-70" style={{ ['--i' as string]: 2 } as Record<string, number>}>{t('login.brand.text')}</p>
+          <ul className="mt-10 flex flex-col gap-5">
+            {FEATURES.map((f, i) => (
+              <li key={f.key} className="stagger flex items-center gap-4" style={{ ['--i' as string]: 3 + i } as Record<string, number>}>
+                <IconTile icon={f.icon} hue={f.hue} size="lg" />
+                <span className="min-w-0">
+                  <span className="block text-md font-semibold">{t(`login.brand.${f.key}.title`)}</span>
+                  <span className="block text-base opacity-65">{t(`login.brand.${f.key}.text`)}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          <Button type="submit" size="lg" disabled={busy} className="w-full">
-            {busy ? t('login.submitting') : t('login.submit')}
-          </Button>
+        <p className="flex items-center gap-2 text-sm opacity-60">
+          <LockSimple weight="fill" className="size-4" />{t('login.brand.secure')}
+        </p>
+      </aside>
 
-          {googleAvailable && (
-            <>
-              <div className="my-0.5 flex items-center gap-3 text-label text-muted-2">
-                <span className="h-px flex-1 bg-line" />{t('login.or')}<span className="h-px flex-1 bg-line" />
-              </div>
-              <Button variant="secondary" size="lg" href="/admin/auth/google" className="w-full">
-                <GoogleG /> {t('login.google')}
-              </Button>
-            </>
-          )}
-        </form>
-      </div>
+      <main className="flex items-center justify-center px-4 py-10 sm:px-6">
+        <div className="w-full max-w-[400px] animate-fade-up">
+          <div className="mb-8 lg:hidden">
+            <img src={logo} alt="ProDuct" className="logo-light h-8 w-auto" />
+            <img src={logoDark} alt="" aria-hidden className="logo-dark h-8 w-auto" />
+          </div>
+          <p className="text-sm font-semibold text-text-muted">{t('login.title')}</p>
+          <h1 className="mt-1 text-2xl font-bold text-text">{t('login.heading')}</h1>
+          <p className="mt-1.5 text-base text-text-muted">{t('login.subtitle')}</p>
+
+          <form onSubmit={submit} className="mt-8 flex flex-col gap-5 rounded-surface bg-surface p-6 sm:p-8">
+            <Field label={t('login.usernameLabel')}>
+              <Input value={username} onChange={setUsername} autoComplete="username" className={FIELD_CLS} />
+            </Field>
+            <Field label={t('login.passwordLabel')} error={error || undefined}>
+              <Input type="password" value={password} onChange={setPassword} autoComplete="current-password" invalid={Boolean(error)} className={FIELD_CLS} />
+            </Field>
+
+            <Button type="submit" size="lg" disabled={busy} className="mt-1 w-full">
+              {!busy && <SignIn weight="bold" />}
+              {busy ? t('login.submitting') : t('login.submit')}
+            </Button>
+
+            {googleAvailable && (
+              <>
+                <div className="flex items-center gap-3 text-sm text-text-faint">
+                  <span className="h-px flex-1 bg-border" />{t('login.or')}<span className="h-px flex-1 bg-border" />
+                </div>
+                <Button variant="outline" size="lg" href="/admin/auth/google" className="w-full">
+                  <GoogleG /> {t('login.google')}
+                </Button>
+              </>
+            )}
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

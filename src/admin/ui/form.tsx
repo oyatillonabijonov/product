@@ -1,27 +1,34 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
-import { ChevronDown, Search } from 'lucide-react';
+import { MagnifyingGlass } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { Toggle } from './controls';
 
-/** Input ko'rinishi bitta joyda; `text-control` (16px) — iOS Safari kichik inputni fokusda zoom qiladi. */
+/**
+ * Input ko'rinishi bitta joyda — ERP «to'ldirilgan» maydon (§3.2): kulrang fon, hoshiyasiz, fokusda faqat hoshiya
+ * rangi (halqa/glow yo'q). 36px, telefonda 48px; sensorli ekranda shrift 16px (iOS zum qilmasin — `admin.css`).
+ * Native `<select>` o'qini `admin.css` chizadi.
+ */
 export const INPUT_CLS =
-  'h-11 md:h-9 w-full rounded-xs border border-line bg-surface px-3 text-control text-primary placeholder:text-muted-3 focus:border-cta focus:outline-none focus:ring-2 focus:ring-cta/20 disabled:bg-fill-2 disabled:text-muted aria-[invalid=true]:border-danger';
+  'h-control-md max-lg:h-11 w-full rounded-control border border-transparent bg-surface-sunken px-3 text-base text-text placeholder:text-text-faint outline-none transition-[background-color,border-color,box-shadow] duration-150 hover:bg-surface-sunken-hover focus:bg-surface focus:ring-2 focus:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-danger aria-[invalid=true]:ring-danger/15';
 
 /** Yorliq ustida, ostida izoh yoki xato (xato bo'lsa izoh o'rnini oladi). */
-export const Field: FC<{ label: string; hint?: string; error?: string; required?: boolean; className?: string; children: ReactNode }> = ({
-  label, hint, error, required, className = '', children,
+export const Field: FC<{ label: string; hint?: string; error?: string; required?: boolean; tag?: string; className?: string; children: ReactNode }> = ({
+  label, hint, error, required, tag, className = '', children,
 }) => (
-  <label className={`block ${className}`}>
-    <span className="mb-1.5 block text-label font-medium text-muted">
-      {label}
-      {required && <span className="text-danger"> *</span>}
+  <label className={`flex flex-col gap-1.5 ${className}`}>
+    <span className="flex items-center gap-1.5 text-sm font-semibold text-text">
+      <span>
+        {label}
+        {required && <span className="text-danger-text"> *</span>}
+      </span>
+      {tag && <span className="inline-flex h-5 items-center rounded-full bg-neutral px-1.5 text-xs font-semibold text-neutral-text">{tag}</span>}
     </span>
     {children}
     {error ? (
-      <span className="mt-1 block text-label text-danger">{error}</span>
+      <span role="alert" className="text-sm text-danger-text">{error}</span>
     ) : hint ? (
-      <span className="mt-1 block text-label text-muted-2">{hint}</span>
+      <span className="text-sm text-text-muted">{hint}</span>
     ) : null}
   </label>
 );
@@ -72,14 +79,14 @@ export const SearchInput: FC<{ value: string; onChange: (v: string) => void; pla
   }, [text]);
   return (
     <span className="relative block">
-      <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-2" />
+      <MagnifyingGlass aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
       <input
         type="search"
         value={text}
         placeholder={placeholder}
         aria-label={placeholder}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
-        className={`${INPUT_CLS} appearance-none pl-9`}
+        className={`${INPUT_CLS} appearance-none pl-9 `}
       />
     </span>
   );
@@ -94,36 +101,33 @@ export const Textarea: FC<{ value: string; onChange: (v: string) => void; rows?:
     placeholder={placeholder}
     aria-invalid={invalid || undefined}
     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
-    className={`${INPUT_CLS} h-auto resize-y py-2 ${mono ? 'font-mono text-para' : ''}`}
+    className={`${INPUT_CLS.replace('h-control-md max-lg:h-11 ', '')} resize-y py-2.5 leading-relaxed ${mono ? 'font-mono text-sm' : ''}`}
   />
 );
 
-/** Native select — o'z chevroni bilan (brauzer ko'rsatkichi har OS'da har xil). `ariaLabel` — `Field`siz (jadval qatorida) ishlatilganda. */
+/** Native select — o'qni `admin.css` chizadi (ERP: chetdan 12px, 16px). `ariaLabel` — `Field`siz (jadval qatorida) ishlatilganda. */
 export const Select: FC<{ value: string; onChange: (v: string) => void; disabled?: boolean; ariaLabel?: string; children: ReactNode }> = ({
   value, onChange, disabled, ariaLabel, children,
 }) => (
-  <span className="relative block">
-    <select
-      value={value}
-      disabled={disabled}
-      aria-label={ariaLabel}
-      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-      className={`${INPUT_CLS} appearance-none pr-9`}
-    >
-      {children}
-    </select>
-    <ChevronDown aria-hidden className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-2" />
-  </span>
+  <select
+    value={value}
+    disabled={disabled}
+    aria-label={ariaLabel}
+    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
+    className={INPUT_CLS}
+  >
+    {children}
+  </select>
 );
 
-/** macOS Settings qatori: chapda nom (+ izoh), o'ngda toggle. Karta ichida `divide-y divide-line` bilan. */
+/** Sozlama qatori: chapda nom (+ izoh), o'ngda switch. Ketma-ket qatorlar `divide-y divide-border` bilan. */
 export const SwitchRow: FC<{ label: string; hint?: string; on: boolean; onChange: (v: boolean) => void; disabled?: boolean }> = ({
   label, hint, on, onChange, disabled,
 }) => (
   <div className="flex items-center justify-between gap-4 py-3">
     <div className="min-w-0">
-      <p className="text-para text-primary">{label}</p>
-      {hint && <p className="text-label text-muted-2">{hint}</p>}
+      <p className="text-base text-text">{label}</p>
+      {hint && <p className="text-sm text-text-muted">{hint}</p>}
     </div>
     <Toggle on={on} onChange={onChange} label={label} disabled={disabled} />
   </div>
@@ -149,10 +153,10 @@ export const LangPair: FC<{
   const { t } = useTranslation('common');
   return (
     <div className="grid gap-3 md:grid-cols-2">
-      <Field label={label} hint={hint} error={error} required={required}>
+      <Field label={label} tag="UZ" hint={hint} error={error} required={required}>
         {kind === 'textarea' ? <Textarea value={uz} onChange={onUz} rows={rows} mono={mono} invalid={Boolean(error)} /> : <Input value={uz} onChange={onUz} invalid={Boolean(error)} />}
       </Field>
-      <Field label={`${label} (ru)`} hint={ruHint ?? t('ruHint')}>
+      <Field label={label} tag="RU" hint={ruHint ?? t('ruHint')}>
         {kind === 'textarea' ? <Textarea value={ru} onChange={onRu} rows={rows} mono={mono} /> : <Input value={ru} onChange={onRu} />}
       </Field>
     </div>

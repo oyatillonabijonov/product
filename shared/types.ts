@@ -348,6 +348,10 @@ export interface ApiOrder extends OrderInput {
   createdAt: number;
   status: OrderStatus;
   telegramSent: boolean;
+  /** Kirgan mijozning buyurtmasi — admin mijoz sahifasiga havola qiladi; mehmon buyurtmasida `null`. */
+  customerId?: number | null;
+  /** Faqat admin ro'yxatida: `productId` → joriy rasm (kanban kartasi eskizlari). */
+  images?: Record<string, string>;
 }
 
 /** Admin'da tahrirlangan sayt matni (`site_texts`); bo'sh til — `locales.ts`dagi standart. */
@@ -367,6 +371,46 @@ export interface ApiDashboard {
   billz: BillzSyncStatus;
   /** Do'kon kursi; `auto` — Markaziy bank + ustama bilan hisoblanadi. */
   usd: { rate: number; auto: boolean };
+}
+
+/**
+ * Admin statistikasi (`GET /api/admin/stats?days=7|30|90`). Davr — bugunni qo'shib oxirgi `days` Toshkent kuni,
+ * `*Prev` — undan oldingi xuddi shuncha kun. «Buyurtma» — `source != 'consult'` (tovar + savat), konsultatsiya alohida.
+ * Talab (`demandUzs`) — buyurtma tovarlarining `qty × priceUzs` yig'indisi (taxminiy narxlar ham), to'lov emas.
+ * Hisob `shared/admin-stats.ts` `buildStats`da.
+ */
+export interface ApiAdminStats {
+  days: number;
+  /** One entry per Tashkent day, oldest first, exactly `days` long (missing days = zeros). */
+  series: { day: string; orders: number; consults: number; visitors: number; views: number; customers: number; demandUzs: number }[];
+  totals: {
+    orders: number; ordersPrev: number;
+    consults: number; consultsPrev: number;
+    visitors: number; visitorsPrev: number;
+    views: number; viewsPrev: number;
+    customersNew: number; customersNewPrev: number;
+    customersTotal: number;
+    demandUzs: number; demandUzsPrev: number;
+    itemsRequested: number; itemsRequestedPrev: number;
+    applications: number; applicationsPrev: number;
+  };
+  /** Davrdagi hamma murojaatlar (konsultatsiya ham) holat bo'yicha. */
+  status: { new: number; contacted: number; done: number };
+  /** Davrdagi buyurtmalar (konsultatsiyasiz). */
+  payment: { cash: number; installment: number };
+  sources: { product: number; cart: number; consult: number };
+  /** Davrda eng ko'p so'ralgan 6 tovar: `requests` — tovar bor buyurtmalar soni, keyin `qty`. */
+  topProducts: { productId: string; name: string; imageUrl: string | null; requests: number; qty: number; demandUzs: number }[];
+  /** Davrda eng ko'p ochilgan 6 mahsulot sahifasi (o'chirilgan tovarlar chiqmaydi). */
+  topViewed: { productId: string; name: string; imageUrl: string | null; views: number }[];
+  /** Hamma yo'nalishlar `sort_order` tartibida; `requests` — shu yo'nalish tovari bor buyurtmalar soni. */
+  categories: { id: string; name: string; demandUzs: number; demandPrevUzs: number; requests: number }[];
+  /** `onOrder` — saytdagi (`is_active = 1`) «Buyurtma asosida» tovarlar; `outOfStock` — qoldig'i 0 Billz tovarlari (hammasi). */
+  catalog: { total: number; onSite: number; hidden: number; needsImage: number; outOfStock: number; onOrder: number };
+  /** Oxirgi 6 murojaat (davrdan qat'i nazar, hamma manba); `itemCount` — tovar qatorlari soni. */
+  recentOrders: { id: number; name: string; phone: string; createdAt: number; status: string; source: string; itemCount: number; firstItem: string | null; imageUrl: string | null; demandUzs: number }[];
+  /** Davrdagi murojaatlar (hamma manba) Toshkent soati bo'yicha, 24 ta son. */
+  hours: number[];
 }
 
 /** Tovar turi (`product_types`) — admin CRUD; `id` yo'nalish ichida noyob, `products.type` shunga bog'lanadi. */

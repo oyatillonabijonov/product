@@ -10,6 +10,7 @@ import { thumbs } from './thumbs.ts';
 import { pageCache } from './page-cache.ts';
 import { createBillzSync } from './billz-sync.ts';
 import { createUsdRate } from './usd-rate.ts';
+import { createVisitTracker } from './visits.ts';
 import { mountMcp, mountOAuth } from './mcp.ts';
 import { canonicalOrigin, isMaintenanceOpen, parseTrustProxy, storefrontCacheControl } from '../shared/http-policy.ts';
 import { cloudflareClientIp } from '../shared/client-ip.ts';
@@ -31,6 +32,8 @@ const billz = createBillzSync(env);
 billz.start();
 // Dollar kursi — cbu.uz'dan har 6 soatda (ustama kiritilgan bo'lsa do'kon kursini ham yangilaydi).
 createUsdRate(env).start();
+// Sayt tashriflari (admin statistikasi) — statik fayllardan keyin, sahifa keshidan oldin: kesh javobi ham sanaladi.
+const visits = createVisitTracker(env);
 
 const app = express();
 app.disable('x-powered-by');
@@ -146,6 +149,7 @@ if (isProd) {
   app.use(express.static('build/client', { maxAge: '1h', redirect: false, index: false }));
   // Build vaqtida yaratiladi — tsc uni ko'rmaydi, shu sabab tip aniqlanadi.
   const build = (await import('../build/server/index.js')) as unknown as ServerBuild;
+  app.use(visits);
   app.use(maintenance);
   // Mehmon sahifalari 60 soniya xotiradan beriladi — har ochilishda SSR qilinmaydi (`server/page-cache.ts`).
   app.use(pageCache());
@@ -154,6 +158,7 @@ if (isProd) {
   const vite = await import('vite');
   const devServer = await vite.createServer({ server: { middlewareMode: true } });
   app.use(devServer.middlewares);
+  app.use(visits);
   app.use(maintenance);
   app.use(
     createRequestHandler({

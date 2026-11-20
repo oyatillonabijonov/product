@@ -1,0 +1,325 @@
+/* Admin paneli uslublari — saytnikidan ALOHIDA build.
+   Sayt `app/styles.css`ni oladi, admin faqat shuni: tokenlar nomi bir xil (`bg-surface`, `bg-primary`),
+   ma'nosi boshqa, shuning uchun ikkalasi bitta sahifada yuklanmaydi (`root.tsx`).
+
+   v3 (2026-11-20, egasining feedbacki):
+   - kontent sidebar'dan FON bilan ajraladi: kulrang kanvas → oq «varaq» (radius 20, chetdan 8px);
+   - SOYA YO'Q, tugma va komponentlarda HOSHIYA (stroke) YO'Q — yuzalar faqat fon bilan ajraladi;
+   - `surface-sunken` YARIM SHAFFOF: oq varaqdagi karta och kulrang, karta ichidagi maydon/chip yana bir pog'ona
+     to'qroq — qatlamlar o'z-o'zidan ajraladi (alohida «karta ichi» rangi kerak emas);
+   - v3.1: shrift Inter Tight (kirill bor), eng qalini semibold (600), harf oralig'i zich; rang-baranglik yo'q —
+     monoxrom asos + bitta urg'u (binafsha); ikonkalar fonsiz. */
+@import "@fontsource-variable/inter-tight";
+@import "tailwindcss" source(none);
+@source "../src/admin";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* ---------- Yuzalar ---------- */
+  --color-bg: #f1f1f3;                       /* kanvas: sidebar va varaq atrofi */
+  --color-bg-subtle: #e9e9ec;
+  --color-surface: #ffffff;                  /* kontent varag'i, sidebar'dagi faol band */
+  --color-surface-raised: #ffffff;           /* modal, menyu */
+  --color-surface-sunken: rgb(17 17 26 / 0.04);        /* karta, maydon, jadval sarlavhasi (qatlamlanadi) */
+  --color-surface-sunken-hover: rgb(17 17 26 / 0.07);
+  --color-elevated: #ffffff;                 /* kulrang trek ustidagi tanlangan tabletka */
+  --color-overlay: rgb(10 10 16 / 0.4);
+  --color-inverted: #17171c;
+
+  /* ---------- Matn ---------- */
+  --color-text: #17171c;
+  --color-text-muted: #62626d;
+  --color-text-faint: #9898a2;
+  --color-text-on-primary: #ffffff;
+  --color-text-on-inverted: #ffffff;
+
+  /* ---------- Chiziq (faqat ro'yxat qatorlari orasida, komponent atrofida emas) ---------- */
+  --color-border: rgb(17 17 26 / 0.07);
+  --color-border-strong: rgb(17 17 26 / 0.14);
+  --color-border-focus: #6d4aff;
+
+  /* ---------- Asosiy amal va urg'u ---------- */
+  --color-primary: #17171c;
+  --color-primary-hover: #2d2d35;
+  --color-primary-active: #3c3c45;
+  --color-primary-soft: #ececef;
+  --color-accent: #6d4aff;
+  --color-accent-hover: #5b37f5;
+  --color-accent-soft: #efebff;
+  --color-accent-text: #5232e0;
+
+  --color-neutral: rgb(17 17 26 / 0.06);
+  --color-neutral-hover: rgb(17 17 26 / 0.1);
+  --color-ghost-hover: rgb(17 17 26 / 0.045);
+  --color-neutral-text: #46464f;
+  --color-switch-on: #17171c;
+
+  /* ---------- Holat ---------- */
+  --color-danger: #ef4444;
+  --color-danger-text: #dc2626;
+  --color-danger-soft: #fdeaea;
+  --color-danger-strong: #b91c1c;
+  --color-success: #22c55e;
+  --color-success-text: #15803d;
+  --color-success-soft: #e2f6e9;
+  --color-success-strong: #166534;
+  --color-warning: #f59e0b;
+  --color-warning-text: #b45309;
+  --color-warning-soft: #fdf1d9;
+  --color-warning-strong: #92400e;
+  /* «info» — urg'u oilasi (alohida ko'k rang yo'q). */
+  --color-info: #6d4aff;
+  --color-info-text: #5232e0;
+  --color-info-soft: #efebff;
+  --color-info-strong: #4325c4;
+
+  /* ---------- «Kategorik» palitra = monoxrom + bitta urg'u (egasi: rang-baranglik yo'q) ----------
+     Nomlar eski (`c-violet`…), qiymatlar — urg'u binafsha, uning ochi va siyoh/kulrang zinapoya. Ketma-ket
+     seriyalar yorug'lik bo'yicha ajraladi (rang ko'rlikda ham). Ma'no ranglari (yashil/qizil) faqat holatda. */
+  --color-c-violet: #6d4aff;   /* urg'u — asosiy seriya */
+  --color-c-blue: #b3a6ff;     /* urg'uning ochi — ikkinchi seriya */
+  --color-c-teal: #6d4aff;
+  --color-c-orange: #26262d;   /* siyoh */
+  --color-c-amber: #55555f;
+  --color-c-green: #8c8c96;    /* o'rta kulrang */
+  --color-c-pink: #b4b4bd;
+  --color-c-slate: #d0d0d6;    /* och kulrang — «oldingi davr», qolgan */
+
+  /* ---------- EvilCharts kutgan shadcn tokenlari (grafik o'qi, tooltip) ---------- */
+  --color-foreground: var(--color-text);
+  /* Karta (oq varaq + 4% sunken) bilan bir xil yaxlit rang — donut bo'laklari orasidagi oraliq shu rangda chiziladi. */
+  --color-background: #f5f5f6;
+  --color-muted-foreground: var(--color-text-faint);
+
+  /* ---------- Tipografika: Inter Tight, zich harf oralig'i ---------- */
+  --font-sans: "Inter Tight Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Inter Tight Variable", ui-monospace, monospace;
+  --text-xs: 11.5px;   --text-xs--line-height: 1.4;   --text-xs--letter-spacing: -0.004em;
+  --text-sm: 13px;     --text-sm--line-height: 1.45;  --text-sm--letter-spacing: -0.008em;
+  --text-base: 14px;   --text-base--line-height: 1.45; --text-base--letter-spacing: -0.012em;
+  --text-md: 15.5px;   --text-md--line-height: 1.4;   --text-md--letter-spacing: -0.016em;
+  --text-lg: 18px;     --text-lg--line-height: 1.33;  --text-lg--letter-spacing: -0.02em;
+  --text-xl: 22px;     --text-xl--line-height: 1.25;  --text-xl--letter-spacing: -0.024em;
+  --text-2xl: 27px;    --text-2xl--line-height: 1.15; --text-2xl--letter-spacing: -0.03em;
+  --text-3xl: 33px;    --text-3xl--line-height: 1.08; --text-3xl--letter-spacing: -0.036em;
+  --text-4xl: 40px;    --text-4xl--line-height: 1.05; --text-4xl--letter-spacing: -0.04em;
+
+  /* Eng qalini — semibold (egasining talabi): bold/extrabold/black ham 600 ga tushadi. */
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 600;
+  --font-weight-black: 600;
+
+  /* ---------- Radius ---------- */
+  --radius-checkbox: 5px;
+  --radius-tag: 6px;
+  --radius-item: 8px;
+  --radius-control-sm: 8px;
+  --radius-control: 10px;
+  --radius-menu: 12px;
+  --radius-control-lg: 12px;
+  --radius-surface: 18px;
+  --radius-overlay: 22px;
+  --radius-sheet: 24px;
+
+  /* ---------- Soya yo'q (egasining qat'iy talabi): standart shadow-* yaratilmaydi, eski nomlar bo'sh ---------- */
+  --shadow-*: initial;
+  --shadow-card: 0 0 #0000;
+  --shadow-raised: 0 0 #0000;
+  --shadow-pop: 0 0 #0000;
+
+  --height-control-sm: 30px;
+  --height-control-md: 36px;
+  --height-control-lg: 44px;
+
+  /* ---------- Harakat ---------- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --animate-fade-up: fade-up 0.42s var(--ease-standard) both;
+  --animate-fade-in: fade-in 0.3s var(--ease-standard) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes shimmer {
+    from { background-position: 150% 0; }
+    to { background-position: -50% 0; }
+  }
+
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+}
+
+:root {
+  --tabbar-h: 0px;
+}
+@media (width < 64rem) {
+  :root { --tabbar-h: calc(61px + env(safe-area-inset-bottom)); }
+}
+
+/* ============================== QORONG'I REJIM ============================== */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #0a0a0c;
+  --color-bg-subtle: #101013;
+  --color-surface: #151518;
+  --color-surface-raised: #1c1c20;
+  --color-surface-sunken: rgb(255 255 255 / 0.045);
+  --color-surface-sunken-hover: rgb(255 255 255 / 0.075);
+  --color-elevated: #2c2c33;
+  --color-overlay: rgb(0 0 0 / 0.65);
+  --color-inverted: #f4f4f5;
+
+  --color-text: #f2f2f4;
+  --color-text-muted: #a3a3ad;
+  --color-text-faint: #73737d;
+  --color-text-on-primary: #0a0a0c;
+  --color-text-on-inverted: #0a0a0c;
+
+  --color-border: rgb(255 255 255 / 0.07);
+  --color-border-strong: rgb(255 255 255 / 0.14);
+  --color-border-focus: #8b72ff;
+
+  --color-primary: #f2f2f4;
+  --color-primary-hover: #dcdce0;
+  --color-primary-active: #c8c8ce;
+  --color-primary-soft: #26262c;
+  --color-accent: #8b72ff;
+  --color-accent-hover: #9d87ff;
+  --color-accent-soft: #221b3f;
+  --color-accent-text: #b3a3ff;
+
+  --color-neutral: rgb(255 255 255 / 0.07);
+  --color-neutral-hover: rgb(255 255 255 / 0.11);
+  --color-ghost-hover: rgb(255 255 255 / 0.05);
+  --color-neutral-text: #d4d4d8;
+  --color-switch-on: #f2f2f4;
+
+  --color-danger: #f05252;
+  --color-danger-text: #ff8080;
+  --color-danger-soft: #2c1517;
+  --color-danger-strong: #ffb3b3;
+  --color-success: #3ccf6e;
+  --color-success-text: #5ad98a;
+  --color-success-soft: #10261a;
+  --color-success-strong: #9ef0bb;
+  --color-warning: #f5a524;
+  --color-warning-text: #fbbf4a;
+  --color-warning-soft: #2b2010;
+  --color-warning-strong: #fcd38a;
+  --color-info: #8b72ff;
+  --color-info-text: #b3a3ff;
+  --color-info-soft: #221b3f;
+  --color-info-strong: #cfc4ff;
+
+  --color-c-violet: #8b72ff;
+  --color-c-blue: #5b4bb0;
+  --color-c-teal: #8b72ff;
+  --color-c-orange: #ececf0;
+  --color-c-amber: #b8b8c0;
+  --color-c-green: #85858f;
+  --color-c-pink: #5c5c66;
+  --color-c-slate: #3c3c44;
+  --color-background: #212124;
+}
+
+/* ============================ BAZAVIY QOIDALAR ============================ */
+@layer base {
+  :root {
+    color-scheme: light;
+    font-family: var(--font-sans);
+    letter-spacing: -0.012em;
+    font-synthesis: none;
+    font-feature-settings: "cv11", "ss03";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body { background-color: var(--color-bg); color: var(--color-text); }
+  * { border-color: var(--color-border); }
+  b, strong, th { font-weight: 600; }
+  th { text-align: left; }
+  ::selection { background: var(--color-accent); color: #fff; }
+
+  input[type="checkbox"] {
+    appearance: none; flex-shrink: 0; display: inline-grid; place-content: center;
+    width: 16px; height: 16px; border: 0; border-radius: var(--radius-checkbox);
+    background: var(--color-neutral-hover); cursor: pointer;
+    transition: background-color 150ms;
+  }
+  input[type="checkbox"]::before {
+    content: ""; width: 10px; height: 10px; background: var(--color-text-on-primary);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E") center / contain no-repeat;
+    transform: scale(0); transition: transform 180ms var(--ease-spring);
+  }
+  input[type="checkbox"]:checked { background: var(--color-primary); }
+  input[type="checkbox"]:checked::before { transform: scale(1); }
+  input[type="checkbox"]:disabled { opacity: 0.5; cursor: not-allowed; }
+  input[type="range"] { accent-color: var(--color-primary); }
+}
+
+/* Klaviatura fokusi — faqat klaviaturada ko'rinadigan halqa (bezak emas, kirish imkoniyati). */
+:where(button, a, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+select:not(.appearance-none):not([multiple]) {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M208 96l-80 80-80-80' fill='none' stroke='%2362626d' stroke-width='18' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 14px;
+  padding-right: 2.25rem;
+}
+[data-theme="dark"] select:not(.appearance-none):not([multiple]) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M208 96l-80 80-80-80' fill='none' stroke='%23a3a3ad' stroke-width='18' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+html, body { overscroll-behavior: none; }
+button, a, [role="button"] { touch-action: manipulation; }
+@media (pointer: coarse) {
+  html { -webkit-tap-highlight-color: transparent; }
+  input, select, textarea { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------- Admin yordamchilari ---------- */
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.thin-scroll { scrollbar-width: thin; scrollbar-color: var(--color-border-strong) transparent; }
+
+.logo-dark { display: none; }
+[data-theme="dark"] .logo-dark { display: inline-block; }
+[data-theme="dark"] .logo-light { display: none; }
+
+td img { max-width: none; }
+
+/* Ketma-ket paydo bo'lish: `style={{ '--i': n }}` bilan. */
+.stagger { min-width: 0; animation: var(--animate-fade-up); animation-delay: calc(var(--i, 0) * 45ms); }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface-sunken) 0%, var(--color-surface-sunken-hover) 50%, var(--color-surface-sunken) 100%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+.hatch { background-image: repeating-linear-gradient(135deg, currentColor 0 1.5px, transparent 1.5px 6px); }

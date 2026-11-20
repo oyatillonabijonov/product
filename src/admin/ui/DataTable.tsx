@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { CaretRight } from '@phosphor-icons/react';
 
 export interface Column<T> {
   id: string;
@@ -17,8 +18,9 @@ function fromControl(e: React.SyntheticEvent<HTMLElement>): boolean {
 }
 
 /**
- * Jadval — `md`dan desktopda `<table>` (vertikal chiziqsiz, hover qator), pastda kartalar:
- * bitta ustun ta'rifi ikkala ko'rinishni beradi. Qator bosilsa `onRowClick`.
+ * Jadval — ERP `tbl` (§3.8). ≥1024px: 40px kulrang sarlavha-pill (UPPERCASE yo'q), qatorlar orasida hairline,
+ * hover'da butun qator kulrang, qator bosiladi. <1024px jadval yo'q — guruhlangan ro'yxat (bitta karta ichida
+ * qatorlar): sarlavha ustuni 14/500, qolganlari ostida 12px «yorliq: qiymat». Bitta ustun ta'rifi ikkalasini beradi.
  */
 export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
   columns: Column<T>[];
@@ -28,7 +30,6 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
   empty?: ReactNode;
 }) {
   if (rows.length === 0) return <>{empty ?? null}</>;
-  const clickable = onRowClick ? 'press press-surface cursor-pointer hover:bg-fill-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta' : '';
   const click = (row: T) => (onRowClick ? (e: React.SyntheticEvent<HTMLElement>) => { if (!fromControl(e)) onRowClick(row); } : undefined);
   // Klaviatura: Enter/Space qatorni ochadi (Tab bilan yetiladi); ichki boshqaruvda bosilsa emas.
   const keydown = (row: T) =>
@@ -42,38 +43,62 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
   const align = (c: Column<T>) => (c.align === 'right' ? 'text-right' : '');
   return (
     <>
-      <div className="hidden overflow-x-auto md:block">
-        <table className="w-full text-para">
+      <div className="no-scrollbar hidden overflow-x-auto lg:block">
+        <table className="w-full border-separate border-spacing-0 text-left">
           <thead>
-            <tr className="border-b border-line text-left text-label text-muted-2">
+            <tr>
               {columns.map((c) => (
-                <th key={c.id} scope="col" className={`px-3 py-2.5 font-medium ${align(c)} ${c.className ?? ''}`}>{c.label}</th>
+                <th
+                  key={c.id}
+                  scope="col"
+                  className={`h-10 whitespace-nowrap bg-surface-sunken px-4 text-sm font-semibold text-text-muted first:pl-6 last:pr-6 ${align(c)} ${c.className ?? ''}`}
+                >
+                  {c.label}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={rowKey(r)} onClick={click(r)} onKeyDown={keydown(r)} tabIndex={onRowClick ? 0 : undefined} className={`border-b border-line-3 last:border-0 ${clickable}`}>
+              <tr
+                key={rowKey(r)}
+                onClick={click(r)}
+                onKeyDown={keydown(r)}
+                tabIndex={onRowClick ? 0 : undefined}
+                role={onRowClick ? 'button' : undefined}
+                className={`group text-base text-text [&:last-child>td]:border-b-0 animate-fade-in ${onRowClick ? 'cursor-pointer' : ''}`}
+              >
                 {columns.map((c) => (
-                  <td key={c.id} className={`px-3 py-3 ${align(c)} ${c.className ?? ''}`}>{c.cell(r)}</td>
+                  <td key={c.id} className={`border-b border-border px-4 py-3 transition-colors duration-150 first:pl-6 last:pr-6 group-hover:bg-surface-sunken ${align(c)} ${c.className ?? ''}`}>{c.cell(r)}</td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <ul className="flex flex-col gap-2 md:hidden">
+      <ul className="lg:hidden">
         {rows.map((r) => (
-          <li key={rowKey(r)} onClick={click(r)} onKeyDown={keydown(r)} tabIndex={onRowClick ? 0 : undefined} className={`rounded-sm border border-line bg-surface p-4 ${clickable}`}>
-            {title && <div className="mb-2 text-para font-medium text-primary">{title.cell(r)}</div>}
-            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-label">
-              {rest.map((c) => (
-                <div key={c.id} className="contents">
-                  <dt className="text-muted-2">{c.label}</dt>
-                  <dd className="text-primary">{c.cell(r)}</dd>
-                </div>
-              ))}
-            </dl>
+          <li
+            key={rowKey(r)}
+            onClick={click(r)}
+            onKeyDown={keydown(r)}
+            tabIndex={onRowClick ? 0 : undefined}
+            className={`flex items-center gap-3 border-b border-border px-4 py-3.5 last:border-b-0 ${onRowClick ? 'cursor-pointer active:bg-surface-sunken' : ''}`}
+          >
+            <div className="min-w-0 flex-1">
+              {title && <div className="truncate text-base font-medium text-text">{title.cell(r)}</div>}
+              {rest.length > 0 && (
+                <dl className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-muted">
+                  {rest.map((c) => (
+                    <div key={c.id} className="flex min-w-0 items-center gap-1">
+                      <dt className="whitespace-nowrap text-text-faint">{c.label}:</dt>
+                      <dd className="min-w-0 tabular-nums">{c.cell(r)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </div>
+            {onRowClick && <CaretRight aria-hidden className="size-4 shrink-0 text-text-faint" />}
           </li>
         ))}
       </ul>

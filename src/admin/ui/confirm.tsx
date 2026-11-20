@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import Modal from '../../store/Modal';
+import Modal from './Modal';
 import { Button } from './controls';
 
 export interface ConfirmOpts {
@@ -62,14 +62,16 @@ export const ConfirmProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <ConfirmCtx.Provider value={ask}>
       {children}
-      <Modal open={open} label={pending?.opts.title ?? t('confirm')} onClose={close} onExited={() => setPending(null)} panelClass="max-w-sm">
+      <Modal open={open} label={pending?.opts.title ?? t('confirm')} onClose={close} onExited={() => setPending(null)} panelClass="sm:max-w-sm">
         {pending && (
-          <div className="p-6">
-            <h2 className="text-copy font-semibold text-primary">{pending.opts.title}</h2>
-            {pending.opts.message && <p className="mt-2 text-para text-muted">{pending.opts.message}</p>}
-            <div className="mt-6 flex justify-end gap-2">
-              <Button variant="secondary" onClick={close}>{t('cancel')}</Button>
-              <Button variant={pending.opts.destructive ? 'destructive' : 'primary'} onClick={() => finish(true)}>
+          <div className="flex flex-col gap-4 p-5 max-sm:px-4 max-sm:pt-2">
+            <div className="flex flex-col gap-1.5">
+              <h2 className="text-lg font-semibold text-text sm:text-md">{pending.opts.title}</h2>
+              {pending.opts.message && <p className="text-base text-text-muted">{pending.opts.message}</p>}
+            </div>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={close} className="flex-1 max-sm:h-12">{t('close')}</Button>
+              <Button variant={pending.opts.destructive ? 'destructive' : 'primary'} onClick={() => finish(true)} className="flex-1 font-semibold max-sm:h-12">
                 {pending.opts.confirmLabel ?? t('confirm')}
               </Button>
             </div>

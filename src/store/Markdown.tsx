@@ -33,6 +33,14 @@ export const Inlines: FC<{ inlines: MdInline[] }> = ({ inlines }) => (
  */
 export const MdBlockView: FC<{ block: MdBlock }> = ({ block: b }) => {
   if (b.type === 'h2') return <h2 className="mt-4 text-subhead font-semibold text-primary"><Inlines inlines={b.inlines} /></h2>;
+  if (b.type === 'img') {
+    return (
+      <figure className="my-2">
+        <img src={b.src} alt={b.alt} loading="lazy" className="w-full rounded-lg bg-fill-2" />
+        {b.alt && <figcaption className="mt-2 text-center text-label text-muted-2">{b.alt}</figcaption>}
+      </figure>
+    );
+  }
   if (b.type === 'h3') return <h3 className="mt-2 text-copy font-semibold text-primary"><Inlines inlines={b.inlines} /></h3>;
   if (b.type === 'ul') {
     return (

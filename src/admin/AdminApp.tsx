@@ -6,6 +6,7 @@ import { getDashboard, getMe, logout } from './api';
 import { parseAdminPath, type AdminRoute } from './lib/admin-path';
 import { restoreAdminLang } from './i18n';
 import { SECTIONS, SEGMENTS, activeTab, type SectionDef, type TabDef } from './nav';
+import { MotionConfig } from 'motion/react';
 import AdminShell from './AdminShell';
 import Login from './Login';
 import SectionTabs from './SectionTabs';
@@ -126,7 +127,13 @@ export default function AdminApp() {
   }, []);
   useEffect(() => { if (authed) refreshDash(); }, [authed, location.pathname, refreshDash]);
 
-  if (authed === null) return <div className="p-8 text-para text-muted">{t('loading')}</div>;
+  if (authed === null) {
+    return (
+      <div className="grid h-dvh place-items-center bg-bg" aria-busy="true" aria-label={t('loading')}>
+        <span className="size-8 animate-spin rounded-full border-2 border-border-strong border-t-text" />
+      </div>
+    );
+  }
   if (!authed) {
     return (
       <Login
@@ -147,6 +154,7 @@ export default function AdminApp() {
   const badge = (dash?.newOrders ?? 0) + (dash?.newApplications ?? 0);
 
   return (
+    <MotionConfig reducedMotion="user">
     <ToastProvider>
       <ConfirmProvider>
         <AdminShell route={route} badge={badge} onLogout={handleLogout}>
@@ -156,5 +164,6 @@ export default function AdminApp() {
         </AdminShell>
       </ConfirmProvider>
     </ToastProvider>
+    </MotionConfig>
   );
 }

@@ -1,17 +1,28 @@
 import { useEffect, useState } from 'react';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
+import {
+  ArrowsClockwise, ChartLineUp, CheckCircle, Copy, GoogleLogo, Key, PaperPlaneTilt, Plug, Robot, SignIn, Storefront, TelegramLogo, Trash, Warehouse, WarningCircle,
+} from '@phosphor-icons/react';
+import type { Icon as PhIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import type { BillzShop, BillzSyncStatus } from '../../../shared/billz';
-import type { ApiAdminToken } from '../../../shared/types';
+import type { ApiAdminToken, ApiSiteConfig } from '../../../shared/types';
 import { createToken, getBillzShops, getBillzStatus, listTokens, revokeToken, runBillzSync } from '../api';
 import { errText } from '../errText';
 import { billzStatusText } from '../lib/billz-status';
 import SectionTabs from '../SectionTabs';
 import { SECRET_SET, useSiteConfig } from '../useSiteConfig';
-import { Button, Card, EmptyState, Field, Input, Page, Select, Skeleton } from '../ui';
+import { Badge, Button, Card, EmptyState, Field, IconButton, IconTile, Input, Page, Select, Skeleton, type Tone } from '../ui';
 import { useConfirm } from '../ui/confirm';
 import { useToast } from '../ui/toast';
 import { formatDateTime } from '../lib/format';
+
+const st = (i: number) => ({ ['--i' as string]: i } as Record<string, number>);
+
+/** Karta ichidagi kichik guruh sarlavhasi (Google / Telegram). */
+const SubHead: FC<{ icon: PhIcon; children: ReactNode }> = ({ icon: I, children }) => (
+  <p className="flex items-center gap-2 text-base font-bold text-text"><I weight="fill" className="size-4 text-text-muted" />{children}</p>
+);
 
 /** Sozlamalar → Integratsiyalar: Billz, buyurtma boti, mijoz kirishi va analitika — hammasi bir sahifada. */
 const SettingsIntegrations: FC = () => {
@@ -123,6 +134,15 @@ const SettingsIntegrations: FC = () => {
     }
   }
 
+  async function copyFresh() {
+    try {
+      await navigator.clipboard.writeText(fresh);
+      toast(t('integrations.tokens.copied'));
+    } catch (e) {
+      toast(errText(e), 'error');
+    }
+  }
+
   // Sirlar serverdan qaytmaydi: saqlangan bo'lsa maydon bo'sh, placeholder nuqtalar bilan. Yozilsa — yangi qiymat;
   // bo'shatilsa — belgi qaytadi va server saqlanganini qoldiradi.
   const secret = (key: 'billzSecretToken' | 'telegramBotToken' | 'googleClientSecret') => {
@@ -136,6 +156,21 @@ const SettingsIntegrations: FC = () => {
 
   // Holat matni bosh sahifa bilan umumiy — egasi ikki ekranda bir xil gapni o'qiydi.
   const billzState = billzStatusText(status);
+  // «Ulanmagan» ham `error: true` qaytaradi — qizil faqat haqiqiy xatoda, ulanmagan holat neytral.
+  const billzError = Boolean(statusError) || Boolean(status?.configured && billzState.error);
+  const running = status?.running ?? false;
+
+  // «Ulangan» belgisi saqlangan holatdan — yozilgan, lekin saqlanmagan qiymat ulanish emas.
+  const saved = cfg.saved as ApiSiteConfig | null;
+  const has = (key: keyof ApiSiteConfig) => Boolean(saved?.[key]);
+  const linked = (on: boolean) => (on
+    ? <Badge tone="ok" dot>{t('integrations.status.connected')}</Badge>
+    : <Badge tone="neutral" dot>{t('integrations.status.notConnected')}</Badge>);
+  const billzBadge: { tone: Tone; label: string } = billzError
+    ? { tone: 'danger', label: t('integrations.status.error') }
+    : running ? { tone: 'info', label: t('integrations.status.running') }
+    : status?.configured ? { tone: 'ok', label: t('integrations.status.connected') }
+    : { tone: 'neutral', label: t('integrations.status.notConnected') };
 
   return (
     <Page
@@ -149,107 +184,157 @@ const SettingsIntegrations: FC = () => {
         : !config ? <Skeleton rows={8} />
         : (
           <div className="flex flex-col gap-4">
-            <Card title={t('integrations.billz.title')} description={t('integrations.billz.description')}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field label={t('integrations.billz.tokenLabel')} hint={t('integrations.billz.tokenHint')}>
-                  <Input type="password" {...secret('billzSecretToken')} />
-                </Field>
-                <Field label={t('integrations.billz.shopLabel')} hint={t('integrations.billz.shopHint')}>
-                  {shops.length > 0 ? (
-                    <Select value={config.billzShopId} onChange={(v) => cfg.set('billzShopId', v)}>
-                      <option value="">{t('integrations.billz.shopPlaceholder')}</option>
-                      {shops.map((sh) => <option key={sh.id} value={sh.id}>{sh.name}</option>)}
-                    </Select>
-                  ) : (
-                    <Input value={config.billzShopId} onChange={(v) => cfg.set('billzShopId', v)} placeholder="shop UUID" />
-                  )}
-                </Field>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Button variant="secondary" onClick={loadShops} disabled={shopsBusy}>{shopsBusy ? t('common:loading') : t('integrations.billz.loadShops')}</Button>
-                <Button variant="secondary" onClick={sync} disabled={!status?.configured || status.running || syncBusy}>{t('integrations.billz.syncButton')}</Button>
-              </div>
-              <p className={`mt-3 text-para ${statusError || billzState.error ? 'text-danger' : 'text-primary'}`}>
-                {statusError ? t('integrations.billz.statusLoadError', { error: statusError }) : billzState.text}
-              </p>
-              <p className="mt-1 text-label text-muted-2">{t('integrations.billz.hint')}</p>
-            </Card>
-
-            <Card title={t('integrations.telegram.title')} description={t('integrations.telegram.description')}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field label={t('integrations.telegram.tokenLabel')} hint={t('integrations.telegram.tokenHint')}>
-                  <Input type="password" {...secret('telegramBotToken')} />
-                </Field>
-                <Field label={t('integrations.telegram.chatLabel')} hint={t('integrations.telegram.chatHint')}>
-                  <Input value={config.telegramOrderChatId} onChange={(v) => cfg.set('telegramOrderChatId', v)} placeholder="-1001234567890" />
-                </Field>
-              </div>
-            </Card>
-
-            <Card title={t('integrations.customerAuth.title')} description={t('integrations.customerAuth.description')}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Google Client ID">
-                  <Input value={config.googleClientId} onChange={(v) => cfg.set('googleClientId', v)} />
-                </Field>
-                <Field label="Google Client Secret">
-                  <Input type="password" {...secret('googleClientSecret')} />
-                </Field>
-                <Field label={t('integrations.customerAuth.telegramBotLabel')} hint={t('integrations.customerAuth.telegramBotHint')}>
-                  <Input value={config.telegramLoginBot} onChange={(v) => cfg.set('telegramLoginBot', v)} placeholder="my_login_bot" />
-                </Field>
-              </div>
-            </Card>
-
-            <Card title={t('integrations.analytics.title')} description={t('integrations.analytics.description')}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field label={t('integrations.analytics.idLabel')} hint={t('integrations.analytics.idHint')}>
-                  <Input value={config.yandexMetricaId} onChange={(v) => cfg.set('yandexMetricaId', v)} placeholder="12345678" />
-                </Field>
-              </div>
-            </Card>
-
-            <Card
-              title={t('integrations.tokens.title')}
-              description={t('integrations.tokens.description')}
-            >
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-wrap items-end gap-3">
-                  <Field label={t('integrations.tokens.nameLabel')} hint={t('integrations.tokens.nameHint')} className="min-w-[220px] flex-1">
-                    <Input value={tokenLabel as string} onChange={setTokenLabel} placeholder={t('integrations.tokens.namePlaceholder')} />
+            <div className="stagger" style={st(0)}>
+              <Card
+                icon={Warehouse} hue="blue" title={t('integrations.billz.title')} description={t('integrations.billz.description')}
+                actions={<Badge tone={billzBadge.tone} dot>{billzBadge.label}</Badge>}
+              >
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label={t('integrations.billz.tokenLabel')} hint={t('integrations.billz.tokenHint')}>
+                    <Input type="password" {...secret('billzSecretToken')} />
                   </Field>
-                  <Button onClick={addToken} disabled={tokenBusy || (tokenLabel as string).trim().length < 2}>
-                    {tokenBusy ? t('integrations.tokens.creating') : t('integrations.tokens.create')}
-                  </Button>
+                  <Field label={t('integrations.billz.shopLabel')} hint={t('integrations.billz.shopHint')}>
+                    {shops.length > 0 ? (
+                      <Select value={config.billzShopId} onChange={(v) => cfg.set('billzShopId', v)}>
+                        <option value="">{t('integrations.billz.shopPlaceholder')}</option>
+                        {shops.map((sh) => <option key={sh.id} value={sh.id}>{sh.name}</option>)}
+                      </Select>
+                    ) : (
+                      <Input value={config.billzShopId} onChange={(v) => cfg.set('billzShopId', v)} placeholder="shop UUID" />
+                    )}
+                  </Field>
+                </div>
+                <div className={`flex flex-col gap-4 rounded-control p-5 sm:flex-row sm:items-center ${billzError ? 'bg-danger-soft' : 'bg-surface-sunken'}`}>
+                  <span className="flex min-w-0 flex-1 items-start gap-3">
+                    {running
+                      ? <ArrowsClockwise weight="bold" className="mt-0.5 size-5 shrink-0 animate-spin text-info" />
+                      : billzError
+                        ? <WarningCircle weight="fill" className="mt-0.5 size-5 shrink-0 text-danger" />
+                        : status && !status.configured
+                          ? <WarningCircle weight="fill" className="mt-0.5 size-5 shrink-0 text-text-faint" />
+                          : <CheckCircle weight="fill" className={`mt-0.5 size-5 shrink-0 ${status?.last ? 'text-success' : 'text-text-faint'}`} />}
+                    <span className={`min-w-0 text-base font-medium ${billzError ? 'text-danger-strong' : 'text-text'}`}>
+                      {statusError ? t('integrations.billz.statusLoadError', { error: statusError }) : billzState.text}
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={loadShops} disabled={shopsBusy}>
+                      <Storefront />{shopsBusy ? t('common:loading') : t('integrations.billz.loadShops')}
+                    </Button>
+                    <Button size="sm" onClick={sync} disabled={!status?.configured || running || syncBusy}>
+                      <ArrowsClockwise weight="bold" className={running || syncBusy ? 'animate-spin' : ''} />{t('integrations.billz.syncButton')}
+                    </Button>
+                  </span>
+                </div>
+                <p className="text-sm leading-relaxed text-text-muted">{t('integrations.billz.hint')}</p>
+              </Card>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="stagger" style={st(1)}>
+                <Card
+                  icon={PaperPlaneTilt} hue="teal" title={t('integrations.telegram.title')} description={t('integrations.telegram.description')} className="h-full"
+                  actions={linked(has('telegramBotToken') && has('telegramOrderChatId'))}
+                >
+                  <div className="grid gap-4">
+                    <Field label={t('integrations.telegram.tokenLabel')} hint={t('integrations.telegram.tokenHint')}>
+                      <Input type="password" {...secret('telegramBotToken')} />
+                    </Field>
+                    <Field label={t('integrations.telegram.chatLabel')} hint={t('integrations.telegram.chatHint')}>
+                      <Input value={config.telegramOrderChatId} onChange={(v) => cfg.set('telegramOrderChatId', v)} placeholder="-1001234567890" />
+                    </Field>
+                  </div>
+                </Card>
+              </div>
+
+              <div className="stagger" style={st(2)}>
+                <Card
+                  icon={ChartLineUp} hue="amber" title={t('integrations.analytics.title')} description={t('integrations.analytics.description')} className="h-full"
+                  actions={linked(has('yandexMetricaId'))}
+                >
+                  <Field label={t('integrations.analytics.idLabel')} hint={t('integrations.analytics.idHint')}>
+                    <Input value={config.yandexMetricaId} onChange={(v) => cfg.set('yandexMetricaId', v)} placeholder="12345678" />
+                  </Field>
+                </Card>
+              </div>
+            </div>
+
+            <div className="stagger" style={st(3)}>
+              <Card
+                icon={SignIn} hue="violet" title={t('integrations.customerAuth.title')} description={t('integrations.customerAuth.description')}
+                actions={linked(has('googleClientId') || has('telegramLoginBot'))}
+              >
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <div className="flex flex-col gap-4 rounded-control bg-surface p-5">
+                    <SubHead icon={GoogleLogo}>Google</SubHead>
+                    <Field label="Client ID">
+                      <Input value={config.googleClientId} onChange={(v) => cfg.set('googleClientId', v)} />
+                    </Field>
+                    <Field label="Client Secret">
+                      <Input type="password" {...secret('googleClientSecret')} />
+                    </Field>
+                  </div>
+                  <div className="flex flex-col gap-4 rounded-control bg-surface p-5">
+                    <SubHead icon={TelegramLogo}>Telegram</SubHead>
+                    <Field label={t('integrations.customerAuth.telegramBotLabel')} hint={t('integrations.customerAuth.telegramBotHint')}>
+                      <Input value={config.telegramLoginBot} onChange={(v) => cfg.set('telegramLoginBot', v)} placeholder="my_login_bot" />
+                    </Field>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            <div className="stagger" style={st(4)}>
+              <Card
+                icon={Plug} hue="pink" title={t('integrations.tokens.title')} description={t('integrations.tokens.description')}
+                actions={tokens.length > 0 ? <Badge tone="accent">{t('integrations.tokens.active', { n: tokens.length })}</Badge> : undefined}
+              >
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                    <Field label={t('integrations.tokens.nameLabel')} className="min-w-0 flex-1">
+                      <Input value={tokenLabel as string} onChange={setTokenLabel} placeholder={t('integrations.tokens.namePlaceholder')} />
+                    </Field>
+                    <Button onClick={addToken} disabled={tokenBusy || (tokenLabel as string).trim().length < 2}>
+                      <Key />{tokenBusy ? t('integrations.tokens.creating') : t('integrations.tokens.create')}
+                    </Button>
+                  </div>
+                  <p className="text-sm text-text-muted">{t('integrations.tokens.nameHint')}</p>
                 </div>
 
                 {fresh !== '' && (
-                  <div className="rounded-sm border border-line bg-bg p-3">
-                    <p className="text-label text-muted-2">{t('integrations.tokens.freshHint')}</p>
-                    <p className="mt-1 break-all text-para text-primary">{fresh}</p>
+                  <div className="animate-fade-in rounded-control bg-warning-soft p-4">
+                    <p className="text-sm font-semibold text-warning-strong">{t('integrations.tokens.freshHint')}</p>
+                    <div className="mt-3 flex items-center gap-2 rounded-item bg-surface px-3 py-2">
+                      <code className="min-w-0 flex-1 break-all font-mono text-sm text-text">{fresh}</code>
+                      <IconButton label={t('integrations.tokens.copy')} size="sm" onClick={copyFresh}><Copy /></IconButton>
+                    </div>
                   </div>
                 )}
 
                 {tokens.length === 0
-                  ? <p className="text-para text-muted">{t('integrations.tokens.empty')}</p>
+                  ? <p className="rounded-control bg-surface-sunken px-4 py-8 text-center text-base text-text-muted">{t('integrations.tokens.empty')}</p>
                   : (
-                    <ul className="flex flex-col">
+                    <ul className="-mx-6 -mb-6 border-t border-border">
                       {tokens.map((tok) => (
-                        <li key={tok.id} className="flex items-center justify-between gap-4 border-t border-line py-2.5">
-                          <div className="min-w-0">
-                            <p className="text-para text-primary">{tok.label}</p>
-                            <p className="text-label text-muted-2">
+                        <li key={tok.id} className="flex items-center gap-3 border-b border-border px-6 py-3 last:border-b-0">
+                          <IconTile icon={tok.kind === 'oauth' ? Robot : Key} hue={tok.kind === 'oauth' ? 'violet' : 'slate'} soft size="sm" />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-base font-medium text-text">{tok.label}</p>
+                            <p className="truncate text-sm text-text-muted">
                               {tok.kind === 'oauth' ? t('integrations.tokens.kindOauth') : t('integrations.tokens.kindManual')}
                               {' · '}
                               {tok.lastUsedAt === null ? t('integrations.tokens.neverUsed') : t('integrations.tokens.lastUsed', { when: formatDateTime(tok.lastUsedAt) })}
                             </p>
                           </div>
-                          <Button variant="quiet" onClick={() => removeToken(tok)}>{t('integrations.tokens.revoke')}</Button>
+                          <Button variant="dangerSoft" size="sm" ariaLabel={t('integrations.tokens.revoke')} onClick={() => removeToken(tok)}>
+                            <Trash /><span className="max-sm:hidden">{t('integrations.tokens.revoke')}</span>
+                          </Button>
                         </li>
                       ))}
                     </ul>
                   )}
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         )}
     </Page>

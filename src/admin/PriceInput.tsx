@@ -14,7 +14,7 @@ const PriceInput: FC<{
     value={formatThousands(value)}
     placeholder={placeholder}
     onChange={(e) => onChange(parseDigits(e.target.value))}
-    className={className}
+    className={`${className ?? ''} tabular-nums`}
   />
 );
 

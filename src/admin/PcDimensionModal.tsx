@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import type { FC } from 'react';
-import { X } from 'lucide-react';
+import { Check, Info, Lightbulb, ShieldCheck, X } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import type { ApiPcDimension, PcDimensionInput } from '../../shared/types';
 import { PC_SLOTS } from '../../shared/pc-compat';
-import Modal from '../store/Modal';
+import Modal from './ui/Modal';
 import { createPcDimension, deletePcDimension, updatePcDimension } from './api';
 import { errText } from './errText';
 import { addValue, dimLabel, dimToForm, listText, lowerFirst } from './lib/pc-parts';
-import { Button, Field, Input } from './ui';
+import { Button, Field, IconButton, IconTile, Input } from './ui';
+import { SLOT_ICON } from './PcValueChips';
 import { useGuardedConfirm } from './ui/confirm';
 import { useToast } from './ui/toast';
 
@@ -51,8 +52,8 @@ const PcDimensionModal: FC<{
   const result = slotNames.length >= 2 && preview.length > 0
     ? t('configurator.result', { slots: listText(slotNames, t('configurator.and')), values: listText(preview.map((v) => v.label), t('configurator.or')) })
     : t('configurator.resultEmpty');
-  const step = 'text-para font-semibold text-primary';
-  const hint = 'text-label text-muted-2';
+  const step = 'text-base font-semibold text-text';
+  const hint = 'text-sm text-text-muted';
 
   const save = async () => {
     // Faol turga bo'g'in qo'shilsa, yangi bo'g'indagi qismlarda qiymat yo'q — ular darhol konfiguratordan chiqib ketadi.
@@ -86,12 +87,16 @@ const PcDimensionModal: FC<{
   };
 
   return (
-    <Modal open={open} label={dim ? t('configurator.editTitle') : t('configurator.newTitle')} onClose={() => { if (!confirming.current) onClose(); }} onExited={onExited} panelClass="max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto">
-      <div className="flex flex-col gap-6 p-6">
-        <div className="flex flex-col gap-1.5">
-          <h2 className="text-lede font-semibold text-primary">{dim ? t('configurator.editTitle') : t('configurator.newTitle')}</h2>
-          <p className="text-para text-muted">{t('configurator.intro')}</p>
+    <Modal open={open} label={dim ? t('configurator.editTitle') : t('configurator.newTitle')} onClose={() => { if (!confirming.current) onClose(); }} onExited={onExited} panelClass="sm:max-w-lg">
+      <div className="flex items-start gap-3 px-6 pt-6 max-sm:px-4 max-sm:pt-2">
+        <IconTile icon={ShieldCheck} hue="violet" size="lg" soft />
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg font-bold text-text">{dim ? t('configurator.editTitle') : t('configurator.newTitle')}</h2>
+          <p className="mt-0.5 text-sm leading-relaxed text-text-muted">{t('configurator.intro')}</p>
         </div>
+        <IconButton label={t('common:close')} onClick={onClose}><X aria-hidden className="size-5" /></IconButton>
+      </div>
+      <div className="flex flex-col gap-6 p-6 max-sm:px-4">
 
         <div className="flex flex-col gap-2">
           <span className={step}>{t('configurator.nameStep')}</span>
@@ -113,14 +118,16 @@ const PcDimensionModal: FC<{
           <div className="flex flex-wrap gap-2">
             {PC_SLOTS.map(({ key }) => {
               const on = form.slots.includes(key);
+              const I = SLOT_ICON[key];
               return (
                 <button
                   key={key}
                   type="button"
                   aria-pressed={on}
                   onClick={() => toggleSlot(key)}
-                  className={`press h-11 rounded-full border px-4 text-para ${on ? 'border-accent bg-accent text-bg' : 'border-line text-muted'}`}
+                  className={`inline-flex h-control-md items-center gap-1.5 rounded-full px-3.5 text-base font-medium transition-[background-color,color,transform] duration-150 active:scale-[0.97] max-lg:h-11 ${on ? 'bg-primary text-text-on-primary hover:bg-primary-hover' : 'bg-surface-sunken text-text-muted hover:bg-surface-sunken-hover hover:text-text'}`}
                 >
+                  {on ? <Check weight="bold" className="size-4" /> : <I className="size-4" />}
                   {t(`configurator.slots.${key}`)}
                 </button>
               );
@@ -134,41 +141,37 @@ const PcDimensionModal: FC<{
           {form.values.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {form.values.map((v, i) => (
-                <span key={`${v.id ?? 'new'}-${v.label}`} className="inline-flex h-9 items-center gap-1 rounded-full bg-fill-2 pl-3 pr-1 text-para text-primary">
+                <span key={`${v.id ?? 'new'}-${v.label}`} className="inline-flex h-control-md animate-fade-in items-center gap-1 rounded-full bg-surface-sunken pl-3.5 pr-1 text-base font-medium text-text">
                   {v.label}
-                  <button
-                    type="button"
-                    aria-label={t('configurator.removeValue', { label: v.label })}
-                    onClick={() => removeValue(i)}
-                    className="press relative grid size-7 place-items-center rounded-full text-muted-2 after:absolute after:-inset-2 hover:text-danger"
-                  >
+                  <IconButton label={t('configurator.removeValue', { label: v.label })} onClick={() => removeValue(i)} danger className="!size-7">
                     <X aria-hidden className="size-4" />
-                  </button>
+                  </IconButton>
                 </span>
               ))}
             </div>
           )}
           <div className="flex gap-2">
             <Input value={label} onChange={setLabel} placeholder={t('configurator.valuePlaceholder')} />
-            <Button variant="secondary" onClick={add} disabled={!label.trim()}>{t('configurator.addValue')}</Button>
+            <Button variant="secondary" onClick={add} disabled={!label.trim()} className="max-lg:h-11">{t('configurator.addValue')}</Button>
           </div>
           <span className={hint}>{t('configurator.valuesHint')}</span>
         </div>
 
-        <p className="rounded-sm bg-fill-2 p-4 text-para text-primary">
-          <span className="font-semibold">{t('configurator.resultLabel')}</span> {result}
+        <p aria-live="polite" className="flex items-start gap-2.5 rounded-control bg-accent-soft p-4 text-base text-accent-text">
+          <Lightbulb weight="fill" className="mt-0.5 size-5 shrink-0" />
+          <span><span className="font-semibold">{t('configurator.resultLabel')}</span> {result}</span>
         </p>
 
-        {!dim && <p className="text-label text-muted-2">{t('configurator.newDimHint')}</p>}
+        {!dim && <p className="flex items-start gap-2 text-sm text-text-muted"><Info className="mt-0.5 size-4 shrink-0 text-text-faint" />{t('configurator.newDimHint')}</p>}
 
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-          {dim && dim.key === null
-            ? <Button variant="destructive" onClick={remove} disabled={busy}>{t('configurator.deleteDim')}</Button>
-            : <span className="text-label text-muted-2">{dim ? t('configurator.protectedHint') : ''}</span>}
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={onClose}>{t('common:cancel')}</Button>
-            <Button onClick={save} disabled={busy}>{t('shared.save')}</Button>
-          </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-3 px-6 pb-6 max-sm:px-4 max-sm:pb-4">
+        {dim && dim.key === null
+          ? <Button variant="dangerSoft" onClick={remove} disabled={busy} className="max-sm:h-12">{t('configurator.deleteDim')}</Button>
+          : <span className="text-sm text-text-muted">{dim ? t('configurator.protectedHint') : ''}</span>}
+        <div className="ml-auto flex gap-3">
+          <Button variant="secondary" onClick={onClose} className="max-sm:h-12">{t('common:cancel')}</Button>
+          <Button onClick={save} disabled={busy} className="max-sm:h-12">{t('shared.save')}</Button>
         </div>
       </div>
     </Modal>

@@ -1,6 +1,8 @@
 @import "tailwindcss";
 /* docs/ markdownlarida klass nomlari matn sifatida uchraydi — skanerlanmasin. */
 @source not "../docs";
+/* Admin o'z build'ida (`app/admin.css`, ERP tokenlari) — sayt CSS'iga tushmasin. */
+@source not "../src/admin";
 
 @theme {
   --font-sans: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
