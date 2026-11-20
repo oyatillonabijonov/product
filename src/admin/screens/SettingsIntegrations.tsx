@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import {
-  ArrowsClockwise, ChartLineUp, CheckCircle, Copy, GoogleLogo, Key, PaperPlaneTilt, Plug, Robot, SignIn, Storefront, TelegramLogo, Trash, Warehouse, WarningCircle,
+  ArrowsClockwise, ChartLineUp, CheckCircle, Copy, Key, PaperPlaneTilt, Plug, Robot, SignIn, Storefront, Trash, Warehouse, WarningCircle,
 } from '@phosphor-icons/react';
+import { GoogleLogo, TelegramLogo } from '../brand-logos';
 import type { Icon as PhIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import type { BillzShop, BillzSyncStatus } from '../../../shared/billz';

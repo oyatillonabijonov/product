@@ -11,7 +11,7 @@ import { formatDateTime } from '../lib/format';
 import { applicationStatusLabels, filterInbox, parseStatus, STATUSES, statusSegments, telHref } from '../lib/inbox';
 import { timeAgo } from '../lib/ago';
 import { StatTile, StatusSelect } from '../StatusControls';
-import { Avatar, Badge, Button, Card, DataTable, EmptyState, Kanban, Pagination, SearchInput, Segmented, type Column, type Hue, type KanbanColumn } from '../ui';
+import { Avatar, Badge, Button, DataTable, EmptyState, Kanban, Pagination, SearchInput, Segmented, type Column, type Hue, type KanbanColumn } from '../ui';
 import { CountUp } from '../ui/stats';
 import { useToast } from '../ui/toast';
 
@@ -270,15 +270,13 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
           </>
         ) : (
           <div>
-            <Card padded={false}>
-              <DataTable
-                columns={listColumns}
-                rows={rows}
-                rowKey={(a) => String(a.id)}
-                onRowClick={open}
-                empty={<div className="p-6">{empty}</div>}
-              />
-            </Card>
+            <DataTable
+              columns={listColumns}
+              rows={rows}
+              rowKey={(a) => String(a.id)}
+              onRowClick={open}
+              empty={<div className="p-6">{empty}</div>}
+            />
             <Pagination page={safePage} pageCount={pageCount} total={filtered.length} onChange={(p) => update('page', String(p))} />
           </div>
         )}

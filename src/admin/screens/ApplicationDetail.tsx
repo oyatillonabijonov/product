@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useLocation } from 'react-router';
-import { ArrowSquareOut, Briefcase, ChatText, Clock, FileText, Hash, IdentificationCard, Phone, TelegramLogo, Users, WarningCircle } from '@phosphor-icons/react';
+import { ArrowSquareOut, Briefcase, ChatText, Clock, FileText, Hash, IdentificationCard, Phone, Users, WarningCircle } from '@phosphor-icons/react';
+import { TelegramLogo } from '../brand-logos';
 import { useTranslation } from 'react-i18next';
 import type { ApiJobApplication, OrderStatus } from '../../../shared/types';
 import { safeHref } from '../../../shared/safe-href';

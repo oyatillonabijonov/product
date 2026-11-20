@@ -18,9 +18,9 @@ function fromControl(e: React.SyntheticEvent<HTMLElement>): boolean {
 }
 
 /**
- * Jadval — ERP `tbl` (§3.8). ≥1024px: 40px kulrang sarlavha-pill (UPPERCASE yo'q), qatorlar orasida hairline,
- * hover'da butun qator kulrang, qator bosiladi. <1024px jadval yo'q — guruhlangan ro'yxat (bitta karta ichida
- * qatorlar): sarlavha ustuni 14/500, qolganlari ostida 12px «yorliq: qiymat». Bitta ustun ta'rifi ikkalasini beradi.
+ * Jadval — o'z ramkasi bilan (karta ichiga solinmaydi): oq yuza, yumaloq burchak, kulrang sarlavha qatori, kataklar
+ * orasida yengil chiziq (gorizontal va vertikal), qator 64px, hover'da kulrang, qator bosiladi. <1024px jadval yo'q —
+ * xuddi shu ramkadagi ro'yxat: sarlavha ustuni, ostida «yorliq: qiymat». Bitta ustun ta'rifi ikkalasini beradi.
  */
 export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
   columns: Column<T>[];
@@ -43,7 +43,7 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
   const align = (c: Column<T>) => (c.align === 'right' ? 'text-right' : '');
   return (
     <>
-      <div className="no-scrollbar hidden overflow-x-auto lg:block">
+      <div className="no-scrollbar hidden overflow-x-auto rounded-surface border border-border bg-surface lg:block">
         <table className="w-full border-separate border-spacing-0 text-left">
           <thead>
             <tr>
@@ -51,7 +51,7 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
                 <th
                   key={c.id}
                   scope="col"
-                  className={`h-10 whitespace-nowrap bg-surface-sunken px-4 text-sm font-semibold text-text-muted first:pl-6 last:pr-6 ${align(c)} ${c.className ?? ''}`}
+                  className={`h-11 whitespace-nowrap border-l border-border bg-surface-sunken px-5 text-sm font-medium text-text-muted first:border-l-0 ${align(c)} ${c.className ?? ''}`}
                 >
                   {c.label}
                 </th>
@@ -66,17 +66,17 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
                 onKeyDown={keydown(r)}
                 tabIndex={onRowClick ? 0 : undefined}
                 role={onRowClick ? 'button' : undefined}
-                className={`group text-base text-text [&:last-child>td]:border-b-0 animate-fade-in ${onRowClick ? 'cursor-pointer' : ''}`}
+                className={`group text-base text-text animate-fade-in ${onRowClick ? 'cursor-pointer' : ''}`}
               >
                 {columns.map((c) => (
-                  <td key={c.id} className={`border-b border-border px-4 py-3 transition-colors duration-150 first:pl-6 last:pr-6 group-hover:bg-surface-sunken ${align(c)} ${c.className ?? ''}`}>{c.cell(r)}</td>
+                  <td key={c.id} className={`h-16 border-l border-t border-border px-5 py-3 transition-colors duration-150 first:border-l-0 group-hover:bg-surface-sunken ${align(c)} ${c.className ?? ''}`}>{c.cell(r)}</td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <ul className="lg:hidden">
+      <ul className="overflow-hidden rounded-surface border border-border bg-surface lg:hidden">
         {rows.map((r) => (
           <li
             key={rowKey(r)}

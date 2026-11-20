@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { DeviceMobile, MagnifyingGlass, Plus, WarningCircle } from '@phosphor-icons/react';
+import { MagnifyingGlass, Plus, WarningCircle } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel } from '../../../shared/types';
 import { listBrands, listCategories, listDeviceModels } from '../api';
 import { filterModels } from '../lib/models';
-import { Avatar, Badge, Button, Card, DataTable, EmptyState, Pagination, SearchInput, Select, Skeleton, type Column, type Hue } from '../ui';
+import { Avatar, Badge, Button, DataTable, EmptyState, Pagination, SearchInput, Select, Skeleton, type Column, type Hue } from '../ui';
 
 const PAGE_SIZE = 20;
 const LIST = '/admin/products/models';
@@ -138,23 +138,18 @@ const ModelsList: FC = () => {
         <Skeleton rows={8} />
       ) : (
         <div className="flex flex-col">
-          <Card
-            padded={false}
-            icon={DeviceMobile} hue="blue"
-            title={t('modelsList.count', { count: filtered.length })}
-          >
+          <p className="mb-3 text-sm text-text-muted">{t('modelsList.count', { count: filtered.length })}</p>
             <DataTable
               columns={columns}
               rows={rows}
               rowKey={(m) => m.id}
               onRowClick={(m) => navigate(`${LIST}/${m.id}`)}
               empty={
-                <div className="px-6 pb-6">
+                <div className="p-6">
                   <EmptyState icon={<MagnifyingGlass />} title={t('modelsList.notFound')} action={<Button variant="secondary" onClick={() => setParams({}, { replace: true })}>{t('shared.clearFilter')}</Button>} />
                 </div>
               }
             />
-          </Card>
           <Pagination page={safePage} pageCount={pageCount} onChange={(p) => update('page', String(p))} total={filtered.length} />
         </div>
       )}

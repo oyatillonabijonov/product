@@ -8,7 +8,7 @@ import { listBrands, listCategories, listProducts, listTypes, setProductActive }
 import { errText } from '../errText';
 import { formatSum } from '../lib/format';
 import { QUICK_FILTERS, filterProducts, quickFilter, summaryText, type QuickFilter } from '../lib/product-filter';
-import { Badge, Button, Card, DataTable, EmptyState, Pagination, SearchInput, Segmented, Select, Toggle, type Column, type Tone } from '../ui';
+import { Badge, Button, DataTable, EmptyState, Pagination, SearchInput, Segmented, Select, Toggle, type Column, type Tone } from '../ui';
 import { Kpi, KpiStrip } from '../ui/stats';
 import { useToast } from '../ui/toast';
 
@@ -28,7 +28,7 @@ function stockTone(n: number): Tone {
 
 /** Ro'yxat qatoridagi eskiz — 44px, kulrang karta ichida oq orolcha; rasmsiz bo'lsa ikonka. */
 const Thumb: FC<{ src: string; dim?: boolean }> = ({ src, dim }) => (
-  <span className={`grid size-11 shrink-0 place-items-center overflow-hidden rounded-control bg-surface ${dim ? 'opacity-60' : ''}`}>
+  <span className={`grid size-10 shrink-0 place-items-center overflow-hidden rounded-control bg-surface-sunken ${dim ? 'opacity-60' : ''}`}>
     {src ? <img src={src} alt="" loading="lazy" className="size-full object-contain p-0.5" /> : <ImageBroken className="size-[18px] text-text-faint" />}
   </span>
 );
@@ -140,22 +140,22 @@ const ProductsList: FC = () => {
   }
 
   const columns: Column<ApiProduct>[] = [
-    { id: 'img', label: '', className: 'w-16', mobile: 'hide', cell: (p) => <Thumb src={p.imageUrl} dim={!p.isActive} /> },
     {
       id: 'name', label: t('shared.name'), mobile: 'title',
       cell: (p) => {
-        const meta = [typeLabel(p), brandName(p.brandId)].filter(Boolean).join(' · ');
+        // Ikkinchi qator oddiy matn: tur · brend · manba; faqat e'tibor talab qiladigan holat — belgi.
+        const meta = [typeLabel(p), brandName(p.brandId), p.billzId ? t('productEdit.source.billz') : t('productEdit.source.manual')].filter(Boolean).join(' · ');
         return (
-          <span className="flex min-w-0 max-w-md flex-col gap-1">
-            <span className={`truncate font-medium ${p.isActive ? 'text-text' : 'text-text-muted'}`}>{p.name}</span>
-            <span className="flex min-w-0 flex-wrap items-center gap-1.5">
-              {meta && <span className="truncate text-sm text-text-muted">{meta}</span>}
-              {p.billzId
-                ? <Badge tone="info" className="h-5 px-2">{t('productEdit.source.billz')}</Badge>
-                : <Badge className="h-5 px-2">{t('productEdit.source.manual')}</Badge>}
-              {/* i18n: ma'lumot — tarjima qilinmaydi (server bilan solishtiriladigan Condition qiymati) */}
-              {p.condition === 'ishlatilgan' && <Badge tone="accent" className="h-5 px-2">{t('shared.conditionUsed')}</Badge>}
-              {p.billzId && !p.imageUrl && <Badge tone="attention" dot className="h-5 px-2">{t('filter.quick.needsImage')}</Badge>}
+          <span className="flex min-w-0 items-center gap-3">
+            <Thumb src={p.imageUrl} dim={!p.isActive} />
+            <span className="flex min-w-0 max-w-md flex-col gap-0.5">
+              <span className="flex min-w-0 items-center gap-2">
+                <span className={`truncate font-medium ${p.isActive ? 'text-text' : 'text-text-muted'}`}>{p.name}</span>
+                {/* i18n: ma'lumot — tarjima qilinmaydi (server bilan solishtiriladigan Condition qiymati) */}
+                {p.condition === 'ishlatilgan' && <Badge tone="accent" className="h-5 px-2">{t('shared.conditionUsed')}</Badge>}
+                {p.billzId && !p.imageUrl && <Badge tone="attention" dot className="h-5 px-2">{t('filter.quick.needsImage')}</Badge>}
+              </span>
+              <span className="truncate text-sm text-text-faint">{meta}</span>
             </span>
           </span>
         );
@@ -261,14 +261,12 @@ const ProductsList: FC = () => {
                 : newButton}
             />
           ) : (
-            <Card padded={false}>
-              <DataTable
-                columns={columns}
-                rows={rows}
-                rowKey={(p) => p.id}
-                onRowClick={(p) => navigate(`${LIST}/${p.id}`, { state: { search: params.toString() } })}
-              />
-            </Card>
+            <DataTable
+              columns={columns}
+              rows={rows}
+              rowKey={(p) => p.id}
+              onRowClick={(p) => navigate(`${LIST}/${p.id}`, { state: { search: params.toString() } })}
+            />
           )}
           <Pagination page={safePage} pageCount={pageCount} onChange={(p) => update('page', String(p))} total={filtered.length} />
         </div>

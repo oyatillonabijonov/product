@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import {
-  AppleLogo, ArrowSquareOut, Briefcase, ChatCircleDots, Confetti, Desktop, Eye, EyeSlash, Handshake, Headphones, Images, Info,
+  ArrowSquareOut, Briefcase, ChatCircleDots, Confetti, Desktop, Eye, EyeSlash, Handshake, Headphones, Images, Info,
   ListChecks, MagnifyingGlass, MapPin, Newspaper, Package, Receipt, RocketLaunch, Scales, ShieldCheck, ShoppingBag,
   Sparkle, Star, TextAa, Trash, UsersThree, VideoCamera, WarningCircle,
 } from '@phosphor-icons/react';
+import { AppleLogo } from './brand-logos';
 import type { Icon as PhIcon } from '@phosphor-icons/react';
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { GoogleLogo, ShoppingBagOpen, SignIn, TelegramLogo, UserPlus, Users, WarningCircle } from '@phosphor-icons/react';
+import { ShoppingBagOpen, SignIn, UserPlus, Users, WarningCircle } from '@phosphor-icons/react';
+import { GoogleLogo, TelegramLogo } from '../brand-logos';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminCustomer } from '../../../shared/types';
 import { isAvatarPhoto } from '../../../shared/avatar';
@@ -9,7 +10,7 @@ import { listCustomers } from '../api';
 import { formatDateTime } from '../lib/format';
 import { telHref } from '../lib/inbox';
 import { timeAgo } from '../lib/ago';
-import { Avatar, Badge, Button, Card, DataTable, EmptyState, IconTile, Pagination, SearchInput, type Column } from '../ui';
+import { Avatar, Badge, Button, DataTable, EmptyState, IconTile, Pagination, SearchInput, type Column } from '../ui';
 import { Kpi, KpiStrip, pctChange } from '../ui/stats';
 import { SegmentBar } from '../charts';
 
@@ -203,15 +204,13 @@ const CustomersList: FC = () => {
               <p className="text-sm text-text-muted">{t('customersList.count', { count: filtered.length })}</p>
             </div>
             <div>
-              <Card padded={false}>
-                <DataTable
-                  columns={columns}
-                  rows={rows}
-                  rowKey={(c) => String(c.id)}
-                  onRowClick={(c) => navigate(`${LIST}/${c.id}`, { state: { search: params.toString() } })}
-                  empty={empty}
-                />
-              </Card>
+              <DataTable
+                columns={columns}
+                rows={rows}
+                rowKey={(c) => String(c.id)}
+                onRowClick={(c) => navigate(`${LIST}/${c.id}`, { state: { search: params.toString() } })}
+                empty={empty}
+              />
               <Pagination page={safePage} pageCount={pageCount} total={filtered.length} onChange={(p) => update('page', String(p))} />
             </div>
           </div>

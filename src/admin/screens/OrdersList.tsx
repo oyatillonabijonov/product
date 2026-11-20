@@ -9,7 +9,7 @@ import { errText } from '../errText';
 import { formatDateTime, formatSum } from '../lib/format';
 import { orderStatusLabels, filterInbox, orderSummary, orderTotal, STATUSES, telHref } from '../lib/inbox';
 import { StatTile, StatusSelect } from '../StatusControls';
-import { Badge, Button, Card, DataTable, EmptyState, Kanban, Pagination, SearchInput, Segmented, type Column, type Hue, type KanbanColumn } from '../ui';
+import { Badge, Button, DataTable, EmptyState, Kanban, Pagination, SearchInput, Segmented, type Column, type Hue, type KanbanColumn } from '../ui';
 import { CountUp } from '../ui/stats';
 import { compact } from '../charts';
 import { timeAgo } from '../lib/ago';
@@ -231,15 +231,13 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
           </>
         ) : (
           <div>
-            <Card padded={false}>
-              <DataTable
-                columns={listColumns}
-                rows={filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)}
-                rowKey={(o) => String(o.id)}
-                onRowClick={(o) => navigate(`${LIST}/${o.id}`, { state: { search: params.toString() } })}
-                empty={<div className="p-6"><EmptyState title={t('shared.notFoundTitle')} text={t('shared.notFoundText')} action={<Button variant="secondary" onClick={() => update('q', '')}>{t('shared.clearSearch')}</Button>} /></div>}
-              />
-            </Card>
+            <DataTable
+              columns={listColumns}
+              rows={filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)}
+              rowKey={(o) => String(o.id)}
+              onRowClick={(o) => navigate(`${LIST}/${o.id}`, { state: { search: params.toString() } })}
+              empty={<div className="p-6"><EmptyState title={t('shared.notFoundTitle')} text={t('shared.notFoundText')} action={<Button variant="secondary" onClick={() => update('q', '')}>{t('shared.clearSearch')}</Button>} /></div>}
+            />
             <Pagination page={safePage} pageCount={pageCount} total={filtered.length} onChange={(p) => update('page', String(p))} />
           </div>
         )}

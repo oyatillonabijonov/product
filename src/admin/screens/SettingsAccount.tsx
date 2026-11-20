@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
-import { GoogleLogo, Lock, Moon, Palette, ShieldCheck, Sun, Translate, UserCircle, WarningCircle } from '@phosphor-icons/react';
+import { Lock, Moon, Palette, ShieldCheck, Sun, Translate, UserCircle, WarningCircle } from '@phosphor-icons/react';
+import { GoogleLogo } from '../brand-logos';
 import { useTranslation } from 'react-i18next';
 import { getAccount, updateAccount } from '../api';
 import { errText } from '../errText';
