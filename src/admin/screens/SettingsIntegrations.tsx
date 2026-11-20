@@ -205,14 +205,14 @@ const SettingsIntegrations: FC = () => {
                   </Field>
                 </div>
                 <div className={`flex flex-col gap-4 rounded-control p-5 sm:flex-row sm:items-center ${billzError ? 'bg-danger-soft' : 'bg-surface-sunken'}`}>
-                  <span className="flex min-w-0 flex-1 items-start gap-3">
+                  <span className="flex min-w-0 flex-1 items-start gap-3 text-base">
                     {running
-                      ? <ArrowsClockwise weight="bold" className="mt-0.5 size-5 shrink-0 animate-spin text-info" />
+                      ? <ArrowsClockwise weight="bold" className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0 animate-spin text-info" />
                       : billzError
-                        ? <WarningCircle weight="fill" className="mt-0.5 size-5 shrink-0 text-danger" />
+                        ? <WarningCircle weight="fill" className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0 text-danger" />
                         : status && !status.configured
-                          ? <WarningCircle weight="fill" className="mt-0.5 size-5 shrink-0 text-text-faint" />
-                          : <CheckCircle weight="fill" className={`mt-0.5 size-5 shrink-0 ${status?.last ? 'text-success' : 'text-text-faint'}`} />}
+                          ? <WarningCircle weight="fill" className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0 text-text-faint" />
+                          : <CheckCircle weight="fill" className={`mt-[calc(0.5lh-9px)] size-[18px] shrink-0 ${status?.last ? 'text-success' : 'text-text-faint'}`} />}
                     <span className={`min-w-0 text-base font-medium ${billzError ? 'text-danger-strong' : 'text-text'}`}>
                       {statusError ? t('integrations.billz.statusLoadError', { error: statusError }) : billzState.text}
                     </span>

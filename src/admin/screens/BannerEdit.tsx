@@ -142,7 +142,7 @@ const BannerEdit: FC<{ id: string }> = ({ id }) => {
                           <Frame icon={DeviceMobile} label={t('bannerEdit.preview.mobile')} ratio="aspect-[21/9]" src={form.imageUrl} />
                         </div>
                       </div>
-                      <p className="flex items-start gap-1.5 text-sm text-text-muted"><Info className="mt-px size-4 shrink-0 text-text-faint" />{t('bannerEdit.preview.note')}</p>
+                      <p className="flex items-start gap-1.5 text-sm text-text-muted"><Info className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-faint" />{t('bannerEdit.preview.note')}</p>
                       <p className="flex min-w-0 items-center gap-1.5 rounded-control bg-surface-sunken px-3 py-2 text-sm text-text-muted">
                         {form.linkUrl
                           ? <><LinkSimple className="size-4 shrink-0 text-text-faint" /><span className="truncate">{t('bannerEdit.preview.clickTo', { url: form.linkUrl })}</span></>

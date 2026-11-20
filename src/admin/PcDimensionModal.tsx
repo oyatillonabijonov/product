@@ -158,11 +158,11 @@ const PcDimensionModal: FC<{
         </div>
 
         <p aria-live="polite" className="flex items-start gap-2.5 rounded-control bg-accent-soft p-4 text-base text-accent-text">
-          <Lightbulb weight="fill" className="mt-0.5 size-5 shrink-0" />
+          <Lightbulb weight="fill" className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0" />
           <span><span className="font-semibold">{t('configurator.resultLabel')}</span> {result}</span>
         </p>
 
-        {!dim && <p className="flex items-start gap-2 text-sm text-text-muted"><Info className="mt-0.5 size-4 shrink-0 text-text-faint" />{t('configurator.newDimHint')}</p>}
+        {!dim && <p className="flex items-start gap-2 text-sm text-text-muted"><Info className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-faint" />{t('configurator.newDimHint')}</p>}
 
       </div>
       <div className="flex flex-wrap items-center gap-3 px-6 pb-6 max-sm:px-4 max-sm:pb-4">

@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { ArrowLeft, CaretLeft, CaretRight } from '@phosphor-icons/react';
 import type { Icon as PhIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
-import { Button, IconTile, type Hue } from './controls';
+import { Button, type Hue } from './controls';
 import { useConfirm } from './confirm';
 
 /** Qobiq sahifaga yo'l zanjirini beradi («Mahsulotlar › Turlar») — `Page` sarlavha ustida chizadi. */
@@ -91,20 +91,24 @@ export const Card: FC<{
   description?: string;
   actions?: ReactNode;
   icon?: PhIcon;
+  /** Eskirgan — ikonka endi neytral; chaqiruvlar buzilmasligi uchun qoldi. */
   hue?: Hue;
   padded?: boolean;
   filled?: boolean;
   className?: string;
   children: ReactNode;
-}> = ({ title, description, actions, icon, hue = 'slate', padded = true, className = '', children }) => {
+}> = ({ title, description, actions, icon: Icon, padded = true, className = '', children }) => {
   const head = (title || description || actions) ? (
     <div className={`flex min-w-0 flex-wrap items-start justify-between gap-x-4 gap-y-3 ${padded ? '' : 'px-6 pt-5'}`}>
-      <div className="flex min-w-[min(100%,14rem)] flex-1 items-start gap-3">
-        {icon && <IconTile icon={icon} hue={hue} soft />}
-        <div className="min-w-0">
-          {title && <h2 className="text-md font-bold text-text">{title}</h2>}
-          {description && <p className="mt-0.5 text-sm leading-relaxed text-text-muted">{description}</p>}
-        </div>
+      <div className="min-w-[min(100%,14rem)] flex-1">
+        {/* Ikonka sarlavhaning birinchi qatori balandligida (1lh) markazlanadi — ko'p qatorli nomda ham tepaga ko'tarilmaydi. */}
+        {title && (
+          <h2 className="flex items-start gap-2 text-md font-bold text-text">
+            {Icon && <span className="flex h-[1lh] shrink-0 items-center"><Icon aria-hidden weight="fill" className="size-[18px] text-text-faint" /></span>}
+            <span className="min-w-0">{title}</span>
+          </h2>
+        )}
+        {description && <p className={`mt-0.5 text-sm leading-relaxed text-text-muted ${Icon && title ? 'pl-[26px]' : ''}`}>{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>

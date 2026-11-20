@@ -149,8 +149,19 @@ export const LangPair: FC<{
   mono?: boolean;
   required?: boolean;
   error?: string;
-}> = ({ label, uz, ru, onUz, onRu, kind = 'text', rows, hint, ruHint, mono, required, error }) => {
+  /** Berilsa — faqat shu tilning maydoni (ekranda til tanlagichi bo'lganda). */
+  lang?: 'uz' | 'ru';
+}> = ({ label, uz, ru, onUz, onRu, kind = 'text', rows, hint, ruHint, mono, required, error, lang }) => {
   const { t } = useTranslation('common');
+  if (lang) {
+    const isRu = lang === 'ru';
+    const [value, onChange] = isRu ? [ru, onRu] : [uz, onUz];
+    return (
+      <Field label={label} hint={isRu ? ruHint ?? t('ruHint') : hint} error={isRu ? undefined : error} required={!isRu && required}>
+        {kind === 'textarea' ? <Textarea value={value} onChange={onChange} rows={rows} mono={mono} /> : <Input value={value} onChange={onChange} />}
+      </Field>
+    );
+  }
   return (
     <div className="grid gap-3 md:grid-cols-2">
       <Field label={label} tag="UZ" hint={hint} error={error} required={required}>

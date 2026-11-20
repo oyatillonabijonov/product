@@ -246,7 +246,7 @@ const ProductsList: FC = () => {
       ) : (
         <div className="stagger flex flex-col gap-4" style={stagger(2)}>
           <p className="flex items-start gap-2 text-sm text-text-muted">
-            <Info aria-hidden className="mt-px size-4 shrink-0 text-text-faint" />
+            <Info aria-hidden className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-faint" />
             <span>
               {summaryText(items, t)}
               {hasFilter && <span className="font-medium text-text"> {t('productsList.matchesFilter', { count: filtered.length })}</span>}

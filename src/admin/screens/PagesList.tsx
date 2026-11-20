@@ -1,27 +1,19 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { Link } from 'react-router';
-import { ArrowSquareOut, BookOpen, FileText, Hash, Plus, Scales, Storefront, WarningCircle } from '@phosphor-icons/react';
+import { BookOpen, FileText, Plus, Scales, WarningCircle } from '@phosphor-icons/react';
 import type { Icon as PhIcon } from '@phosphor-icons/react';
-import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import type { ApiPage } from '../../../shared/types';
-import { ABOUT_SLUG, LEGAL_LEDE_KEYS } from '../../lib/page-slugs';
+import { firstParagraph } from '../../lib/markdown';
+import { LEGAL_LEDE_KEYS } from '../../lib/page-slugs';
 import { listPages, updatePage } from '../api';
-import { delay } from '../ContentFields';
-import { Badge, Button, Dot, EmptyState, IconButton, IconTile, Toggle, type Hue, type Tone } from '../ui';
+import { Button, EmptyState, Toggle } from '../ui';
 import { useActiveToggle } from '../useActiveToggle';
 
 const LIST = '/admin/content/pages';
 
-/** Sahifa shabloni: maxsuslarining tahririda qo'shimcha maydonlar bor; yorliq, uning rangi, ikonka. */
-function pageKind(slug: string): { label: ParseKeys<'content'>; tone: Tone; icon: PhIcon; hue: Hue } {
-  if (slug === ABOUT_SLUG) return { label: 'pagesList.templateAbout', tone: 'accent', icon: Storefront, hue: 'violet' };
-  if (LEGAL_LEDE_KEYS[slug]) return { label: 'pagesList.templateLegal', tone: 'info', icon: Scales, hue: 'slate' };
-  return { label: 'shared.text', tone: 'neutral', icon: FileText, hue: 'blue' };
-}
-
-/** Kontent sahifalari — faollari saytda ochiladi va footer'da chiqadi. Karta bosilsa tahrir. */
+/** Kontent sahifalari — kartochkalar, ikki guruh: sahifalar va huquqiy hujjatlar. Karta bosilsa tahrir, almashtirgich — saytda/yashirin. */
 const PagesList: FC = () => {
   const { t } = useTranslation('content');
   const [rawItems, setItems] = useState(null as ApiPage[] | null);
@@ -34,72 +26,73 @@ const PagesList: FC = () => {
   }, []);
 
   if (error) return <EmptyState icon={<WarningCircle />} title={t('shared.loadErrorTitle')} text={error} />;
-  if (!items) {
+  if (!items) return <div className="skeleton h-80 rounded-surface" aria-busy="true" />;
+
+  if (items.length === 0) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" aria-busy="true">
-        {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="skeleton h-32 rounded-surface" />)}
-      </div>
+      <EmptyState
+        icon={<BookOpen />}
+        title={t('pagesList.emptyTitle')}
+        text={t('pagesList.emptyText')}
+        action={<Button to={`${LIST}/new`}><Plus weight="bold" />{t('pagesList.addFirst')}</Button>}
+      />
     );
   }
 
-  const live = items.filter((p) => p.isActive).length;
-  const addButton = (label: string) => <Button to={`${LIST}/new`} className="max-sm:w-full"><Plus weight="bold" />{label}</Button>;
+  const groups: { title: string; icon: PhIcon; rows: ApiPage[]; add?: boolean }[] = [
+    { title: t('pagesList.groupPages'), icon: FileText, rows: items.filter((p) => !LEGAL_LEDE_KEYS[p.slug]), add: true },
+    { title: t('pagesList.groupLegal'), icon: Scales, rows: items.filter((p) => LEGAL_LEDE_KEYS[p.slug]) },
+  ];
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="min-w-0 flex-1">
-          <p className="max-w-2xl text-base text-text-muted">{t('pagesList.description')}</p>
-          {items.length > 0 && (
-            <p className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
-              <Dot tone="ok">{t('shared.onSiteCount', { n: live })}</Dot>
-              {items.length > live && <Dot tone="neutral">{t('shared.hiddenCount', { n: items.length - live })}</Dot>}
-            </p>
-          )}
-        </div>
-        {items.length > 0 && addButton(t('pagesList.new'))}
-      </div>
+    <div className="flex flex-col gap-10">
+      <p className="max-w-[640px] text-base text-text-muted">{t('pagesList.description')}</p>
 
-      {items.length === 0 ? (
-        <EmptyState icon={<BookOpen />} title={t('pagesList.emptyTitle')} text={t('pagesList.emptyText')} action={addButton(t('pagesList.addFirst'))} />
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {items.map((p, i) => {
-            const kind = pageKind(p.slug);
-            return (
-              <article
-                key={p.id}
-                style={delay(i)}
-                className="stagger group relative flex flex-col gap-4 rounded-surface bg-surface-sunken p-5 transition-colors duration-200 hover:bg-surface-sunken-hover has-[a:focus-visible]:ring-4 has-[a:focus-visible]:ring-accent/20"
-              >
-                <div className="flex items-start gap-3">
-                  <IconTile icon={kind.icon} hue={kind.hue} soft size="lg" className={p.isActive ? '' : 'opacity-60'} />
-                  <div className="min-w-0 flex-1">
-                    <Link to={`${LIST}/${p.id}`} className="block truncate text-md font-bold text-text outline-none after:absolute after:inset-0">{p.title.uz}</Link>
-                    <p className="mt-0.5 truncate font-mono text-sm text-text-muted">/page/{p.slug}</p>
+      {groups.filter((g) => g.rows.length > 0 || g.add).map((g) => (
+        <section key={g.title} className="flex flex-col gap-4">
+          <h2 className="text-lg font-bold text-text">
+            {g.title} <span className="font-medium text-text-faint">{g.rows.length}</span>
+          </h2>
+          <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {g.rows.map((p) => {
+              const excerpt = firstParagraph(p.content.uz);
+              return (
+                <li key={p.id} className="stagger group relative flex flex-col rounded-surface sm:min-h-[180px] bg-surface-sunken p-5 transition-colors duration-150 hover:bg-surface-sunken-hover">
+                  <div className="flex items-center justify-between gap-3">
+                    <g.icon aria-hidden weight="fill" className={`size-6 ${p.isActive ? 'text-text-muted' : 'text-text-faint'}`} />
+                    {/* Karta havolasi butun yuzani qoplaydi — almashtirgich undan ustida turadi. */}
+                    <span className="relative z-10 flex items-center gap-2.5">
+                      <span className={`text-sm font-medium ${p.isActive ? 'text-success-strong' : 'text-text-faint'}`}>
+                        {p.isActive ? t('shared.onSiteColumn') : t('shared.statusHidden')}
+                      </span>
+                      <Toggle on={p.isActive} onChange={(v) => toggle(p, v)} label={t('shared.toggleAria', { name: p.title.uz })} />
+                    </span>
                   </div>
-                  <span className="relative z-10 pt-1">
-                    <Toggle on={p.isActive} onChange={(v) => toggle(p, v)} label={t('shared.toggleAria', { name: p.title.uz })} />
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 border-t border-border pt-4">
-                  <Badge tone={kind.tone}>{t(kind.label)}</Badge>
-                  <Dot tone={p.isActive ? 'ok' : 'neutral'}>{p.isActive ? t('shared.onSiteColumn') : t('shared.statusHidden')}</Dot>
-                  <span className="flex-1" />
-                  <span className="inline-flex items-center gap-1 text-sm tabular-nums text-text-muted" title={t('shared.sortOrder')}>
-                    <Hash weight="bold" className="size-3 text-text-faint" />{p.sortOrder}
-                  </span>
-                  <span className="relative z-10">
-                    <IconButton size="sm" href={`/page/${p.slug}`} label={t('pagesList.openAria', { name: p.title.uz })}>
-                      <ArrowSquareOut />
-                    </IconButton>
-                  </span>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
+                  <Link
+                    to={`${LIST}/${p.id}`}
+                    className={`mt-5 text-lg font-semibold leading-snug outline-none after:absolute after:inset-0 after:rounded-surface focus-visible:after:outline-2 focus-visible:after:outline-border-focus ${p.isActive ? 'text-text' : 'text-text-muted'}`}
+                  >
+                    {p.title.uz}
+                  </Link>
+                  {excerpt && <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-text-muted">{excerpt}</p>}
+                  <p className="mt-auto truncate pt-4 font-mono text-xs text-text-faint">/page/{p.slug}</p>
+                </li>
+              );
+            })}
+            {g.add && (
+              <li>
+                <Link
+                  to={`${LIST}/new`}
+                  className="flex h-full min-h-24 flex-col items-center justify-center sm:min-h-[180px] gap-2 rounded-surface bg-surface-sunken p-5 text-base font-semibold text-text-muted transition-colors duration-150 hover:bg-surface-sunken-hover hover:text-text"
+                >
+                  <Plus weight="bold" className="size-6" />
+                  {t('pagesList.new')}
+                </Link>
+              </li>
+            )}
+          </ul>
+        </section>
+      ))}
     </div>
   );
 };

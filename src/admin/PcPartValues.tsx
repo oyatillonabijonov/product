@@ -34,7 +34,7 @@ const PcPartValues: FC<{ productId: string }> = ({ productId }) => {
 
   if (state === 'loading') return null;
   if (state === 'error') return <p className="flex items-center gap-2 py-3 text-base text-danger-text"><WarningCircle weight="fill" className="size-4 shrink-0" />{t('shared.loadError')}</p>;
-  if (state === 'none' || !part) return <p className="flex items-start gap-2 py-3 text-base text-text-muted"><Info className="mt-0.5 size-4 shrink-0 text-text-faint" />{t('productEdit.pc.valuesNone')}</p>;
+  if (state === 'none' || !part) return <p className="flex items-start gap-2 py-3 text-base text-text-muted"><Info className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-faint" />{t('productEdit.pc.valuesNone')}</p>;
   const slotDims = dimsForSlot(part.slot, dims);
   if (slotDims.length === 0) return null;
 
@@ -54,7 +54,7 @@ const PcPartValues: FC<{ productId: string }> = ({ productId }) => {
   return (
     <div className="flex flex-col gap-3 py-3">
       <p className="flex items-start gap-2 rounded-control bg-surface-sunken px-3 py-2.5 text-sm text-text-muted">
-        <Info weight="fill" className="mt-0.5 size-4 shrink-0 text-accent" />
+        <Info weight="fill" className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-accent" />
         {t('productEdit.pc.valuesHint')}
       </p>
       <PcValueChips dims={slotDims} values={part.values} suggested={part.suggested} disabled={busy} onToggle={toggle} />

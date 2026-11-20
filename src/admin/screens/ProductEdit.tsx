@@ -357,7 +357,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
             />
             {billz && shown && !form.isActive && (
               <p className="-mt-1 flex items-start gap-1.5 pb-3 text-sm text-warning-text">
-                <WarningCircle weight="fill" className="mt-px size-4 shrink-0" />
+                <WarningCircle weight="fill" className="mt-[calc(0.5lh-8px)] size-4 shrink-0" />
                 {form.imageUrl ? t('productEdit.status.notShownNow') : t('productEdit.status.notShownNoImage')}
               </p>
             )}
@@ -414,7 +414,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
     >
       {error && (
         <div role="alert" className="mb-6 flex items-start gap-2.5 rounded-surface bg-danger-soft px-5 py-4 text-base text-danger-strong">
-          <WarningCircle weight="fill" className="size-5 shrink-0 text-danger" />
+          <WarningCircle weight="fill" className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0 text-danger" />
           <span className="min-w-0">{error}</span>
         </div>
       )}

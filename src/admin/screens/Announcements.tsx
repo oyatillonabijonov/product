@@ -95,7 +95,7 @@ const Announcements: FC = () => {
             <div className="rounded-control bg-surface-sunken p-4">
               <article className="relative flex gap-3 overflow-hidden rounded-control bg-surface p-4 pl-5">
                 <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-accent" />
-                <IconTile icon={Megaphone} hue="orange" soft />
+                <span className="flex h-[1lh] shrink-0 items-center text-base"><IconTile icon={Megaphone} hue="orange" soft /></span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
                     <p className={`min-w-0 break-words text-base ${title ? 'font-semibold text-text' : 'text-text-faint'}`}>{title || t('announcements.previewEmpty')}</p>
@@ -112,7 +112,7 @@ const Announcements: FC = () => {
               </article>
             </div>
             <p className="flex items-start gap-2 text-sm text-text-muted">
-              <Info weight="fill" className="mt-px size-4 shrink-0 text-text-faint" />
+              <Info weight="fill" className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-faint" />
               {t('announcements.confirmMessage')}
             </p>
           </Card>

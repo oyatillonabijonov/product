@@ -61,7 +61,7 @@ const Step: FC<{ n: number; hue: Hue; title: string; description?: string; child
 /** Qadam ichidagi izoh qatori (narx/tugma rejimi nima qilishini aytadi). */
 const Note: FC<{ children: ReactNode }> = ({ children }) => (
   <p className="flex items-start gap-2 rounded-control bg-surface-sunken px-3 py-2.5 text-base text-text-muted">
-    <Info className="mt-0.5 size-4 shrink-0 text-text-faint" />
+    <Info className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-faint" />
     <span>{children}</span>
   </p>
 );
@@ -268,7 +268,7 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
                     })}
                   </div>
                   <p className="mt-3 flex items-start gap-1.5 text-sm leading-relaxed text-text-muted">
-                    <Info className="mt-0.5 size-4 shrink-0 text-text-faint" />{placeText}
+                    <Info className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-faint" />{placeText}
                   </p>
                 </div>
               )}

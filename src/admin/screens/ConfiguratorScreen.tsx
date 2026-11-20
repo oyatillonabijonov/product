@@ -183,7 +183,7 @@ const ConfiguratorScreen: FC = () => {
   /** Qism sarlavhasi: bo'g'in ikonkasi, nom, bo'g'in nomi; chip bosilgan bo'lsa «✓ Saqlandi». */
   const partHead = (p: ApiPcPart, sub?: string) => (
     <div className="flex min-w-0 items-start gap-3">
-      <IconTile icon={SLOT_ICON[p.slot]} hue={SLOT_HUE[p.slot]} soft size="sm" className="mt-0.5" />
+      <span className="flex h-[1lh] shrink-0 items-center text-base"><IconTile icon={SLOT_ICON[p.slot]} hue={SLOT_HUE[p.slot]} soft size="sm" /></span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="text-base font-medium text-text">{p.name}</span>
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-muted">
@@ -201,8 +201,8 @@ const ConfiguratorScreen: FC = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="stagger flex items-start gap-3 rounded-surface bg-accent-soft px-5 py-4" style={stagger(0)}>
-        <Info weight="fill" aria-hidden className="mt-0.5 size-5 shrink-0 text-accent" />
+      <div className="stagger flex items-start gap-3 rounded-surface bg-accent-soft px-5 py-4 text-base" style={stagger(0)}>
+        <Info weight="fill" aria-hidden className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0 text-accent" />
         <div className="min-w-0">
           <p className="text-base font-semibold text-accent-text">{t('configurator.aboutTitle')}</p>
           <p className="mt-0.5 text-base text-text-muted">{t('configurator.aboutText')}</p>
@@ -365,7 +365,7 @@ const ConfiguratorScreen: FC = () => {
                 {dims.map((d) => (
                   <li key={d.id} className="flex flex-col gap-4 rounded-control-lg bg-surface p-4">
                     <div className="flex items-start gap-3">
-                      <IconTile icon={d.active ? ShieldCheck : ShieldSlash} hue={d.active ? 'green' : 'slate'} soft />
+                      <span className="flex h-[1lh] shrink-0 items-center text-base"><IconTile icon={d.active ? ShieldCheck : ShieldSlash} hue={d.active ? 'green' : 'slate'} soft /></span>
                       <div className="min-w-0 flex-1">
                         <p className="text-base font-semibold text-text">{t('configurator.checkRule', { name: dimLabel(d, i18n.language), slots: slotList(d) })}</p>
                         <p className={`mt-0.5 text-sm ${d.missing > 0 ? 'font-medium text-warning-text' : 'text-text-muted'}`}>

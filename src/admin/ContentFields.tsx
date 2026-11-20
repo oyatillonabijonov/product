@@ -149,7 +149,7 @@ export const AssetInput: FC<{ field: AssetField; value: string; onChange: (url: 
 };
 
 /** Bitta sayt matni — uz/ru juftligi; nom va izoh `site:fields.<kalit>`dan. */
-export const SiteTextInput: FC<{ content: SiteContent; field: TextFieldDef; rows?: number }> = ({ content, field, rows = 3 }) => {
+export const SiteTextInput: FC<{ content: SiteContent; field: TextFieldDef; rows?: number; lang?: 'uz' | 'ru' }> = ({ content, field, rows = 3, lang }) => {
   const { t, i18n } = useTranslation(['site', 'content']);
   const labelKey = `fields.${field.key}.label` as ParseKeys<'site'>;
   const hintKey = `fields.${field.key}.hint` as ParseKeys<'site'>;
@@ -164,12 +164,13 @@ export const SiteTextInput: FC<{ content: SiteContent; field: TextFieldDef; rows
       onUz={(v) => content.setText(field.key, 'uz', v)}
       onRu={(v) => content.setText(field.key, 'ru', v)}
       ruHint={t('content:contentFields.ruHint')}
+      lang={lang}
     />
   );
 };
 
 /** Bo'lim kartasi: rangli ikonka, nom, saytdagi joyi; ichida matnlar, keyin rasm/videolar. */
-export const SectionCard: FC<{ content: SiteContent; section: ContentSection; children?: ReactNode }> = ({ content, section, children }) => {
+export const SectionCard: FC<{ content: SiteContent; section: ContentSection; children?: ReactNode; lang?: 'uz' | 'ru' }> = ({ content, section, children, lang }) => {
   const { t, i18n } = useTranslation(['site']);
   // `FC` props tipsiz — bo'lim tipi shu yerda tiklanadi (kalitlar lint'da tekshiriladi).
   const s: ContentSection = section;
@@ -182,7 +183,7 @@ export const SectionCard: FC<{ content: SiteContent; section: ContentSection; ch
       description={i18n.exists(`site:sectionHints.${s.id}`) ? t(`sectionHints.${s.id}` as ParseKeys<'site'>) : undefined}
     >
       <div className="flex flex-col gap-5">
-        {s.texts.map((f) => <SiteTextInput key={f.key} content={content} field={f} />)}
+        {s.texts.map((f) => <SiteTextInput key={f.key} content={content} field={f} lang={lang} />)}
         {s.assets.length > 0 && (
           <div className={`grid gap-4 sm:grid-cols-2 ${s.texts.length > 0 ? 'border-t border-border pt-5' : ''}`}>
             {s.assets.map((f) => (
@@ -200,7 +201,7 @@ export const SectionCard: FC<{ content: SiteContent; section: ContentSection; ch
  * Bo'limlar kartalari: matn — uz/ru juftligi, rasm/video — yuklagich (fayl o'chirilsa standart qaytadi).
  * `only` — faqat shu id'li bo'limlar (bitta guruhning kartalarini ekranda ajratib qo'yish uchun).
  */
-export const ContentFields: FC<{ content: SiteContent; only?: SiteSection[] }> = ({ content, only }) => {
+export const ContentFields: FC<{ content: SiteContent; only?: SiteSection[]; lang?: 'uz' | 'ru' }> = ({ content, only, lang }) => {
   const { t } = useTranslation(['site', 'content', 'common']);
   if (content.error) return <EmptyState icon={<WarningCircle />} title={t('content:contentFields.loadErrorTitle')} text={content.error} />;
   if (!content.loaded) return <Skeleton rows={6} />;
@@ -208,7 +209,7 @@ export const ContentFields: FC<{ content: SiteContent; only?: SiteSection[] }> =
     <>
       {content.sections.filter((s: ContentSection) => !only || only.includes(s.id)).map((s: ContentSection, i: number) => (
         <div key={s.id} className="stagger" style={delay(i)}>
-          <SectionCard content={content} section={s} />
+          <SectionCard content={content} section={s} lang={lang} />
         </div>
       ))}
     </>
@@ -279,7 +280,7 @@ export const EditColumns: FC<{ main: ReactNode; aside: ReactNode }> = ({ main, a
 /** Saqlash xatosi — forma tepasida. */
 export const FormError: FC<{ text: string }> = ({ text }) => (
   <p role="alert" className="flex items-start gap-2.5 rounded-control bg-danger-soft px-4 py-3 text-base text-danger-strong">
-    <WarningCircle weight="fill" className="mt-0.5 size-[18px] shrink-0 text-danger" />
+    <WarningCircle weight="fill" className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0 text-danger" />
     {text}
   </p>
 );

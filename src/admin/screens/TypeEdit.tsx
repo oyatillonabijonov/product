@@ -132,7 +132,7 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
         <div className="flex max-w-4xl flex-col gap-4">
           {error && (
             <div role="alert" className="flex items-start gap-2.5 rounded-surface bg-danger-soft px-5 py-4 text-base text-danger-strong">
-              <WarningCircle weight="fill" className="size-5 shrink-0 text-danger" />
+              <WarningCircle weight="fill" className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0 text-danger" />
               <span className="min-w-0">{error}</span>
             </div>
           )}

@@ -149,8 +149,8 @@ const SettingsContact: FC = () => {
                   )}
                   {(address || time) && (
                     <div className="mt-3 flex flex-col gap-2 border-t border-border pt-4 text-sm text-text-muted">
-                      {address && <p className="flex gap-2"><MapPin weight="fill" className="mt-0.5 size-4 shrink-0 text-text-muted" />{address}</p>}
-                      {time && <p className="flex gap-2"><Clock weight="fill" className="mt-0.5 size-4 shrink-0 text-text-muted" />{time}</p>}
+                      {address && <p className="flex gap-2"><MapPin weight="fill" className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-muted" />{address}</p>}
+                      {time && <p className="flex gap-2"><Clock weight="fill" className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-muted" />{time}</p>}
                     </div>
                   )}
                 </div>

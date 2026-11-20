@@ -52,7 +52,7 @@ const MarkdownHelp: FC = () => {
           </tbody>
         </table>
         <p className="mt-2 flex items-start gap-1.5 text-sm text-text-muted">
-          <Info className="mt-px size-4 shrink-0 text-text-faint" />
+          <Info className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-text-faint" />
           {t('markdownHelp.note')}
         </p>
       </div>

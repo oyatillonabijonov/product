@@ -119,7 +119,7 @@ export const StatusStepper: FC<{
       </div>
       {!telegramSent && (
         <p className="flex items-start gap-2.5 rounded-control bg-danger-soft px-4 py-3 text-sm text-danger-strong">
-          <WarningCircle weight="fill" className="mt-px size-4 shrink-0 text-danger" />
+          <WarningCircle weight="fill" className="mt-[calc(0.5lh-8px)] size-4 shrink-0 text-danger" />
           {t('shared.telegramWarning')}
         </p>
       )}

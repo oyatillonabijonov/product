@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { Check, ImageSquare, LinkSimple, ListBullets, ListNumbers, TextB, TextHThree, TextHTwo, X } from '@phosphor-icons/react';
 import type { Icon as PhIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
@@ -27,8 +27,8 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
  * ko'rinadi; saqlanadigani — markdown (`lib/rich-md.ts`). `resetKey` almashganda (til, yuklash) matn qaytadan o'rnatiladi —
  * har yozuvda emas, aks holda kursor sakraydi. Paste — faqat matn (begona uslub kirmaydi) yoki rasm fayli.
  */
-const RichEditor: FC<{ value: string; onChange: (md: string) => void; resetKey: string; placeholder: string; stickyTop?: string }> = ({
-  value, onChange, resetKey, placeholder, stickyTop = 'top-0',
+const RichEditor: FC<{ value: string; onChange: (md: string) => void; resetKey: string; placeholder: string; stickyTop?: string; header?: ReactNode }> = ({
+  value, onChange, resetKey, placeholder, stickyTop = 'top-0', header,
 }) => {
   const { t } = useTranslation('content');
   const toast = useToast();
@@ -225,6 +225,8 @@ const RichEditor: FC<{ value: string; onChange: (md: string) => void; resetKey: 
         )}
       </div>
 
+      {/* `header` — asboblar paneli va matn orasida (hujjat varag'idagi sarlavha). */}
+      {header}
       <div className="relative mt-6">
         {empty && <p aria-hidden className="pointer-events-none absolute inset-x-0 top-0 text-[17px] leading-[1.75] text-text-faint">{placeholder}</p>}
         <div
