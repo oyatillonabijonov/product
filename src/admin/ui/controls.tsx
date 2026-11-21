@@ -143,7 +143,10 @@ export const IconTile: FC<{ icon: PhIcon; hue?: Hue; soft?: boolean; size?: 'sm'
   return <I aria-hidden weight={soft ? 'regular' : 'fill'} className={`shrink-0 text-text-muted ${ico} ${className}`} />;
 };
 
-/** Switch: telefonda 44×26, desktopda 36×20; tugmacha prujina bilan suriladi. */
+/**
+ * Switch: telefonda 44×26, desktopda 36×20; tugmacha prujina bilan suriladi. Yoqilgan holatda tugmacha rangi
+ * `text-on-primary` — qorong'i mavzuda trek oq bo'ladi, oq tugmacha unda ko'rinmasdi.
+ */
 export const Toggle: FC<{ on: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }> = ({ on, onChange, label, disabled }) => (
   <button
     type="button"
@@ -152,11 +155,11 @@ export const Toggle: FC<{ on: boolean; onChange: (v: boolean) => void; label: st
     aria-label={label}
     disabled={disabled}
     onClick={() => onChange(!on)}
-    className={`relative h-[26px] w-11 shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50 lg:h-5 lg:w-9 ${on ? 'bg-switch-on' : 'bg-neutral-hover'}`}
+    className={`relative h-[26px] w-11 shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50 lg:h-5 lg:w-9 ${on ? 'bg-switch-on' : 'bg-border-strong'}`}
   >
     <span
       aria-hidden
-      className={`absolute left-[3px] top-[3px] size-5 rounded-full bg-white transition-transform duration-300 ease-spring lg:left-0.5 lg:top-0.5 lg:size-4 ${on ? 'translate-x-[18px] lg:translate-x-4' : ''}`}
+      className={`absolute left-[3px] top-[3px] size-5 rounded-full transition-[transform,background-color] duration-300 ease-spring lg:left-0.5 lg:top-0.5 lg:size-4 ${on ? 'translate-x-[18px] bg-text-on-primary lg:translate-x-4' : 'bg-white'}`}
     />
   </button>
 );
