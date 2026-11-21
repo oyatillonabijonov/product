@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC } from 'react';
 import type { Translation } from '../locales';
-import type { ApiSiteConfig } from '../../shared/types';
+import type { PublicSiteConfig } from '../../shared/types';
 import { useAssets } from './SiteAssets';
 
 const GoogleG: FC = () => (
@@ -14,7 +14,7 @@ const GoogleG: FC = () => (
 );
 
 /** Kirish faqat Google yoki Telegram sozlanganda ko'rsatiladi (Header/StoreLayout/kirish shu qoidani tekshiradi). */
-export function loginEnabled(config: ApiSiteConfig): boolean {
+export function loginEnabled(config: PublicSiteConfig): boolean {
   return Boolean(config.googleClientId || config.telegramLoginBot);
 }
 
@@ -22,7 +22,7 @@ export function loginEnabled(config: ApiSiteConfig): boolean {
 // kirish bitta joyda bo'lsin, modal ichida Telegram vidjeti ham ishonchsiz ochilardi).
 // Email+parol yo'li UI'dan olib tashlangan (2026-09): parolni tiklash oqimi yo'q edi,
 // unutgan mijoz abadiy qulflanardi. Server routelari (`auth/email`) turibdi.
-const LoginPanel: FC<{ t: Translation; config: ApiSiteConfig; error?: string }> = ({ t, config, error }) => {
+const LoginPanel: FC<{ t: Translation; config: PublicSiteConfig; error?: string }> = ({ t, config, error }) => {
   const asset = useAssets();
   const tgRef = useRef<HTMLDivElement>(null);
   // Vidjet **haqiqatan chizilganda** tugmalar ustuni uning eniga tenglashadi. U kelmasa

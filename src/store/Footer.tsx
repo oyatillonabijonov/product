@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { Translation } from '../locales';
-import type { ApiCategory, ApiSiteConfig } from '../../shared/types';
+import type { ApiCategory, PublicSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
 import { categoryLabel, localizedPath, localeToTextKey, type Locale } from '../../app/lib/i18n';
 import { safeHref } from '../../shared/safe-href';
@@ -39,7 +39,7 @@ const Col: FC<{ title: string; children: ReactNode }> = ({ title, children }) =>
  * ekranlarda umuman yuklanmaydi: u yerda manzil qatoridagi havola yetarli.
  */
 const Footer: FC<{
-  t: Translation; locale: Locale; config: ApiSiteConfig; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean;
+  t: Translation; locale: Locale; config: PublicSiteConfig; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean;
 }> = ({ t, locale, config, pageLinks, categories, hasDeals }) => {
   const textKey = localeToTextKey(locale);
   const mapLinkHref = `https://yandex.com/maps/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm`;

@@ -1,7 +1,7 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation, useRouteLoaderData } from 'react-router';
 import { htmlLang, DEFAULT_LOCALE, type Locale } from './lib/i18n';
 import { hreflangLinks, organizationJsonLd, type OrgContact } from './lib/seo';
-import type { ApiSiteConfig } from '../shared/types';
+import type { PublicSiteConfig } from '../shared/types';
 import type { SiteAssets } from '../src/lib/site-content';
 // Sayt va admin uslublari alohida build — tokenlar nomi bir xil, ma'nosi boshqa (admin: `app/admin.css`, admin route'ning `links`i).
 import storeCss from './styles.css?url';
@@ -14,7 +14,7 @@ import storeCss from './styles.css?url';
 // it ever reaches <Meta />. Rendering them here in the root Layout (which always wraps
 // every page) guarantees they appear on every page regardless of leaf meta overrides.
 export function Layout({ children }: { children: React.ReactNode }) {
-  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: ApiSiteConfig; origin?: string; orgContact?: OrgContact; assets?: SiteAssets; adminViewer?: boolean } | undefined;
+  const storeData = useRouteLoaderData('routes/store') as { locale?: Locale; siteConfig?: PublicSiteConfig; origin?: string; orgContact?: OrgContact; assets?: SiteAssets; adminViewer?: boolean } | undefined;
   // Admin cookie'si bilan ochilgan hujjatda Metrica ishlamaydi (admin tashrifi statistikaga tushmasin).
   // Lydya chati esa hammada, admin'da ham doim chiqadi — egasining qarori (2026-11-05).
   const thirdParty = Boolean(storeData) && !storeData?.adminViewer;

@@ -6,7 +6,7 @@ import { stripLocale } from '../../app/lib/i18n';
 import { ymHit } from '../lib/metrica';
 import type { LangKey, Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
-import type { ApiCategory, ApiCustomer, ApiSiteConfig } from '../../shared/types';
+import type { ApiCategory, ApiCustomer, PublicSiteConfig } from '../../shared/types';
 import type { PageLink } from '../../app/lib/loaders';
 import type { SiteAssets } from '../lib/site-content';
 import Header from './Header';
@@ -24,7 +24,7 @@ export interface StoreContext {
   lang: LangKey;
   locale: Locale;
   /** D1 site_config — kontaktlar (tel/TG/WA) va brend nomi shu yerdan, kodga qotirilmaydi. Sirlarsiz (publicSiteConfig). */
-  config: ApiSiteConfig;
+  config: PublicSiteConfig;
   /** Kirgan mijoz (yoki null) — forma avto-to'ldirish + header holati uchun. */
   customer: ApiCustomer | null;
   /** O'qilmagan bildirishnomalar soni — profil tugmasidagi nuqta. */
@@ -35,7 +35,7 @@ export interface StoreContext {
 
 export default function StoreLayout({
   locale, lang, t, config, customer, unread, pageLinks, categories, hasDeals, currency, usdRate, assets, children,
-}: { locale: Locale; lang: LangKey; t: Translation; config: ApiSiteConfig; customer: ApiCustomer | null; unread: number; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean; currency: Currency; usdRate: number; assets: SiteAssets; children: ReactNode }) {
+}: { locale: Locale; lang: LangKey; t: Translation; config: PublicSiteConfig; customer: ApiCustomer | null; unread: number; pageLinks: PageLink[]; categories: ApiCategory[]; hasDeals: boolean; currency: Currency; usdRate: number; assets: SiteAssets; children: ReactNode }) {
   // SSR navigatsiyasi (filtr/sort/sahifa) sekin tarmoqda feedback'siz edi — indeterminate progress-bar.
   const navigation = useNavigation();
   const pending = navigation.state !== 'idle';

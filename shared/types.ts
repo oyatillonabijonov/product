@@ -295,6 +295,17 @@ export interface ApiSiteConfig {
   billzLastSync: string;
 }
 
+/**
+ * Brauzerga (HTML'ga) ketadigan sozlamalar — **faqat shu ro'yxatdagi** maydonlar (`publicSiteConfig`).
+ * Oq ro'yxat: `ApiSiteConfig`ga yangi maydon qo'shilsa, bu yerga yozilmaguncha saytga chiqmaydi.
+ */
+export type PublicSiteConfig = Pick<
+  ApiSiteConfig,
+  | 'name' | 'phone' | 'phoneDisplay' | 'telegram' | 'instagram' | 'whatsapp' | 'mapLl'
+  | 'seoTitleSuffix' | 'seoDescription' | 'ogImage' | 'paymentMode'
+  | 'googleClientId' | 'telegramLoginBot' | 'yandexMetricaId'
+>;
+
 export interface ApiCustomer {
   id: number;
   createdAt: number;

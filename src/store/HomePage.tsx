@@ -1,4 +1,4 @@
-import type { ApiBanner, ApiBrand, ApiCategory, ApiNews, ApiSiteConfig } from '../../shared/types';
+import type { ApiBanner, ApiBrand, ApiCategory, ApiNews, PublicSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import type { Locale } from '../../app/lib/i18n';
 import HeroColumns from './HeroColumns';
@@ -18,7 +18,7 @@ export default function HomePage({
   t, categories, locale, site, news, banners, brands, signedIn,
 }: {
   t: Translation; categories: ApiCategory[]; locale: Locale; signedIn: boolean;
-  site: ApiSiteConfig; news: ApiNews[]; banners: ApiBanner[]; brands: ApiBrand[];
+  site: PublicSiteConfig; news: ApiNews[]; banners: ApiBanner[]; brands: ApiBrand[];
 }) {
   return (
     <>

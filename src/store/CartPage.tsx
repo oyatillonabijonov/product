@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { Trash2, ShoppingCart, Minus, Plus } from 'lucide-react';
 import type { Translation } from '../locales';
 import type { InstallmentConfig } from '../data/products';
-import type { ApiSiteConfig } from '../../shared/types';
+import type { PublicSiteConfig } from '../../shared/types';
 import { cartSum, cartInstallment } from '../lib/cart';
 import { useCart } from './CartContext';
 import { useCurrency } from './CurrencyContext';
@@ -11,7 +11,7 @@ import LocaleLink from './LocaleLink';
 import OrderForm, { type OrderDraft } from './OrderForm';
 import TermSegments from './TermSegments';
 
-const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: ApiSiteConfig }> = ({ t, config, site }) => {
+const CartPage: FC<{ t: Translation; config: InstallmentConfig; site: PublicSiteConfig }> = ({ t, config, site }) => {
   const showInstallment = site.paymentMode !== 'cash';
   const { items, count, remove, changeQty, clear } = useCart();
   const { price } = useCurrency();

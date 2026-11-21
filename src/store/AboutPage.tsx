@@ -2,7 +2,7 @@ import type { FC, ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { ChevronRight, MapPin, Newspaper, ShieldCheck, ShoppingBag, UserRound } from 'lucide-react';
 import type { Translation } from '../locales';
-import type { ApiSiteConfig } from '../../shared/types';
+import type { PublicSiteConfig } from '../../shared/types';
 import LocaleLink from './LocaleLink';
 import PageHero from './PageHero';
 import { useAssets } from './SiteAssets';
@@ -41,7 +41,7 @@ const CardText: FC<{ icon: LucideIcon; title: string; text: string; className?: 
  * buyurtma va operator qo'ng'irog'i, Trade-In sahifasi, bepul Apple sozlash (`setup*`),
  * yetkazish muddatlari. Fotolar GPT'da yaratilgan (egasi), manba PNG'lar `public/`da qolmaydi.
  */
-const AboutPage: FC<{ t: Translation; config: ApiSiteConfig; title: string }> = ({ t, config, title }) => {
+const AboutPage: FC<{ t: Translation; config: PublicSiteConfig; title: string }> = ({ t, config, title }) => {
   const asset = useAssets();
   const mapHref = `https://yandex.com/maps/?ll=${encodeURIComponent(config.mapLl)}&z=17&pt=${config.mapLl},pm2rdm`;
   const telegram = safeHref(config.telegram);

@@ -1,4 +1,4 @@
-import type { ApiSiteConfig } from '../../shared/types';
+import type { PublicSiteConfig } from '../../shared/types';
 import { siteConfig } from './site.config';
 import { LOCALES, htmlLang, localizedPath, DEFAULT_LOCALE, stripLocale } from './i18n';
 import { hasActiveParams } from './catalog';
@@ -53,7 +53,7 @@ export interface OrgContact {
   openingHours: string;
 }
 
-export function organizationJsonLd(config: ApiSiteConfig | undefined, origin: string | undefined, contact: OrgContact) {
+export function organizationJsonLd(config: PublicSiteConfig | undefined, origin: string | undefined, contact: OrgContact) {
   // Yandex `ll` = "lon,lat"; schema.org geo lat/lon alohida.
   const [lon, lat] = (config?.mapLl ?? siteConfig.map.ll).split(',').map(Number);
   return {
@@ -85,10 +85,10 @@ export function hreflangLinks(pathname: string, origin = '') {
   return links;
 }
 
-export function storeConfigFrom(matches: unknown): ApiSiteConfig | undefined {
+export function storeConfigFrom(matches: unknown): PublicSiteConfig | undefined {
   if (!Array.isArray(matches)) return undefined;
   for (const m of matches) {
-    const c = (m as { data?: { siteConfig?: ApiSiteConfig } } | null | undefined)?.data?.siteConfig;
+    const c = (m as { data?: { siteConfig?: PublicSiteConfig } } | null | undefined)?.data?.siteConfig;
     if (c && typeof c.seoTitleSuffix === 'string') return c;
   }
   return undefined;

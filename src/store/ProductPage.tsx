@@ -3,7 +3,7 @@ import type { FC } from 'react';
 import { Eye, EyeOff, ShieldCheck, ChevronRight, Truck, ShoppingCart, Wallet } from 'lucide-react';
 import type { InstallmentConfig, Product } from '../data/products';
 import type { ProductDetail } from '../../app/lib/loaders';
-import type { ApiOption, ApiReview, ApiSiteConfig } from '../../shared/types';
+import type { ApiOption, ApiReview, PublicSiteConfig } from '../../shared/types';
 import type { Translation } from '../locales';
 import { calcInstallment, discountPercent } from '../lib/installment';
 import { SWATCHES } from '../lib/swatches';
@@ -46,7 +46,7 @@ const InfoRow: FC<{ icon: FC<{ className?: string }>; label: string; value: stri
 
 const ProductPage: FC<{
   t: Translation; product: ProductDetail; config: InstallmentConfig;
-  similar: Product[]; reviews: ApiReview[]; site: ApiSiteConfig;
+  similar: Product[]; reviews: ApiReview[]; site: PublicSiteConfig;
   /** Ko'rinadigan breadcrumb JSON-LD BreadcrumbList bilan mos bo'lishi uchun. */
   categoryName?: string | null;
 }> = ({ t, product, config, similar, reviews, site, categoryName }) => {

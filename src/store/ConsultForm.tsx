@@ -2,7 +2,7 @@ import { useState, type FC } from 'react';
 import { motion } from 'motion/react';
 import { Check } from 'lucide-react';
 import type { Translation } from '../locales';
-import type { ApiSiteConfig } from '../../shared/types';
+import type { PublicSiteConfig } from '../../shared/types';
 import { formatUzPhone, isCompleteUzPhone } from '../lib/phone';
 import { ymGoal } from '../lib/metrica';
 import { SPRING_UI } from '../lib/motion';
@@ -34,7 +34,7 @@ const Chip: FC<{ label: string; on: boolean; onToggle: () => void }> = ({ label,
  * Rasm balandlikni belgilamaydi — `absolute` bo'lib o'ng tomon balandligini to'ldiradi.
  * Muvaffaqiyat xabari o'ng tomonda chiqadi, rasm joyida qoladi.
  */
-const ConsultForm: FC<{ t: Translation; config: ApiSiteConfig }> = ({ t, config }) => {
+const ConsultForm: FC<{ t: Translation; config: PublicSiteConfig }> = ({ t, config }) => {
   const asset = useAssets();
   const topics = [
     t.consultTopicApple, t.consultTopicPc, t.consultTopicAudio,

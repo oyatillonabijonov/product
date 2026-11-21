@@ -1,5 +1,5 @@
 import type { Env } from '../../functions/env';
-import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiNews, ApiPage, ApiPost, ApiReview, ApiSiteConfig, ApiVacancy, LocalizedText } from '../../shared/types';
+import type { ApiProduct, ApiSettings, ApiCategory, ApiSpec, ApiBrand, ApiOption, ApiVariant, ApiBanner, ApiNews, ApiPage, ApiPost, ApiReview, ApiSiteConfig, PublicSiteConfig, ApiVacancy, LocalizedText } from '../../shared/types';
 import type { InstallmentConfig, Product } from '../../src/data/products';
 import { needsNewsPrice, newsProductId } from '../../shared/news-price';
 import { isOnOrder, ON_ORDER_SQL, showsPreorder } from '../../shared/on-order';
@@ -327,12 +327,14 @@ export async function loadSiteConfig(env: Env): Promise<ApiSiteConfig> {
 
 /** Storefront klientiga (loader → HTML) yuboriladigan config — sirlar olib tashlanadi.
  * Bot token / OAuth secret / sessiya siri faqat server-side (api.order, auth, admin) o'qiladi. */
-export function publicSiteConfig(cfg: ApiSiteConfig): ApiSiteConfig {
-  // Sirlardan tashqari ichki identifikatorlar ham (buyurtma chati, Billz do'koni va holati) —
-  // storefront ularni o'qimaydi, admin o'zining maskasiz endpoint'idan oladi.
+export function publicSiteConfig(cfg: ApiSiteConfig): PublicSiteConfig {
+  // Oq ro'yxat: maydonlar bittalab ko'chiriladi, `...cfg` yo'q — sirlar (bot token, OAuth siri, sessiya siri,
+  // Billz kaliti) va ichki identifikatorlar HTML'ga nomi bilan ham chiqmaydi; yangi maydon o'zidan qo'shilib qolmaydi.
   return {
-    ...cfg, telegramBotToken: '', googleClientSecret: '', customerSessionSecret: '', billzSecretToken: '',
-    telegramOrderChatId: '', billzShopId: '', billzLastSync: '',
+    name: cfg.name, phone: cfg.phone, phoneDisplay: cfg.phoneDisplay, telegram: cfg.telegram, instagram: cfg.instagram,
+    whatsapp: cfg.whatsapp, mapLl: cfg.mapLl, seoTitleSuffix: cfg.seoTitleSuffix, seoDescription: cfg.seoDescription,
+    ogImage: cfg.ogImage, paymentMode: cfg.paymentMode, googleClientId: cfg.googleClientId,
+    telegramLoginBot: cfg.telegramLoginBot, yandexMetricaId: cfg.yandexMetricaId,
   };
 }
 
