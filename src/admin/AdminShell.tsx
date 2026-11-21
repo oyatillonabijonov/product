@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { Link, useLocation } from 'react-router';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowSquareOut, CaretUpDown, Gear, MagnifyingGlass, Moon, SignOut, Sun, Translate, UserCircle } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
+import { LanguageSkillIcon, LinkSquare02Icon, Logout03Icon, Moon02Icon, Search01Icon, Sun03Icon, UnfoldMoreIcon, UserCircleIcon } from '@hugeicons/core-free-icons';
 import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo.svg';
 import logoDark from '../assets/hero/wordmark.webp';
@@ -16,23 +16,23 @@ import { CrumbsContext, type Crumb } from './ui/layout';
 import CommandPalette from './CommandPalette';
 
 /**
- * Qobiq — Astryx `AppShell` (elevated) + `SideNav`: body fonida 260px sidebar — logo, qidiruv (⌘K), guruhlangan
- * menyu (Savdo · Katalog · Kontent · Tizim; band 32px, radius 12, faol band — neytral fon + 500, silliq suriladi),
+ * Qobiq — Astryx `AppShell` (elevated) + `SideNav`: body fonida 260px sidebar — logo, qidiruv qatori («/», ⌘K), guruhlangan
+ * menyu (Savdo · Katalog · Kontent · Tizim; band 36px, Hugeicons 20px matn rangida, faol band — neytral fon + 500,
+ * silliq suriladi — egasining referensi, 2026-11-21),
  * pastda profil menyusi (Astryx dropdown: popover, `shadow-med`). Kontent yuza varag'ida, faqat chap-yuqori burchagi
  * 32px yumaloq — sidebar'dan fon bilan ajraladi. <1024px: yuqorida ixcham panel, pastda tab bar.
  */
-interface NavItem { key: string; label: string; to: string; icon: PhIcon; active: boolean; badge?: number }
+interface NavItem { key: string; label: string; to: string; icon: IconSvgElement; active: boolean; badge?: number }
 
 const PILL = { type: 'spring', stiffness: 520, damping: 42 } as const;
 
 /** Profil menyusidagi ikki-uch variantli tanlov — Astryx segment-kontroli, to'liq enli (silliq suriladi). */
-const MenuSeg: FC<{ label: string; value: string; onChange: (v: string) => void; options: { id: string; label: string; icon: PhIcon }[] }> = ({ label, value, onChange, options }) => (
+const MenuSeg: FC<{ label: string; value: string; onChange: (v: string) => void; options: { id: string; label: string; icon: IconSvgElement }[] }> = ({ label, value, onChange, options }) => (
   <div role="radiogroup" aria-label={label}>
     <p className="px-1 pb-1 text-xs font-semibold text-text-muted">{label}</p>
     <div className="grid rounded-control bg-neutral p-0.5" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
       {options.map((o) => {
         const on = o.id === value;
-        const I = o.icon;
         return (
           <button
             key={o.id}
@@ -43,7 +43,7 @@ const MenuSeg: FC<{ label: string; value: string; onChange: (v: string) => void;
             className={`relative isolate flex h-7 items-center justify-center gap-1.5 rounded-[10px] text-base transition-colors duration-[175ms] ${on ? 'font-semibold text-text' : 'font-medium text-text-muted hover:text-text'}`}
           >
             {on && <motion.span layoutId={`menuseg-${label}`} transition={PILL} className="absolute inset-0 -z-10 rounded-[10px] bg-elevated shadow-low" />}
-            <I weight={on ? 'fill' : 'regular'} className="size-3.5" />
+            <HugeiconsIcon icon={o.icon} size={14} strokeWidth={on ? 2 : 1.5} />
             <span className="truncate">{o.label}</span>
           </button>
         );
@@ -96,26 +96,24 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
     { id: 'sales', label: t('nav.groups.sales'), items: tabsOf('orders') },
     { id: 'catalog', label: t('nav.groups.catalog'), items: tabsOf('products') },
     { id: 'content', label: t('nav.groups.content'), items: tabsOf('content') },
-    { id: 'system', label: t('nav.groups.system'), items: [{ key: 'settings', label: t(settings.labelKey), to: adminPath('settings', settings.tabs[0].segment), icon: Gear, active: route.section === 'settings' }] },
+    { id: 'system', label: t('nav.groups.system'), items: [{ key: 'settings', label: t(settings.labelKey), to: adminPath('settings', settings.tabs[0].segment), icon: settings.Icon, active: route.section === 'settings' }] },
   ];
   const badgeLabel = t('nav.ordersBadge', { count: badge });
 
   const crumbs: Crumb[] = [{ label: t(current.labelKey), to: adminPath(current.id) }];
   if (activeTabDef && current.tabs.length > 1 && activeTabDef.segment) crumbs.push({ label: t(activeTabDef.labelKey), to: adminPath(current.id, activeTabDef.segment) });
 
+  const ROW = 'relative isolate flex h-9 w-full items-center gap-2.5 rounded-item px-2.5 text-md text-text transition-colors duration-[175ms]';
   const item = (it: NavItem) => {
-    const I = it.icon;
     return (
       <li key={it.key}>
         <Link
           to={it.to}
           aria-current={it.active ? 'page' : undefined}
-          className={`relative isolate flex h-8 items-center gap-2 rounded-item px-2 text-base text-text transition-colors duration-[175ms] ${
-            it.active ? 'font-medium' : 'font-normal hover:bg-neutral'
-          }`}
+          className={`${ROW} ${it.active ? 'font-medium' : 'font-normal hover:bg-ghost-hover'}`}
         >
-          {it.active && <motion.span layoutId="nav-pill" transition={PILL} className="absolute inset-0 -z-10 rounded-item bg-neutral" />}
-          <I weight={it.active ? 'fill' : 'regular'} className={`size-4 shrink-0 ${it.active ? 'text-text' : 'text-text-muted'}`} />
+          {it.active && <motion.span layoutId="nav-pill" transition={PILL} className="absolute inset-0 -z-10 rounded-item bg-neutral/60" />}
+          <HugeiconsIcon icon={it.icon} size={20} strokeWidth={1.5} className="shrink-0" />
           <span className="min-w-0 flex-1 truncate">{it.label}</span>
           {it.badge !== undefined && <CountBadge count={it.badge} label={badgeLabel} />}
         </Link>
@@ -130,20 +128,16 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
           <img src={logo} alt="ProDuct" className="logo-light h-[22px]" />
           <img src={logoDark} alt="" aria-hidden className="logo-dark h-[22px]" />
         </Link>
-        <button
-          type="button"
-          onClick={() => setSearch(true)}
-          className="mt-3 flex h-8 items-center gap-2 rounded-control border border-border-strong bg-surface pl-2.5 pr-1.5 text-left text-base text-text-muted transition-shadow duration-[175ms] hover:ring-2 hover:ring-inset hover:ring-border-strong/30"
-        >
-          <MagnifyingGlass className="size-4 shrink-0" />
+        <button type="button" onClick={() => setSearch(true)} className={`${ROW} mt-3 text-left font-normal hover:bg-ghost-hover`}>
+          <HugeiconsIcon icon={Search01Icon} size={20} strokeWidth={1.5} className="shrink-0" />
           <span className="flex-1">{t('search.placeholder')}</span>
-          <kbd className="rounded-tag bg-neutral px-1.5 py-px font-sans text-xs font-medium text-text-muted">⌘K</kbd>
+          <kbd className="grid size-6 place-items-center rounded-tag bg-neutral font-sans text-xs font-medium text-text-muted">/</kbd>
         </button>
 
-        <nav aria-label={t('nav.aria')} className="no-scrollbar -mx-1 mt-2 flex-1 overflow-y-auto px-1 pb-2">
+        <nav aria-label={t('nav.aria')} className="no-scrollbar -mx-1 mt-0.5 flex-1 overflow-y-auto px-1 pb-2">
           {groups.map((g) => (
-            <div key={g.id} className="pt-3 first:pt-1">
-              {g.label && <p className="flex h-6 items-center px-2 text-xs font-semibold text-text-muted">{g.label}</p>}
+            <div key={g.id} className="pt-4 first:pt-0">
+              {g.label && <p className="flex h-8 items-center px-2.5 text-md font-medium text-text-muted">{g.label}</p>}
               <ul className="flex flex-col gap-0.5">{g.items.map(item)}</ul>
             </div>
           ))}
@@ -172,24 +166,24 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                     label={t('profile.theme')}
                     value={dark ? 'dark' : 'light'}
                     onChange={(v) => setDark(v === 'dark')}
-                    options={[{ id: 'light', label: t('profile.light'), icon: Sun }, { id: 'dark', label: t('profile.dark'), icon: Moon }]}
+                    options={[{ id: 'light', label: t('profile.light'), icon: Sun03Icon }, { id: 'dark', label: t('profile.dark'), icon: Moon02Icon }]}
                   />
                   <MenuSeg
                     label={t('footer.language')}
                     value={lang}
                     onChange={(v) => setLang(v as typeof lang)}
-                    options={ADMIN_LANGS.map((l) => ({ id: l, label: LANG_NAMES[l], icon: Translate }))}
+                    options={ADMIN_LANGS.map((l) => ({ id: l, label: LANG_NAMES[l], icon: LanguageSkillIcon }))}
                   />
                 </div>
                 <div className="mt-1 flex flex-col">
                   <Link to={adminPath('settings', 'account')} className="flex h-8 items-center gap-2 rounded-item px-2 text-base text-text transition-colors hover:bg-ghost-hover">
-                    <UserCircle className="size-4 text-text-muted" />{t('nav.settings.account')}
+                    <HugeiconsIcon icon={UserCircleIcon} size={18} strokeWidth={1.5} className="text-text-muted" />{t('nav.settings.account')}
                   </Link>
                   <a href="/" target="_blank" rel="noopener noreferrer" className="flex h-8 items-center gap-2 rounded-item px-2 text-base text-text transition-colors hover:bg-ghost-hover">
-                    <ArrowSquareOut className="size-4 text-text-muted" />{t('footer.openSite')}
+                    <HugeiconsIcon icon={LinkSquare02Icon} size={18} strokeWidth={1.5} className="text-text-muted" />{t('footer.openSite')}
                   </a>
                   <button type="button" onClick={onLogout} className="flex h-8 w-full items-center gap-2 rounded-item px-2 text-base text-danger-text transition-colors hover:bg-danger-soft">
-                    <SignOut className="size-4" />{t('footer.logout')}
+                    <HugeiconsIcon icon={Logout03Icon} size={18} strokeWidth={1.5} />{t('footer.logout')}
                   </button>
                 </div>
               </motion.div>
@@ -206,11 +200,11 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
             <span className="min-w-0 flex-1">
               <span className="block truncate text-base font-medium text-text">{t('profile.name')}</span>
               <span className="flex items-center gap-1.5 truncate text-xs text-text-muted">
-                {dark ? <Moon weight="fill" className="size-3" /> : <Sun weight="fill" className="size-3" />}
+                <HugeiconsIcon icon={dark ? Moon02Icon : Sun03Icon} size={12} strokeWidth={2} />
                 {LANG_NAMES[lang]}
               </span>
             </span>
-            <CaretUpDown className="size-4 shrink-0 text-text-muted" />
+            <HugeiconsIcon icon={UnfoldMoreIcon} size={16} strokeWidth={1.5} className="shrink-0 text-text-muted" />
           </button>
         </div>
       </aside>
@@ -222,8 +216,8 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
             <img src={logoDark} alt="" aria-hidden className="logo-dark h-5" />
           </Link>
           <div className="flex items-center gap-1">
-            <IconButton label={t('search.open')} onClick={() => setSearch(true)}><MagnifyingGlass /></IconButton>
-            <IconButton label={t('footer.darkTheme')} onClick={() => setDark(!dark)}>{dark ? <Sun /> : <Moon />}</IconButton>
+            <IconButton label={t('search.open')} onClick={() => setSearch(true)}><HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={1.5} /></IconButton>
+            <IconButton label={t('footer.darkTheme')} onClick={() => setDark(!dark)}><HugeiconsIcon icon={dark ? Sun03Icon : Moon02Icon} size={18} strokeWidth={1.5} /></IconButton>
           </div>
         </header>
         <main ref={main} className="thin-scroll min-h-0 flex-1 overflow-y-auto bg-surface lg:rounded-tl-sheet">
@@ -246,7 +240,6 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
         <ul className="grid h-[60px] grid-cols-5">
           {SECTIONS.map((s) => {
             const active = s.id === route.section;
-            const Icon = s.Icon;
             return (
               <li key={s.id}>
                 <Link
@@ -255,7 +248,7 @@ const AdminShell: FC<{ route: AdminRoute; badge: number; onLogout: () => void; c
                   className={`relative flex h-full flex-col items-center justify-center gap-1 transition-colors duration-[175ms] ${active ? 'text-text' : 'text-text-muted'}`}
                 >
                   {active && <motion.span layoutId="tab-dot" transition={PILL} className="absolute top-0 h-0.5 w-8 rounded-full bg-text" />}
-                  <Icon weight={active ? 'fill' : 'regular'} className="size-6" />
+                  <HugeiconsIcon icon={s.Icon} size={24} strokeWidth={active ? 2 : 1.5} />
                   <span className="max-w-full truncate px-1 text-xs font-medium leading-none">{t(s.shortKey)}</span>
                   {s.id === 'orders' && <CountBadge count={badge} label={badgeLabel} className="absolute left-1/2 top-1.5 ml-1.5" />}
                 </Link>

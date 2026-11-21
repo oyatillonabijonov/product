@@ -330,6 +330,17 @@ button, a, [role="button"] { touch-action: manipulation; }
 }
 
 /* ---------- Admin yordamchilari ---------- */
+/* Kichik bosh harfli yorliq (mono) — raqam ustidagi nom: «KONVERSIYA», «JAMI». */
+.eyebrow {
+  display: block; font-family: var(--font-mono); font-size: 11px; line-height: 16px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted);
+}
+/* Grafik kirish harakati: ustun pastdan o'sadi, chiziq/halqa chizilib chiqadi (`pathLength={1}`). */
+@keyframes viz-rise { from { transform: scaleY(0); } }
+.viz-rise { transform-box: fill-box; transform-origin: 50% 100%; animation: viz-rise 0.7s var(--ease-standard) both; }
+@keyframes viz-draw { from { stroke-dashoffset: 1; } }
+.viz-draw { stroke-dasharray: 1; animation: viz-draw 0.9s var(--ease-standard) both; }
+
 /* Raqamlar — Medeo Mono: sanoqlar, narxlar, sanalar `tabular-nums` bilan belgilangan (faqat raqam belgilari). */
 .tabular-nums { font-family: "Medeo Digits", var(--font-sans); }
 

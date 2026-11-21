@@ -71,9 +71,9 @@ const shell = {
   dashboard: {
     sections: {
       products: 'Tovarlar va talab',
-      productsText: "Nima so'ralyapti, nima ko'rilyapti va qaysi yo'nalishga talab bor",
-      operations: 'Buyurtmalar va katalog',
-      operationsText: "Kelgan buyurtmalar, qachon kelishi va katalogda nima qilish kerak",
+      productsText: "Qaysi yo'nalish va tovarga talab bor, murojaatlar qachon keladi",
+      operations: 'Buyurtmalar va vazifalar',
+      operationsText: "So'nggi murojaatlar va e'tibor kutayotgan ishlar",
     },
     title: 'Bosh sahifa',
     subtitle: "So'nggi {{days}} kun: sayt, buyurtmalar va mijozlar",
@@ -85,6 +85,8 @@ const shell = {
       visitors: { label: 'Tashriflar', note: "{{n}} sahifa ko'rildi" },
       customers: { label: "Ro'yxatdan o'tganlar", note: 'jami {{n}} mijoz' },
       demand: { label: "So'ralgan tovarlar", note: '{{n}} ta buyurtmada', unit: 'dona' },
+      vsPrev: 'oldingi davrdan',
+      noPrev: 'oldingi davr sanalmagan',
     },
     activity: {
       title: 'Sayt faolligi',
@@ -114,10 +116,12 @@ const shell = {
       cart: 'Savat',
       consult: 'Konsultatsiya',
     },
+    mix: { title: "To'lov va manba", description: 'Buyurtmalar qanday va qayerdan kelgan' },
     top: {
       title: "Eng ko'p so'ralgan",
       description: "Buyurtmalarda eng ko'p uchragan tovarlar",
       cols: { product: 'Tovar', requests: 'Buyurtma', qty: 'Dona' },
+      qty: '{{n}} dona',
       empty: "Bu davrda tovar so'ralmagan.",
     },
     viewed: {
@@ -128,7 +132,8 @@ const shell = {
     },
     categories: {
       title: "Yo'nalishlar bo'yicha talab",
-      description: "Shu yo'nalish tovari so'ralgan buyurtmalar soni, oldingi davr bilan",
+      description: 'Buyurtmalar soni, oldingi davr bilan',
+      prev: 'Oldingi davrda: {{n}}',
       count: '{{n}} ta buyurtma',
       current: 'Shu davr',
       previous: 'Oldingi davr',
@@ -142,7 +147,17 @@ const shell = {
     },
     hours: {
       title: 'Buyurtma vaqtlari',
-      description: "Soatlar bo'yicha — qachon telefon yonida bo'lish kerak",
+      description: 'Murojaatlar kunning qaysi soatida keladi',
+      peakLabel: 'Eng band',
+      peakHint: '{{n}} ta murojaat',
+      none: "murojaat yo'q",
+      day: 'Kunduzi',
+      dayHint: 'soat 09–18',
+      evening: 'Kechqurun',
+      eveningHint: 'soat 18–24',
+      less: 'Kam',
+      more: "Ko'p",
+      cell: '{{from}}–{{to}} · {{n}} ta',
       peak: "Eng qizg'in vaqt: {{from}}–{{to}}",
       name: 'Buyurtmalar',
     },

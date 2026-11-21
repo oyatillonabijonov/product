@@ -2,13 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowRight, MagnifyingGlass, Package, Receipt, UsersThree } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { ArrowRight, MagnifyingGlass } from '@phosphor-icons/react';
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
+import { InboxIcon, Package01Icon, UserMultiple02Icon } from '@hugeicons/core-free-icons';
 import { useTranslation } from 'react-i18next';
 import { adminPath } from './lib/admin-path';
 import { SECTIONS } from './nav';
 
-interface Item { id: string; label: string; hint?: string; icon: PhIcon; to: string }
+interface Item { id: string; label: string; hint?: string; icon: IconSvgElement; to: string }
 
 /**
  * Tezkor qidiruv (⌘K / Ctrl+K / «/»): bo'lim va tablar nomi bo'yicha o'tish, yozilgan matnni mahsulot,
@@ -32,9 +33,9 @@ const CommandPalette: FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
     const found = term ? pages.filter((p) => `${p.label} ${p.hint ?? ''}`.toLocaleLowerCase().includes(term)) : pages;
     const enc = encodeURIComponent(q.trim());
     const actions: Item[] = term ? [
-      { id: 'q:products', label: t('search.inProducts', { q: q.trim() }), icon: Package, to: `${adminPath('products')}?q=${enc}` },
-      { id: 'q:orders', label: t('search.inOrders', { q: q.trim() }), icon: Receipt, to: `${adminPath('orders')}?q=${enc}` },
-      { id: 'q:customers', label: t('search.inCustomers', { q: q.trim() }), icon: UsersThree, to: `${adminPath('orders', 'customers')}?q=${enc}` },
+      { id: 'q:products', label: t('search.inProducts', { q: q.trim() }), icon: Package01Icon, to: `${adminPath('products')}?q=${enc}` },
+      { id: 'q:orders', label: t('search.inOrders', { q: q.trim() }), icon: InboxIcon, to: `${adminPath('orders')}?q=${enc}` },
+      { id: 'q:customers', label: t('search.inCustomers', { q: q.trim() }), icon: UserMultiple02Icon, to: `${adminPath('orders', 'customers')}?q=${enc}` },
     ] : [];
     return { found, actions, all: [...found, ...actions] };
   }, [q, pages, t]);
@@ -61,7 +62,6 @@ const CommandPalette: FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
   };
 
   const row = (it: Item, idx: number) => {
-    const I = it.icon;
     const on = idx === active;
     return (
       <li key={it.id}>
@@ -71,7 +71,7 @@ const CommandPalette: FC<{ open: boolean; onClose: () => void }> = ({ open, onCl
           onClick={() => go(it)}
           className={`flex h-11 w-full items-center gap-3 rounded-full px-4 text-left text-base transition-colors duration-100 ${on ? 'bg-surface-sunken text-text' : 'text-text-muted'}`}
         >
-          <I className={`size-[18px] shrink-0 ${on ? 'text-text' : 'text-text-faint'}`} weight={on ? 'fill' : 'regular'} />
+          <HugeiconsIcon icon={it.icon} size={18} strokeWidth={1.5} className={`shrink-0 ${on ? 'text-text' : 'text-text-faint'}`} />
           <span className="min-w-0 flex-1 truncate font-medium text-text">{it.label}</span>
           {it.hint && <span className="shrink-0 text-sm text-text-faint">{it.hint}</span>}
           {on && <ArrowRight weight="bold" className="size-3.5 shrink-0 text-text-faint" />}

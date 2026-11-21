@@ -73,9 +73,9 @@ const shell: Dict<typeof uz> = {
   dashboard: {
     sections: {
       products: 'Товары и спрос',
-      productsText: 'Что заказывают, что смотрят и на какое направление есть спрос',
-      operations: 'Заказы и каталог',
-      operationsText: 'Поступившие заказы, когда они приходят и что сделать в каталоге',
+      productsText: 'На какие направления и товары есть спрос, когда приходят обращения',
+      operations: 'Заказы и задачи',
+      operationsText: 'Последние обращения и дела, которые ждут внимания',
     },
     title: 'Главная',
     subtitle: 'Последние {{days}} дней: сайт, заказы и клиенты',
@@ -87,6 +87,8 @@ const shell: Dict<typeof uz> = {
       visitors: { label: 'Визиты', note: '{{n}} просмотров' },
       customers: { label: 'Регистрации', note: 'всего {{n}} клиентов' },
       demand: { label: 'Запрошено товаров', note: 'в {{n}} заказах', unit: 'шт' },
+      vsPrev: 'к прошлому',
+      noPrev: 'прошлый период не учтён',
     },
     activity: {
       title: 'Активность сайта',
@@ -116,10 +118,12 @@ const shell: Dict<typeof uz> = {
       cart: 'Корзина',
       consult: 'Консультация',
     },
+    mix: { title: 'Оплата и источник', description: 'Как и откуда пришли заказы' },
     top: {
       title: 'Чаще всего заказывают',
       description: 'Товары, которые чаще всего встречаются в заказах',
       cols: { product: 'Товар', requests: 'Заказы', qty: 'Шт' },
+      qty: '{{n}} шт.',
       empty: 'За этот период товары не заказывали.',
     },
     viewed: {
@@ -130,7 +134,8 @@ const shell: Dict<typeof uz> = {
     },
     categories: {
       title: 'Спрос по направлениям',
-      description: 'Число заказов с товарами направления в сравнении с прошлым периодом',
+      description: 'Число заказов в сравнении с прошлым периодом',
+      prev: 'В прошлом периоде: {{n}}',
       count: 'заказов: {{n}}',
       current: 'Этот период',
       previous: 'Прошлый период',
@@ -144,7 +149,17 @@ const shell: Dict<typeof uz> = {
     },
     hours: {
       title: 'Время заказов',
-      description: 'По часам — когда важно быть на связи',
+      description: 'В какие часы дня приходят обращения',
+      peakLabel: 'Пик',
+      peakHint: 'обращений: {{n}}',
+      none: 'обращений нет',
+      day: 'Днём',
+      dayHint: '09–18 ч',
+      evening: 'Вечером',
+      eveningHint: '18–24 ч',
+      less: 'Мало',
+      more: 'Много',
+      cell: '{{from}}–{{to}} · {{n}}',
       peak: 'Пиковое время: {{from}}–{{to}}',
       name: 'Заказы',
     },
