@@ -175,7 +175,7 @@ const TypeEdit: FC<{ id: string }> = ({ id }) => {
                 <div className="flex flex-col gap-2">
                   <p className="text-sm font-semibold text-text">{t('typeEdit.previewTitle')}</p>
                   {/* Saytdagi tur qatori: karta yo'q, ikonka sahifa fonida (bu yerda oq orolcha), ostida qalin nom; pastki chetlar bir chiziqda. */}
-                  <div className="flex aspect-[220/150] flex-col items-center justify-end gap-2 rounded-control-lg bg-surface p-4">
+                  <div className="flex aspect-[220/150] flex-col items-center justify-end gap-2 rounded-control-lg bg-surface-sunken p-4">
                     {form.iconUrl ? (
                       <img src={form.iconUrl} alt="" className="max-h-[78%] max-w-full animate-fade-in object-contain object-bottom" />
                     ) : (

@@ -77,7 +77,7 @@ const PostsList: FC = () => {
             <article
               key={p.id}
               style={delay(i)}
-              className="stagger group relative flex flex-col overflow-hidden rounded-surface bg-surface-sunken transition-colors duration-200 hover:bg-surface-sunken-hover has-[a:focus-visible]:ring-4 has-[a:focus-visible]:ring-accent/20"
+              className="stagger group relative flex flex-col overflow-hidden rounded-surface border border-border bg-surface transition-colors duration-200 hover:bg-ghost-hover has-[a:focus-visible]:ring-4 has-[a:focus-visible]:ring-accent/20"
             >
               <div className="relative aspect-[16/9] overflow-hidden bg-surface-sunken">
                 {p.coverUrl ? (

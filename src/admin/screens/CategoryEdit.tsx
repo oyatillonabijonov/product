@@ -21,7 +21,7 @@ const stagger = (i: number) => ({ ['--i' as string]: i } as Record<string, numbe
 
 /** «Xavfli zona» — kulrang karta (kit `Card` kabi, hoshiyasiz): qizil ikonka plitkasi, izoh va bitta `dangerSoft` tugma. */
 const DangerZone: FC<{ title: string; text: string; children: ReactNode }> = ({ title, text, children }) => (
-  <section className="flex flex-col gap-5 rounded-surface bg-surface-sunken p-6">
+  <section className="flex flex-col gap-5 rounded-surface border border-border bg-surface p-6">
     <div className="flex items-start gap-3">
       <Trash aria-hidden weight="fill" className="size-5 shrink-0 text-danger-text" />
       <div className="min-w-0">
@@ -139,7 +139,7 @@ const CategoryEdit: FC<{ id: string }> = ({ id }) => {
             <aside className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-28">
               <div className="stagger" style={stagger(2)}>
                 <Card icon={Eye} hue="blue" title={t('categoryEdit.coverPreview')}>
-                  <div className="overflow-hidden rounded-control-lg bg-surface">
+                  <div className="overflow-hidden rounded-control-lg bg-surface-sunken">
                     {form.coverUrl ? (
                       <img src={form.coverUrl} alt="" className="aspect-[114/55] w-full object-cover" />
                     ) : (

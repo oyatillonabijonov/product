@@ -93,7 +93,7 @@ const Announcements: FC = () => {
             actions={<Segmented label={t('announcements.previewLang')} size="sm" value={lang} onChange={setLang} options={[{ id: 'uz', label: 'UZ' }, { id: 'ru', label: 'RU' }]} />}
           >
             <div className="rounded-control bg-surface-sunken p-4">
-              <article className="relative flex gap-3 overflow-hidden rounded-control bg-surface p-4 pl-5">
+              <article className="relative flex gap-3 overflow-hidden rounded-control bg-surface-sunken p-4 pl-5">
                 <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-accent" />
                 <span className="flex h-[1lh] shrink-0 items-center text-base"><IconTile icon={Megaphone} hue="orange" soft /></span>
                 <div className="min-w-0 flex-1">

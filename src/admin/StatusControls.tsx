@@ -19,7 +19,7 @@ const PILL: Record<OrderStatus, { pill: string; dot: string }> = {
  * `solid` — joriy qadam, `soft` — o'tilgan qadam (✓; shaffof emas — ostidagi chiziq ko'rinmasin), `fill` — oradagi chiziq.
  */
 const STEP: Record<OrderStatus, { icon: PhIcon; solid: string; soft: string; fill: string }> = {
-  new: { icon: Tray, solid: 'bg-accent text-white', soft: 'bg-accent-soft text-accent-text', fill: 'bg-accent' },
+  new: { icon: Tray, solid: 'bg-accent text-text-on-primary', soft: 'bg-accent-soft text-accent-text', fill: 'bg-accent' },
   contacted: { icon: Clock, solid: 'bg-primary text-text-on-primary', soft: 'bg-neutral text-text', fill: 'bg-primary' },
   done: { icon: CheckCircle, solid: 'bg-success text-white', soft: 'bg-success-soft text-success-strong', fill: 'bg-success' },
 };
@@ -49,7 +49,7 @@ export const StatusSelect: FC<{ value: OrderStatus; labels: Record<OrderStatus, 
  * ostida katta son. `children` — qiymat (birligi bilan); telefonda ikki ustunga sig'ishi uchun shrift kichikroq.
  */
 export const StatTile: FC<{ icon: PhIcon; hue: Hue; label: string; children: ReactNode }> = ({ icon, hue, label, children }) => (
-  <div className="min-w-0 rounded-surface bg-surface-sunken p-5">
+  <div className="min-w-0 rounded-surface border border-border bg-surface p-5">
     <span className="flex min-w-0 items-center gap-2.5">
       <IconTile icon={icon} hue={hue} size="sm" />
       <span className="truncate text-sm font-semibold text-text-muted sm:text-base">{label}</span>
@@ -75,7 +75,7 @@ export const StatusStepper: FC<{
   const cur = STATUSES.indexOf(value);
   const hint: Record<OrderStatus, string> = { new: t('board.hintNew'), contacted: t('board.hintContacted'), done: t('board.hintDone') };
   return (
-    <section className="flex flex-col gap-5 rounded-surface bg-surface-sunken p-6">
+    <section className="flex flex-col gap-5 rounded-surface border border-border bg-surface p-6">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6">
         <div role="radiogroup" aria-label={t('shared.status')} className="grid flex-1 grid-cols-3">
           {STATUSES.map((s, i) => {
@@ -85,7 +85,7 @@ export const StatusStepper: FC<{
             return (
               <div key={s} className="relative">
                 {i < STATUSES.length - 1 && (
-                  <span aria-hidden className="absolute left-1/2 top-5 h-1 w-full -translate-y-1/2 overflow-hidden rounded-full bg-surface">
+                  <span aria-hidden className="absolute left-1/2 top-5 h-1 w-full -translate-y-1/2 overflow-hidden rounded-full bg-surface-sunken">
                     <span className={`block h-full origin-left transition-transform duration-500 ease-standard ${STEP[STATUSES[i + 1]].fill} ${passed ? 'scale-x-100' : 'scale-x-0'}`} />
                   </span>
                 )}
@@ -98,7 +98,7 @@ export const StatusStepper: FC<{
                 >
                   <span
                     className={`grid size-10 place-items-center rounded-full transition-colors duration-200 ${
-                      on ? STEP[s].solid : passed ? STEP[s].soft : 'bg-surface text-text-faint group-hover:text-text-muted'
+                      on ? STEP[s].solid : passed ? STEP[s].soft : 'bg-surface-sunken text-text-faint group-hover:text-text-muted'
                     }`}
                   >
                     {passed ? <Check weight="bold" className="size-4" /> : <I weight={on ? 'fill' : 'regular'} className="size-[18px]" />}

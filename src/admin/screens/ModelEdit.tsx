@@ -28,7 +28,7 @@ const stagger = (i: number) => ({ ['--i' as string]: i } as Record<string, numbe
 
 /** «Xavfli zona» — kulrang karta (kit `Card` kabi, hoshiyasiz): qizil ikonka plitkasi, izoh va bitta `dangerSoft` tugma. */
 const DangerZone: FC<{ title: string; text: string; children: ReactNode }> = ({ title, text, children }) => (
-  <section className="flex flex-col gap-5 rounded-surface bg-surface-sunken p-6">
+  <section className="flex flex-col gap-5 rounded-surface border border-border bg-surface p-6">
     <div className="flex items-start gap-3">
       <Trash aria-hidden weight="fill" className="size-5 shrink-0 text-danger-text" />
       <div className="min-w-0">
@@ -185,7 +185,7 @@ const ModelEdit: FC<{ id: string }> = ({ id }) => {
                 <Card icon={Eye} hue="green" title={t('modelEdit.previewTitle')}>
                   <div className="flex items-center gap-3">
                     {brand?.logoUrl
-                      ? <span className="grid size-12 shrink-0 place-items-center rounded-control bg-surface"><img src={brand.logoUrl} alt="" className="max-h-6 max-w-8 object-contain brightness-0 dark:invert" /></span>
+                      ? <span className="grid size-12 shrink-0 place-items-center rounded-control bg-surface-sunken"><img src={brand.logoUrl} alt="" className="max-h-6 max-w-8 object-contain brightness-0 dark:invert" /></span>
                       : <Avatar name={brand?.name ?? (form.name || '?')} size="lg" />}
                     <div className="min-w-0">
                       <p className="truncate text-lg font-bold text-text">{form.name || t('shared.newModel')}</p>

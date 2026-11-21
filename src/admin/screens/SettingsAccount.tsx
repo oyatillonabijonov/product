@@ -123,7 +123,7 @@ const SettingsAccount: FC<{ defaultPw: boolean; onPasswordChanged: () => void }>
                         <p className="text-sm text-text-muted">{t('account.profile.role')}</p>
                       </div>
                     </div>
-                    <div className="rounded-control bg-surface px-4 py-3">
+                    <div className="rounded-control bg-surface-sunken px-4 py-3">
                       <Rows rows={[
                         { k: t('account.credentials.loginLabel'), v: base.username },
                         {

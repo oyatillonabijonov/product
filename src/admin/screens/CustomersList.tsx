@@ -32,7 +32,7 @@ const ViaCell: FC<{ label: string; google: number; telegram: number }> = ({ labe
   const total = google + telegram;
   const pct = (n: number) => (total ? Math.round((n / total) * 100) : 0);
   return (
-    <div className="min-w-0 rounded-surface bg-surface-sunken p-5">
+    <div className="min-w-0 rounded-surface border border-border bg-surface p-5">
       <span className="flex min-w-0 items-center gap-2.5">
         <IconTile icon={SignIn} hue="teal" size="sm" />
         <span className="truncate text-base font-semibold text-text-muted">{label}</span>

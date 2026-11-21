@@ -5,30 +5,30 @@ import { useTranslation } from 'react-i18next';
 import { Toggle } from './controls';
 
 /**
- * Input ko'rinishi bitta joyda — ERP «to'ldirilgan» maydon (§3.2): kulrang fon, hoshiyasiz, fokusda faqat hoshiya
- * rangi (halqa/glow yo'q). 36px, telefonda 48px; sensorli ekranda shrift 16px (iOS zum qilmasin — `admin.css`).
- * Native `<select>` o'qini `admin.css` chizadi.
+ * Input ko'rinishi bitta joyda — Astryx maydoni: yuza + 1px `border-emphasized`, radius 12, 32px (telefonda 40px),
+ * hover'da ichki 2px halqa, fokusda hoshiya siyoh + ichki halqa. Sensorli ekranda shrift 16px (iOS zum qilmasin —
+ * `admin.css`). Native `<select>` o'qini `admin.css` chizadi.
  */
 export const INPUT_CLS =
-  'h-control-md max-lg:h-11 w-full rounded-control border border-transparent bg-surface-sunken px-3 text-base text-text placeholder:text-text-faint outline-none transition-[background-color,border-color,box-shadow] duration-150 hover:bg-surface-sunken-hover focus:bg-surface focus:ring-2 focus:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-danger aria-[invalid=true]:ring-danger/15';
+  'h-control-md max-lg:h-10 w-full rounded-control border border-border-strong bg-surface px-2.5 text-base text-text placeholder:text-text-muted outline-none transition-[border-color,box-shadow] duration-[175ms] hover:ring-2 hover:ring-inset hover:ring-border-strong/30 focus:border-accent focus:ring-2 focus:ring-inset focus:ring-accent-soft disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-danger aria-[invalid=true]:ring-danger-soft';
 
 /** Yorliq ustida, ostida izoh yoki xato (xato bo'lsa izoh o'rnini oladi). */
 export const Field: FC<{ label: string; hint?: string; error?: string; required?: boolean; tag?: string; className?: string; children: ReactNode }> = ({
   label, hint, error, required, tag, className = '', children,
 }) => (
   <label className={`flex flex-col gap-1.5 ${className}`}>
-    <span className="flex items-center gap-1.5 text-sm font-semibold text-text">
+    <span className="flex items-center gap-1.5 text-base font-medium text-text">
       <span>
         {label}
         {required && <span className="text-danger-text"> *</span>}
       </span>
-      {tag && <span className="inline-flex h-5 items-center rounded-full bg-neutral px-1.5 text-xs font-semibold text-neutral-text">{tag}</span>}
+      {tag && <span className="inline-flex h-5 items-center rounded-full bg-neutral px-2 text-xs font-medium text-text">{tag}</span>}
     </span>
     {children}
     {error ? (
-      <span role="alert" className="text-sm text-danger-text">{error}</span>
+      <span role="alert" className="text-xs text-danger-text">{error}</span>
     ) : hint ? (
-      <span className="text-sm text-text-muted">{hint}</span>
+      <span className="text-xs text-text-muted">{hint}</span>
     ) : null}
   </label>
 );
@@ -79,14 +79,14 @@ export const SearchInput: FC<{ value: string; onChange: (v: string) => void; pla
   }, [text]);
   return (
     <span className="relative block">
-      <MagnifyingGlass aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
+      <MagnifyingGlass aria-hidden className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
       <input
         type="search"
         value={text}
         placeholder={placeholder}
         aria-label={placeholder}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
-        className={`${INPUT_CLS} appearance-none pl-9 `}
+        className={`${INPUT_CLS} appearance-none pl-8`}
       />
     </span>
   );
@@ -101,7 +101,7 @@ export const Textarea: FC<{ value: string; onChange: (v: string) => void; rows?:
     placeholder={placeholder}
     aria-invalid={invalid || undefined}
     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
-    className={`${INPUT_CLS.replace('h-control-md max-lg:h-11 ', '')} resize-y py-2.5 leading-relaxed ${mono ? 'font-mono text-sm' : ''}`}
+    className={`${INPUT_CLS.replace('h-control-md max-lg:h-10 ', '')} resize-y py-1.5 leading-relaxed ${mono ? 'font-mono text-sm' : ''}`}
   />
 );
 
@@ -126,8 +126,8 @@ export const SwitchRow: FC<{ label: string; hint?: string; on: boolean; onChange
 }) => (
   <div className="flex items-center justify-between gap-4 py-3">
     <div className="min-w-0">
-      <p className="text-base text-text">{label}</p>
-      {hint && <p className="text-sm text-text-muted">{hint}</p>}
+      <p className="text-base font-medium text-text">{label}</p>
+      {hint && <p className="text-xs text-text-muted">{hint}</p>}
     </div>
     <Toggle on={on} onChange={onChange} label={label} disabled={disabled} />
   </div>

@@ -3,8 +3,8 @@ import type { FC, ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 /**
- * Admin modali — ERP `Sheet` (§3.7): 640px dan kengda markazda dialog (radius 16, `surface-raised`, parda),
- * telefonda pastdan bottom sheet (yuqori burchaklar 20, tutqich, 92dvh). Sarlavha/tugmalarni bola chizadi.
+ * Admin modali — Astryx `Dialog`: 640px dan kengda markazda (radius 16, popover yuzasi, `shadow-high`, parda),
+ * telefonda Astryx `BottomSheet` — pastdan (yuqori burchaklar 32, tutqich, 92dvh). Sarlavha/tugmalarni bola chizadi.
  * Saytning `store/Modal`i o'rniga: admin o'z CSS build'ida, sayt komponentlari bu yerda uslubsiz qoladi.
  *
  * Shartnoma saytnikidek: `onClose` faqat yopilishni boshlaydi, ota ma'lumotni `onExited`da tashlaydi.
@@ -60,7 +60,7 @@ const Modal: FC<{
       {open && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4">
           <motion.div
-            className="absolute inset-0 bg-overlay sm:backdrop-blur-sm"
+            className="absolute inset-0 bg-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -74,7 +74,7 @@ const Modal: FC<{
             aria-label={label}
             tabIndex={-1}
             {...motionProps}
-            className={`relative flex max-h-[92dvh] w-full flex-col overflow-y-auto overscroll-contain rounded-t-sheet bg-surface-raised pb-[env(safe-area-inset-bottom)] outline-none sm:max-h-[calc(100dvh-2rem)] sm:rounded-overlay sm:pb-0 ${panelClass}`}
+            className={`relative flex max-h-[92dvh] w-full flex-col overflow-y-auto overscroll-contain rounded-t-sheet bg-surface-raised pb-[env(safe-area-inset-bottom)] shadow-high outline-none sm:max-h-[calc(100dvh-2rem)] sm:rounded-overlay sm:pb-0 ${panelClass}`}
           >
             <div aria-hidden className="mx-auto mb-1 mt-2 h-1 w-9 shrink-0 rounded-full bg-neutral sm:hidden" />
             {children}

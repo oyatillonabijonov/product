@@ -154,7 +154,7 @@ const HomeBlocks: FC<{ content: SiteContent }> = ({ content }) => {
           block="banners" live={status(n, 'banners')} ok={n > 0} to="/admin/content/banners" action={t('contentHome.blocks.banners.action')}
           thumbs={n > 0 ? (
             <div className="flex shrink-0 gap-1.5">
-              {counts?.banners.slice(0, 3).map((src) => <img key={src} src={src} alt="" className="h-11 w-24 rounded-item bg-surface object-cover" />)}
+              {counts?.banners.slice(0, 3).map((src) => <img key={src} src={src} alt="" className="h-11 w-24 rounded-item bg-surface-sunken object-cover" />)}
             </div>
           ) : undefined}
         />
@@ -167,7 +167,7 @@ const HomeBlocks: FC<{ content: SiteContent }> = ({ content }) => {
           block="news" live={status(n, 'news')} ok={n > 0} to="/admin/content/news" action={t('contentHome.blocks.news.action')}
           thumbs={n > 0 ? (
             <div className="flex shrink-0 gap-1.5">
-              {counts?.news.map((src) => <img key={src} src={src} alt="" className="size-11 rounded-item bg-surface object-contain p-1" />)}
+              {counts?.news.map((src) => <img key={src} src={src} alt="" className="size-11 rounded-item bg-surface-sunken object-contain p-1" />)}
             </div>
           ) : undefined}
         >

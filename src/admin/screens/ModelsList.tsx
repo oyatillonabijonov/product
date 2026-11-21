@@ -21,7 +21,7 @@ const specCount = (m: ApiDeviceModel) => [m.chip, m.ram, m.camera, m.display].fi
 /** Brend belgisi: logotip bo'lsa oq orolchada (bir rangga keltirilgan), bo'lmasa rangli bosh harf. */
 const BrandMark: FC<{ brand: ApiAdminBrand | undefined; fallback: string }> = ({ brand, fallback }) => (
   brand?.logoUrl
-    ? <span className="grid size-9 shrink-0 place-items-center rounded-control bg-surface"><img src={brand.logoUrl} alt="" className="max-h-4 max-w-6 object-contain brightness-0 dark:invert" /></span>
+    ? <span className="grid size-9 shrink-0 place-items-center rounded-control bg-surface-sunken"><img src={brand.logoUrl} alt="" className="max-h-4 max-w-6 object-contain brightness-0 dark:invert" /></span>
     : <Avatar name={brand?.name ?? fallback} />
 );
 

@@ -103,7 +103,7 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
   const card = (a: ApiJobApplication, move: (to: string) => void) => {
     const resume = safeHref(a.resumeUrl);
     return (
-      <article onClick={() => open(a)} className="group rounded-control-lg bg-surface p-3.5">
+      <article onClick={() => open(a)} className="group rounded-control-lg border border-border bg-surface p-3.5">
         <div className="flex items-start gap-3">
           <Avatar name={a.name} size="md" />
           <div className="min-w-0 flex-1">

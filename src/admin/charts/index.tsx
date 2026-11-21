@@ -17,7 +17,7 @@ import type { ChartConfig } from '../evilcharts/ui/echarts-chart';
 type Fmt = (n: number) => string;
 const plain: Fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ');
 /** ECharts canvas matni ham admin shriftida bo'lsin. */
-const FONT_OPTS = { textStyle: { fontFamily: '"Inter Tight Variable", system-ui, sans-serif' } };
+const FONT_OPTS = { textStyle: { fontFamily: '"Medeo Sans", system-ui, sans-serif' } };
 const colorsOf = (hue: Hue) => ({ light: [`var(--color-c-${hue})`], dark: [`var(--color-c-${hue})`] });
 
 /** Legenda: rang belgisi + nom (+ qiymat). Matn — matn tokeni, seriya rangi faqat belgida. */

@@ -79,8 +79,6 @@ export default function Login({ onSuccess }: { onSuccess: (defaultPassword: bool
       <aside className="relative isolate m-3 hidden flex-col justify-between overflow-hidden rounded-overlay bg-inverted p-10 text-text-on-inverted lg:flex xl:p-14">
         {/* Bezak: nuqtali to'r va ikki yumshoq rangli dog'. */}
         <span aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(currentColor_1px,transparent_1px)] [background-size:22px_22px] opacity-[0.07]" />
-        <span aria-hidden className="absolute -right-24 -top-28 -z-10 size-[420px] rounded-full bg-c-violet/35 blur-3xl" />
-        <span aria-hidden className="absolute -bottom-36 -left-20 -z-10 size-[380px] rounded-full bg-c-blue/25 blur-3xl" />
 
         <div className="animate-fade-in">
           <img src={logoDark} alt="ProDuct" className="h-8 w-auto dark:hidden" />
@@ -118,7 +116,7 @@ export default function Login({ onSuccess }: { onSuccess: (defaultPassword: bool
           <h1 className="mt-1 text-2xl font-bold text-text">{t('login.heading')}</h1>
           <p className="mt-1.5 text-base text-text-muted">{t('login.subtitle')}</p>
 
-          <form onSubmit={submit} className="mt-8 flex flex-col gap-5 rounded-surface bg-surface p-6 sm:p-8">
+          <form onSubmit={submit} className="mt-8 flex flex-col gap-5 rounded-surface border border-border bg-surface p-6 sm:p-8">
             <Field label={t('login.usernameLabel')}>
               <Input value={username} onChange={setUsername} autoComplete="username" className={FIELD_CLS} />
             </Field>

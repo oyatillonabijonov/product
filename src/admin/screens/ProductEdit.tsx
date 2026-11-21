@@ -301,9 +301,9 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
    * saytdagi holat toggle'lari (qatorlar orasida hairline); oxirida manba, qoldiq va saytda ko'rish.
    */
   const summary = (
-    <section className="flex flex-col gap-6 rounded-surface bg-surface-sunken p-5 xl:p-6">
+    <section className="flex flex-col gap-6 rounded-surface border border-border bg-surface p-5 xl:p-6">
       <div className="flex gap-4 xl:flex-col xl:gap-5">
-        <div className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-control-lg bg-surface xl:aspect-[4/3] xl:size-auto xl:w-full">
+        <div className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-control-lg bg-surface-sunken xl:aspect-[4/3] xl:size-auto xl:w-full">
           {form.imageUrl ? (
             <img src={form.imageUrl} alt="" className="size-full animate-fade-in object-contain p-2" />
           ) : (
@@ -393,7 +393,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
           </div>
         </div>
         {billz && (
-          <div className="flex items-center justify-between gap-3 rounded-control bg-surface px-3 py-2.5">
+          <div className="flex items-center justify-between gap-3 rounded-control bg-surface-sunken px-3 py-2.5">
             <span className="text-sm text-text-muted">{t('productEdit.side.stock')}</span>
             <Badge tone={(form.billzStock ?? 0) <= 0 ? 'danger' : (form.billzStock ?? 0) < 3 ? 'attention' : 'ok'} className="tabular-nums">{form.billzStock ?? 0}</Badge>
           </div>
@@ -579,7 +579,7 @@ const ProductEdit: FC<{ id: string }> = ({ id }) => {
                     <div className="flex flex-col gap-2 pt-2">
                       <p className="text-sm font-semibold text-text">{t('productEdit.variants.perVariantTitle')}</p>
                       {form.variants.map((v, i) => (
-                        <div key={`${variantLabel(v)}-${i}`} className="flex flex-wrap items-center gap-3 rounded-control-lg bg-surface p-2.5 sm:flex-nowrap">
+                        <div key={`${variantLabel(v)}-${i}`} className="flex flex-wrap items-center gap-3 rounded-control-lg bg-surface-sunken p-2.5 sm:flex-nowrap">
                           <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-item bg-surface-sunken">
                             {v.imageUrl ? <img src={v.imageUrl} alt="" className="size-full object-contain p-0.5" /> : <ImageIcon className="size-4 text-text-faint" />}
                           </span>

@@ -137,7 +137,7 @@ const SettingsContact: FC = () => {
 
             <aside className="stagger lg:sticky lg:top-28" style={st(3)}>
               <Card icon={Eye} hue="violet" title={t('contact.preview.title')} description={t('contact.preview.description')}>
-                <div className="rounded-control bg-surface p-5">
+                <div className="rounded-control bg-surface-sunken p-5">
                   <p className="text-base font-bold text-text">{t('contact.title')}</p>
                   {hasContacts ? (
                     <ul className="mt-1 divide-y divide-border">
@@ -156,7 +156,7 @@ const SettingsContact: FC = () => {
                   )}
                 </div>
                 {validLl && (
-                  <div className="overflow-hidden rounded-control bg-surface">
+                  <div className="overflow-hidden rounded-control bg-surface-sunken">
                     <iframe key={ll} title={t('contact.preview.mapLink')} src={mapWidget(ll)} loading="lazy" className="block h-44 w-full" />
                   </div>
                 )}

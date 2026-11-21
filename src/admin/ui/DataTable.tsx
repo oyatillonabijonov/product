@@ -18,9 +18,9 @@ function fromControl(e: React.SyntheticEvent<HTMLElement>): boolean {
 }
 
 /**
- * Jadval — o'z ramkasi bilan (karta ichiga solinmaydi): oq yuza, yumaloq burchak, kulrang sarlavha qatori, kataklar
- * orasida yengil chiziq (gorizontal va vertikal), qator 64px, hover'da kulrang, qator bosiladi. <1024px jadval yo'q —
- * xuddi shu ramkadagi ro'yxat: sarlavha ustuni, ostida «yorliq: qiymat». Bitta ustun ta'rifi ikkalasini beradi.
+ * Jadval — Astryx `Table`: karta ramkasida (yuza + hoshiya, radius 16), sarlavha 14/600 ikkilamchi rangda, qatorlar
+ * orasida faqat gorizontal chiziq, hover'da `background-muted`, qator bosiladi. <1024px jadval yo'q — xuddi shu
+ * ramkadagi ro'yxat: sarlavha ustuni, ostida «yorliq: qiymat». Bitta ustun ta'rifi ikkalasini beradi.
  */
 export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
   columns: Column<T>[];
@@ -51,7 +51,7 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
                 <th
                   key={c.id}
                   scope="col"
-                  className={`h-11 whitespace-nowrap border-l border-border bg-surface-sunken px-5 text-sm font-medium text-text-muted first:border-l-0 ${align(c)} ${c.className ?? ''}`}
+                  className={`h-10 whitespace-nowrap border-b border-border px-4 text-base font-semibold text-text-muted ${align(c)} ${c.className ?? ''}`}
                 >
                   {c.label}
                 </th>
@@ -69,7 +69,7 @@ export function DataTable<T>({ columns, rows, rowKey, onRowClick, empty }: {
                 className={`group text-base text-text animate-fade-in ${onRowClick ? 'cursor-pointer' : ''}`}
               >
                 {columns.map((c) => (
-                  <td key={c.id} className={`h-16 border-l border-t border-border px-5 py-3 transition-colors duration-150 first:border-l-0 group-hover:bg-surface-sunken ${align(c)} ${c.className ?? ''}`}>{c.cell(r)}</td>
+                  <td key={c.id} className={`h-14 border-b border-border px-4 py-2 transition-colors duration-[175ms] group-last:border-b-0 group-hover:bg-surface-sunken ${align(c)} ${c.className ?? ''}`}>{c.cell(r)}</td>
                 ))}
               </tr>
             ))}

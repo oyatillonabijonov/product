@@ -41,7 +41,7 @@ const MarkdownHelp: FC = () => {
               return (
                 <tr key={row.sampleKey} className="border-t border-border align-top">
                   <td className="py-2 pr-3">
-                    <code className="inline-block rounded-tag bg-surface px-1.5 py-0.5 font-mono text-sm text-text">{sample}</code>
+                    <code className="inline-block rounded-tag bg-surface-sunken px-1.5 py-0.5 font-mono text-sm text-text">{sample}</code>
                   </td>
                   <td className="py-2">
                     <span className="block">{row.render(sample)}</span>

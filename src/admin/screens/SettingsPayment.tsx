@@ -107,7 +107,7 @@ const SettingsPayment: FC = () => {
                       </span>
                     </div>
                     {/* Slayder maketi: saytdagi surgich shu oraliqda yuradi. */}
-                    <div aria-hidden className="relative mt-5 h-2 rounded-full bg-surface">
+                    <div aria-hidden className="relative mt-5 h-2 rounded-full bg-surface-sunken">
                       <div className="absolute inset-y-0 rounded-full bg-c-violet/35 transition-[left,width] duration-300 ease-standard" style={{ left: `${lo}%`, width: `${hi - lo}%` }} />
                       {[lo, hi].map((v, k) => (
                         <span key={k} className="absolute top-1/2 grid size-[18px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-c-violet transition-[left] duration-300 ease-standard" style={{ left: `${v}%` }}>
@@ -169,7 +169,7 @@ const SettingsPayment: FC = () => {
                   )}
                   <div className="grid gap-3 sm:grid-cols-2">
                     {settings.terms.map((term, i) => (
-                      <div key={i} className="flex flex-col gap-4 rounded-control bg-surface p-4">
+                      <div key={i} className="flex flex-col gap-4 rounded-control bg-surface-sunken p-4">
                         <div className="flex items-center justify-between gap-2">
                           <span className="flex min-w-0 items-center gap-2.5">
                             <IconTile icon={CalendarDots} hue="blue" soft size="sm" />

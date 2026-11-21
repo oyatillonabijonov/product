@@ -136,7 +136,7 @@ const BannerEdit: FC<{ id: string }> = ({ id }) => {
                   ) : (
                     <div className="flex flex-col gap-4">
                       {/* Saytdagi kadrlar — kulrang karta ichida oq «orolcha». */}
-                      <div className="flex flex-col gap-4 rounded-control-lg bg-surface p-4">
+                      <div className="flex flex-col gap-4 rounded-control-lg bg-surface-sunken p-4">
                         <Frame icon={Desktop} label={t('bannerEdit.preview.desktop')} ratio="aspect-[3/1]" src={form.imageUrl} />
                         <div className="w-3/5">
                           <Frame icon={DeviceMobile} label={t('bannerEdit.preview.mobile')} ratio="aspect-[21/9]" src={form.imageUrl} />

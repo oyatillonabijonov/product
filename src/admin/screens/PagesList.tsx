@@ -57,7 +57,7 @@ const PagesList: FC = () => {
             {g.rows.map((p) => {
               const excerpt = firstParagraph(p.content.uz);
               return (
-                <li key={p.id} className="stagger group relative flex flex-col rounded-surface sm:min-h-[180px] bg-surface-sunken p-5 transition-colors duration-150 hover:bg-surface-sunken-hover">
+                <li key={p.id} className="stagger group relative flex flex-col rounded-surface sm:min-h-[180px] border border-border bg-surface p-5 transition-colors duration-150 hover:bg-ghost-hover">
                   <div className="flex items-center justify-between gap-3">
                     <g.icon aria-hidden weight="fill" className={`size-6 ${p.isActive ? 'text-text-muted' : 'text-text-faint'}`} />
                     {/* Karta havolasi butun yuzani qoplaydi — almashtirgich undan ustida turadi. */}
@@ -83,7 +83,7 @@ const PagesList: FC = () => {
               <li>
                 <Link
                   to={`${LIST}/new`}
-                  className="flex h-full min-h-24 flex-col items-center justify-center sm:min-h-[180px] gap-2 rounded-surface bg-surface-sunken p-5 text-base font-semibold text-text-muted transition-colors duration-150 hover:bg-surface-sunken-hover hover:text-text"
+                  className="flex h-full min-h-24 flex-col items-center justify-center sm:min-h-[180px] gap-2 rounded-surface border border-border bg-surface p-5 text-base font-semibold text-text-muted transition-colors duration-150 hover:bg-ghost-hover hover:text-text"
                 >
                   <Plus weight="bold" className="size-6" />
                   {t('pagesList.new')}

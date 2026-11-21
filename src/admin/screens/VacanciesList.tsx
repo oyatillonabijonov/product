@@ -51,7 +51,7 @@ const VacanciesList: FC = () => {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="stagger flex flex-col gap-4 rounded-surface bg-surface-sunken p-6 sm:flex-row sm:items-center">
+      <section className="stagger flex flex-col gap-4 rounded-surface border border-border bg-surface p-6 sm:flex-row sm:items-center">
         <IconTile icon={Article} hue="violet" soft size="lg" />
         <div className="min-w-0 flex-1">
           <p className="text-md font-bold text-text">{t('vacanciesList.pageTextTitle')}</p>
@@ -96,7 +96,7 @@ const VacanciesList: FC = () => {
                 <article
                   key={v.id}
                   style={delay(i + 1)}
-                  className="stagger group relative flex flex-col gap-4 rounded-surface bg-surface-sunken p-5 transition-colors duration-200 hover:bg-surface-sunken-hover has-[a:focus-visible]:ring-4 has-[a:focus-visible]:ring-accent/20"
+                  className="stagger group relative flex flex-col gap-4 rounded-surface border border-border bg-surface p-5 transition-colors duration-200 hover:bg-ghost-hover has-[a:focus-visible]:ring-4 has-[a:focus-visible]:ring-accent/20"
                 >
                   <div className="flex items-start gap-3">
                     <IconTile icon={Briefcase} hue={EMPLOYMENT_HUE[v.employment]} soft size="lg" className={v.isActive ? '' : 'opacity-60'} />

@@ -138,7 +138,7 @@ const SettingsStore: FC = () => {
                         >
                           <span className="flex w-full items-center justify-between">
                             <IconTile icon={m.icon} hue={m.hue} soft={!on} />
-                            <span aria-hidden className={`grid size-5 place-items-center rounded-full transition-colors duration-200 ${on ? 'bg-accent text-white' : 'bg-surface'}`}>
+                            <span aria-hidden className={`grid size-5 place-items-center rounded-full transition-colors duration-200 ${on ? 'bg-accent text-text-on-primary' : 'bg-surface-sunken'}`}>
                               <Check weight="bold" className={`size-3 transition-transform duration-200 ease-spring ${on ? 'scale-100' : 'scale-0'}`} />
                             </span>
                           </span>

@@ -20,7 +20,7 @@ const at = (i: number) => ({ ['--i' as string]: i }) as Record<string, number>;
 
 /** Tovar eskizi (44px) — rasm buyurtma nusxasida yo'q, ro'yxat API'si joriy rasmni beradi. */
 const Thumb: FC<{ src?: string }> = ({ src }) => (
-  <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-control bg-surface">
+  <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-control bg-surface-sunken">
     {src ? <img src={src} alt="" className="size-full object-contain p-0.5" /> : <Package className="size-5 text-text-faint" />}
   </span>
 );

@@ -47,7 +47,7 @@ const Initials: FC<{ name: string }> = ({ name }) => {
 };
 
 const Thumb: FC<{ src: string | null }> = ({ src }) => (
-  <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-control bg-surface">
+  <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-control bg-surface-sunken">
     {src ? <img src={src} alt="" className="size-full object-contain p-0.5" /> : <Package className="size-4 text-text-faint" />}
   </span>
 );
@@ -73,7 +73,7 @@ const ProductTable: FC<{
 }> = ({ icon: I, title, description, empty, cols, rows }) => {
   const navigate = useNavigate();
   return (
-    <section className="flex h-full min-w-0 flex-col overflow-hidden rounded-surface bg-surface-sunken">
+    <section className="flex h-full min-w-0 flex-col overflow-hidden rounded-surface border border-border bg-surface">
       <CardHead icon={I} title={title} description={description} />
       {rows.length === 0 ? (
         <p className="px-6 pb-8 pt-4 text-center text-base text-text-muted">{empty}</p>
@@ -560,7 +560,7 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
               </Card>
             </div>
             <div className="stagger" style={{ ['--i' as string]: 9 } as Record<string, number>}>
-              <section className="flex h-full min-w-0 flex-col overflow-hidden rounded-surface bg-surface-sunken">
+              <section className="flex h-full min-w-0 flex-col overflow-hidden rounded-surface border border-border bg-surface">
                 <CardHead icon={WarningCircle} title={t('dashboard.attention.title')} description={t('dashboard.attention.description')} />
                 <ul className="border-t border-border">
                   {attention.map((a) => (

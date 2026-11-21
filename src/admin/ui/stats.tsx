@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { ArrowDownRight, ArrowUpRight, CaretRight } from '@phosphor-icons/react';
 import type { Icon as PhIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
-import { HUE_DOT, IconTile, type Hue } from './controls';
+import { IconTile, type Hue } from './controls';
 import { Sparkline } from '../charts';
 
 /** Raqam 0 dan qiymatgacha yumshoq sanaladi (≈0.7 s, ease-out); qiymat o'zgarsa eski joyidan davom etadi. */
@@ -44,13 +44,13 @@ export function pctChange(cur: number, prev: number): number | null {
 /** O'sish/tushish belgisi: «↗ +8,2%» yashil, «↘ −3,1%» qizil, 0 — neytral. `inverse` — kamayish yaxshi bo'lsa. */
 export const Delta: FC<{ value: number | null; inverse?: boolean; className?: string }> = ({ value, inverse, className = '' }) => {
   const { t } = useTranslation('common');
-  if (value === null) return <span className={`inline-flex h-6 items-center rounded-full bg-accent-soft px-2 text-sm font-medium text-accent-text ${className}`}>{t('deltaNew')}</span>;
+  if (value === null) return <span className={`inline-flex h-5 items-center rounded-full bg-info-soft px-2 text-xs font-medium text-info-strong ${className}`}>{t('deltaNew')}</span>;
   const r = Math.round(value * 10) / 10;
   const good = inverse ? r < 0 : r > 0;
-  const tone = r === 0 ? 'bg-neutral text-neutral-text' : good ? 'bg-success-soft text-success-strong' : 'bg-danger-soft text-danger-strong';
+  const tone = r === 0 ? 'bg-neutral text-text' : good ? 'bg-success-soft text-success-strong' : 'bg-danger-soft text-danger-strong';
   const I = r >= 0 ? ArrowUpRight : ArrowDownRight;
   return (
-    <span className={`inline-flex h-6 items-center gap-0.5 rounded-full px-2 text-sm font-semibold tabular-nums ${tone} ${className}`}>
+    <span className={`inline-flex h-5 items-center gap-0.5 rounded-full px-2 text-xs font-medium tabular-nums ${tone} ${className}`}>
       {r !== 0 && <I weight="bold" className="size-3" />}
       {r > 0 ? '+' : ''}{r.toString().replace('.', ',')}%
     </span>
@@ -78,7 +78,7 @@ export const Kpi: FC<{
       <div className="flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center gap-2.5">
           <IconTile icon={icon} hue={hue} size="sm" />
-          <span className="truncate text-base font-semibold text-text-muted">{label}</span>
+          <span className="truncate text-base font-medium text-text-muted">{label}</span>
         </span>
         {to && <CaretRight weight="bold" className="size-3.5 shrink-0 text-text-faint transition-transform duration-200 group-hover:translate-x-0.5" />}
       </div>
@@ -93,11 +93,11 @@ export const Kpi: FC<{
       {note && <p className="mt-2 truncate text-sm text-text-muted">{note}</p>}
     </>
   );
-  const cls = 'group block min-w-0 rounded-surface bg-surface-sunken p-5 transition-colors duration-200';
-  return to ? <Link to={to} className={`${cls} hover:bg-surface-sunken-hover`}>{body}</Link> : <div className={cls}>{body}</div>;
+  const cls = 'group block min-w-0 rounded-surface border border-border bg-surface p-5 transition-colors duration-[175ms]';
+  return to ? <Link to={to} className={`${cls} hover:bg-ghost-hover`}>{body}</Link> : <div className={cls}>{body}</div>;
 };
 
-/** KPI'lar qatori — alohida kulrang plitkalar (chiziq va soyasiz), telefonda 1–2 ustun, keng ekranda bir qatorda. */
+/** KPI'lar qatori — Astryx kartalari (yuza + hoshiya), telefonda 1–2 ustun, keng ekranda bir qatorda. */
 export const KpiStrip: FC<{ children: ReactNode; className?: string }> = ({ children, className = '' }) => (
   <section className={`grid gap-3 sm:grid-cols-2 xl:grid-cols-4 ${className}`}>
     {children}
@@ -105,11 +105,12 @@ export const KpiStrip: FC<{ children: ReactNode; className?: string }> = ({ chil
 );
 
 /** Ingichka progress chizig'i (katalog to'liqligi, maqsad). */
-export const Meter: FC<{ value: number; max: number; hue?: Hue; className?: string }> = ({ value, max, hue = 'violet', className = '' }) => {
+/** `hue` eski API uchun qoldi — Astryx progress chizig'i doim urg'u rangida. */
+export const Meter: FC<{ value: number; max: number; hue?: Hue; className?: string }> = ({ value, max, className = '' }) => {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
-    <div className={`h-1.5 overflow-hidden rounded-full bg-surface-sunken ${className}`}>
-      <div className={`h-full rounded-full transition-[width] duration-700 ease-standard ${HUE_DOT[hue]}`} style={{ width: `${pct}%` }} />
+    <div className={`h-1.5 overflow-hidden rounded-full bg-track ${className}`}>
+      <div className={`h-full rounded-full bg-accent transition-[width] duration-700 ease-standard`} style={{ width: `${pct}%` }} />
     </div>
   );
 };

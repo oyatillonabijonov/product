@@ -39,12 +39,12 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
               initial={{ opacity: 0, y: -16, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 420, damping: 34 } }}
               exit={{ opacity: 0, y: -12, scale: 0.97, transition: { duration: 0.18 } }}
-              className="pointer-events-auto flex w-[min(92vw,360px)] items-start gap-2.5 rounded-control bg-inverted px-4 py-3 text-left text-base"
+              className="pointer-events-auto flex w-[min(92vw,360px)] items-start gap-2.5 rounded-control bg-inverted px-4 py-3 text-left text-base shadow-med"
             >
               {t.kind === 'error'
                 ? <WarningCircle aria-hidden weight="fill" className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0 text-danger" />
                 : <CheckCircle aria-hidden weight="fill" className="mt-[calc(0.5lh-9px)] size-[18px] shrink-0 text-success" />}
-              <span className="min-w-0 text-base font-semibold text-text-on-inverted">{t.text}</span>
+              <span className="min-w-0 text-base font-medium text-text-on-inverted">{t.text}</span>
             </motion.button>
           ))}
         </AnimatePresence>

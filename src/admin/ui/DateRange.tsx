@@ -137,7 +137,7 @@ export const DateRangePicker: FC<{ value: DayRange | null; onChange: (r: DayRang
                 return (
                   <span
                     key={day}
-                    className={`relative ${inRange && !(day === lo && day === hi) ? 'bg-surface' : ''} ${startEdge ? 'rounded-l-full' : ''} ${endEdge ? 'rounded-r-full' : ''}`}
+                    className={`relative ${inRange && !(day === lo && day === hi) ? 'bg-surface-sunken' : ''} ${startEdge ? 'rounded-l-full' : ''} ${endEdge ? 'rounded-r-full' : ''}`}
                   >
                     <button
                       type="button"

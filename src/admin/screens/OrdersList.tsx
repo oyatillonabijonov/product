@@ -105,7 +105,7 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
     return (
       <article
         onClick={() => navigate(`${LIST}/${o.id}`, { state: { search: params.toString() } })}
-        className="group rounded-control-lg bg-surface p-3.5"
+        className="group rounded-control-lg border border-border bg-surface p-3.5"
       >
         <div className="flex items-start gap-3">
           <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-control bg-surface-sunken">

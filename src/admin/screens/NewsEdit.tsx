@@ -46,7 +46,7 @@ const ctaModeOf = (linkUrl: string): CtaMode => (linkUrl === '' ? 'none' : newsP
 
 /** Raqamli qadam kartasi: rangli raqam, nom va izoh; ostida maydonlar. Raqamlar matnda ham tilga olinadi («5-qadam»). */
 const Step: FC<{ n: number; hue: Hue; title: string; description?: string; children: ReactNode }> = ({ n, hue, title, description, children }) => (
-  <section className="flex min-w-0 flex-col gap-5 rounded-surface bg-surface-sunken p-6">
+  <section className="flex min-w-0 flex-col gap-5 rounded-surface border border-border bg-surface p-6">
     <div className="flex items-start gap-3">
       <span className={`grid size-8 shrink-0 place-items-center rounded-full text-base font-semibold tabular-nums text-white ${HUE_DOT[hue]}`}>{n}</span>
       <div className="min-w-0 pt-0.5">
@@ -258,10 +258,10 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
                         <div
                           key={n.id}
                           className={`flex min-w-0 flex-col justify-center rounded-item px-2.5 text-sm transition-colors ${shown.length === 3 && i === 0 ? 'row-span-2' : ''} ${
-                            me ? 'bg-accent text-white' : 'bg-surface text-text-muted'
+                            me ? 'bg-accent text-text-on-primary' : 'bg-surface-sunken text-text-muted'
                           }`}
                         >
-                          {me && <span className="text-xs font-medium text-white/75">{t('newsEdit.place.current')}</span>}
+                          {me && <span className="text-xs font-medium text-text-on-primary/75">{t('newsEdit.place.current')}</span>}
                           <span className="truncate font-medium">{n.title || t('newsEdit.untitled')}</span>
                         </div>
                       );
@@ -304,7 +304,7 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => set('imageScale', Number(e.target.value))}
                         className="h-11 w-full accent-accent md:h-9"
                       />
-                      <span className="inline-flex h-7 min-w-14 items-center justify-center rounded-full bg-surface px-2 text-base font-semibold tabular-nums text-text">{form.imageScale}%</span>
+                      <span className="inline-flex h-7 min-w-14 items-center justify-center rounded-full bg-surface-sunken px-2 text-base font-semibold tabular-nums text-text">{form.imageScale}%</span>
                     </span>
                   </Field>
                 </div>
@@ -343,7 +343,7 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
                   )}
                   {ctaMode === 'product' && (linkedId ? (
                     <div className="flex flex-wrap items-center gap-3 rounded-control bg-surface-sunken p-3">
-                      <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-item bg-surface">
+                      <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-item bg-surface-sunken">
                         {product ? <img src={product.imageUrl} alt="" className="size-full object-contain p-0.5" /> : <Package className="size-5 text-text-faint" />}
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col">
@@ -373,7 +373,7 @@ const NewsEdit: FC<{ id: string }> = ({ id }) => {
                               className="flex items-center gap-3 border-b border-border px-3 py-2 text-left transition-colors last:border-b-0 hover:bg-surface-sunken"
                               onClick={() => { set('linkUrl', `/product/${p.id}`); setQuery(''); }}
                             >
-                              <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-item bg-surface">
+                              <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-item bg-surface-sunken">
                                 <img src={p.imageUrl} alt="" className="size-full object-contain p-0.5" />
                               </span>
                               <span className="min-w-0 flex-1 truncate text-base text-text">{p.name}</span>

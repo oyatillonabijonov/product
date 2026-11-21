@@ -25,9 +25,9 @@ const TypeCard: FC<{ row: ApiProductType }> = ({ row }) => {
   return (
     <Link
       to={`${LIST}/${row.categoryId}/${row.id}`}
-      className="group flex min-w-0 flex-col gap-3 rounded-surface bg-surface-sunken p-3 transition-colors duration-200 hover:bg-surface-sunken-hover"
+      className="group flex min-w-0 flex-col gap-3 rounded-surface border border-border bg-surface p-3 transition-colors duration-200 hover:bg-ghost-hover"
     >
-      <span className="grid aspect-[220/136] place-items-center overflow-hidden rounded-control-lg bg-surface">
+      <span className="grid aspect-[220/136] place-items-center overflow-hidden rounded-control-lg bg-surface-sunken">
         {row.iconUrl ? (
           <img src={row.iconUrl} alt="" loading="lazy" className="max-h-[72%] max-w-[78%] object-contain transition-transform duration-300 ease-standard group-hover:scale-105" />
         ) : (

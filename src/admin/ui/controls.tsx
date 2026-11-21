@@ -5,8 +5,9 @@ import { motion } from 'motion/react';
 import type { Icon as PhIcon } from '@phosphor-icons/react';
 
 /**
- * Admin boshqaruvlari (v2). Tugma — pill, 14px/500; `primary` qora, yuqorisida ingichka yorug' chiziq
- * (`btn-primary`) — sahifaning bitta asosiy amali. `accent` — binafsha urg'u (kam: «yangi» kabi ijobiy amal).
+ * Admin boshqaruvlari — Astryx `Button`: pill, hoshiyasiz, 14px/500, balandlik 28/32/36, bosilganda 0.98.
+ * `primary` — siyoh to'ldirma (sahifaning bitta asosiy amali), `secondary` — neytral to'ldirma, `quiet` — ghost.
+ * `accent` va `outline` eski nomlar: Astryx'da urg'u = siyoh, outline varianti yo'q — `primary`/`secondary`dek.
  * Sahifadagi xavfli amal `dangerSoft`, to'yingan `destructive` — faqat tasdiqlash oynasida.
  */
 export type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'outline' | 'destructive' | 'dangerSoft' | 'quiet';
@@ -14,21 +15,20 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-text-on-primary hover:bg-primary-hover',
-  accent: 'bg-accent text-white hover:bg-accent-hover',
+  accent: 'bg-primary text-text-on-primary hover:bg-primary-hover',
   secondary: 'bg-neutral text-text hover:bg-neutral-hover',
-  // «outline» endi hoshiyasiz — kulrang fon (egasi: tugmada stroke yo'q).
-  outline: 'bg-surface-sunken text-text hover:bg-surface-sunken-hover',
+  outline: 'bg-neutral text-text hover:bg-neutral-hover',
   destructive: 'bg-danger text-white hover:opacity-90',
-  dangerSoft: 'bg-danger-soft text-danger-text hover:bg-danger-soft/70',
-  quiet: 'text-text-muted hover:bg-ghost-hover hover:text-text',
+  dangerSoft: 'bg-danger-soft text-danger-strong hover:bg-danger/25',
+  quiet: 'text-text hover:bg-ghost-hover',
 };
 const SIZE: Record<ButtonSize, string> = {
-  sm: 'h-control-sm gap-1.5 px-3 text-sm',
-  md: 'h-control-md gap-1.5 px-4 text-base',
-  lg: 'h-control-lg gap-2 px-5 text-base',
+  sm: 'h-control-sm gap-1.5 px-2.5 text-base',
+  md: 'h-control-md gap-2 px-3 text-base',
+  lg: 'h-control-lg gap-2 px-4 text-base',
 };
 const BASE =
-  'inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap rounded-full font-medium transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-4 [&_svg]:shrink-0';
+  'inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap rounded-full font-medium transition-[background-color,color,opacity,transform] duration-[175ms] ease-standard active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0';
 
 export const Button: FC<{
   variant?: ButtonVariant;
@@ -61,7 +61,7 @@ export const Button: FC<{
   );
 };
 
-/** Faqat ikonkali dumaloq tugma (qator amali, yopish). `label` majburiy — `aria-label` + `title`. */
+/** Faqat ikonkali tugma (Astryx `IconButton`, ghost, kvadrat 28/32, pill). `label` majburiy — `aria-label` + `title`. */
 export const IconButton: FC<{
   label: string;
   onClick?: () => void;
@@ -73,18 +73,18 @@ export const IconButton: FC<{
   className?: string;
   children: ReactNode;
 }> = ({ label, onClick, to, href, disabled, danger, size = 'md', className = '', children }) => {
-  const cls = `inline-flex shrink-0 items-center justify-center rounded-full transition-[background-color,color,transform] duration-150 active:scale-90 disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-[18px] ${
-    size === 'sm' ? 'size-8' : 'size-9'
-  } ${danger ? 'text-text-muted hover:bg-danger-soft hover:text-danger-text' : 'text-text-muted hover:bg-ghost-hover hover:text-text'} ${className}`;
+  const cls = `inline-flex shrink-0 items-center justify-center rounded-full transition-[background-color,color,transform] duration-[175ms] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 ${
+    size === 'sm' ? 'size-7' : 'size-8'
+  } ${danger ? 'text-text-muted hover:bg-danger-soft hover:text-danger-strong' : 'text-text-muted hover:bg-ghost-hover hover:text-text'} ${className}`;
   if (to) return <Link to={to} aria-label={label} title={label} className={cls}>{children}</Link>;
   if (href) return <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} className={cls}>{children}</a>;
   return <button type="button" aria-label={label} title={label} disabled={disabled} onClick={onClick} className={cls}>{children}</button>;
 };
 
-/** Holat ranglari: `attention` — e'tibor kerak, `ok` — faol/bajarildi, `accent` — binafsha urg'u. */
+/** Holat ranglari (Astryx hue badge'lari: och fon + to'q matn): `attention` — e'tibor kerak, `ok` — faol/bajarildi. */
 export type Tone = 'neutral' | 'attention' | 'ok' | 'danger' | 'info' | 'accent';
 const TONE: Record<Tone, string> = {
-  neutral: 'bg-neutral text-neutral-text',
+  neutral: 'bg-neutral text-text',
   attention: 'bg-warning-soft text-warning-strong',
   ok: 'bg-success-soft text-success-strong',
   danger: 'bg-danger-soft text-danger-strong',
@@ -100,9 +100,9 @@ const DOT: Record<Tone, string> = {
   accent: 'bg-accent',
 };
 
-/** Holat belgisi — pill, ixtiyoriy nuqta bilan («• Yangi»). */
+/** Holat belgisi — Astryx `Badge`: pill, 20px, 12px/500, ixtiyoriy nuqta bilan («• Yangi»). */
 export const Badge: FC<{ tone?: Tone; dot?: boolean; children: ReactNode; className?: string }> = ({ tone = 'neutral', dot, children, className = '' }) => (
-  <span className={`inline-flex h-6 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 text-sm font-medium ${TONE[tone]} ${className}`}>
+  <span className={`inline-flex h-5 items-center gap-1 whitespace-nowrap rounded-full px-2 text-xs font-medium ${TONE[tone]} ${className}`}>
     {dot && <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${DOT[tone]}`} />}
     {children}
   </span>
@@ -144,8 +144,8 @@ export const IconTile: FC<{ icon: PhIcon; hue?: Hue; soft?: boolean; size?: 'sm'
 };
 
 /**
- * Switch: telefonda 44×26, desktopda 36×20; tugmacha prujina bilan suriladi. Yoqilgan holatda tugmacha rangi
- * `text-on-primary` — qorong'i mavzuda trek oq bo'ladi, oq tugmacha unda ko'rinmasdi.
+ * Switch — Astryx: telefonda md 40×24, desktopda sm 32×20; o'chiq trek `track`, yoqilgan — siyoh. Tugmacha
+ * yoqilganda kattalashadi (16→20 / 14→16). Yoqilgan tugmacha rangi `text-on-primary` — qorong'i mavzuda trek oq.
  */
 export const Toggle: FC<{ on: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }> = ({ on, onChange, label, disabled }) => (
   <button
@@ -155,18 +155,20 @@ export const Toggle: FC<{ on: boolean; onChange: (v: boolean) => void; label: st
     aria-label={label}
     disabled={disabled}
     onClick={() => onChange(!on)}
-    className={`relative h-[26px] w-11 shrink-0 rounded-full transition-colors duration-200 disabled:opacity-50 lg:h-5 lg:w-9 ${on ? 'bg-switch-on' : 'bg-border-strong'}`}
+    className={`relative h-6 w-10 shrink-0 rounded-full transition-colors duration-[175ms] disabled:opacity-50 lg:h-5 lg:w-8 ${on ? 'bg-switch-on' : 'bg-track'}`}
   >
     <span
       aria-hidden
-      className={`absolute left-[3px] top-[3px] size-5 rounded-full transition-[transform,background-color] duration-300 ease-spring lg:left-0.5 lg:top-0.5 lg:size-4 ${on ? 'translate-x-[18px] bg-text-on-primary lg:translate-x-4' : 'bg-white'}`}
+      className={`absolute top-1/2 -translate-y-1/2 rounded-full transition-all duration-[175ms] ease-standard ${
+        on ? 'left-[18px] size-5 bg-text-on-primary lg:left-[14px] lg:size-4' : 'left-1 size-4 bg-white lg:left-[3px] lg:size-3.5'
+      }`}
     />
   </button>
 );
 
 /**
- * Segment-kontrol (lokal holat): kulrang trek, tanlangani oq «tabletka» — u variantlar orasida silliq suriladi
- * (`layoutId`). 2–5 qisqa variant uchun; ko'pi — select.
+ * Segment-kontrol — Astryx `SegmentedControl`: neytral trek (2px ichki bo'shliq, radius 12), tanlangani yuza +
+ * `shadow-low`, 600 qalinlik; u variantlar orasida silliq suriladi (`layoutId`). 2–5 qisqa variant; ko'pi — select.
  */
 export const Segmented: FC<{
   value: string;
@@ -180,7 +182,7 @@ export const Segmented: FC<{
   const id = useId();
   return (
     <div role="radiogroup" aria-label={label} className={`no-scrollbar -mx-4 max-w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:max-w-full sm:px-0 ${className}`}>
-      <div className="inline-flex gap-0.5 rounded-full bg-surface-sunken p-[3px]">
+      <div className="inline-flex rounded-control bg-neutral p-0.5">
         {options.map((o) => {
           const on = o.id === value;
           const I = o.icon;
@@ -191,15 +193,15 @@ export const Segmented: FC<{
               role="radio"
               aria-checked={on}
               onClick={() => { if (!on) onChange(o.id); }}
-              className={`relative isolate inline-flex items-center gap-1.5 whitespace-nowrap rounded-full font-medium transition-colors duration-200 ${
-                size === 'sm' ? 'h-7 px-3 text-sm' : 'h-[30px] px-3.5 text-base'
-              } ${on ? 'text-text' : 'text-text-muted hover:text-text'}`}
+              className={`relative isolate inline-flex items-center gap-1 whitespace-nowrap rounded-[10px] text-base transition-colors duration-[175ms] ${
+                size === 'sm' ? 'h-6 px-2' : 'h-7 px-3'
+              } ${on ? 'font-semibold text-text' : 'font-medium text-text-muted hover:text-text'}`}
             >
               {on && (
                 <motion.span
                   layoutId={`seg-${id}`}
-                  transition={{ type: 'spring', stiffness: 500, damping: 38 }}
-                  className="absolute inset-0 -z-10 rounded-full bg-elevated"
+                  transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                  className="absolute inset-0 -z-10 rounded-[10px] bg-elevated shadow-low"
                 />
               )}
               {I && <I weight={on ? 'fill' : 'regular'} className="size-4" />}
@@ -219,8 +221,8 @@ export const Avatar: FC<{ name: string; src?: string | null; size?: 'sm' | 'md' 
   const clean = name.replace(/^SINOV\s+/, '').trim();
   const parts = clean.split(/\s+/).filter(Boolean);
   const ini = ((parts[0]?.[0] ?? '?') + (parts[1]?.[0] ?? '')).toUpperCase();
-  // Monoxrom (rang-baranglik yo'q): neytral kulrang doira, bosh harflar siyohda.
-  const tone = 'bg-neutral-hover text-text';
+  // Astryx `Avatar` (initials): neytral doira, bosh harflar siyohda.
+  const tone = 'bg-neutral text-text';
   if (src) return <img src={src} alt="" className={`${box} shrink-0 rounded-full object-cover ${className}`} />;
   return <span aria-hidden className={`grid shrink-0 place-items-center rounded-full font-semibold ${box} ${tone} ${className}`}>{ini}</span>;
 };

@@ -18,10 +18,10 @@ const HomeSchema: FC<{ items: ApiNews[] }> = ({ items }) => (
     {items.map((n, i) => (
       <div
         key={n.id}
-        className={`relative grid place-items-center overflow-hidden rounded-item bg-surface ${items.length === 3 && i === 0 ? 'row-span-2' : ''}`}
+        className={`relative grid place-items-center overflow-hidden rounded-item bg-surface-sunken ${items.length === 3 && i === 0 ? 'row-span-2' : ''}`}
       >
         {n.imageUrl ? <img src={n.imageUrl} alt="" className="size-full object-contain p-1.5" /> : <ImageIcon className="size-4 text-text-faint" />}
-        <span className="absolute left-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-xs font-semibold leading-none text-white">{i + 1}</span>
+        <span className="absolute left-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-xs font-semibold leading-none text-text-on-primary">{i + 1}</span>
       </div>
     ))}
   </div>
@@ -65,7 +65,7 @@ const NewsList: FC = () => {
           {/* Sarlavha guruhi: qo'shish tugmasi va bosh sahifadagi holat — bir-biriga yaqin, kartalar to'ridan uzoqroq. */}
           <div className="flex flex-col gap-4">
             <div className="flex justify-end">{addButton(t('newsList.new'))}</div>
-            <section className="stagger flex flex-col gap-4 rounded-surface bg-surface-sunken p-6 sm:flex-row sm:items-center">
+            <section className="stagger flex flex-col gap-4 rounded-surface border border-border bg-surface p-6 sm:flex-row sm:items-center">
               <IconTile icon={House} hue="violet" soft size="lg" />
               <div className="min-w-0 flex-1">
                 <p className="text-md font-bold text-text">{home.length > 0 ? t('contentHome.blocks.news.live', { n: home.length }) : t('contentHome.blocks.news.none')}</p>

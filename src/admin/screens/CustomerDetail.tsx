@@ -147,7 +147,7 @@ const CustomerDetail: FC<{ id: string }> = ({ id }) => {
                       </span>
                       <Link
                         to={`/admin/orders/${o.id}`}
-                        className="group my-1 flex min-w-0 flex-1 items-center gap-3 rounded-control bg-surface p-4 transition-transform duration-200 hover:-translate-y-px"
+                        className="group my-1 flex min-w-0 flex-1 items-center gap-3 rounded-control bg-surface-sunken p-4 transition-transform duration-200 hover:-translate-y-px"
                       >
                         <span className="min-w-0 flex-1">
                           <span className="flex flex-wrap items-center gap-x-2 gap-y-1">

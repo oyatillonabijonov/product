@@ -250,7 +250,7 @@ const ConfiguratorScreen: FC = () => {
               )}
             </div>
             {auto.confirmed > 0 && (
-              <details className="group/prev overflow-hidden rounded-control-lg bg-surface">
+              <details className="group/prev overflow-hidden rounded-control-lg bg-surface-sunken">
                 <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 py-3 text-base font-semibold text-text transition-colors hover:bg-surface-sunken [&::-webkit-details-marker]:hidden">
                   <CaretDown aria-hidden weight="bold" className="size-4 text-text-muted transition-transform duration-200 group-open/prev:rotate-180" />
                   {t('configurator.preview')}
@@ -310,7 +310,7 @@ const ConfiguratorScreen: FC = () => {
               {manual.map((p) => (
                 <li
                   key={p.id}
-                  className={`flex flex-col gap-4 rounded-control-lg p-4 transition-colors duration-200 ${savedIds.includes(p.id) ? 'bg-success-soft' : 'bg-surface'}`}
+                  className={`flex flex-col gap-4 rounded-control-lg p-4 transition-colors duration-200 ${savedIds.includes(p.id) ? 'bg-success-soft' : 'bg-surface-sunken'}`}
                 >
                   {partHead(p)}
                   {chips(p)}
@@ -341,7 +341,7 @@ const ConfiguratorScreen: FC = () => {
                             {editId === p.id ? t('configurator.collapse') : t('configurator.edit')}
                           </Button>
                         </div>
-                        {editId === p.id && <div className="animate-fade-in rounded-control-lg bg-surface p-4">{chips(p)}</div>}
+                        {editId === p.id && <div className="animate-fade-in rounded-control-lg bg-surface-sunken p-4">{chips(p)}</div>}
                       </li>
                     ))}
                   </ul>
@@ -363,7 +363,7 @@ const ConfiguratorScreen: FC = () => {
               {dims.length === 0 && <p className="text-base text-text-muted">{t('configurator.noDims')}</p>}
               <ul className="grid gap-3 md:grid-cols-2">
                 {dims.map((d) => (
-                  <li key={d.id} className="flex flex-col gap-4 rounded-control-lg bg-surface p-4">
+                  <li key={d.id} className="flex flex-col gap-4 rounded-control-lg bg-surface-sunken p-4">
                     <div className="flex items-start gap-3">
                       <span className="flex h-[1lh] shrink-0 items-center text-base"><IconTile icon={d.active ? ShieldCheck : ShieldSlash} hue={d.active ? 'green' : 'slate'} soft /></span>
                       <div className="min-w-0 flex-1">

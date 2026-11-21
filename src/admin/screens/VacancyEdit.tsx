@@ -181,7 +181,7 @@ const VacancyEdit: FC<{ id: string }> = ({ id }) => {
             </div>
           </article>
 
-          <aside className="flex flex-col gap-5 rounded-surface bg-surface-sunken p-5 xl:sticky xl:top-28">
+          <aside className="flex flex-col gap-5 rounded-surface border border-border bg-surface p-5 xl:sticky xl:top-28">
             <div>
               <h2 className="flex items-center gap-2 text-md font-semibold text-text"><Lightning weight="fill" className="size-[18px] text-text-faint" />{t('vacancyEdit.snippets.title')}</h2>
               <p className="mt-1 text-sm text-text-muted">{t('vacancyEdit.snippets.hint')}</p>
@@ -199,7 +199,7 @@ const VacancyEdit: FC<{ id: string }> = ({ id }) => {
                         aria-pressed={on}
                         onClick={() => { set(descKey, toggleBullet(form[descKey], g.heading, item)); setBump((n: number) => n + 1); }}
                         className={`inline-flex h-8 items-center gap-1 rounded-full pl-2.5 pr-3 text-sm font-medium transition-[background-color,color,transform] duration-150 active:scale-[0.97] ${
-                          on ? 'bg-primary text-text-on-primary' : 'bg-surface text-text-muted hover:text-text'
+                          on ? 'bg-primary text-text-on-primary' : 'bg-surface-sunken text-text-muted hover:text-text'
                         }`}
                       >
                         {on ? <Check weight="bold" className="size-3.5" /> : <Plus weight="bold" className="size-3.5" />}

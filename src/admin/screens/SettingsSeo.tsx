@@ -90,7 +90,7 @@ const SettingsSeo: FC = () => {
 
               <div className="stagger" style={st(1)}>
                 <Card icon={GoogleLogo} hue="green" title={t('seo.preview.googleTitle')} description={t('seo.preview.googleDesc')}>
-                  <div className="rounded-control bg-surface p-5">
+                  <div className="rounded-control bg-surface-sunken p-5">
                     <div className="flex items-center gap-3">
                       <span className="grid size-7 shrink-0 place-items-center rounded-full bg-surface-sunken">
                         <img src={favicon} alt="" className="size-4 object-contain" />

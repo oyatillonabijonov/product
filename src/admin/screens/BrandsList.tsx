@@ -17,7 +17,7 @@ const stagger = (i: number) => ({ ['--i' as string]: i } as Record<string, numbe
 
 /** Statistika plitkasi — alohida kulrang yuza (hoshiya va soyasiz). */
 const Stat: FC<{ icon: PhIcon; hue: Hue; label: string; value: number }> = ({ icon, hue, label, value }) => (
-  <div className="flex items-center gap-4 rounded-surface bg-surface-sunken p-5">
+  <div className="flex items-center gap-4 rounded-surface border border-border bg-surface p-5">
     <IconTile icon={icon} hue={hue} size="lg" soft />
     <div className="min-w-0">
       <p className="truncate text-sm font-semibold text-text-muted">{label}</p>
@@ -100,9 +100,9 @@ const BrandsList: FC = () => {
               <li key={b.id} className="stagger min-w-0" style={stagger(Math.min(i, 12))}>
                 <Link
                   to={`${LIST}/${b.id}`}
-                  className="group flex h-full flex-col gap-3 rounded-surface bg-surface-sunken p-3 transition-colors duration-200 hover:bg-surface-sunken-hover"
+                  className="group flex h-full flex-col gap-3 rounded-surface border border-border bg-surface p-3 transition-colors duration-200 hover:bg-ghost-hover"
                 >
-                  <div className="relative grid aspect-[16/10] place-items-center rounded-control-lg bg-surface p-4">
+                  <div className="relative grid aspect-[16/10] place-items-center rounded-control-lg bg-surface-sunken p-4">
                     {b.logoUrl
                       ? <img src={b.logoUrl} alt="" className="max-h-10 max-w-[75%] object-contain brightness-0 dark:invert" />
                       : <Avatar name={b.name} size="lg" />}

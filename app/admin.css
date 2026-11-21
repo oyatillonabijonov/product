@@ -2,148 +2,172 @@
    Sayt `app/styles.css`ni oladi, admin faqat shuni: tokenlar nomi bir xil (`bg-surface`, `bg-primary`),
    ma'nosi boshqa, shuning uchun ikkalasi bitta sahifada yuklanmaydi (`root.tsx`).
 
-   v3 (2026-11-20, egasining feedbacki):
-   - kontent sidebar'dan FON bilan ajraladi: kulrang kanvas → oq «varaq» (radius 20, chetdan 8px);
-   - SOYA YO'Q, tugma va komponentlarda HOSHIYA (stroke) YO'Q — yuzalar faqat fon bilan ajraladi;
-   - `surface-sunken` YARIM SHAFFOF: oq varaqdagi karta och kulrang, karta ichidagi maydon/chip yana bir pog'ona
-     to'qroq — qatlamlar o'z-o'zidan ajraladi (alohida «karta ichi» rangi kerak emas);
-   - v3.1: shrift Inter Tight (kirill bor), eng qalini semibold (600), harf oralig'i zich; rang-baranglik yo'q —
-     monoxrom asos + bitta urg'u (binafsha); ikonkalar fonsiz. */
-@import "@fontsource-variable/inter-tight";
+   v4 (2026-11-21, egasining talabi): dizayn tizimi to'liq Meta **Astryx** asosida (astryx.atmeta.com, MIT) —
+   qiymatlar `@astryxdesign/core` tokenlari va docsite «astryx» mavzusidan: Figtree, iliq qora siyoh urg'u sifatida,
+   krem fon, oq yuza + 1px hoshiya, radius 8/12/16/32, element balandligi 28/32/36, tugma — pill.
+   Tokenlar nomi eski (ekranlar o'zgarmasin), qiymati Astryx'niki. Grafik ranglari (`c-*`) o'zgarmagan.
+   Shrift (egasining tanlovi): matn — Medeo Sans, raqamlar (`tabular-nums`) — Medeo Mono; OFL, kirill bor,
+   fayllar `src/admin/fonts/`da (litsenziya `OFL.txt`). */
 @import "tailwindcss" source(none);
 @source "../src/admin";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@font-face {
+  font-family: "Medeo Sans";
+  src: url("../src/admin/fonts/MedeoSans.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Medeo Mono";
+  src: url("../src/admin/fonts/MedeoMono.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+/* Faqat raqam belgilari (0–9 va . , % + − : /) — `tabular-nums` ichidagi so'z va «№» Medeo Sans'da qoladi. */
+@font-face {
+  font-family: "Medeo Digits";
+  src: url("../src/admin/fonts/MedeoMono.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0025, U+002B-002F, U+0030-003A, U+2212;
+}
 
 @theme {
   --color-*: initial;
   --color-white: #ffffff;
   --color-black: #000000;
 
-  /* ---------- Yuzalar ---------- */
-  --color-bg: #f1f1f3;                       /* kanvas: sidebar va varaq atrofi */
-  --color-bg-subtle: #e9e9ec;
-  --color-surface: #ffffff;                  /* kontent varag'i, sidebar'dagi faol band */
-  --color-surface-raised: #ffffff;           /* modal, menyu */
-  --color-surface-sunken: rgb(17 17 26 / 0.04);        /* karta, maydon, jadval sarlavhasi (qatlamlanadi) */
-  --color-surface-sunken-hover: rgb(17 17 26 / 0.07);
-  --color-elevated: #ffffff;                 /* kulrang trek ustidagi tanlangan tabletka */
-  --color-overlay: rgb(10 10 16 / 0.4);
-  --color-inverted: #17171c;
+  /* ---------- Yuzalar (Astryx: background-body / surface / popover / muted) ---------- */
+  --color-bg: #f8f4ed;                       /* body — sidebar va varaq atrofi */
+  --color-bg-subtle: #f1ece3;
+  --color-surface: #ffffff;                  /* kontent varag'i, karta */
+  --color-surface-raised: #ffffff;           /* popover, modal */
+  --color-surface-sunken: rgb(5 54 89 / 0.047);        /* background-muted: karta ichidagi to'ldirma */
+  --color-surface-sunken-hover: rgb(5 54 89 / 0.09);
+  --color-elevated: #ffffff;                 /* segment trekidagi tanlangan bo'lak (+ shadow-low) */
+  --color-overlay: rgb(1 18 40 / 0.4);
+  --color-inverted: #0a1317;
 
-  /* ---------- Matn ---------- */
-  --color-text: #17171c;
-  --color-text-muted: #62626d;
-  --color-text-faint: #9898a2;
+  /* ---------- Matn (Astryx: text-primary — docsite PRIMARY, secondary, disabled) ---------- */
+  --color-text: #15110c;
+  --color-text-muted: #445564;
+  --color-text-faint: #75828f;
   --color-text-on-primary: #ffffff;
   --color-text-on-inverted: #ffffff;
 
-  /* ---------- Chiziq (faqat ro'yxat qatorlari orasida, komponent atrofida emas) ---------- */
-  --color-border: rgb(17 17 26 / 0.07);
-  --color-border-strong: rgb(17 17 26 / 0.14);
-  --color-border-focus: #6d4aff;
+  /* ---------- Hoshiya (Astryx: border, border-emphasized; fokus — accent) ---------- */
+  --color-border: rgb(5 54 89 / 0.1);
+  --color-border-strong: #ccd3db;
+  --color-border-focus: #15110c;
 
-  /* ---------- Asosiy amal va urg'u ---------- */
-  --color-primary: #17171c;
-  --color-primary-hover: #2d2d35;
-  --color-primary-active: #3c3c45;
-  --color-primary-soft: #ececef;
-  --color-accent: #6d4aff;
-  --color-accent-hover: #5b37f5;
-  --color-accent-soft: #efebff;
-  --color-accent-text: #5232e0;
+  /* ---------- Asosiy amal va urg'u (docsite: hamma urg'u tokenlari = PRIMARY siyoh) ---------- */
+  --color-primary: #15110c;
+  --color-primary-hover: #2e2a25;
+  --color-primary-active: #403c37;
+  --color-primary-soft: rgb(21 17 12 / 0.08);
+  --color-accent: #15110c;
+  --color-accent-hover: #2e2a25;
+  --color-accent-soft: rgb(21 17 12 / 0.08);
+  --color-accent-text: #15110c;
 
-  --color-neutral: rgb(17 17 26 / 0.06);
-  --color-neutral-hover: rgb(17 17 26 / 0.1);
-  --color-ghost-hover: rgb(17 17 26 / 0.045);
-  --color-neutral-text: #46464f;
-  --color-switch-on: #17171c;
+  --color-neutral: rgb(5 54 89 / 0.1);       /* secondary tugma, tanlangan nav bandi */
+  --color-neutral-hover: rgb(5 54 89 / 0.15);
+  --color-ghost-hover: rgb(5 54 89 / 0.047); /* overlay-hover */
+  --color-neutral-text: #15110c;
+  --color-switch-on: #15110c;
+  --color-track: #ccd3db;
 
-  /* ---------- Holat ---------- */
-  --color-danger: #ef4444;
-  --color-danger-text: #dc2626;
-  --color-danger-soft: #fdeaea;
-  --color-danger-strong: #b91c1c;
-  --color-success: #22c55e;
-  --color-success-text: #15803d;
-  --color-success-soft: #e2f6e9;
-  --color-success-strong: #166534;
-  --color-warning: #f59e0b;
-  --color-warning-text: #b45309;
-  --color-warning-soft: #fdf1d9;
-  --color-warning-strong: #92400e;
-  /* «info» — urg'u oilasi (alohida ko'k rang yo'q). */
-  --color-info: #6d4aff;
-  --color-info-text: #5232e0;
-  --color-info-soft: #efebff;
-  --color-info-strong: #4325c4;
+  /* ---------- Holat (Astryx status + hue tokenlari) ---------- */
+  --color-danger: #e3193b;
+  --color-danger-text: #d31130;
+  --color-danger-soft: rgb(227 25 59 / 0.2);
+  --color-danger-strong: #7b0210;
+  --color-success: #0d8626;
+  --color-success-text: #0d8626;
+  --color-success-soft: rgb(36 187 94 / 0.2);
+  --color-success-strong: #09441f;
+  --color-warning: #e9af08;
+  --color-warning-text: #9a5d00;
+  --color-warning-soft: rgb(226 164 0 / 0.2);
+  --color-warning-strong: #753f07;
+  --color-info: #0064e0;
+  --color-info-text: #0064e0;
+  --color-info-soft: rgb(1 113 227 / 0.2);
+  --color-info-strong: #042f97;
 
-  /* ---------- «Kategorik» palitra = monoxrom + bitta urg'u (egasi: rang-baranglik yo'q) ----------
-     Nomlar eski (`c-violet`…), qiymatlar — urg'u binafsha, uning ochi va siyoh/kulrang zinapoya. Ketma-ket
-     seriyalar yorug'lik bo'yicha ajraladi (rang ko'rlikda ham). Ma'no ranglari (yashil/qizil) faqat holatda. */
-  --color-c-violet: #6d4aff;   /* urg'u — asosiy seriya */
-  --color-c-blue: #b3a6ff;     /* urg'uning ochi — ikkinchi seriya */
+  /* ---------- Grafik palitrasi — O'ZGARMAGAN (egasi: statistika grafiklari o'rnida qoladi) ---------- */
+  --color-c-violet: #6d4aff;
+  --color-c-blue: #b3a6ff;
   --color-c-teal: #6d4aff;
-  --color-c-orange: #26262d;   /* siyoh */
+  --color-c-orange: #26262d;
   --color-c-amber: #55555f;
-  --color-c-green: #8c8c96;    /* o'rta kulrang */
+  --color-c-green: #8c8c96;
   --color-c-pink: #b4b4bd;
-  --color-c-slate: #d0d0d6;    /* och kulrang — «oldingi davr», qolgan */
+  --color-c-slate: #d0d0d6;
 
   /* ---------- EvilCharts kutgan shadcn tokenlari (grafik o'qi, tooltip) ---------- */
   --color-foreground: var(--color-text);
-  /* Karta (oq varaq + 4% sunken) bilan bir xil yaxlit rang — donut bo'laklari orasidagi oraliq shu rangda chiziladi. */
-  --color-background: #f5f5f6;
+  /* Karta rangi — donut bo'laklari orasidagi oraliq shu rangda chiziladi. */
+  --color-background: #ffffff;
   --color-muted-foreground: var(--color-text-faint);
 
-  /* ---------- Tipografika: Inter Tight, zich harf oralig'i ---------- */
-  --font-sans: "Inter Tight Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Inter Tight Variable", ui-monospace, monospace;
-  --text-xs: 11.5px;   --text-xs--line-height: 1.4;   --text-xs--letter-spacing: -0.004em;
-  --text-sm: 13px;     --text-sm--line-height: 1.45;  --text-sm--letter-spacing: -0.008em;
-  --text-base: 14px;   --text-base--line-height: 1.45; --text-base--letter-spacing: -0.012em;
-  --text-md: 15.5px;   --text-md--line-height: 1.4;   --text-md--letter-spacing: -0.016em;
-  --text-lg: 18px;     --text-lg--line-height: 1.33;  --text-lg--letter-spacing: -0.02em;
-  --text-xl: 22px;     --text-xl--line-height: 1.25;  --text-xl--letter-spacing: -0.024em;
-  --text-2xl: 27px;    --text-2xl--line-height: 1.15; --text-2xl--letter-spacing: -0.03em;
-  --text-3xl: 33px;    --text-3xl--line-height: 1.08; --text-3xl--letter-spacing: -0.036em;
-  --text-4xl: 40px;    --text-4xl--line-height: 1.05; --text-4xl--letter-spacing: -0.04em;
+  /* ---------- Tipografika (Astryx: 14px asos, 1.2 shkala; Medeo Sans / Medeo Mono) ---------- */
+  --font-sans: "Medeo Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "Medeo Mono", "SF Mono", Monaco, Consolas, monospace;
+  --text-xs: 12px;     --text-xs--line-height: 1.6667;
+  --text-sm: 13px;     --text-sm--line-height: 1.5385;
+  --text-base: 14px;   --text-base--line-height: 1.4286;
+  --text-md: 15px;     --text-md--line-height: 1.4667;
+  --text-lg: 17px;     --text-lg--line-height: 1.4118;
+  --text-xl: 20px;     --text-xl--line-height: 1.4;
+  --text-2xl: 24px;    --text-2xl--line-height: 1.3333;
+  --text-3xl: 29px;    --text-3xl--line-height: 1.2414;
+  --text-4xl: 35px;    --text-4xl--line-height: 1.2571;
 
-  /* Eng qalini — semibold (egasining talabi): bold/extrabold/black ham 600 ga tushadi. */
+  /* Astryx sarlavhalari semibold; bold ham shunga tushadi. */
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 600;
   --font-weight-extrabold: 600;
   --font-weight-black: 600;
 
-  /* ---------- Radius ---------- */
-  --radius-checkbox: 5px;
-  --radius-tag: 6px;
-  --radius-item: 8px;
-  --radius-control-sm: 8px;
-  --radius-control: 10px;
-  --radius-menu: 12px;
-  --radius-control-lg: 12px;
-  --radius-surface: 18px;
-  --radius-overlay: 22px;
-  --radius-sheet: 24px;
+  /* ---------- Radius (docsite: inner 8 · element 12 · container 16 · page 32) ---------- */
+  --radius-checkbox: 4px;
+  --radius-tag: 8px;
+  --radius-item: 12px;
+  --radius-control-sm: 12px;
+  --radius-control: 12px;
+  --radius-menu: 16px;
+  --radius-control-lg: 16px;
+  --radius-surface: 16px;
+  --radius-overlay: 16px;
+  --radius-sheet: 32px;
 
-  /* ---------- Soya yo'q (egasining qat'iy talabi): standart shadow-* yaratilmaydi, eski nomlar bo'sh ---------- */
+  /* ---------- Soya (Astryx: low — segment/menyu, med — popover, high — dialog) ---------- */
   --shadow-*: initial;
+  --shadow-low: 0 1px 1px rgb(0 0 0 / 0.1), 0 2px 8px rgb(0 0 0 / 0.1);
+  --shadow-med: 0 1px 2px rgb(0 0 0 / 0.1), 0 2px 12px rgb(0 0 0 / 0.1);
+  --shadow-high: 0 2px 2px rgb(0 0 0 / 0.1), 0 8px 24px rgb(0 0 0 / 0.1);
   --shadow-card: 0 0 #0000;
   --shadow-raised: 0 0 #0000;
-  --shadow-pop: 0 0 #0000;
+  --shadow-pop: var(--shadow-med);
 
-  --height-control-sm: 30px;
-  --height-control-md: 36px;
-  --height-control-lg: 44px;
+  /* Astryx element balandligi: sm 28 · md 32 · lg 36. */
+  --height-control-sm: 28px;
+  --height-control-md: 32px;
+  --height-control-lg: 36px;
 
-  /* ---------- Harakat ---------- */
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
-  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
-  --animate-fade-up: fade-up 0.42s var(--ease-standard) both;
-  --animate-fade-in: fade-in 0.3s var(--ease-standard) both;
+  /* ---------- Harakat (Astryx: fast 175ms, standard egri) ---------- */
+  --ease-standard: cubic-bezier(0.24, 1, 0.4, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 0.6, 0.6);
+  --ease-spring: cubic-bezier(0.24, 1, 0.4, 1);
+  --animate-fade-up: fade-up 0.41s var(--ease-standard) both;
+  --animate-fade-in: fade-in 0.31s var(--ease-standard) both;
   --animate-shimmer: shimmer 1.6s linear infinite;
 
   @keyframes fade-up {
@@ -177,57 +201,58 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --color-bg: #0a0a0c;
-  --color-bg-subtle: #101013;
-  --color-surface: #151518;
-  --color-surface-raised: #1c1c20;
-  --color-surface-sunken: rgb(255 255 255 / 0.045);
-  --color-surface-sunken-hover: rgb(255 255 255 / 0.075);
-  --color-elevated: #2c2c33;
-  --color-overlay: rgb(0 0 0 / 0.65);
-  --color-inverted: #f4f4f5;
+  --color-bg: #111112;
+  --color-bg-subtle: #18181a;
+  --color-surface: #1f1f22;
+  --color-surface-raised: #28292c;
+  --color-surface-sunken: rgb(17 17 18 / 0.5);
+  --color-surface-sunken-hover: rgb(255 255 255 / 0.05);
+  --color-elevated: #3a3b3f;
+  --color-overlay: rgb(17 17 18 / 0.6);
+  --color-inverted: #ffffff;
 
-  --color-text: #f2f2f4;
-  --color-text-muted: #a3a3ad;
-  --color-text-faint: #73737d;
-  --color-text-on-primary: #0a0a0c;
-  --color-text-on-inverted: #0a0a0c;
+  --color-text: #dfe2e5;
+  --color-text-muted: #b0b5bb;
+  --color-text-faint: #8a9098;
+  --color-text-on-primary: #15110c;
+  --color-text-on-inverted: #0a1317;
 
-  --color-border: rgb(255 255 255 / 0.07);
-  --color-border-strong: rgb(255 255 255 / 0.14);
-  --color-border-focus: #8b72ff;
+  --color-border: rgb(242 244 246 / 0.1);
+  --color-border-strong: #494d53;
+  --color-border-focus: #dfe2e5;
 
-  --color-primary: #f2f2f4;
-  --color-primary-hover: #dcdce0;
-  --color-primary-active: #c8c8ce;
-  --color-primary-soft: #26262c;
-  --color-accent: #8b72ff;
-  --color-accent-hover: #9d87ff;
-  --color-accent-soft: #221b3f;
-  --color-accent-text: #b3a3ff;
+  --color-primary: #dfe2e5;
+  --color-primary-hover: #c9ccd0;
+  --color-primary-active: #b4b7bb;
+  --color-primary-soft: rgb(223 226 229 / 0.14);
+  --color-accent: #dfe2e5;
+  --color-accent-hover: #c9ccd0;
+  --color-accent-soft: rgb(223 226 229 / 0.14);
+  --color-accent-text: #dfe2e5;
 
-  --color-neutral: rgb(255 255 255 / 0.07);
-  --color-neutral-hover: rgb(255 255 255 / 0.11);
-  --color-ghost-hover: rgb(255 255 255 / 0.05);
-  --color-neutral-text: #d4d4d8;
-  --color-switch-on: #f2f2f4;
+  --color-neutral: rgb(223 226 229 / 0.2);
+  --color-neutral-hover: rgb(223 226 229 / 0.26);
+  --color-ghost-hover: rgb(255 255 255 / 0.047);
+  --color-neutral-text: #dfe2e5;
+  --color-switch-on: #dfe2e5;
+  --color-track: #5a5e66;
 
-  --color-danger: #f05252;
-  --color-danger-text: #ff8080;
-  --color-danger-soft: #2c1517;
-  --color-danger-strong: #ffb3b3;
-  --color-success: #3ccf6e;
-  --color-success-text: #5ad98a;
-  --color-success-soft: #10261a;
-  --color-success-strong: #9ef0bb;
-  --color-warning: #f5a524;
-  --color-warning-text: #fbbf4a;
-  --color-warning-soft: #2b2010;
-  --color-warning-strong: #fcd38a;
-  --color-info: #8b72ff;
-  --color-info-text: #b3a3ff;
-  --color-info-soft: #221b3f;
-  --color-info-strong: #cfc4ff;
+  --color-danger: #f5394f;
+  --color-danger-text: #ff8a96;
+  --color-danger-soft: rgb(245 57 79 / 0.25);
+  --color-danger-strong: #ffb2b8;
+  --color-success: #26a756;
+  --color-success-text: #5fd388;
+  --color-success-soft: rgb(36 187 94 / 0.2);
+  --color-success-strong: #a5f690;
+  --color-warning: #f2c00b;
+  --color-warning-text: #fbce03;
+  --color-warning-soft: rgb(226 164 0 / 0.25);
+  --color-warning-strong: #fbce03;
+  --color-info: #2694fe;
+  --color-info-text: #3e9efb;
+  --color-info-soft: rgb(1 130 251 / 0.25);
+  --color-info-strong: #afd7ff;
 
   --color-c-violet: #8b72ff;
   --color-c-blue: #5b4bb0;
@@ -237,7 +262,11 @@
   --color-c-green: #85858f;
   --color-c-pink: #5c5c66;
   --color-c-slate: #3c3c44;
-  --color-background: #212124;
+  --color-background: #1f1f22;
+
+  --shadow-low: 0 1px 1px rgb(0 0 0 / 0.2), 0 2px 8px rgb(0 0 0 / 0.2);
+  --shadow-med: 0 1px 2px rgb(0 0 0 / 0.2), 0 2px 12px rgb(0 0 0 / 0.2);
+  --shadow-high: 0 2px 2px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.3);
 }
 
 /* ============================ BAZAVIY QOIDALAR ============================ */
@@ -245,9 +274,7 @@
   :root {
     color-scheme: light;
     font-family: var(--font-sans);
-    letter-spacing: -0.012em;
     font-synthesis: none;
-    font-feature-settings: "cv11", "ss03";
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -256,20 +283,20 @@
   * { border-color: var(--color-border); }
   b, strong, th { font-weight: 600; }
   th { text-align: left; }
-  ::selection { background: var(--color-accent); color: #fff; }
+  ::selection { background: var(--color-accent-soft); }
 
   input[type="checkbox"] {
     appearance: none; flex-shrink: 0; display: inline-grid; place-content: center;
-    width: 16px; height: 16px; border: 0; border-radius: var(--radius-checkbox);
-    background: var(--color-neutral-hover); cursor: pointer;
-    transition: background-color 150ms;
+    width: 16px; height: 16px; border: 1px solid var(--color-border-strong); border-radius: var(--radius-checkbox);
+    background: var(--color-surface); cursor: pointer;
+    transition: background-color 175ms, border-color 175ms;
   }
   input[type="checkbox"]::before {
     content: ""; width: 10px; height: 10px; background: var(--color-text-on-primary);
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E") center / contain no-repeat;
     transform: scale(0); transition: transform 180ms var(--ease-spring);
   }
-  input[type="checkbox"]:checked { background: var(--color-primary); }
+  input[type="checkbox"]:checked { background: var(--color-primary); border-color: var(--color-primary); }
   input[type="checkbox"]:checked::before { transform: scale(1); }
   input[type="checkbox"]:disabled { opacity: 0.5; cursor: not-allowed; }
   input[type="range"] { accent-color: var(--color-primary); }
@@ -278,17 +305,17 @@
 /* Klaviatura fokusi — faqat klaviaturada ko'rinadigan halqa (bezak emas, kirish imkoniyati). */
 :where(button, a, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
   outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 select:not(.appearance-none):not([multiple]) {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M208 96l-80 80-80-80' fill='none' stroke='%2362626d' stroke-width='18' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 14px;
-  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M208 96l-80 80-80-80' fill='none' stroke='%23445564' stroke-width='18' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 14px;
+  padding-right: 2rem;
 }
 [data-theme="dark"] select:not(.appearance-none):not([multiple]) {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M208 96l-80 80-80-80' fill='none' stroke='%23a3a3ad' stroke-width='18' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M208 96l-80 80-80-80' fill='none' stroke='%23b0b5bb' stroke-width='18' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 html, body { overscroll-behavior: none; }
@@ -303,6 +330,9 @@ button, a, [role="button"] { touch-action: manipulation; }
 }
 
 /* ---------- Admin yordamchilari ---------- */
+/* Raqamlar — Medeo Mono: sanoqlar, narxlar, sanalar `tabular-nums` bilan belgilangan (faqat raqam belgilari). */
+.tabular-nums { font-family: "Medeo Digits", var(--font-sans); }
+
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .thin-scroll { scrollbar-width: thin; scrollbar-color: var(--color-border-strong) transparent; }

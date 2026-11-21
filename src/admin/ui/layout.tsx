@@ -68,10 +68,10 @@ export const Page: FC<{
               </nav>
             )}
             <div className="flex min-w-0 items-center gap-2.5">
-              <h1 className="truncate text-2xl font-bold text-text">{title}</h1>
-              {dirty && <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-warning-soft px-2 py-0.5 text-sm font-medium text-warning-strong sm:inline-flex"><span className="size-1.5 rounded-full bg-warning" />{t('unsavedShort')}</span>}
+              <h1 className="truncate text-2xl font-semibold text-text">{title}</h1>
+              {dirty && <span className="hidden h-5 shrink-0 items-center gap-1 rounded-full bg-warning-soft px-2 text-xs font-medium text-warning-strong sm:inline-flex"><span className="size-1.5 rounded-full bg-warning" />{t('unsavedShort')}</span>}
             </div>
-            {description && <p className="mt-1.5 max-w-3xl text-base text-text-muted">{description}</p>}
+            {description && <p className="mt-1 max-w-3xl text-base text-text-muted">{description}</p>}
           </div>
           {actions && <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">{actions}</div>}
         </div>
@@ -82,9 +82,9 @@ export const Page: FC<{
 };
 
 /**
- * Karta — oq varaq ustida kulrang yuza (hoshiya va soyasiz), radius 18. Sarlavha qatori: ixtiyoriy rangli ikonka
- * plitkasi, nom va izoh, o'ngda amallar. `padded={false}` — jadval/ro'yxat chetgacha (sarlavha baribir ichkarida).
- * `filled` eski API uchun qoldi — endi oddiy karta bilan bir xil.
+ * Karta — Astryx `Card`: yuza + 1px hoshiya, radius 16, soyasiz. Sarlavha qatori: ixtiyoriy ikonka, nom (17/600)
+ * va izoh, o'ngda amallar. `padded={false}` — jadval/ro'yxat chetgacha (sarlavha baribir ichkarida).
+ * `filled` — Astryx `muted` varianti (hoshiyasiz och fon).
  */
 export const Card: FC<{
   title?: string;
@@ -97,14 +97,14 @@ export const Card: FC<{
   filled?: boolean;
   className?: string;
   children: ReactNode;
-}> = ({ title, description, actions, icon: Icon, padded = true, className = '', children }) => {
+}> = ({ title, description, actions, icon: Icon, padded = true, filled, className = '', children }) => {
   const head = (title || description || actions) ? (
-    <div className={`flex min-w-0 flex-wrap items-start justify-between gap-x-4 gap-y-3 ${padded ? '' : 'px-6 pt-5'}`}>
+    <div className={`flex min-w-0 flex-wrap items-start justify-between gap-x-4 gap-y-3 ${padded ? '' : 'px-5 pt-5'}`}>
       <div className="min-w-[min(100%,14rem)] flex-1">
         {/* Ikonka sarlavhaning birinchi qatori balandligida (1lh) markazlanadi — ko'p qatorli nomda ham tepaga ko'tarilmaydi. */}
         {title && (
-          <h2 className="flex items-start gap-2 text-md font-bold text-text">
-            {Icon && <span className="flex h-[1lh] shrink-0 items-center"><Icon aria-hidden weight="fill" className="size-[18px] text-text-faint" /></span>}
+          <h2 className="flex items-start gap-2 text-lg font-semibold text-text">
+            {Icon && <span className="flex h-[1lh] shrink-0 items-center"><Icon aria-hidden weight="fill" className="size-[18px] text-text-muted" /></span>}
             <span className="min-w-0">{title}</span>
           </h2>
         )}
@@ -114,7 +114,7 @@ export const Card: FC<{
     </div>
   ) : null;
   return (
-    <section className={`flex min-w-0 flex-col rounded-surface bg-surface-sunken ${padded ? 'gap-5 p-6' : 'gap-4 overflow-hidden'} ${className}`}>
+    <section className={`flex min-w-0 flex-col rounded-surface ${filled ? 'bg-surface-sunken' : 'border border-border bg-surface'} ${padded ? 'gap-4 p-5' : 'gap-4 overflow-hidden'} ${className}`}>
       {head}
       {padded ? children : <div className="min-w-0">{children}</div>}
     </section>
@@ -125,7 +125,7 @@ export const Card: FC<{
 export const Rows: FC<{ rows: { k: string; v: ReactNode }[] }> = ({ rows }) => (
   <dl className="flex flex-col">
     {rows.map((r, i) => (
-      <div key={`${i}-${r.k}`} className="flex items-baseline justify-between gap-6 border-b border-border py-3 text-base first:pt-0 last:border-b-0 last:pb-0">
+      <div key={`${i}-${r.k}`} className="flex items-baseline justify-between gap-6 border-b border-border py-2.5 text-base first:pt-0 last:border-b-0 last:pb-0">
         <dt className="shrink-0 text-text-muted">{r.k}</dt>
         <dd className="min-w-0 break-words text-right font-medium text-text">{r.v}</dd>
       </div>
@@ -133,25 +133,25 @@ export const Rows: FC<{ rows: { k: string; v: ReactNode }[] }> = ({ rows }) => (
   </dl>
 );
 
-/** Filtr-tablar (URL'ga bog'liq): kulrang trek, faol tab oq tabletka — silliq suriladi. */
+/** Filtr-tablar (URL'ga bog'liq) — Astryx `TabList`: pastki hoshiya, faol tab 600 + 2px siyoh chiziq (silliq suriladi). */
 export const Tabs: FC<{ items: { id: string; label: string; to: string; count?: number }[]; active: string; className?: string }> = ({ items, active, className = '' }) => {
   const { t } = useTranslation('common');
   return (
     <nav aria-label={t('aria.tabs')} className={`no-scrollbar -mx-4 max-w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:max-w-full sm:px-0 ${className}`}>
-      <ul className="inline-flex gap-0.5 rounded-full bg-surface-sunken p-[3px]">
+      <ul className="flex min-w-max gap-0.5 border-b border-border pb-1">
         {items.map((it) => {
           const on = it.id === active;
           return (
-            <li key={it.id}>
+            <li key={it.id} className="relative">
               <Link
                 to={it.to}
                 aria-current={on ? 'page' : undefined}
-                className={`relative isolate flex h-[30px] items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-base font-medium transition-colors duration-200 ${on ? 'text-text' : 'text-text-muted hover:text-text'}`}
+                className={`flex h-control-md items-center gap-1 whitespace-nowrap rounded-item px-3 text-base transition-colors duration-[175ms] hover:bg-ghost-hover ${on ? 'font-semibold text-text' : 'text-text-muted hover:text-text'}`}
               >
-                {on && <motion.span layoutId="tabs-pill" transition={{ type: 'spring', stiffness: 500, damping: 38 }} className="absolute inset-0 -z-10 rounded-full bg-elevated" />}
                 {it.label}
-                {it.count !== undefined && <span className="tabular-nums text-text-faint">{it.count}</span>}
+                {it.count !== undefined && <span className="tabular-nums font-normal text-text-faint">{it.count}</span>}
               </Link>
+              {on && <motion.span layoutId="tabs-line" transition={{ type: 'spring', stiffness: 500, damping: 40 }} className="absolute inset-x-3 -bottom-1 h-0.5 rounded-full bg-accent" />}
             </li>
           );
         })}
@@ -160,11 +160,11 @@ export const Tabs: FC<{ items: { id: string; label: string; to: string; count?: 
   );
 };
 
-/** Bo'sh holat: ikonka plitkasi, nima yo'qligi, nima qilish kerakligi, bitta amal. */
+/** Bo'sh holat — Astryx `EmptyState`: ikonka, nima yo'qligi, nima qilish kerakligi, bitta amal. */
 export const EmptyState: FC<{ title: string; text?: string; action?: ReactNode; icon?: ReactNode }> = ({ title, text, action, icon }) => (
-  <div className="flex animate-fade-in flex-col items-center gap-2 rounded-surface bg-surface-sunken px-6 py-16 text-center">
-    {icon && <div className="mb-2 text-text-faint [&_svg]:size-8">{icon}</div>}
-    <p className="text-md font-semibold text-text">{title}</p>
+  <div className="flex animate-fade-in flex-col items-center gap-1.5 rounded-surface border border-border bg-surface px-6 py-14 text-center">
+    {icon && <div className="mb-2 text-text-muted [&_svg]:size-8">{icon}</div>}
+    <p className="text-lg font-semibold text-text">{title}</p>
     {text && <p className="max-w-sm text-base text-text-muted">{text}</p>}
     {action && <div className="mt-3">{action}</div>}
   </div>
@@ -176,7 +176,7 @@ export const Skeleton: FC<{ rows?: number; className?: string }> = ({ rows = 5, 
   return (
     <div aria-busy="true" aria-label={t('aria.loading')} className={`flex flex-col gap-2 ${className}`}>
       {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="skeleton h-11 rounded-control" style={{ opacity: 1 - i * 0.12 }} />
+        <div key={i} className="skeleton h-10 rounded-control" style={{ opacity: 1 - i * 0.12 }} />
       ))}
     </div>
   );

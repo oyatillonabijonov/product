@@ -122,7 +122,7 @@ const ImageUploader: FC<{
               onDragEnd={() => setDragFrom(null)}
               onDragOver={(e: React.DragEvent) => { if (reorderable) e.preventDefault(); }}
               onDrop={(e: React.DragEvent) => { if (reorderable) onTileDrop(e, i); }}
-              className={`group relative ${tile} animate-fade-in overflow-hidden rounded-control-lg bg-surface transition-opacity duration-200 ${
+              className={`group relative ${tile} animate-fade-in overflow-hidden rounded-control-lg bg-surface-sunken transition-opacity duration-200 ${
                 reorderable ? 'cursor-grab active:cursor-grabbing' : ''
               } ${dragFrom === i ? 'opacity-40' : ''}`}
             >
@@ -154,7 +154,7 @@ const ImageUploader: FC<{
 
       {!hasContent && fallback && (
         <div className="mb-3 flex items-center gap-3">
-          <div className={`${video ? 'w-40' : 'w-28'} ${tile} overflow-hidden rounded-control-lg bg-surface`}>{preview(fallback)}</div>
+          <div className={`${video ? 'w-40' : 'w-28'} ${tile} overflow-hidden rounded-control-lg bg-surface-sunken`}>{preview(fallback)}</div>
           <Badge>{t('default')}</Badge>
         </div>
       )}

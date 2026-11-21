@@ -76,7 +76,7 @@ const ReviewsEditor: FC<{ productId: string; onChanged: (avg: number, count: num
     <div className="flex flex-col gap-4">
       {count > 0 ? (
         <>
-          <div className="grid gap-5 rounded-control-lg bg-surface p-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+          <div className="grid gap-5 rounded-control-lg bg-surface-sunken p-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
             <div className="flex items-center gap-4 sm:flex-col sm:items-start sm:gap-1 sm:pr-5">
               <span className="text-3xl font-bold tabular-nums text-text">{avg.toFixed(1).replace('.', ',')}</span>
               <span className="flex flex-col gap-1">
@@ -97,7 +97,7 @@ const ReviewsEditor: FC<{ productId: string; onChanged: (avg: number, count: num
 
           <div>
             <p className="mb-2 text-sm font-semibold text-text">{t('reviewsEditor.title', { count })}</p>
-            <ul className="divide-y divide-border rounded-control-lg bg-surface px-4">
+            <ul className="divide-y divide-border rounded-control-lg bg-surface-sunken px-4">
               {items.map((r, i) => (
                 <li
                   key={r.id}
@@ -129,7 +129,7 @@ const ReviewsEditor: FC<{ productId: string; onChanged: (avg: number, count: num
         </div>
       )}
 
-      <div className="flex flex-col gap-4 rounded-control-lg bg-surface p-5">
+      <div className="flex flex-col gap-4 rounded-control-lg bg-surface-sunken p-5">
         <p className="text-sm font-semibold text-text">{t('reviewsEditor.addTitle')}</p>
         <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_110px_160px]">
           <Field label={t('reviewsEditor.authorLabel')}><Input value={author} onChange={setAuthor}/></Field>

@@ -71,7 +71,7 @@ const CategoriesList: FC = () => {
               <Link
                 key={c.id}
                 to={`${LIST}/${c.id}`}
-                className="stagger group flex flex-col overflow-hidden rounded-surface bg-surface-sunken transition-colors duration-200 hover:bg-surface-sunken-hover"
+                className="stagger group flex flex-col overflow-hidden rounded-surface border border-border bg-surface transition-colors duration-200 hover:bg-ghost-hover"
                 style={{ ['--i' as string]: i } as Record<string, number>}
               >
                 <div className={`relative aspect-[114/55] ${c.coverUrl ? 'bg-surface-sunken' : HUE_BG[hue]}`}>
@@ -97,11 +97,11 @@ const CategoriesList: FC = () => {
                     <CaretRight aria-hidden weight="bold" className="size-3.5 shrink-0 text-text-faint transition-transform duration-200 group-hover:translate-x-0.5" />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-control bg-surface px-3 py-2.5">
+                    <div className="rounded-control bg-surface-sunken px-3 py-2.5">
                       <p className="text-lg font-bold tabular-nums text-text">{own.length}</p>
                       <p className="truncate text-sm text-text-muted">{t('categoriesList.typesColumn')}</p>
                     </div>
-                    <div className="rounded-control bg-surface px-3 py-2.5">
+                    <div className="rounded-control bg-surface-sunken px-3 py-2.5">
                       <p className="text-lg font-bold tabular-nums text-text">{formatThousands(products) || '0'}</p>
                       <p className="truncate text-sm text-text-muted">{t('categoriesList.statProducts')}</p>
                     </div>
@@ -111,13 +111,13 @@ const CategoriesList: FC = () => {
                   ) : (
                     <ul className="mt-auto flex flex-wrap gap-1.5">
                       {own.slice(0, MAX_TYPES).map((ty) => (
-                        <li key={ty.id} className="inline-flex h-7 max-w-full items-center gap-1.5 rounded-full bg-surface pl-1.5 pr-2.5 text-sm text-text">
+                        <li key={ty.id} className="inline-flex h-7 max-w-full items-center gap-1.5 rounded-full bg-surface-sunken pl-1.5 pr-2.5 text-sm text-text">
                           {ty.iconUrl && <img src={ty.iconUrl} alt="" className="h-4 w-6 shrink-0 object-contain" />}
                           <span className="truncate">{typeLabel(ty)}</span>
                         </li>
                       ))}
                       {own.length > MAX_TYPES && (
-                        <li className="inline-flex h-7 items-center rounded-full bg-surface px-2.5 text-sm font-medium tabular-nums text-text-muted">+{own.length - MAX_TYPES}</li>
+                        <li className="inline-flex h-7 items-center rounded-full bg-surface-sunken px-2.5 text-sm font-medium tabular-nums text-text-muted">+{own.length - MAX_TYPES}</li>
                       )}
                     </ul>
                   )}

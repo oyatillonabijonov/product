@@ -63,7 +63,7 @@ const BannersList: FC = () => {
               <article
                 key={b.id}
                 style={delay(i)}
-                className="stagger group relative flex flex-col overflow-hidden rounded-surface bg-surface-sunken transition-colors duration-200 hover:bg-surface-sunken-hover has-[a:focus-visible]:ring-4 has-[a:focus-visible]:ring-accent/20"
+                className="stagger group relative flex flex-col overflow-hidden rounded-surface border border-border bg-surface transition-colors duration-200 hover:bg-ghost-hover has-[a:focus-visible]:ring-4 has-[a:focus-visible]:ring-accent/20"
               >
                 <div className="relative aspect-[3/1] overflow-hidden bg-surface-sunken">
                   <img src={b.imageUrl} alt="" className={`size-full object-cover transition-[opacity,transform] duration-300 group-hover:scale-[1.02] ${b.isActive ? '' : 'opacity-50 grayscale'}`} />
