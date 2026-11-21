@@ -78,12 +78,11 @@ export interface StatsItem {
   productId: string;
   name: string;
   qty: number;
-  priceUzs: number;
 }
 
 const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
 
-/** `items_json` → tovarlar; buzilgan JSON yoki massiv bo'lmasa — bo'sh (talab 0). */
+/** `items_json` → tovarlar; buzilgan JSON yoki massiv bo'lmasa — bo'sh. Narx o'qilmaydi — statistika summa ko'rsatmaydi. */
 export function parseOrderItems(json: string): StatsItem[] {
   let raw: unknown;
   try {
@@ -96,7 +95,6 @@ export function parseOrderItems(json: string): StatsItem[] {
     productId: typeof it.productId === 'string' ? it.productId : '',
     name: typeof it.name === 'string' ? it.name : '',
     qty: num(it.qty),
-    priceUzs: num(it.priceUzs),
   }));
 }
 
@@ -126,6 +124,8 @@ export interface StatsInput {
   /** `site_visits`, `day >= window.prevStartDay`. */
   visits: { day: string; views: number; visitors: number }[];
   topViewed: ApiAdminStats['topViewed'];
+  /** `site_visits`dagi eng birinchi kun (davrdan qat'i nazar). */
+  visitsSince: string | null;
   products: Map<string, StatsProduct>;
   /** Hamma yo'nalishlar `sort_order` tartibida. */
   categories: { id: string; name: string }[];
@@ -135,7 +135,6 @@ export interface StatsInput {
 type Series = ApiAdminStats['series'][number];
 type Totals = ApiAdminStats['totals'];
 
-const demandOf = (items: StatsItem[]): number => items.reduce((s, it) => s + it.qty * it.priceUzs, 0);
 const qtyOf = (items: StatsItem[]): number => items.reduce((s, it) => s + it.qty, 0);
 
 export function buildStats(input: StatsInput): ApiAdminStats {
@@ -145,11 +144,11 @@ export function buildStats(input: StatsInput): ApiAdminStats {
   const dayOf = (sec: number): string => tashkentDay(sec * 1000);
 
   const series = new Map<string, Series>(w.dayKeys.map((day) => [day, {
-    day, orders: 0, consults: 0, visitors: 0, views: 0, customers: 0, demandUzs: 0,
+    day, orders: 0, consults: 0, visitors: 0, views: 0, customers: 0, items: 0,
   }]));
   const totals: Totals = {
     orders: 0, ordersPrev: 0, consults: 0, consultsPrev: 0, visitors: 0, visitorsPrev: 0, views: 0, viewsPrev: 0,
-    customersNew: 0, customersNewPrev: 0, customersTotal: input.customersTotal, demandUzs: 0, demandUzsPrev: 0,
+    customersNew: 0, customersNewPrev: 0, customersTotal: input.customersTotal,
     itemsRequested: 0, itemsRequestedPrev: 0, applications: 0, applicationsPrev: 0,
   };
   const status = { new: 0, contacted: 0, done: 0 };
@@ -157,24 +156,24 @@ export function buildStats(input: StatsInput): ApiAdminStats {
   const sources = { product: 0, cart: 0, consult: 0 };
   const hours = Array.from({ length: 24 }, () => 0);
   const top = new Map<string, ApiAdminStats['topProducts'][number]>();
-  const cats = new Map(input.categories.map((c) => [c.id, { id: c.id, name: c.name, demandUzs: 0, demandPrevUzs: 0, requests: 0 }]));
+  const cats = new Map(input.categories.map((c) => [c.id, { id: c.id, name: c.name, requests: 0, requestsPrev: 0 }]));
 
   for (const row of input.orders) {
     const period = periodOf(row.created_at);
     if (period === null) continue;
     const consult = row.source === 'consult';
     const items = consult ? [] : parseOrderItems(row.items_json);
-    const demand = demandOf(items);
 
     if (period === 'prev') {
       if (consult) totals.consultsPrev++;
       else {
         totals.ordersPrev++;
-        totals.demandUzsPrev += demand;
         totals.itemsRequestedPrev += qtyOf(items);
-        for (const it of items) {
-          const cat = cats.get(products.get(it.productId)?.categoryId ?? '');
-          if (cat) cat.demandPrevUzs += it.qty * it.priceUzs;
+        // Bitta buyurtma yo'nalish uchun bir marta sanaladi.
+        const prevCats = new Set(items.map((it) => products.get(it.productId)?.categoryId ?? ''));
+        for (const id of prevCats) {
+          const cat = cats.get(id);
+          if (cat) cat.requestsPrev++;
         }
       }
       continue;
@@ -191,11 +190,10 @@ export function buildStats(input: StatsInput): ApiAdminStats {
       continue;
     }
     totals.orders++;
-    totals.demandUzs += demand;
     totals.itemsRequested += qtyOf(items);
     if (day) {
       day.orders++;
-      day.demandUzs += demand;
+      day.items += qtyOf(items);
     }
     if (Object.hasOwn(payment, row.payment_kind)) payment[row.payment_kind as keyof typeof payment]++;
 
@@ -203,21 +201,18 @@ export function buildStats(input: StatsInput): ApiAdminStats {
     const seenProducts = new Set<string>();
     const seenCats = new Set<string>();
     for (const it of items) {
-      const sum = it.qty * it.priceUzs;
       const p = products.get(it.productId);
       if (it.productId) {
         const entry = top.get(it.productId) ?? {
-          productId: it.productId, name: p?.name ?? it.name, imageUrl: p?.imageUrl ?? null, requests: 0, qty: 0, demandUzs: 0,
+          productId: it.productId, name: p?.name ?? it.name, imageUrl: p?.imageUrl ?? null, requests: 0, qty: 0,
         };
         if (!seenProducts.has(it.productId)) entry.requests++;
         entry.qty += it.qty;
-        entry.demandUzs += sum;
         top.set(it.productId, entry);
         seenProducts.add(it.productId);
       }
       const cat = cats.get(p?.categoryId ?? '');
       if (cat) {
-        cat.demandUzs += sum;
         if (!seenCats.has(cat.id)) cat.requests++;
         seenCats.add(cat.id);
       }
@@ -263,7 +258,6 @@ export function buildStats(input: StatsInput): ApiAdminStats {
       itemCount: items.length,
       firstItem: first ? first.name : null,
       imageUrl: first ? products.get(first.productId)?.imageUrl ?? null : null,
-      demandUzs: demandOf(items),
     };
   });
 
@@ -275,12 +269,13 @@ export function buildStats(input: StatsInput): ApiAdminStats {
     payment,
     sources,
     topProducts: [...top.values()]
-      .sort((a, b) => b.requests - a.requests || b.qty - a.qty || b.demandUzs - a.demandUzs)
+      .sort((a, b) => b.requests - a.requests || b.qty - a.qty || a.name.localeCompare(b.name))
       .slice(0, 6),
     topViewed: input.topViewed,
     categories: [...cats.values()],
     catalog: input.catalog,
     recentOrders,
     hours,
+    visitsSince: input.visitsSince,
   };
 }

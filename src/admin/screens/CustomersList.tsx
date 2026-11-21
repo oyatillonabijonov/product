@@ -115,7 +115,8 @@ const CustomersList: FC = () => {
       total: all.length,
       withPhone: all.filter((c) => c.phone).length,
       month: all.filter((c) => c.createdAt >= monthStart).length,
-      prevMonth: all.filter((c) => c.createdAt >= prevStart && c.createdAt < monthStart).length,
+      // Adolatli taqqoslash: o'tgan oyning xuddi shu kunigacha (to'liq oy bilan solishtirilsa oy boshida doim «pasayish» chiqardi).
+      prevMonth: all.filter((c) => c.createdAt >= prevStart && c.createdAt < Math.min(monthStart, prevStart + (Date.now() / 1000 - monthStart))).length,
       buyers,
       buyersPct: all.length ? Math.round((buyers / all.length) * 100) : 0,
       google: all.filter((c) => c.via === 'google').length,

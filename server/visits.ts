@@ -46,7 +46,9 @@ export function createVisitTracker(env: Env): RequestHandler {
       method: req.method, path: req.originalUrl, accept: req.get('accept'), userAgent: req.get('user-agent'),
     });
     // Admin cookie'si bilan kelgan so'rov — do'kon egasining o'zi; tashrif statistikasiga tushmaydi.
-    if (visit && !/(?:^|;\s*)session=/.test(req.headers.cookie ?? '')) {
+    // Brauzerning oldindan yuklashi (`Sec-Purpose: prefetch`) ham: sahifa ochilmagan bo'lishi mumkin.
+    const prefetch = /prefetch|prerender/i.test(`${req.get('sec-purpose') ?? ''} ${req.get('purpose') ?? ''}`);
+    if (visit && !prefetch && !/(?:^|;\s*)session=/.test(req.headers.cookie ?? '')) {
       res.once('finish', () => {
         // Hisoblagich xatosi (masalan, migratsiyasiz baza) serverni yiqitmasin — `prepare` sinxron otishi mumkin.
         if (res.statusCode !== 200) return;

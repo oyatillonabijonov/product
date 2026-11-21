@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { ArrowRight, ChatCircleText, CheckCircle, Clock, Kanban as KanbanIcon, ListBullets, Package, Phone, Tray, Wallet, WarningCircle } from '@phosphor-icons/react';
+import { ArrowRight, ChatCircleText, CheckCircle, Clock, Kanban as KanbanIcon, ListBullets, Package, Phone, Tray, WarningCircle } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import type { ApiOrder, OrderStatus } from '../../../shared/types';
-import { listOrders, setOrderStatus } from '../api';
+import { getOrderCounts, listOrders, setOrderStatus } from '../api';
 import { errText } from '../errText';
 import { formatDateTime, formatSum } from '../lib/format';
 import { orderStatusLabels, filterInbox, orderSummary, orderTotal, STATUSES, telHref } from '../lib/inbox';
@@ -27,7 +27,8 @@ const DONE_LIMIT = 12;
  * Karta boshqa ustunga sudralsa yoki kartadagi «→» tugmasi bosilsa holat darhol saqlanadi (optimistik) va
  * sidebar sanog'i yangilanadi. Tepada holatlar bo'yicha raqamlar, qidiruv va turi filtri; `view=list` —
  * qidiruv/sahifalash uchun jadval ko'rinishi. Filtrlar URL'da.
- * ponytail: API oxirgi 200 ta buyurtmani beradi — ko'proq kerak bo'lsa server tomonda sahifalash.
+ * Sanoqlar aniq: API yopilmagan buyurtmalarning hammasini beradi, bajarilganlardan oxirgi 200 tasini; qolgan
+ * bajarilganlar soni `?counts=1`dan (`hiddenDone`). Summa ko'rsatilmaydi — sayt sotuvni bilmaydi (egasining qarori).
  */
 const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
   const sum = useTranslation('common').t('sum');
@@ -47,9 +48,16 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
   const [rawShowAll, setShowAll] = useState(false);
   const showAllDone = rawShowAll as boolean;
 
+  // Ro'yxatga sig'magan (200 tadan eski) bajarilgan buyurtmalar soni — «Bajarildi» sanog'i shular bilan to'liq.
+  const [rawHidden, setHiddenDone] = useState(0);
+  const hiddenDone = rawHidden as number;
+
   function load() {
     setError('');
-    listOrders().then(setItems).catch(() => setError(t('shared.loadError')));
+    Promise.all([listOrders(), getOrderCounts()]).then(([list, counts]) => {
+      setItems(list);
+      setHiddenDone(Math.max(0, counts.done - list.filter((o) => o.status === 'done').length));
+    }).catch(() => setError(t('shared.loadError')));
   }
   useEffect(load, []);
 
@@ -67,14 +75,12 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
 
   const stats = useMemo(() => {
     const all = items ?? [];
-    const weekAgo = Date.now() / 1000 - 7 * 86400;
     return {
       new: all.filter((o) => o.status === 'new').length,
       contacted: all.filter((o) => o.status === 'contacted').length,
-      done7: all.filter((o) => o.status === 'done' && o.createdAt >= weekAgo).length,
-      open: all.filter((o) => o.status !== 'done').reduce((s, o) => s + (orderTotal(o) ?? 0), 0),
+      done: all.filter((o) => o.status === 'done').length + hiddenDone,
     };
-  }, [items]);
+  }, [items, hiddenDone]);
 
   async function changeStatus(o: ApiOrder, next: OrderStatus) {
     const put = (s: OrderStatus) => setItems((xs: ApiOrder[] | null) => xs && xs.map((x) => (x.id === o.id ? { ...x, status: s } : x)));
@@ -156,6 +162,8 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
     label: labels[s],
     hue: HUE[s],
     hint: t(`board.hint${s === 'new' ? 'New' : s === 'contacted' ? 'Contacted' : 'Done'}` as 'board.hintNew'),
+    // «Bajarildi» ustunida kartalar qisqartirilgan — sarlavhadagi son esa haqiqiysi (filtrsiz holatda hammasi).
+    count: s === 'done' ? doneCount + (q || kind !== 'all' ? 0 : hiddenDone) : undefined,
     footer: s === 'done' && !showAllDone && doneCount > DONE_LIMIT
       ? <button type="button" onClick={() => setShowAll(true)} className="w-full rounded-item py-1.5 text-sm font-medium text-text-muted transition-colors hover:bg-surface hover:text-text">{t('board.moreDone', { n: doneCount - DONE_LIMIT })}</button>
       : undefined,
@@ -181,14 +189,10 @@ const OrdersList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="stagger grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <div className="stagger grid grid-cols-2 gap-3 sm:grid-cols-3 max-sm:[&>*:last-child]:col-span-2">
         <StatTile icon={Tray} hue="blue" label={t('board.statNew')}><CountUp value={stats.new} /></StatTile>
         <StatTile icon={Clock} hue="orange" label={t('board.statContacted')}><CountUp value={stats.contacted} /></StatTile>
-        <StatTile icon={CheckCircle} hue="green" label={t('board.statDone')}><CountUp value={stats.done7} /></StatTile>
-        <StatTile icon={Wallet} hue="violet" label={t('board.statValue')}>
-          <CountUp value={stats.open} format={compact} />
-          <span className="text-base font-medium text-text-muted">{sum}</span>
-        </StatTile>
+        <StatTile icon={CheckCircle} hue="green" label={t('board.statDone')}><CountUp value={stats.done} /></StatTile>
       </div>
 
       <div className="flex flex-col gap-4">

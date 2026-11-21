@@ -295,6 +295,10 @@ export async function getCustomer(id: string): Promise<{ customer: ApiAdminCusto
 export async function listJobApplications(): Promise<ApiJobApplication[]> {
   return handle(await fetch('/api/admin/job-applications'));
 }
+/** Ish arizalarining aniq soni: holatlar va oxirgi 7 kunda kelganlari. */
+export async function getJobApplicationCounts(): Promise<{ new: number; contacted: number; done: number; week: number }> {
+  return handle(await fetch('/api/admin/job-applications?counts=1'));
+}
 export async function setJobApplicationStatus(id: number, status: OrderStatus): Promise<{ ok: true }> {
   return handle(await fetch(`/api/admin/job-applications/${id}`, {
     method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status }),
@@ -366,6 +370,10 @@ export async function deleteDeviceModel(id: string): Promise<void> {
 
 export async function listOrders(): Promise<ApiOrder[]> {
   return handle(await fetch('/api/admin/orders'));
+}
+/** Buyurtmalarning holat bo'yicha aniq soni (ro'yxat bajarilganlarni 200 ta bilan cheklaydi). */
+export async function getOrderCounts(): Promise<{ new: number; contacted: number; done: number }> {
+  return handle(await fetch('/api/admin/orders?counts=1'));
 }
 export async function sendAnnouncement(
   a: { titleUz: string; titleRu: string; bodyUz: string; bodyRu: string; link: string },

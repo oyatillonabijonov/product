@@ -5,7 +5,7 @@ import { ArrowRight, ArrowSquareOut, CalendarBlank, CheckCircle, Clock, FileText
 import { useTranslation } from 'react-i18next';
 import type { ApiJobApplication, OrderStatus } from '../../../shared/types';
 import { safeHref } from '../../../shared/safe-href';
-import { listJobApplications, setJobApplicationStatus } from '../api';
+import { getJobApplicationCounts, listJobApplications, setJobApplicationStatus } from '../api';
 import { errText } from '../errText';
 import { formatDateTime } from '../lib/format';
 import { applicationStatusLabels, filterInbox, parseStatus, STATUSES, statusSegments, telHref } from '../lib/inbox';
@@ -46,9 +46,16 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
   const [rawShowAll, setShowAll] = useState(false);
   const showAllDone = rawShowAll as boolean;
 
+  // Aniq sanoq: ro'yxatga sig'magan yopilgan arizalar va oxirgi 7 kunda kelganlari (`?counts=1`).
+  const [rawExtra, setExtra] = useState({ hiddenDone: 0, week: 0 });
+  const extra = rawExtra as { hiddenDone: number; week: number };
+
   function load() {
     setError('');
-    listJobApplications().then(setItems).catch(() => setError(t('shared.loadError')));
+    Promise.all([listJobApplications(), getJobApplicationCounts()]).then(([list, counts]) => {
+      setItems(list);
+      setExtra({ hiddenDone: Math.max(0, counts.done - list.filter((a) => a.status === 'done').length), week: counts.week });
+    }).catch(() => setError(t('shared.loadError')));
   }
   useEffect(load, []);
 
@@ -64,14 +71,13 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
   const filtered = useMemo(() => (status === 'all' ? searched : searched.filter((a) => a.status === status)), [searched, status]);
   const stats = useMemo(() => {
     const all = items ?? [];
-    const weekAgo = Date.now() / 1000 - 7 * 86400;
     return {
       new: all.filter((a) => a.status === 'new').length,
       contacted: all.filter((a) => a.status === 'contacted').length,
-      done: all.filter((a) => a.status === 'done').length,
-      week: all.filter((a) => a.createdAt >= weekAgo).length,
+      done: all.filter((a) => a.status === 'done').length + extra.hiddenDone,
+      week: extra.week,
     };
-  }, [items]);
+  }, [items, extra]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount);
   const rows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
@@ -142,6 +148,7 @@ const ApplicationsList: FC<{ onCountsChange: () => void }> = ({ onCountsChange }
     label: labels[s],
     hue: HUE[s],
     hint: t(`board.hint${s === 'new' ? 'New' : s === 'contacted' ? 'Contacted' : 'Done'}` as 'board.hintNew'),
+    count: s === 'done' ? doneCount + (q ? 0 : extra.hiddenDone) : undefined,
     footer: s === 'done' && !showAllDone && doneCount > DONE_LIMIT
       ? <button type="button" onClick={() => setShowAll(true)} className="w-full rounded-item py-1.5 text-sm font-medium text-text-muted transition-colors hover:bg-surface hover:text-text">{t('board.moreDone', { n: doneCount - DONE_LIMIT })}</button>
       : undefined,

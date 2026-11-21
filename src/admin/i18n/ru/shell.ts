@@ -84,21 +84,24 @@ const shell: Dict<typeof uz> = {
     newProduct: 'Новый товар',
     kpi: {
       orders: { label: 'Заказы', note: '+{{n}} консультаций' },
-      visitors: { label: 'Посетители', note: '{{n}} просмотров' },
+      visitors: { label: 'Визиты', note: '{{n}} просмотров' },
       customers: { label: 'Регистрации', note: 'всего {{n}} клиентов' },
-      demand: { label: 'Запрошено товаров', note: '{{n}} шт', unit: 'сум' },
+      demand: { label: 'Запрошено товаров', note: 'в {{n}} заказах', unit: 'шт' },
     },
     activity: {
       title: 'Активность сайта',
       description: 'Посещения и заказы по дням',
       visits: 'Посещения',
       orders: 'Заказы',
-      visitors: 'Посетители',
+      visitors: 'Визиты',
       views: 'Просмотры',
       conversion: 'Конверсия',
       conversionHint: 'из посещения в заказ',
       perDay: 'в среднем в день',
       best: 'Самый активный день',
+      noVisits: 'визитов нет',
+      notTracked: 'Визиты пока не считались — данные накопятся по мере посещений сайта.',
+      trackedSince: 'Визиты считаются с {{date}} — конверсия и среднее рассчитаны с этого дня.',
     },
     status: {
       title: 'Статусы заказов',
@@ -116,7 +119,7 @@ const shell: Dict<typeof uz> = {
     top: {
       title: 'Чаще всего заказывают',
       description: 'Товары, которые чаще всего встречаются в заказах',
-      cols: { product: 'Товар', requests: 'Заявки', qty: 'Шт', sum: 'Сумма' },
+      cols: { product: 'Товар', requests: 'Заказы', qty: 'Шт' },
       empty: 'За этот период товары не заказывали.',
     },
     viewed: {
@@ -127,7 +130,8 @@ const shell: Dict<typeof uz> = {
     },
     categories: {
       title: 'Спрос по направлениям',
-      description: 'Стоимость запрошенных товаров в сравнении с прошлым периодом',
+      description: 'Число заказов с товарами направления в сравнении с прошлым периодом',
+      count: 'заказов: {{n}}',
       current: 'Этот период',
       previous: 'Прошлый период',
     },

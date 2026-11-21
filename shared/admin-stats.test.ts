@@ -26,7 +26,7 @@ const PRODUCTS = new Map<string, StatsProduct>([
 const input = (over: Partial<StatsInput> = {}, days = 7): StatsInput => ({
   window: statsWindow(NOW, days),
   orders: [], recentOrders: [], customerCreatedAt: [], customersTotal: 0, applicationCreatedAt: [], visits: [],
-  topViewed: [], products: PRODUCTS,
+  topViewed: [], visitsSince: null, products: PRODUCTS,
   categories: [{ id: 'apple', name: 'Apple' }, { id: 'pc', name: 'PC' }, { id: 'audio', name: 'Audio' }],
   catalog: { total: 0, onSite: 0, hidden: 0, needsImage: 0, outOfStock: 0, onOrder: 0 },
   ...over,
@@ -97,7 +97,7 @@ describe('parseOrderItems', () => {
     expect(parseOrderItems('{')).toEqual([]);
     expect(parseOrderItems('{"a":1}')).toEqual([]);
     expect(parseOrderItems('[null, 5, {"productId":"a","name":"x","qty":"2","priceUzs":100}]'))
-      .toEqual([{ productId: 'a', name: 'x', qty: 0, priceUzs: 100 }]);
+      .toEqual([{ productId: 'a', name: 'x', qty: 0 }]);
   });
   it('orderProductIds — takrorsiz, bo\'sh id\'siz', () => {
     expect(orderProductIds([
@@ -121,8 +121,6 @@ describe('buildStats', () => {
     }));
     expect(s.totals.orders).toBe(2);
     expect(s.totals.ordersPrev).toBe(2);
-    expect(s.totals.demandUzs).toBe(300);
-    expect(s.totals.demandUzsPrev).toBe(1500);
     expect(s.totals.itemsRequested).toBe(3);
     expect(s.totals.itemsRequestedPrev).toBe(2);
   });
@@ -138,17 +136,17 @@ describe('buildStats', () => {
     expect(s.totals.orders).toBe(1);
     expect(s.totals.consults).toBe(1);
     expect(s.totals.consultsPrev).toBe(1);
-    expect(s.totals.demandUzs).toBe(100);
+    expect(s.totals.itemsRequested).toBe(1);
     expect(s.sources).toEqual({ product: 0, cart: 1, consult: 1 });
     expect(s.status).toEqual({ new: 0, contacted: 1, done: 1 });
     expect(s.payment).toEqual({ cash: 0, installment: 1 });
     expect(s.hours[9]).toBe(2);
   });
 
-  it('buzilgan items_json — talab 0, buyurtma baribir sanaladi', () => {
+  it('buzilgan items_json — dona 0, buyurtma baribir sanaladi', () => {
     const s = buildStats(input({ orders: [order('2026-11-19T09:00:00', { items_json: 'not json' })] }));
     expect(s.totals.orders).toBe(1);
-    expect(s.totals.demandUzs).toBe(0);
+    expect(s.totals.itemsRequested).toBe(0);
     expect(s.topProducts).toEqual([]);
   });
 
@@ -165,12 +163,12 @@ describe('buildStats', () => {
     expect(s.topProducts.map((p) => [p.productId, p.requests, p.qty])).toEqual([
       ['c', 2, 4], ['a', 2, 3], ['b', 1, 5], ['gone', 1, 1],
     ]);
-    expect(s.topProducts[1]).toMatchObject({ name: 'iPhone 17', imageUrl: '/a.webp', demandUzs: 320 });
+    expect(s.topProducts[1]).toMatchObject({ name: 'iPhone 17', imageUrl: '/a.webp' });
     // O'chirilgan tovar — buyurtmadagi nomi bilan.
     expect(s.topProducts[3]).toMatchObject({ name: 'Eski tovar', imageUrl: null });
   });
 
-  it('yo\'nalishlar: hammasi tartibda, nollar bilan; talab va oldingi davr', () => {
+  it('yo\'nalishlar: hammasi tartibda, nollar bilan; buyurtmalar soni va oldingi davr', () => {
     const s = buildStats(input({
       orders: [
         order('2026-11-19T09:00:00', { items: [item('a', 1, 100), item('c', 2, 10)] }),
@@ -179,9 +177,9 @@ describe('buildStats', () => {
       ],
     }));
     expect(s.categories).toEqual([
-      { id: 'apple', name: 'Apple', demandUzs: 120, demandPrevUzs: 70, requests: 1 },
-      { id: 'pc', name: 'PC', demandUzs: 1000, demandPrevUzs: 0, requests: 1 },
-      { id: 'audio', name: 'Audio', demandUzs: 0, demandPrevUzs: 0, requests: 0 },
+      { id: 'apple', name: 'Apple', requests: 1, requestsPrev: 1 },
+      { id: 'pc', name: 'PC', requests: 1, requestsPrev: 0 },
+      { id: 'audio', name: 'Audio', requests: 0, requestsPrev: 0 },
     ]);
   });
 
@@ -203,9 +201,9 @@ describe('buildStats', () => {
     }));
     expect(s.series).toHaveLength(7);
     expect(s.series.map((d) => d.day)).toEqual(statsWindow(NOW, 7).dayKeys);
-    expect(s.series[6]).toEqual({ day: '2026-11-19', orders: 1, consults: 0, visitors: 10, views: 30, customers: 1, demandUzs: 100 });
+    expect(s.series[6]).toEqual({ day: '2026-11-19', orders: 1, consults: 0, visitors: 10, views: 30, customers: 1, items: 1 });
     expect(s.series[2]).toMatchObject({ day: '2026-11-15', consults: 1, orders: 0 });
-    expect(s.series[1]).toEqual({ day: '2026-11-14', orders: 0, consults: 0, visitors: 0, views: 0, customers: 0, demandUzs: 0 });
+    expect(s.series[1]).toEqual({ day: '2026-11-14', orders: 0, consults: 0, visitors: 0, views: 0, customers: 0, items: 0 });
     expect(s.totals).toMatchObject({
       visitors: 12, views: 35, visitorsPrev: 5, viewsPrev: 9,
       customersNew: 1, customersNewPrev: 1, customersTotal: 42, applications: 1, applicationsPrev: 1,
@@ -224,13 +222,13 @@ describe('buildStats', () => {
     expect(s.hours.reduce((a, b) => a + b, 0)).toBe(3);
   });
 
-  it('oxirgi murojaatlar: birinchi tovar, rasm, qatorlar soni va talab', () => {
+  it('oxirgi murojaatlar: birinchi tovar, rasm va qatorlar soni', () => {
     const recent = [
       order('2026-11-19T09:00:00', { items: [item('a', 2, 100, 'iPhone 17 256GB'), item('b', 1, 50)] }),
       order('2026-11-19T08:00:00', { source: 'consult', items_json: '[]' }),
     ];
     const s = buildStats(input({ recentOrders: recent }));
-    expect(s.recentOrders[0]).toMatchObject({ itemCount: 2, firstItem: 'iPhone 17 256GB', imageUrl: '/a.webp', demandUzs: 250 });
-    expect(s.recentOrders[1]).toMatchObject({ source: 'consult', itemCount: 0, firstItem: null, imageUrl: null, demandUzs: 0 });
+    expect(s.recentOrders[0]).toMatchObject({ itemCount: 2, firstItem: 'iPhone 17 256GB', imageUrl: '/a.webp' });
+    expect(s.recentOrders[1]).toMatchObject({ source: 'consult', itemCount: 0, firstItem: null, imageUrl: null });
   });
 });

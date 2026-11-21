@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { HUE_DOT, type Hue } from './controls';
 
-export interface KanbanColumn { id: string; label: string; hue: Hue; hint?: string; footer?: ReactNode }
+/** `count` — ustun sarlavhasidagi son; berilmasa ko'rinib turgan kartalar soni (ro'yxat qisqartirilgan ustun uchun haqiqiy son beriladi). */
+export interface KanbanColumn { id: string; label: string; hue: Hue; hint?: string; footer?: ReactNode; count?: number }
 
 interface Over { col: string; index: number }
 
@@ -91,7 +92,7 @@ export function Kanban<T>({ columns, items, columnOf, keyOf, renderCard, onMove,
             <header className="flex items-center gap-2 px-1 pb-2.5">
               <span aria-hidden className={`size-2 shrink-0 rounded-full ${HUE_DOT[col.hue]}`} />
               <span className="truncate text-base font-semibold text-text">{col.label}</span>
-              <span className="text-sm font-medium tabular-nums text-text-faint">{list.length}</span>
+              <span className="text-sm font-medium tabular-nums text-text-faint">{col.count ?? list.length}</span>
               {col.hint && <span className="ml-auto hidden truncate text-sm text-text-faint xl:block">{col.hint}</span>}
             </header>
             <div className={`flex flex-1 flex-col rounded-surface transition-colors duration-200 ${isOver ? 'bg-surface-sunken-hover' : 'bg-surface-sunken'}`}>

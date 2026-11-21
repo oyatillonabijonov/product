@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { Link, useLocation } from 'react-router';
-import { CalendarBlank, CaretRight, ChatCircleText, Clock, EnvelopeSimple, Package, Phone, Receipt, Wallet, WarningCircle } from '@phosphor-icons/react';
+import { CalendarBlank, CaretRight, ChatCircleText, Clock, EnvelopeSimple, Package, Phone, Receipt, WarningCircle } from '@phosphor-icons/react';
 import { GoogleLogo, TelegramLogo } from '../brand-logos';
 import type { Icon as PhIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
@@ -80,9 +80,7 @@ const CustomerDetail: FC<{ id: string }> = ({ id }) => {
   }
 
   const { customer: c, orders } = data;
-  const sum = t('common:sum');
   const name = c.name || t('customersList.noName');
-  const requested = orders.reduce((s, o) => s + (orderTotal(o) ?? 0), 0);
   const last = orders[0];
   const contacts: { icon: PhIcon; node: ReactNode }[] = [
     ...(c.phone ? [{ icon: Phone, node: <a href={telHref(c.phone)} className="tabular-nums text-text hover:underline">{c.phone}</a> }] : []),
@@ -122,12 +120,8 @@ const CustomerDetail: FC<{ id: string }> = ({ id }) => {
             </Card>
           </div>
 
-          <div className="stagger grid gap-3 sm:grid-cols-3" style={at(1)}>
+          <div className="stagger grid gap-3 sm:grid-cols-2" style={at(1)}>
             <StatTile icon={Receipt} hue="orange" label={t('customerDetail.statOrders')}><CountUp value={orders.length} /></StatTile>
-            <StatTile icon={Wallet} hue="green" label={t('customerDetail.statSum')}>
-              <CountUp value={requested} format={compact} />
-              <span className="text-base font-medium text-text-muted">{sum}</span>
-            </StatTile>
             <StatTile icon={Clock} hue="violet" label={t('customerDetail.statLast')}>
               <span className="truncate">{last ? timeAgo(last.createdAt) : '—'}</span>
             </StatTile>

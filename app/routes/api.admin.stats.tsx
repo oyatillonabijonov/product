@@ -19,13 +19,14 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   const all = async <T,>(sql: string, ...values: unknown[]): Promise<T[]> =>
     (await env.DB.prepare(sql).bind(...values).all<T>()).results;
 
-  const [orders, recentOrders, customers, customersTotal, applications, visits, topViewed, categories, catalog] = await Promise.all([
+  const [orders, recentOrders, customers, customersTotal, applications, visits, visitsSince, topViewed, categories, catalog] = await Promise.all([
     all<StatsOrderRow>(`SELECT ${ORDER_COLS} FROM orders WHERE created_at >= ?`, w.prevStartSec),
     all<StatsOrderRow>(`SELECT ${ORDER_COLS} FROM orders ORDER BY created_at DESC, id DESC LIMIT 6`),
     all<{ created_at: number }>('SELECT created_at FROM customers WHERE created_at >= ?', w.prevStartSec),
     env.DB.prepare('SELECT COUNT(*) AS n FROM customers').first<{ n: number }>(),
     all<{ created_at: number }>('SELECT created_at FROM job_applications WHERE created_at >= ?', w.prevStartSec),
     all<{ day: string; views: number; visitors: number }>('SELECT day, views, visitors FROM site_visits WHERE day >= ?', w.prevStartDay),
+    env.DB.prepare('SELECT MIN(day) AS day FROM site_visits').first<{ day: string | null }>(),
     all<ApiAdminStats['topViewed'][number]>(
       `SELECT v.product_id AS productId, p.name AS name, NULLIF(p.image_url, '') AS imageUrl, SUM(v.views) AS views
        FROM product_views v JOIN products p ON p.id = v.product_id
@@ -63,6 +64,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     customersTotal: customersTotal?.n ?? 0,
     applicationCreatedAt: applications.map((r) => r.created_at),
     visits,
+    visitsSince: visitsSince?.day ?? null,
     topViewed,
     products,
     categories,

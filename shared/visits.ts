@@ -1,8 +1,10 @@
+import { isbot } from 'isbot';
 import { routePath } from './http-policy.ts';
 
 /**
  * Sayt tashriflarini sanash qoidalari — `server/visits.ts` (yozuvchi) va admin statistikasi o'qiydi.
  * Sof: `node:crypto` yo'q, shuning uchun brauzer bundle'iga ham tushishi mumkin.
+ * Bot — `isbot` ro'yxati (qidiruv, havola ko'rinishi, skript kutubxonalari) va pastdagi qo'shimcha so'zlar.
  */
 
 /** Toshkent UTC+5, yozgi vaqt yo'q. */
@@ -36,7 +38,7 @@ export interface VisitRequest {
 export function classifyVisit(req: VisitRequest): { productId: string | null } | null {
   if (req.method !== 'GET') return null;
   const ua = req.userAgent ?? '';
-  if (ua === '' || BOT_RE.test(ua)) return null;
+  if (ua === '' || isbot(ua) || BOT_RE.test(ua)) return null;
   const path = routePath(req.path);
   if (path === null) return null;
   const isData = (req.path.split(/[?#]/)[0] ?? '').endsWith('.data');

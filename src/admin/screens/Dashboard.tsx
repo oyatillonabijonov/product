@@ -14,13 +14,15 @@ import { errText } from '../errText';
 import { formatThousands } from '../lib/format';
 import { Badge, Button, Card, DateRangePicker, EmptyState, HUE_DOT, Page, Segmented, useRangeLabel, type DayRange, type Hue, type Tone } from '../ui';
 import { Kpi, KpiStrip, pctChange } from '../ui/stats';
-import { AreaChart, BarChart, CompareBarChart, DonutChart, SegmentBar, compact } from '../charts';
+import { AreaChart, BarChart, CompareBarChart, DonutChart, SegmentBar } from '../charts';
 import { useToast } from '../ui/toast';
 import { timeAgo } from '../lib/ago';
 
 /**
  * Bosh sahifa (v2, egasining talabi — «dashboard aniq raqamlar haqida gapirsin»): davr tanlanadi (7/30/90 kun),
- * ostida KPI qatori (buyurtma, tashrif, ro'yxatdan o'tish, so'ralgan tovarlar qiymati — oldingi davr bilan),
+ * ostida KPI qatori (buyurtma, tashrif, ro'yxatdan o'tish, so'ralgan tovarlar soni — oldingi davr bilan),
+ * Summa yo'q (2026-11-21, egasining qarori): sayt sotuvni bilmaydi, buyurtma — ariza; faqat sanoqlar.
+ * Tashrifga bog'liq raqamlar (konversiya, o'rtacha, eng faol kun) faqat tashrif sanalgan kunlardan (`visitsSince`).
  * sayt faolligi grafigi, buyurtmalar holati, eng ko'p so'ralgan va ko'rilgan tovarlar, yo'nalishlar bo'yicha talab,
  * so'nggi buyurtmalar, buyurtma soatlari, katalog holati va «diqqat kerak» ro'yxati.
  * Raqamlar `GET /api/admin/stats`dan; sidebar sanog'i va Billz/kurs — `ApiDashboard`dan (AdminApp beradi).
@@ -35,8 +37,7 @@ function useDashFormat() {
   const { t, i18n } = useTranslation(['shell', 'common']);
   const months = t('dashboard.months').split(',');
   const day = (d: string) => { const [, m, dd] = d.split('-'); return `${Number(dd)} ${months[Number(m) - 1] ?? ''}`; };
-  const sum = (n: number) => `${formatThousands(Math.round(n)) || '0'} ${t('dashboard.kpi.demand.unit')}`;
-  return { t, lang: i18n.language, day, sum };
+  return { t, lang: i18n.language, day };
 }
 
 const Initials: FC<{ name: string }> = ({ name }) => {
@@ -147,7 +148,7 @@ function weekly(labels: string[], values: number[]): { labels: string[]; values:
 }
 
 const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultPw: boolean; error: boolean }> = ({ data, onRefresh, defaultPw, error }) => {
-  const { t, day, sum } = useDashFormat();
+  const { t, day } = useDashFormat();
   const [rawReload, setReload] = useState(0);
   const reload = rawReload as number;
   const { t: to } = useTranslation('orders');
@@ -207,10 +208,21 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
     const views = stats.series.map((s) => s.views);
     const matrix = stats.days > 31 ? weekly(labels, orders) : { labels, values: orders };
     const totalReq = stats.totals.orders + stats.totals.consults;
-    const conversion = stats.totals.visitors > 0 ? (totalReq / stats.totals.visitors) * 100 : 0;
-    const bestIdx = visitors.reduce((bi, v, i) => (v > visitors[bi] ? i : bi), 0);
+    // Tashrif sanalmagan kunlardagi buyurtmalar konversiyaga kirmaydi — aks holda foiz bir necha barobar shishadi.
+    const since = stats.visitsSince;
+    const tracked = since ? stats.series.filter((s) => s.day >= since) : [];
+    const trackedReq = tracked.reduce((n, s) => n + s.orders + s.consults, 0);
+    const conversion = stats.totals.visitors > 0 ? (trackedReq / stats.totals.visitors) * 100 : null;
+    const visitorsPerDay = tracked.length ? stats.totals.visitors / tracked.length : 0;
+    const top = visitors.reduce((bi, v, i) => (v > visitors[bi] ? i : bi), 0);
+    const bestIdx = (visitors[top] ?? 0) > 0 ? top : -1;
     const peak = stats.hours.reduce((bi, v, i) => (v > stats.hours[bi] ? i : bi), 0);
-    return { labels, orders, visitors, views, matrix, totalReq, conversion, bestIdx, peak };
+    // Davrning bir qismida tashrif sanalmagan bo'lsa — izoh; oldingi davr to'liq sanalmagan bo'lsa — o'sish foizi yo'q.
+    const first = stats.series[0]?.day ?? '';
+    const prevFirst = first ? new Date(Date.parse(`${first}T00:00:00Z`) - stats.days * 86_400_000).toISOString().slice(0, 10) : '';
+    const partial = since !== null && since > first;
+    const visitorsDelta = since !== null && since <= prevFirst ? pctChange(stats.totals.visitors, stats.totals.visitorsPrev) : undefined;
+    return { labels, orders, visitors, views, matrix, totalReq, conversion, visitorsPerDay, bestIdx, peak, since, partial, visitorsDelta };
   }, [stats]);
 
   const statusTotal = stats ? stats.status.new + stats.status.contacted + stats.status.done : 0;
@@ -284,7 +296,7 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
               />
               <Kpi
                 icon={Eye} hue="violet" label={t('dashboard.kpi.visitors.label')} value={stats.totals.visitors}
-                delta={pctChange(stats.totals.visitors, stats.totals.visitorsPrev)}
+                delta={derived.visitorsDelta}
                 note={t('dashboard.kpi.visitors.note', { n: formatThousands(stats.totals.views) })}
                 spark={derived.visitors}
               />
@@ -295,11 +307,11 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
                 spark={stats.series.map((s) => s.customers)} to="/admin/orders/customers"
               />
               <Kpi
-                icon={ShoppingBagOpen} hue="green" label={t('dashboard.kpi.demand.label')} value={stats.totals.demandUzs}
-                format={compact} unit={t('dashboard.kpi.demand.unit')}
-                delta={pctChange(stats.totals.demandUzs, stats.totals.demandUzsPrev)}
-                note={t('dashboard.kpi.demand.note', { n: formatThousands(stats.totals.itemsRequested) })}
-                spark={stats.series.map((s) => s.demandUzs)}
+                icon={ShoppingBagOpen} hue="green" label={t('dashboard.kpi.demand.label')} value={stats.totals.itemsRequested}
+                unit={t('dashboard.kpi.demand.unit')}
+                delta={pctChange(stats.totals.itemsRequested, stats.totals.itemsRequestedPrev)}
+                note={t('dashboard.kpi.demand.note', { n: formatThousands(stats.totals.orders) || '0' })}
+                spark={stats.series.map((s) => s.items)}
               />
             </KpiStrip>
           </div>
@@ -321,22 +333,27 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
                 <div className="grid grid-cols-3 gap-3 rounded-control bg-surface-sunken/60 p-3">
                   <div>
                     <p className="text-sm text-text-muted">{t('dashboard.activity.conversion')}</p>
-                    <p className="mt-0.5 text-lg font-semibold tabular-nums text-text">{derived.conversion.toFixed(1).replace('.', ',')}%</p>
+                    <p className="mt-0.5 text-lg font-semibold tabular-nums text-text">{derived.conversion === null ? '—' : `${derived.conversion.toFixed(1).replace('.', ',')}%`}</p>
                     <p className="text-xs text-text-faint">{t('dashboard.activity.conversionHint')}</p>
                   </div>
                   <div>
                     <p className="text-sm text-text-muted">{metric === 'visits' ? t('dashboard.activity.visitors') : t('dashboard.activity.orders')}</p>
                     <p className="mt-0.5 text-lg font-semibold tabular-nums text-text">
-                      {formatThousands(Math.round((metric === 'visits' ? stats.totals.visitors : derived.totalReq) / stats.days))}
+                      {formatThousands(Math.round(metric === 'visits' ? derived.visitorsPerDay : derived.totalReq / stats.days)) || '0'}
                     </p>
                     <p className="text-xs text-text-faint">{t('dashboard.activity.perDay')}</p>
                   </div>
                   <div>
                     <p className="text-sm text-text-muted">{t('dashboard.activity.best')}</p>
-                    <p className="mt-0.5 text-lg font-semibold tabular-nums text-text">{derived.labels[derived.bestIdx]}</p>
-                    <p className="text-xs text-text-faint">{formatThousands(derived.visitors[derived.bestIdx] ?? 0)} · {t('dashboard.activity.visitors').toLowerCase()}</p>
+                    <p className="mt-0.5 text-lg font-semibold tabular-nums text-text">{derived.bestIdx < 0 ? '—' : derived.labels[derived.bestIdx]}</p>
+                    <p className="text-xs text-text-faint">{derived.bestIdx < 0 ? t('dashboard.activity.noVisits') : `${formatThousands(derived.visitors[derived.bestIdx] ?? 0)} · ${t('dashboard.activity.visitors').toLowerCase()}`}</p>
                   </div>
                 </div>
+                {(derived.partial || derived.since === null) && (
+                  <p className="text-sm text-text-muted">
+                    {derived.since === null ? t('dashboard.activity.notTracked') : t('dashboard.activity.trackedSince', { date: day(derived.since) })}
+                  </p>
+                )}
                 {metric === 'visits' ? (
                   <div key="v" className="animate-fade-in">
                     <AreaChart
@@ -417,8 +434,8 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
             <div className="stagger" style={{ ['--i' as string]: 3 } as Record<string, number>}>
               <ProductTable
                 icon={Sparkle} title={t('dashboard.top.title')} description={t('dashboard.top.description')} empty={t('dashboard.top.empty')}
-                cols={[t('dashboard.top.cols.product'), t('dashboard.top.cols.requests'), t('dashboard.top.cols.qty'), t('dashboard.top.cols.sum')]}
-                rows={stats.topProducts.map((p) => ({ id: p.productId, name: p.name, imageUrl: p.imageUrl, cells: [String(p.requests), String(p.qty), compact(p.demandUzs)] }))}
+                cols={[t('dashboard.top.cols.product'), t('dashboard.top.cols.requests'), t('dashboard.top.cols.qty')]}
+                rows={stats.topProducts.map((p) => ({ id: p.productId, name: p.name, imageUrl: p.imageUrl, cells: [String(p.requests), String(p.qty)] }))}
               />
             </div>
             <div className="stagger" style={{ ['--i' as string]: 4 } as Record<string, number>}>
@@ -432,8 +449,8 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
               <Card icon={SquaresFour} hue="green" title={t('dashboard.categories.title')} description={t('dashboard.categories.description')} className="h-full">
                 <CompareBarChart
                   labels={stats.categories.map((c) => c.name)}
-                  current={stats.categories.map((c) => c.demandUzs)}
-                  previous={stats.categories.map((c) => c.demandPrevUzs)}
+                  current={stats.categories.map((c) => c.requests)}
+                  previous={stats.categories.map((c) => c.requestsPrev)}
                   currentLabel={t('dashboard.categories.current')}
                   previousLabel={t('dashboard.categories.previous')}
                   hue="violet"
@@ -443,7 +460,7 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
                   {stats.categories.map((c, i) => (
                     <li key={c.id} className="flex items-center justify-between gap-3 border-b border-border py-2.5 text-base last:border-b-0">
                       <span className="flex items-center gap-2 font-medium text-text"><span className={`size-2.5 rounded-full ${HUE_DOT[CAT_HUES[i % CAT_HUES.length]]}`} />{c.name}</span>
-                      <span className="font-semibold tabular-nums text-text">{sum(c.demandUzs)}</span>
+                      <span className="font-semibold tabular-nums text-text">{t('dashboard.categories.count', { n: c.requests })}</span>
                     </li>
                   ))}
                 </ul>
@@ -484,7 +501,6 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
                               </>
                             )}
                           </span>
-                          <span className="hidden w-32 shrink-0 text-right text-base font-semibold tabular-nums text-text sm:block">{o.demandUzs ? compact(o.demandUzs) : '—'}</span>
                           <Badge tone={STATUS_TONE[o.status] ?? 'neutral'} dot className="w-28 justify-center">{to(`status.${o.status as 'new'}`)}</Badge>
                         </Link>
                       </li>

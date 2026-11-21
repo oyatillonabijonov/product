@@ -82,21 +82,24 @@ const shell = {
     newProduct: 'Yangi mahsulot',
     kpi: {
       orders: { label: 'Buyurtmalar', note: '+{{n}} konsultatsiya' },
-      visitors: { label: 'Tashrif buyuruvchilar', note: "{{n}} sahifa ko'rildi" },
+      visitors: { label: 'Tashriflar', note: "{{n}} sahifa ko'rildi" },
       customers: { label: "Ro'yxatdan o'tganlar", note: 'jami {{n}} mijoz' },
-      demand: { label: "So'ralgan tovarlar", note: '{{n}} dona', unit: "so'm" },
+      demand: { label: "So'ralgan tovarlar", note: '{{n}} ta buyurtmada', unit: 'dona' },
     },
     activity: {
       title: 'Sayt faolligi',
       description: 'Kunlik tashriflar va buyurtmalar',
       visits: 'Tashriflar',
       orders: 'Buyurtmalar',
-      visitors: 'Tashrif buyuruvchilar',
+      visitors: 'Tashriflar',
       views: "Ko'rishlar",
       conversion: 'Konversiya',
       conversionHint: 'tashrifdan buyurtmagacha',
       perDay: "kuniga o'rtacha",
       best: 'Eng faol kun',
+      noVisits: "tashrif yo'q",
+      notTracked: "Tashriflar hali sanalmagan — sayt ochilgani sari to'planadi.",
+      trackedSince: "Tashriflar {{date}}dan beri sanaladi — konversiya va o'rtacha shu kundan hisoblangan.",
     },
     status: {
       title: 'Buyurtmalar holati',
@@ -114,7 +117,7 @@ const shell = {
     top: {
       title: "Eng ko'p so'ralgan",
       description: "Buyurtmalarda eng ko'p uchragan tovarlar",
-      cols: { product: 'Tovar', requests: "So'rov", qty: 'Dona', sum: 'Summa' },
+      cols: { product: 'Tovar', requests: 'Buyurtma', qty: 'Dona' },
       empty: "Bu davrda tovar so'ralmagan.",
     },
     viewed: {
@@ -125,7 +128,8 @@ const shell = {
     },
     categories: {
       title: "Yo'nalishlar bo'yicha talab",
-      description: "So'ralgan tovarlar qiymati, oldingi davr bilan",
+      description: "Shu yo'nalish tovari so'ralgan buyurtmalar soni, oldingi davr bilan",
+      count: '{{n}} ta buyurtma',
       current: 'Shu davr',
       previous: 'Oldingi davr',
     },

@@ -59,7 +59,7 @@ describe("classifyVisit — faqat storefront sahifasining ko'rilishi", () => {
     for (const ua of [
       '', 'Googlebot/2.1', 'Mozilla/5.0 (compatible; YandexBot/3.0)', 'TelegramBot (like TwitterBot)', 'curl/8.4.0',
       'python-requests/2.31', 'Mozilla/5.0 HeadlessChrome/120', 'facebookexternalhit/1.1', 'Chrome-Lighthouse',
-      'UptimeRobot/2.0', 'Wget/1.21',
+      'UptimeRobot/2.0', 'Wget/1.21', 'WhatsApp/2.23.20.0 A', 'axios/1.7.2', 'GoogleOther',
     ]) {
       expect(page('/katalog', { userAgent: ua }), ua).toBeNull();
     }
