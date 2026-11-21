@@ -3,7 +3,7 @@ import type { FC, ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
-  Add01Icon, AlertCircleIcon, ArrowRight01Icon, ArrowUpRight01Icon, CpuIcon, DollarCircleIcon, ImageNotFound01Icon, InboxIcon,
+  Add01Icon, AlertCircleIcon, ArrowRight01Icon, CpuIcon, DollarCircleIcon, ImageNotFound01Icon, InboxIcon,
   Package01Icon, RefreshIcon, ShoppingBasket01Icon, UserAdd01Icon, UserGroupIcon, ViewIcon,
 } from '@hugeicons/core-free-icons';
 import { Trans, useTranslation } from 'react-i18next';
@@ -13,8 +13,7 @@ import { billzStatusText } from '../lib/billz-status';
 import { errText } from '../errText';
 import { formatThousands } from '../lib/format';
 import { Badge, Button, DateRangePicker, EmptyState, Page, Segmented, useRangeLabel, type DayRange, type Tone } from '../ui';
-import { CountUp, Delta, pctChange } from '../ui/stats';
-import { Sparkline } from '../charts';
+import { Delta, Kpi, KpiTile, pctChange } from '../ui/stats';
 import { ColumnsChart, HourStrip, INK, Key, LILAC, RingBreakdown, SplitBand, StepColumns, VIOLET, tint } from '../charts/viz';
 import { useToast } from '../ui/toast';
 import { timeAgo } from '../lib/ago';
@@ -48,11 +47,6 @@ const productLink = (id: string) => `/admin/products/${encodeURIComponent(id)}`;
 
 const Ico: FC<{ icon: IconSvgElement; size?: number; className?: string }> = ({ icon, size = 18, className }) => (
   <HugeiconsIcon icon={icon} size={size} strokeWidth={1.5} className={className} />
-);
-
-/** Ikonka plitkasi — KPI va «diqqat» qatorlarida: 32px, hoshiyali, ichida chiziqli ikonka. */
-const Tile: FC<{ icon: IconSvgElement }> = ({ icon }) => (
-  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-[10px] border border-border bg-surface-sunken text-text"><Ico icon={icon} /></span>
 );
 
 const Initials: FC<{ name: string }> = ({ name }) => {
@@ -92,37 +86,6 @@ const Stat: FC<{ label: string; value: ReactNode; hint?: ReactNode }> = ({ label
     {hint && <p className="mt-0.5 text-sm leading-5 text-text-muted">{hint}</p>}
   </div>
 );
-
-/** KPI kartasi: plitka + nom, katta son, o'zgarish belgisi; pastki tasmada izoh va trend chizig'i. */
-const KpiCard: FC<{
-  icon: IconSvgElement; label: string; value: number; unit?: string; delta?: number | null; trend: string; note: string; spark: number[]; to?: string;
-}> = ({ icon, label, value, unit, delta, trend, note, spark, to }) => {
-  const body = (
-    <>
-      <div className="flex flex-1 flex-col px-6 pb-5 pt-5">
-        <div className="flex items-center gap-2.5">
-          <Tile icon={icon} />
-          <span className="min-w-0 flex-1 truncate text-base font-medium text-text">{label}</span>
-          {to && <Ico icon={ArrowUpRight01Icon} size={16} className="shrink-0 text-text-faint transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />}
-        </div>
-        <div className="mt-5 flex items-baseline gap-1.5 whitespace-nowrap">
-          <CountUp value={value} className="text-4xl font-semibold leading-10 text-text" />
-          {unit && <span className="text-base font-medium text-text-muted">{unit}</span>}
-        </div>
-        <div className="mt-2 flex h-5 items-center gap-2 text-sm text-text-muted">
-          {delta !== undefined && <Delta value={delta} />}
-          <span className="truncate">{trend}</span>
-        </div>
-      </div>
-      <div className="flex h-11 items-center justify-between gap-3 rounded-b-[15px] border-t border-border bg-surface-sunken px-6">
-        <span className="truncate text-sm text-text-muted">{note}</span>
-        <Sparkline values={spark} hue="violet" width={64} height={20} className="shrink-0" />
-      </div>
-    </>
-  );
-  const cls = 'group flex min-w-0 flex-col rounded-surface border border-border bg-surface transition-colors duration-[175ms]';
-  return to ? <Link to={to} className={`${cls} hover:border-border-strong`}>{body}</Link> : <div className={cls}>{body}</div>;
-};
 
 /** Tovarlar reytingi: tartib raqami, eskiz, nom va uning ostida ulush chizig'i (eng kattasiga nisbatan), o'ngda son. */
 const RankList: FC<{
@@ -167,7 +130,7 @@ const RankList: FC<{
 const AttentionRow: FC<{ icon: IconSvgElement; title: string; note: string; right?: ReactNode; to?: string }> = ({ icon, title, note, right, to }) => {
   const body = (
     <>
-      <Tile icon={icon} />
+      <KpiTile icon={icon} />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-base font-medium leading-5 text-text">{title}</span>
         <span className="mt-0.5 block text-sm leading-5 text-text-muted">{note}</span>
@@ -343,25 +306,25 @@ const Dashboard: FC<{ data: ApiDashboard | null; onRefresh: () => void; defaultP
       ) : (
         <div className="flex flex-col gap-4">
           <section className="stagger grid gap-4 sm:grid-cols-2 xl:grid-cols-4" style={cell(0)}>
-            <KpiCard
+            <Kpi
               icon={InboxIcon} label={t('dashboard.kpi.orders.label')} value={stats.totals.orders}
               delta={pctChange(stats.totals.orders, stats.totals.ordersPrev)} trend={t('dashboard.kpi.vsPrev')}
               note={t('dashboard.kpi.orders.note', { n: stats.totals.consults })}
               spark={stats.series.map((x) => x.orders)} to="/admin/orders"
             />
-            <KpiCard
+            <Kpi
               icon={ViewIcon} label={t('dashboard.kpi.visitors.label')} value={stats.totals.visitors}
               delta={derived.visitorsDelta} trend={trend(derived.visitorsDelta)}
               note={t('dashboard.kpi.visitors.note', { n: num(stats.totals.views) })}
               spark={derived.visitors}
             />
-            <KpiCard
+            <Kpi
               icon={UserAdd01Icon} label={t('dashboard.kpi.customers.label')} value={stats.totals.customersNew}
               delta={pctChange(stats.totals.customersNew, stats.totals.customersNewPrev)} trend={t('dashboard.kpi.vsPrev')}
               note={t('dashboard.kpi.customers.note', { n: num(stats.totals.customersTotal) })}
               spark={stats.series.map((x) => x.customers)} to="/admin/orders/customers"
             />
-            <KpiCard
+            <Kpi
               icon={ShoppingBasket01Icon} label={t('dashboard.kpi.demand.label')} value={stats.totals.itemsRequested} unit={t('dashboard.kpi.demand.unit')}
               delta={pctChange(stats.totals.itemsRequested, stats.totals.itemsRequestedPrev)} trend={t('dashboard.kpi.vsPrev')}
               note={t('dashboard.kpi.demand.note', { n: num(stats.totals.orders) })}

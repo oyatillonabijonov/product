@@ -6,7 +6,8 @@ import type { ApiSettings, Term } from '../../../shared/types';
 import { storeRate } from '../../../shared/usd-rate';
 import { monthlyPayment } from '../../lib/installment';
 import { getSettings, updateSettings } from '../api';
-import { BarChart } from '../charts';
+import { compact } from '../charts';
+import { ColumnsChart, VIOLET } from '../charts/viz';
 import { errText } from '../errText';
 import { formatSum, formatThousands } from '../lib/format';
 import SectionTabs from '../SectionTabs';
@@ -216,19 +217,19 @@ const SettingsPayment: FC = () => {
               {chartTerms.length > 0 && (
                 <div className="stagger" style={st(3)}>
                   <Card icon={ChartBar} hue="teal" title={t('payment.chartTitle')} className="h-full">
-                    <BarChart
+                    <ColumnsChart
                       labels={chartTerms.map((term) => monthsLabel(term.months))}
-                      values={chartTerms.map((term) => Math.round(monthly(term)))}
-                      name={t('payment.monthlyLabel')}
-                      hue="teal"
-                      variant="gradient"
+                      bars={chartTerms.map((term) => Math.round(monthly(term)))}
+                      barName={t('payment.monthlyLabel')}
+                      format={(n) => formatThousands(n) || '0'}
+                      axisFormat={compact}
                       height={240}
                     />
                     <ul className="flex flex-col">
                       {chartTerms.map((term, i) => (
                         <li key={i} className="flex items-center justify-between gap-3 border-b border-border py-3 text-base first:pt-0 last:border-b-0 last:pb-0">
                           <span className="flex items-center gap-2 text-text-muted">
-                            <span className="size-2.5 rounded-full bg-c-teal" />
+                            <span className="size-2.5 rounded-[3px]" style={{ background: VIOLET }} />
                             {monthsLabel(term.months)}
                             <span className="text-sm text-text-faint">+{Math.round(term.markup * 100)}%</span>
                           </span>

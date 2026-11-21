@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { ImageBroken, Plus, SealCheck, Tag, WarningCircle } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand } from '../../../shared/types';
 import { listBrands } from '../api';
-import { Avatar, Badge, Button, EmptyState, IconTile, Pagination, SearchInput, type Hue } from '../ui';
+import { Avatar, Badge, Button, EmptyState, Pagination, SearchInput } from '../ui';
+import { StatTile } from '../StatusControls';
 import { CountUp } from '../ui/stats';
 
 const LIST = '/admin/products/brands';
@@ -14,17 +14,6 @@ const LIST = '/admin/products/brands';
 const PAGE_SIZE = 30;
 
 const stagger = (i: number) => ({ ['--i' as string]: i } as Record<string, number>);
-
-/** Statistika plitkasi — alohida kulrang yuza (hoshiya va soyasiz). */
-const Stat: FC<{ icon: PhIcon; hue: Hue; label: string; value: number }> = ({ icon, hue, label, value }) => (
-  <div className="flex items-center gap-4 rounded-surface border border-border bg-surface p-5">
-    <IconTile icon={icon} hue={hue} size="lg" soft />
-    <div className="min-w-0">
-      <p className="truncate text-sm font-semibold text-text-muted">{label}</p>
-      <CountUp value={value} className="text-2xl font-bold text-text" />
-    </div>
-  </div>
-);
 
 /**
  * Brendlar — logotiplar to'ri: kulrang kartochka, logo oq orolchada (tasmadagidek bir rangga keltirilgan), nom,
@@ -78,9 +67,9 @@ const BrandsList: FC = () => {
     <div className="flex flex-col gap-6">
       <p className="text-base text-text-muted">{t('brandsList.intro')}</p>
       <div className="stagger grid gap-3 sm:grid-cols-3">
-        <Stat icon={Tag} hue="blue" label={t('brandsList.statTotal')} value={items.length} />
-        <Stat icon={SealCheck} hue="green" label={t('brandsList.statStrip')} value={withLogo} />
-        <Stat icon={ImageBroken} hue="orange" label={t('brandsList.statNoLogo')} value={items.length - withLogo} />
+        <StatTile icon={Tag} label={t('brandsList.statTotal')}><CountUp value={items.length} /></StatTile>
+        <StatTile icon={SealCheck} label={t('brandsList.statStrip')}><CountUp value={withLogo} /></StatTile>
+        <StatTile icon={ImageBroken} label={t('brandsList.statNoLogo')}><CountUp value={items.length - withLogo} /></StatTile>
       </div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="sm:w-64 xl:w-72">

@@ -6,7 +6,7 @@ export { INPUT_CLS, Field, Input, SearchInput, Textarea, Select, SwitchRow, Lang
 export { DataTable } from './DataTable';
 export type { Column } from './DataTable';
 export { default as Modal } from './Modal';
-export { Kpi, KpiStrip, Delta, CountUp, Meter, pctChange, useCountUp } from './stats';
+export { Kpi, KpiStrip, KpiTile, Delta, CountUp, Meter, pctChange, useCountUp } from './stats';
 export { Kanban } from './Kanban';
 export { DateRangePicker, useRangeLabel } from './DateRange';
 export type { DayRange } from './DateRange';

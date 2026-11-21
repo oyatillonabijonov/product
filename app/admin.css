@@ -100,7 +100,7 @@
   --color-info-soft: rgb(1 113 227 / 0.2);
   --color-info-strong: #042f97;
 
-  /* ---------- Grafik palitrasi — O'ZGARMAGAN (egasi: statistika grafiklari o'rnida qoladi) ---------- */
+  /* ---------- Grafik palitrasi (binafsha + siyoh) — `charts/viz` va `charts/index` shu tokenlarni o'qiydi ---------- */
   --color-c-violet: #6d4aff;
   --color-c-blue: #b3a6ff;
   --color-c-teal: #6d4aff;
@@ -109,12 +109,6 @@
   --color-c-green: #8c8c96;
   --color-c-pink: #b4b4bd;
   --color-c-slate: #d0d0d6;
-
-  /* ---------- EvilCharts kutgan shadcn tokenlari (grafik o'qi, tooltip) ---------- */
-  --color-foreground: var(--color-text);
-  /* Karta rangi — donut bo'laklari orasidagi oraliq shu rangda chiziladi. */
-  --color-background: #ffffff;
-  --color-muted-foreground: var(--color-text-faint);
 
   /* ---------- Tipografika (Astryx: 14px asos, 1.2 shkala; Medeo Sans / Medeo Mono) ---------- */
   --font-sans: "Medeo Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -262,7 +256,6 @@
   --color-c-green: #85858f;
   --color-c-pink: #5c5c66;
   --color-c-slate: #3c3c44;
-  --color-background: #1f1f22;
 
   --shadow-low: 0 1px 1px rgb(0 0 0 / 0.2), 0 2px 8px rgb(0 0 0 / 0.2);
   --shadow-med: 0 1px 2px rgb(0 0 0 / 0.2), 0 2px 12px rgb(0 0 0 / 0.2);

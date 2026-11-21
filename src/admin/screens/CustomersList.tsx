@@ -10,8 +10,8 @@ import { listCustomers } from '../api';
 import { formatDateTime } from '../lib/format';
 import { telHref } from '../lib/inbox';
 import { timeAgo } from '../lib/ago';
-import { Avatar, Badge, Button, DataTable, EmptyState, IconTile, Pagination, SearchInput, type Column } from '../ui';
-import { Kpi, KpiStrip, pctChange } from '../ui/stats';
+import { Avatar, Badge, Button, DataTable, EmptyState, Pagination, SearchInput, type Column } from '../ui';
+import { Kpi, KpiStrip, KpiTile, pctChange } from '../ui/stats';
 import { SegmentBar } from '../charts';
 
 const PAGE_SIZE = 20;
@@ -32,21 +32,23 @@ const ViaCell: FC<{ label: string; google: number; telegram: number }> = ({ labe
   const total = google + telegram;
   const pct = (n: number) => (total ? Math.round((n / total) * 100) : 0);
   return (
-    <div className="min-w-0 rounded-surface border border-border bg-surface p-5">
-      <span className="flex min-w-0 items-center gap-2.5">
-        <IconTile icon={SignIn} hue="teal" size="sm" />
-        <span className="truncate text-base font-semibold text-text-muted">{label}</span>
-      </span>
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        {[{ name: 'Google', n: google, I: GoogleLogo }, { name: 'Telegram', n: telegram, I: TelegramLogo }].map(({ name, n, I }) => (
-          <div key={name} className="min-w-0">
-            <p className="flex items-center gap-1.5 text-sm font-semibold text-text-muted"><I weight="bold" className="size-3.5" />{name}</p>
-            <p className="mt-0.5 text-2xl font-bold tabular-nums text-text">{pct(n)}%</p>
-          </div>
-        ))}
+    <div className="flex min-w-0 flex-col rounded-surface border border-border bg-surface">
+      <div className="flex flex-1 flex-col px-4 pb-5 pt-5 sm:px-6">
+        <span className="flex min-w-0 items-center gap-2.5">
+          <KpiTile icon={SignIn} />
+          <span className="truncate text-base font-medium text-text">{label}</span>
+        </span>
+        <div className="mt-5 grid grid-cols-2 gap-4">
+          {[{ name: 'Google', n: google, I: GoogleLogo }, { name: 'Telegram', n: telegram, I: TelegramLogo }].map(({ name, n, I }) => (
+            <div key={name} className="min-w-0">
+              <p className="flex items-center gap-1.5 text-text-muted"><I weight="bold" className="size-3 shrink-0" /><span className="eyebrow truncate">{name}</span></p>
+              <p className="mt-1 text-2xl font-semibold leading-8 tabular-nums text-text">{pct(n)}%</p>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="mt-3">
-        <SegmentBar showLegend={false} items={[{ label: 'Google', value: google, hue: 'blue' }, { label: 'Telegram', value: telegram, hue: 'teal' }]} />
+      <div className="flex h-11 items-center rounded-b-[15px] border-t border-border bg-surface-sunken px-4 sm:px-6">
+        <div className="w-full"><SegmentBar showLegend={false} items={[{ label: 'Google', value: google, hue: 'violet' }, { label: 'Telegram', value: telegram, hue: 'orange' }]} /></div>
       </div>
     </div>
   );
@@ -121,7 +123,6 @@ const CustomersList: FC = () => {
       buyersPct: all.length ? Math.round((buyers / all.length) * 100) : 0,
       google: all.filter((c) => c.via === 'google').length,
       telegram: all.filter((c) => c.via === 'telegram').length,
-      daily,
       growth: daily.map((v) => (acc += v)),
     };
   }, [items]);
@@ -192,7 +193,7 @@ const CustomersList: FC = () => {
               <Kpi icon={Users} hue="violet" label={t('customersList.kpiTotal')} value={kpi.total} note={t('customersList.kpiTotalNote', { n: kpi.withPhone })} spark={kpi.growth} />
               <Kpi
                 icon={UserPlus} hue="blue" label={t('customersList.kpiMonth')} value={kpi.month}
-                delta={pctChange(kpi.month, kpi.prevMonth)} note={t('customersList.kpiMonthNote', { n: kpi.prevMonth })} spark={kpi.daily}
+                delta={pctChange(kpi.month, kpi.prevMonth)} note={t('customersList.kpiMonthNote', { n: kpi.prevMonth })}
               />
               <Kpi icon={ShoppingBagOpen} hue="orange" label={t('customersList.kpiBuyers')} value={kpi.buyers} note={t('customersList.kpiBuyersNote', { n: kpi.buyersPct })} />
               <ViaCell label={t('customersList.kpiVia')} google={kpi.google} telegram={kpi.telegram} />

@@ -4,7 +4,7 @@ import type { Icon as PhIcon } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import type { OrderStatus } from '../../shared/types';
 import { STATUSES } from './lib/inbox';
-import { Button, IconTile, type Hue } from './ui';
+import { Button, KpiTile, type Hue } from './ui';
 
 /** Jadval qatoridagi holat pill'i: yangi — urg'u, bog'lanildi — neytral, bajarildi — yashil (rang-baranglik yo'q). */
 const PILL: Record<OrderStatus, { pill: string; dot: string }> = {
@@ -45,16 +45,16 @@ export const StatusSelect: FC<{ value: OrderStatus; labels: Record<OrderStatus, 
 );
 
 /**
- * Statistika plitkasi (buyurtmalar, arizalar, mijoz sahifasi): alohida kulrang plitka — rangli ikonka va nom,
- * ostida katta son. `children` — qiymat (birligi bilan); telefonda ikki ustunga sig'ishi uchun shrift kichikroq.
+ * Statistika plitkasi (buyurtmalar, arizalar, mijoz sahifasi, brendlar) — KPI kartasining ixcham ko'rinishi:
+ * ikonka plitkasi + nom, ostida katta son. `children` — qiymat (birligi bilan). `hue` eski API uchun qoldi.
  */
-export const StatTile: FC<{ icon: PhIcon; hue: Hue; label: string; children: ReactNode }> = ({ icon, hue, label, children }) => (
-  <div className="min-w-0 rounded-surface border border-border bg-surface p-5">
+export const StatTile: FC<{ icon: PhIcon; hue?: Hue; label: string; children: ReactNode }> = ({ icon, label, children }) => (
+  <div className="min-w-0 rounded-surface border border-border bg-surface px-4 py-5 sm:px-6">
     <span className="flex min-w-0 items-center gap-2.5">
-      <IconTile icon={icon} hue={hue} size="sm" />
-      <span className="truncate text-sm font-semibold text-text-muted sm:text-base">{label}</span>
+      <KpiTile icon={icon} />
+      <span className="truncate text-base font-medium text-text">{label}</span>
     </span>
-    <div className="mt-4 flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-2xl font-bold tabular-nums text-text sm:text-3xl">{children}</div>
+    <div className="mt-5 flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-3xl font-semibold leading-10 tabular-nums text-text sm:text-4xl">{children}</div>
   </div>
 );
 

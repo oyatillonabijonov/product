@@ -26,7 +26,6 @@
     "better-sqlite3": "^13.0.3",
     "bot-avatars": "^0.1.1",
     "compression": "^1.8.2",
-    "echarts": "^6.1.0",
     "express": "^5.2.1",
     "i18next": "^26.4.2",
     "isbot": "^5",

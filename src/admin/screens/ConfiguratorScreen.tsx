@@ -276,8 +276,8 @@ const ConfiguratorScreen: FC = () => {
         <div className="stagger" style={stagger(3)}>
           <Card icon={ChartBar} hue="blue" title={t('configurator.progressTitle')} description={t('configurator.progressDesc')}>
             <ChartLegend items={[
-              { label: t('configurator.legendDone'), hue: 'green', value: String(doneCount) },
-              { label: t('configurator.legendAuto'), hue: 'violet', value: String(pending.length - handTotal) },
+              { label: t('configurator.legendDone'), hue: 'violet', value: String(doneCount) },
+              { label: t('configurator.legendAuto'), hue: 'blue', value: String(pending.length - handTotal) },
               { label: t('configurator.legendManual'), hue: 'orange', value: String(handTotal) },
             ]} />
             <ul className="grid gap-x-8 gap-y-4 md:grid-cols-2">
@@ -290,8 +290,8 @@ const ConfiguratorScreen: FC = () => {
                       <span className="shrink-0 text-sm tabular-nums text-text-muted"><span className="font-semibold text-text">{r.done}</span> / {r.total}</span>
                     </div>
                     <SegmentBar showLegend={false} items={[
-                      { label: t('configurator.legendDone'), value: r.done, hue: 'green' },
-                      { label: t('configurator.legendAuto'), value: r.auto, hue: 'violet' },
+                      { label: t('configurator.legendDone'), value: r.done, hue: 'violet' },
+                      { label: t('configurator.legendAuto'), value: r.auto, hue: 'blue' },
                       { label: t('configurator.legendManual'), value: r.hand, hue: 'orange' },
                     ]} />
                   </div>

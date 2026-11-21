@@ -62,7 +62,10 @@ export const ColumnsChart: FC<{
   lineName?: string;
   height?: number;
   mutedBefore?: number;
-}> = ({ labels, bars, barName, line, lineName, height = 280, mutedBefore = 0 }) => {
+  /** Qiymat matni (belgi va oyna) va o'q yorlig'i — sukutda oddiy son. */
+  format?: (n: number) => string;
+  axisFormat?: (n: number) => string;
+}> = ({ labels, bars, barName, line, lineName, height = 280, mutedBefore = 0, format = fmt, axisFormat = fmt }) => {
   const [ref, w] = useWidth();
   const [rawHover, setHover] = useState(-1);
   const hover = rawHover as number;
@@ -72,10 +75,10 @@ export const ColumnsChart: FC<{
   const peak = lead.reduce((bi, v, i) => (v > lead[bi] ? i : bi), 0);
   const active = hover >= 0 ? hover : (lead[peak] ?? 0) > 0 ? peak : -1;
 
-  const padL = 44, padR = 24, padT = 34, padB = 30;
+  const { top, step: tick } = niceScale(Math.max(0, ...bars, ...(line ?? [])));
+  const padL = 16 + 7 * Math.max(3, axisFormat(top).length), padR = 24, padT = 34, padB = 30;
   const plotW = Math.max(0, w - padL - padR);
   const plotH = height - padT - padB;
-  const { top, step: tick } = niceScale(Math.max(0, ...bars, ...(line ?? [])));
   const stepX = n ? plotW / n : 0;
   const barW = Math.min(40, Math.max(3, stepX * 0.64));
   const x = (i: number) => padL + stepX * (i + 0.5);
@@ -108,7 +111,7 @@ export const ColumnsChart: FC<{
           {Array.from({ length: Math.round(top / tick) + 1 }, (_, k) => k * tick).map((v) => (
             <g key={v}>
               <line x1={padL} x2={w - padR} y1={y(v)} y2={y(v)} className={v === 0 ? 'stroke-border-strong' : 'stroke-border'} strokeDasharray={v === 0 ? undefined : '2 5'} />
-              <text x={padL - 12} y={y(v) + 4} textAnchor="end" className="fill-text-faint text-xs tabular-nums">{fmt(v)}</text>
+              <text x={padL - 12} y={y(v) + 4} textAnchor="end" className="fill-text-faint text-xs tabular-nums">{axisFormat(v)}</text>
             </g>
           ))}
           {mutedBefore > 0 && <rect x={padL} y={padT} width={stepX * Math.min(n, mutedBefore)} height={plotH} fill={`url(#${hatch})`} opacity="0.55" />}
@@ -135,15 +138,15 @@ export const ColumnsChart: FC<{
           style={{ left: ax, top: Math.max(0, anchorY - 12), transform: `translate(${shift}, -100%)` }}
         >
           <p className="text-xs text-text-muted tabular-nums">{labels[active]}</p>
-          <p className="mt-1 flex items-center justify-between gap-4 text-sm"><Key color={VIOLET} label={barName} /><b className="font-semibold tabular-nums text-text">{fmt(bars[active] ?? 0)}</b></p>
-          {line && lineName && <p className="mt-0.5 flex items-center justify-between gap-4 text-sm"><Key color="var(--color-text)" label={lineName} line /><b className="font-semibold tabular-nums text-text">{fmt(line[active] ?? 0)}</b></p>}
+          <p className="mt-1 flex items-center justify-between gap-4 text-sm"><Key color={VIOLET} label={barName} /><b className="font-semibold tabular-nums text-text">{format(bars[active] ?? 0)}</b></p>
+          {line && lineName && <p className="mt-0.5 flex items-center justify-between gap-4 text-sm"><Key color="var(--color-text)" label={lineName} line /><b className="font-semibold tabular-nums text-text">{format(line[active] ?? 0)}</b></p>}
         </div>
       ) : (
         <span
           className="pointer-events-none absolute z-10 rounded-full bg-primary px-2 py-0.5 text-xs font-semibold tabular-nums text-text-on-primary"
           style={{ left: ax, top: anchorY - 12, transform: `translate(${shift}, -100%)` }}
         >
-          {fmt(lead[active] ?? 0)}
+          {format(lead[active] ?? 0)}
         </span>
       ))}
     </div>

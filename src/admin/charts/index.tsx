@@ -1,24 +1,15 @@
 import type { FC } from 'react';
 import i18n from 'i18next';
 import { HUE_DOT, type Hue } from '../ui/controls';
-import { EChartsAreaChart } from '../evilcharts/charts/echarts-area-chart';
-import { EChartsBarChart } from '../evilcharts/charts/echarts-bar-chart';
-import { EChartsPieChart } from '../evilcharts/charts/echarts-pie-chart';
-import { EChartsRadialChart } from '../evilcharts/charts/echarts-radial-chart';
-import type { ChartConfig } from '../evilcharts/ui/echarts-chart';
 
 /**
- * Admin grafiklari — **EvilCharts** (ECharts komponentlari, `src/admin/evilcharts/`, MIT) ustida yupqa o'ramlar:
- * ekranlar oddiy massiv beradi, o'ram EvilCharts'ning `data` + `config` shakliga o'giradi. Ranglar CSS
- * tokenlaridan (`var(--color-c-*)` — qorong'i rejimda o'zi almashadi). Kutubxonasiz yengillari: `Sparkline`,
- * `SegmentBar`, `ChartLegend`. Qoidalar: bitta y-o'q, ≥2 seriyada legenda, hover'da tooltip.
+ * Admin grafiklarining yengil qismi (kutubxonasiz): `Sparkline` (KPI trend chizig'i), `SegmentBar` (ingichka ulush
+ * chizig'i), `ChartLegend`, `compact`. Katta vizuallar — `./viz` (ustunlar, halqa, pog'ona, soatlar tasmasi).
+ * Ranglar CSS tokenlaridan (`c-*` — qorong'i rejimda o'zi almashadi); matn — matn tokenlarida.
  */
 
 type Fmt = (n: number) => string;
-const plain: Fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ');
-/** ECharts canvas matni ham admin shriftida bo'lsin. */
-const FONT_OPTS = { textStyle: { fontFamily: '"Medeo Sans", system-ui, sans-serif' } };
-const colorsOf = (hue: Hue) => ({ light: [`var(--color-c-${hue})`], dark: [`var(--color-c-${hue})`] });
+const plain: Fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/\s/g, ' ');
 
 /** Legenda: rang belgisi + nom (+ qiymat). Matn — matn tokeni, seriya rangi faqat belgida. */
 export const ChartLegend: FC<{ items: { label: string; hue: Hue; value?: string }[]; className?: string }> = ({ items, className = '' }) => (
@@ -32,134 +23,6 @@ export const ChartLegend: FC<{ items: { label: string; hue: Hue; value?: string 
     ))}
   </ul>
 );
-
-/** Vaqt bo'yicha o'zgarish — EvilCharts Area (gradient yoki nuqtali to'ldirma), bitta y-o'q. */
-export const AreaChart: FC<{
-  labels: string[];
-  series: { name: string; values: number[]; hue: Hue; variant?: 'gradient' | 'dotted' | 'hatched' | 'solid' }[];
-  height?: number;
-  legend?: boolean;
-}> = ({ labels, series, height = 260, legend = true }) => {
-  const data = labels.map((label, i) => ({ label, ...Object.fromEntries(series.map((s, k) => [`s${k}`, s.values[i] ?? 0])) }));
-  const config = Object.fromEntries(series.map((s, k) => [`s${k}`, { label: s.name, colors: colorsOf(s.hue) }])) as ChartConfig;
-  return (
-    <div style={{ height }} className="w-full">
-      <EChartsAreaChart data={data} config={config} xDataKey="label" className="h-full w-full" chartOptions={FONT_OPTS}>
-        <EChartsAreaChart.Grid />
-        <EChartsAreaChart.XAxis dataKey="label" />
-        <EChartsAreaChart.YAxis tickFormatter={(v: number) => compact(v)} />
-        {legend && series.length > 1 && <EChartsAreaChart.Legend variant="rounded-square" align="left" verticalAlign="top" isClickable />}
-        <EChartsAreaChart.Tooltip roundness="lg" />
-        {series.map((s, k) => (
-          <EChartsAreaChart.Area key={k} dataKey={`s${k}`} variant={s.variant ?? 'gradient'} isClickable>
-            <EChartsAreaChart.ActiveDot variant="colored-border" />
-          </EChartsAreaChart.Area>
-        ))}
-      </EChartsAreaChart>
-    </div>
-  );
-};
-
-/** Toifalar bo'yicha kattalik — EvilCharts Bar. `buffer` — oxirgi ustun shtrixli (bugun hali tugamagan). */
-export const BarChart: FC<{
-  labels: string[];
-  values: number[];
-  hue?: Hue;
-  name: string;
-  height?: number;
-  highlightMax?: boolean;
-  buffer?: boolean;
-  variant?: 'default' | 'gradient' | 'duotone' | 'hatched';
-  horizontal?: boolean;
-}> = ({ labels, values, hue = 'violet', name, height = 220, highlightMax, buffer, variant = 'default', horizontal }) => {
-  const data = labels.map((label, i) => ({ label, v: values[i] ?? 0 }));
-  const config = { v: { label: name, colors: colorsOf(hue as Hue) } } as ChartConfig;
-  return (
-    <div style={{ height }} className="w-full">
-      <EChartsBarChart
-        data={data} config={config} xDataKey="label" className="h-full w-full" chartOptions={FONT_OPTS}
-        enableMaxValueHighlight={highlightMax} layout={horizontal ? 'horizontal' : 'vertical'} barRadius={6}
-      >
-        <EChartsBarChart.Grid />
-        {horizontal ? <EChartsBarChart.YAxis dataKey="label" /> : <EChartsBarChart.XAxis dataKey="label" />}
-        <EChartsBarChart.Tooltip roundness="lg" />
-        <EChartsBarChart.Bar dataKey="v" variant={variant} bufferBar={buffer} enableHoverHighlight />
-      </EChartsBarChart>
-    </div>
-  );
-};
-
-/** Ikki davrni taqqoslash — EvilCharts guruhlangan Bar: joriy davr to'liq, oldingisi shtrixli. */
-export const CompareBarChart: FC<{
-  labels: string[];
-  current: number[];
-  previous: number[];
-  currentLabel: string;
-  previousLabel: string;
-  hue?: Hue;
-  height?: number;
-}> = ({ labels, current, previous, currentLabel, previousLabel, hue = 'violet', height = 230 }) => {
-  const data = labels.map((label, i) => ({ label, cur: current[i] ?? 0, prev: previous[i] ?? 0 }));
-  const config = {
-    cur: { label: currentLabel, colors: colorsOf(hue as Hue) },
-    prev: { label: previousLabel, colors: colorsOf('slate') },
-  } as ChartConfig;
-  return (
-    <div style={{ height }} className="w-full">
-      <EChartsBarChart data={data} config={config} xDataKey="label" className="h-full w-full" chartOptions={FONT_OPTS} barRadius={6}>
-        <EChartsBarChart.Grid />
-        <EChartsBarChart.XAxis dataKey="label" />
-        <EChartsBarChart.Legend variant="rounded-square" align="left" verticalAlign="top" />
-        <EChartsBarChart.Tooltip roundness="lg" />
-        <EChartsBarChart.Bar dataKey="cur" variant="default" enableHoverHighlight />
-        <EChartsBarChart.Bar dataKey="prev" variant="hatched" enableHoverHighlight />
-      </EChartsBarChart>
-    </div>
-  );
-};
-
-/** Ulush — EvilCharts Pie (donut, yumaloq bo'laklar orasida oraliq). Markazda jami — HTML. */
-export const DonutChart: FC<{
-  items: { name: string; value: number; hue: Hue }[];
-  center?: { value: string; label: string };
-  size?: number;
-}> = ({ items, center, size = 180 }) => {
-  const data = items.map((it, i) => ({ key: `k${i}`, value: it.value }));
-  const config = Object.fromEntries(items.map((it, i) => [`k${i}`, { label: it.name, colors: colorsOf(it.hue) }])) as ChartConfig;
-  return (
-    <div className="relative shrink-0" style={{ width: size, height: size }}>
-      <EChartsPieChart data={data} dataKey="value" nameKey="key" config={config} className="h-full w-full" chartOptions={FONT_OPTS}>
-        <EChartsPieChart.Tooltip roundness="lg" />
-        <EChartsPieChart.Pie innerRadius="68%" outerRadius="96%" cornerRadius={6} paddingAngle={3} isClickable />
-      </EChartsPieChart>
-      {center && (
-        <div className="pointer-events-none absolute inset-0 grid place-content-center text-center">
-          <span className="text-2xl font-bold tabular-nums text-text">{center.value}</span>
-          <span className="text-sm text-text-muted">{center.label}</span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-/** Halqali ko'rsatkich — EvilCharts Radial: har qator alohida halqa (`max` bilan o'lchanadi). */
-export const RadialChart: FC<{
-  items: { name: string; value: number; hue: Hue }[];
-  max?: number;
-  size?: number;
-  variant?: 'full' | 'semi';
-}> = ({ items, max, size = 200, variant = 'full' }) => {
-  const data = items.map((it, i) => ({ key: `k${i}`, value: it.value }));
-  const config = Object.fromEntries(items.map((it, i) => [`k${i}`, { label: it.name, colors: colorsOf(it.hue) }])) as ChartConfig;
-  return (
-    <div className="relative shrink-0" style={{ width: size, height: variant === 'semi' ? size * 0.62 : size }}>
-      <EChartsRadialChart data={data} nameKey="key" config={config} className="h-full w-full" max={max} variant={variant as 'full' | 'semi'} chartOptions={FONT_OPTS}>
-        <EChartsRadialChart.Tooltip roundness="lg" />
-        <EChartsRadialChart.RadialBar dataKey="value" isClickable />
-      </EChartsRadialChart>
-    </div>
-  );
-};
 
 /** Kichik trend chizig'i (KPI kartasida) — SVG, kutubxonasiz. */
 export const Sparkline: FC<{ values: number[]; hue?: Hue; width?: number; height?: number; className?: string }> = ({
@@ -186,16 +49,16 @@ export const Sparkline: FC<{ values: number[]; hue?: Hue; width?: number; height
   );
 };
 
-/** Ulushlar chizig'i: bo'laklar orasida 3px oraliq, ostida legenda foiz bilan. */
+/** Ingichka ulush chizig'i (qator ichida): bo'laklar orasida 2px oraliq, ostida ixtiyoriy legenda foiz bilan. */
 export const SegmentBar: FC<{ items: { label: string; value: number; hue: Hue }[]; showLegend?: boolean }> = ({ items, showLegend = true }) => {
   const total = items.reduce((s, i) => s + i.value, 0);
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex h-2.5 gap-[3px] overflow-hidden rounded-full">
+      <div className="flex h-2 gap-0.5 overflow-hidden rounded-full">
         {total === 0
-          ? <span className="flex-1 rounded-full bg-surface-sunken" />
+          ? <span className="flex-1 bg-surface-sunken" />
           : items.filter((i) => i.value > 0).map((i) => (
-            <span key={i.label} title={`${i.label}: ${i.value}`} className={`h-full rounded-full transition-[flex-grow] duration-700 ease-standard ${HUE_DOT[i.hue]}`} style={{ flexGrow: i.value, flexBasis: 0 }} />
+            <span key={i.label} title={`${i.label}: ${i.value}`} className={`h-full min-w-1 rounded-[2px] transition-[flex-grow] duration-700 ease-standard ${HUE_DOT[i.hue]}`} style={{ flexGrow: i.value, flexBasis: 0 }} />
           ))}
       </div>
       {showLegend && (

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { Link } from 'react-router';
-import { ArrowDownRight, ArrowUpRight, CaretRight } from '@phosphor-icons/react';
+import { ArrowDownRight, ArrowUpRight } from '@phosphor-icons/react';
 import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import { useTranslation } from 'react-i18next';
-import { IconTile, type Hue } from './controls';
+import type { Hue } from './controls';
 import { Sparkline } from '../charts';
 
 /** Raqam 0 dan qiymatgacha yumshoq sanaladi (≈0.7 s, ease-out); qiymat o'zgarsa eski joyidan davom etadi. */
@@ -57,49 +58,68 @@ export const Delta: FC<{ value: number | null; inverse?: boolean; className?: st
   );
 };
 
+/** Ikonka plitkasi — KPI va ro'yxat qatorlarida: 32px, hoshiyali; Phosphor yoki Hugeicons ikonkasini qabul qiladi. */
+export const KpiTile: FC<{ icon: PhIcon | IconSvgElement }> = ({ icon }) => {
+  const P = icon as PhIcon;
+  return (
+    <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-[10px] border border-border bg-surface-sunken text-text">
+      {Array.isArray(icon) ? <HugeiconsIcon icon={icon as IconSvgElement} size={18} strokeWidth={1.5} /> : <P className="size-[18px]" />}
+    </span>
+  );
+};
+
 /**
- * KPI katagi (referens №1): rangli ikonka plitkasi + nom, katta son (sanaladi), o'sish belgisi, ostida izoh
- * va ixtiyoriy trend chizig'i. `KpiStrip` ichida kataklar orasida vertikal chiziq bo'ladi.
+ * KPI kartasi (hamma ekranda bitta): plitka + nom, katta son (sanaladi), o'zgarish belgisi va izohi (`trend`);
+ * pastki tasmada qo'shimcha izoh va trend chizig'i. `hue` eski API uchun qoldi — ishlatilmaydi.
  */
 export const Kpi: FC<{
-  icon: PhIcon;
-  hue: Hue;
+  icon: PhIcon | IconSvgElement;
+  hue?: Hue;
   label: string;
   value: number;
   format?: (n: number) => string;
   unit?: string;
   delta?: number | null;
+  trend?: string;
   note?: ReactNode;
   spark?: number[];
   to?: string;
-}> = ({ icon, hue, label, value, format, unit, delta, note, spark, to }) => {
+}> = ({ icon, label, value, format, unit, delta, trend, note, spark, to }) => {
+  const hasSpark = spark !== undefined && spark.length > 1;
   const body = (
     <>
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex min-w-0 items-center gap-2.5">
-          <IconTile icon={icon} hue={hue} size="sm" />
-          <span className="truncate text-base font-medium text-text-muted">{label}</span>
-        </span>
-        {to && <CaretRight weight="bold" className="size-3.5 shrink-0 text-text-faint transition-transform duration-200 group-hover:translate-x-0.5" />}
-      </div>
-      <div className="mt-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1.5">
-        <div className="flex min-w-0 items-baseline gap-1.5 whitespace-nowrap">
-          <CountUp value={value} format={format} className="text-3xl font-semibold text-text" />
+      <div className="flex flex-1 flex-col px-4 pb-5 pt-5 sm:px-6">
+        <div className="flex items-center gap-2.5">
+          <KpiTile icon={icon} />
+          <span className="min-w-0 flex-1 truncate text-base font-medium text-text">{label}</span>
+          {to && <ArrowUpRight className="size-4 shrink-0 text-text-faint transition-transform max-sm:hidden duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />}
+        </div>
+        <div className="mt-5 flex items-baseline gap-1.5 whitespace-nowrap">
+          <CountUp value={value} format={format} className="text-3xl font-semibold leading-10 text-text sm:text-4xl" />
           {unit && <span className="text-base font-medium text-text-muted">{unit}</span>}
         </div>
-        {delta !== undefined && <Delta value={delta} />}
+        {(delta !== undefined || trend) && (
+          <div className="mt-2 flex h-5 items-center gap-2 text-sm text-text-muted">
+            {delta !== undefined && <Delta value={delta} />}
+            {trend && <span className="truncate">{trend}</span>}
+          </div>
+        )}
       </div>
-      {spark && spark.length > 1 && <Sparkline values={spark} hue="violet" width={240} height={34} className="mt-3 h-[34px] w-full" />}
-      {note && <p className="mt-2 truncate text-sm text-text-muted">{note}</p>}
+      {(note || hasSpark) && (
+        <div className="flex h-11 items-center justify-between gap-3 rounded-b-[15px] border-t border-border bg-surface-sunken px-4 sm:px-6">
+          <span className="truncate text-sm text-text-muted">{note}</span>
+          {hasSpark && <Sparkline values={spark} hue="violet" width={64} height={20} className="shrink-0" />}
+        </div>
+      )}
     </>
   );
-  const cls = 'group block min-w-0 rounded-surface border border-border bg-surface p-5 transition-colors duration-[175ms]';
-  return to ? <Link to={to} className={`${cls} hover:bg-ghost-hover`}>{body}</Link> : <div className={cls}>{body}</div>;
+  const cls = 'group flex min-w-0 flex-col rounded-surface border border-border bg-surface transition-colors duration-[175ms]';
+  return to ? <Link to={to} className={`${cls} hover:border-border-strong`}>{body}</Link> : <div className={cls}>{body}</div>;
 };
 
-/** KPI'lar qatori — Astryx kartalari (yuza + hoshiya), telefonda 1–2 ustun, keng ekranda bir qatorda. */
+/** KPI'lar qatori — telefonda 1–2 ustun, keng ekranda bir qatorda; kartalar orasi 16px. */
 export const KpiStrip: FC<{ children: ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <section className={`grid gap-3 sm:grid-cols-2 xl:grid-cols-4 ${className}`}>
+  <section className={`grid gap-4 sm:grid-cols-2 xl:grid-cols-4 ${className}`}>
     {children}
   </section>
 );
