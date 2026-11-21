@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { WarningCircle, CheckCircle } from '@phosphor-icons/react';
+import { WarningCircle, CheckCircle } from '../icons';
 
 type Kind = 'success' | 'error';
 interface ToastItem { id: number; text: string; kind: Kind }

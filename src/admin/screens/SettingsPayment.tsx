@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
-import { CalendarDots, ChartBar, CurrencyDollar, Percent, Plus, Trash, WarningCircle } from '@phosphor-icons/react';
+import { CalendarDots, ChartBar, CurrencyDollar, Percent, Plus, Trash, WarningCircle } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiSettings, Term } from '../../../shared/types';
 import { storeRate } from '../../../shared/usd-rate';

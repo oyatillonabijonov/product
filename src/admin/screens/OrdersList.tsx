@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { ArrowRight, ChatCircleText, CheckCircle, Clock, Kanban as KanbanIcon, ListBullets, Package, Phone, Tray, WarningCircle } from '@phosphor-icons/react';
+import { ArrowRight, ChatCircleText, CheckCircle, Clock, Kanban as KanbanIcon, ListBullets, Package, Phone, Tray, WarningCircle } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiOrder, OrderStatus } from '../../../shared/types';
 import { getOrderCounts, listOrders, setOrderStatus } from '../api';

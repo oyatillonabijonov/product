@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate } from 'react-router';
-import { Eye, EyeSlash, House, Image as ImageIcon, Info, LinkSimple, MagnifyingGlass, Package, PencilSimple, Prohibit, Translate, Trash } from '@phosphor-icons/react';
+import { Eye, EyeSlash, House, Image as ImageIcon, Info, LinkSimple, MagnifyingGlass, Package, PencilSimple, Prohibit, Translate, Trash } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiNews, ApiProduct, NewsPriceMode } from '../../../shared/types';
 import { NEWS_SCALE_MAX, NEWS_SCALE_MIN, newsProductId } from '../../../shared/news-price';

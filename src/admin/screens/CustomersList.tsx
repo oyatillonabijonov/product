@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { ShoppingBagOpen, SignIn, UserPlus, Users, WarningCircle } from '@phosphor-icons/react';
+import { ShoppingBagOpen, SignIn, UserPlus, Users, WarningCircle } from '../icons';
 import { GoogleLogo, TelegramLogo } from '../brand-logos';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminCustomer } from '../../../shared/types';

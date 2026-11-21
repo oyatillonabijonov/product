@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FC } from 'react';
-import { Check, Info, Lightbulb, ShieldCheck, X } from '@phosphor-icons/react';
+import { Check, Info, Lightbulb, ShieldCheck, X } from './icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiPcDimension, PcDimensionInput } from '../../shared/types';
 import { PC_SLOTS } from '../../shared/pc-compat';

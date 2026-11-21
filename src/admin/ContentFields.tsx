@@ -4,9 +4,9 @@ import {
   ArrowSquareOut, Briefcase, ChatCircleDots, Confetti, Desktop, Eye, EyeSlash, Handshake, Headphones, Images, Info,
   ListChecks, MagnifyingGlass, MapPin, Newspaper, Package, Receipt, RocketLaunch, Scales, ShieldCheck, ShoppingBag,
   Sparkle, Star, TextAa, Trash, UsersThree, VideoCamera, WarningCircle,
-} from '@phosphor-icons/react';
+} from './icons';
 import { AppleLogo } from './brand-logos';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import type { Icon as PhIcon } from './icons';
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import type { AssetField, AssetKey, ContentGroup, SiteAssets, SiteSection, SiteTexts } from '../lib/site-content';

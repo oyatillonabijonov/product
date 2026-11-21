@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, Circuitry, Cpu, DesktopTower, Fan, GraphicsCard, HardDrive, Lightning, Memory, Sparkle } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { Check, Circuitry, Cpu, DesktopTower, Fan, GraphicsCard, HardDrive, Lightning, Memory, Sparkle } from './icons';
+import type { Icon as PhIcon } from './icons';
 import type { PartValues, PcDimension, SlotKey } from '../../shared/pc-compat';
 import { dimLabel } from './lib/pc-parts';
 import type { Hue } from './ui';

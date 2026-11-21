@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { Link } from 'react-router';
-import { CursorClick, Hash, House, Image as ImageIcon, Megaphone, Plus, WarningCircle } from '@phosphor-icons/react';
+import { CursorClick, Hash, House, Image as ImageIcon, Megaphone, Plus, WarningCircle } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiNews } from '../../../shared/types';
 import { newsProductId } from '../../../shared/news-price';

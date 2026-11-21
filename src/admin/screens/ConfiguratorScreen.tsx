@@ -3,8 +3,8 @@ import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CaretDown, ChartBar, Check, CheckCircle, Clock, Eye, HandPointing, Info, MagicWand, PencilSimple, Plus, ShieldCheck, ShieldSlash, WarningCircle,
-} from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+} from '../icons';
+import type { Icon as PhIcon } from '../icons';
 import type { ApiPcDimension, ApiPcPart } from '../../../shared/types';
 import { PC_SLOTS } from '../../../shared/pc-compat';
 import { listPcDimensions, listPcParts, setPcPartValues, updatePcDimension } from '../api';

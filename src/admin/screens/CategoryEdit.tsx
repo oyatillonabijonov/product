@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate } from 'react-router';
-import { Eye, ImageSquare, Trash, TextAa } from '@phosphor-icons/react';
+import { Eye, ImageSquare, Trash, TextAa } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiCategory } from '../../../shared/types';
 import { createCategory, deleteCategory, listCategories, listTypes, updateCategory } from '../api';

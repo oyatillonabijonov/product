@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { Link } from 'react-router';
-import { ArrowDownRight, ArrowUpRight } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { ArrowDownRight, ArrowUpRight } from '../icons';
+import type { Icon as PhIcon } from '../icons';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import { useTranslation } from 'react-i18next';
 import type { Hue } from './controls';

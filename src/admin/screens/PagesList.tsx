@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { Link } from 'react-router';
-import { BookOpen, FileText, Plus, Scales, WarningCircle } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { BookOpen, FileText, Plus, Scales, WarningCircle } from '../icons';
+import type { Icon as PhIcon } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiPage } from '../../../shared/types';
 import { firstParagraph } from '../../lib/markdown';

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowsClockwise, ImageSquare, Trash } from '@phosphor-icons/react';
+import { ArrowsClockwise, ImageSquare, Trash } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiPost } from '../../../shared/types';
 import type { Locale } from '../../../app/lib/i18n';

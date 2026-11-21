@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { FC, ReactNode } from 'react';
-import { ArrowSquareOut, Clock, Eye, MapPin, MapTrifold, Phone } from '@phosphor-icons/react';
+import { ArrowSquareOut, Clock, Eye, MapPin, MapTrifold, Phone } from '../icons';
 import { InstagramLogo, TelegramLogo } from '../brand-logos';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import type { Icon as PhIcon } from '../icons';
 import { useTranslation } from 'react-i18next';
 import { SiteTextInput, useSiteContent } from '../ContentFields';
 import { errText } from '../errText';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { Link, useLocation } from 'react-router';
-import { CalendarCheck, ChatCircleText, ChatText, Clock, Hash, MapPin, Package, Phone, Receipt, Storefront, User, Wallet, WarningCircle } from '@phosphor-icons/react';
+import { CalendarCheck, ChatCircleText, ChatText, Clock, Hash, MapPin, Package, Phone, Receipt, Storefront, User, Wallet, WarningCircle } from '../icons';
 import { TelegramLogo } from '../brand-logos';
 import { useTranslation } from 'react-i18next';
 import type { ApiOrder, OrderStatus } from '../../../shared/types';

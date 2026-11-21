@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
-import { MagnifyingGlass } from '@phosphor-icons/react';
+import { MagnifyingGlass } from '../icons';
 import { useTranslation } from 'react-i18next';
 import { Toggle } from './controls';
 

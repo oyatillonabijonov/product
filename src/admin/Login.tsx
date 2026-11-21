@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import type { TFunction } from 'i18next';
-import { ChartLineUp, LockSimple, Package, Receipt, SignIn } from '@phosphor-icons/react';
+import { ChartLineUp, LockSimple, Package, Receipt, SignIn } from './icons';
 import { useTranslation } from 'react-i18next';
 import { login, getLoginOptions } from './api';
 import logo from '../assets/logo.svg';

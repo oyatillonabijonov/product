@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate } from 'react-router';
-import { Camera, CheckCircle, Circle, Cpu, DeviceMobile, Eye, Memory, Monitor, Trash } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { Camera, CheckCircle, Circle, Cpu, DeviceMobile, Eye, Memory, Monitor, Trash } from '../icons';
+import type { Icon as PhIcon } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel } from '../../../shared/types';
 import { createDeviceModel, deleteDeviceModel, listBrands, listCategories, listDeviceModels, updateDeviceModel } from '../api';

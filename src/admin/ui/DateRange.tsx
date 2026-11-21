@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { CalendarBlank, CaretLeft, CaretRight } from '@phosphor-icons/react';
+import { CalendarBlank, CaretLeft, CaretRight } from '../icons';
 import { useTranslation } from 'react-i18next';
 import { tashkentDay } from '../../../shared/visits';
 import { Button, IconButton } from './controls';

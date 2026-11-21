@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Info, WarningCircle } from '@phosphor-icons/react';
+import { Info, WarningCircle } from './icons';
 import type { ApiPcDimension, ApiPcPart } from '../../shared/types';
 import { getPcPart, listPcDimensions, setPcPartValues } from './api';
 import { errText } from './errText';

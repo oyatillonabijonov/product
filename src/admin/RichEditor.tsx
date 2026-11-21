@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FC, ReactNode } from 'react';
-import { Check, ImageSquare, LinkSimple, ListBullets, ListNumbers, TextB, TextHThree, TextHTwo, X } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { Check, ImageSquare, LinkSimple, ListBullets, ListNumbers, TextB, TextHThree, TextHTwo, X } from './icons';
+import type { Icon as PhIcon } from './icons';
 import { useTranslation } from 'react-i18next';
 import { uploadImage } from './api';
 import { errText } from './errText';

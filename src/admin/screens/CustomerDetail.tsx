@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { Link, useLocation } from 'react-router';
-import { CalendarBlank, CaretRight, ChatCircleText, Clock, EnvelopeSimple, Package, Phone, Receipt, WarningCircle } from '@phosphor-icons/react';
+import { CalendarBlank, CaretRight, ChatCircleText, Clock, EnvelopeSimple, Package, Phone, Receipt, WarningCircle } from '../icons';
 import { GoogleLogo, TelegramLogo } from '../brand-logos';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import type { Icon as PhIcon } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminCustomer, ApiOrder, OrderStatus } from '../../../shared/types';
 import { isAvatarPhoto } from '../../../shared/avatar';

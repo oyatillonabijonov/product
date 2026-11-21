@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { CalendarBlank, Image as ImageIcon, MagnifyingGlass, Newspaper, Plus, WarningCircle } from '@phosphor-icons/react';
+import { CalendarBlank, Image as ImageIcon, MagnifyingGlass, Newspaper, Plus, WarningCircle } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiPost } from '../../../shared/types';
 import { listPosts, updatePost } from '../api';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate } from 'react-router';
-import { Eye, ImageSquare, Moon, Sun, Tag, Trash } from '@phosphor-icons/react';
+import { Eye, ImageSquare, Moon, Sun, Tag, Trash } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand } from '../../../shared/types';
 import { createBrand, deleteBrand, listBrands, updateBrand } from '../api';

@@ -2,7 +2,7 @@ import { useId } from 'react';
 import type { FC, ReactNode } from 'react';
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import type { Icon as PhIcon } from '../icons';
 
 /**
  * Admin boshqaruvlari — Astryx `Button`: pill, hoshiyasiz, 14px/500, balandlik 28/32/36, bosilganda 0.98.

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowRight, MagnifyingGlass } from '@phosphor-icons/react';
+import { ArrowRight, MagnifyingGlass } from './icons';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import { InboxIcon, Package01Icon, UserMultiple02Icon } from '@hugeicons/core-free-icons';
 import { useTranslation } from 'react-i18next';

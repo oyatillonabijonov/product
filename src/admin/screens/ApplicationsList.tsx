@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC, ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { ArrowRight, ArrowSquareOut, CalendarBlank, CheckCircle, Clock, FileText, Kanban as KanbanIcon, ListBullets, Phone, Tray, Users, WarningCircle } from '@phosphor-icons/react';
+import { ArrowRight, ArrowSquareOut, CalendarBlank, CheckCircle, Clock, FileText, Kanban as KanbanIcon, ListBullets, Phone, Tray, Users, WarningCircle } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiJobApplication, OrderStatus } from '../../../shared/types';
 import { safeHref } from '../../../shared/safe-href';

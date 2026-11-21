@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC, ReactNode } from 'react';
-import { ArrowRight, CaretDown, ChatCircleDots, FilmSlate, Megaphone, ShieldCheck, Slideshow, SquaresFour, TagSimple, TextAa } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { ArrowRight, CaretDown, ChatCircleDots, FilmSlate, Megaphone, ShieldCheck, Slideshow, SquaresFour, TagSimple, TextAa } from '../icons';
+import type { Icon as PhIcon } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { SiteSection } from '../../lib/site-content';
 import { ASSET_DEFAULTS } from '../../store/SiteAssets';

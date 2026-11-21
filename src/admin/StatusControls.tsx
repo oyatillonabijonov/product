@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
-import { ArrowRight, Check, CheckCircle, Clock, Tray, WarningCircle } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { ArrowRight, Check, CheckCircle, Clock, Tray, WarningCircle } from './icons';
+import type { Icon as PhIcon } from './icons';
 import { useTranslation } from 'react-i18next';
 import type { OrderStatus } from '../../shared/types';
 import { STATUSES } from './lib/inbox';

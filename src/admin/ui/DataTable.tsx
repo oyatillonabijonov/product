@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { CaretRight } from '@phosphor-icons/react';
+import { CaretRight } from '../icons';
 
 export interface Column<T> {
   id: string;

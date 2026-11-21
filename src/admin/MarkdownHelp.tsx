@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from 'react';
-import { CaretDown, Info } from '@phosphor-icons/react';
+import { CaretDown, Info } from './icons';
 import { MarkdownLogo } from './brand-logos';
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';

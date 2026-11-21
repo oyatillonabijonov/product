@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FC } from 'react';
-import { ArrowRight, Eye, Info, Megaphone, PencilSimpleLine } from '@phosphor-icons/react';
+import { ArrowRight, Eye, Info, Megaphone, PencilSimpleLine } from '../icons';
 import { useTranslation } from 'react-i18next';
 import { safeHref } from '../../../shared/safe-href';
 import { sendAnnouncement } from '../api';

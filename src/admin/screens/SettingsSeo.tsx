@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FC } from 'react';
-import { ImageSquare, MagnifyingGlass, ShareNetwork, SquaresFour } from '@phosphor-icons/react';
+import { ImageSquare, MagnifyingGlass, ShareNetwork, SquaresFour } from '../icons';
 import { GoogleLogo, TelegramLogo } from '../brand-logos';
 import { useTranslation } from 'react-i18next';
 import { ASSET_DEFAULTS } from '../../store/SiteAssets';

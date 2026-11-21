@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
-import { ChatCircleText, Plus, Star, Trash } from '@phosphor-icons/react';
+import { ChatCircleText, Plus, Star, Trash } from './icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiReview } from '../../shared/types';
 import { createReview, deleteReview, listReviews } from './api';

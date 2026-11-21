@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { Link } from 'react-router';
-import { Desktop, Headphones, ImageBroken, Package, Plus, Shapes, VideoCamera, WarningCircle } from '@phosphor-icons/react';
+import { Desktop, Headphones, ImageBroken, Package, Plus, Shapes, VideoCamera, WarningCircle } from '../icons';
 import { AppleLogo } from '../brand-logos';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import type { Icon as PhIcon } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiCategory, ApiProductType } from '../../../shared/types';
 import { listCategories, listTypes } from '../api';

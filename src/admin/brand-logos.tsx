@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import type { Icon as PhIcon, IconProps } from '@phosphor-icons/react';
+import type { Icon as PhIcon, IconProps } from './icons';
 
 /**
  * Brendlarning asl belgilari — Simple Icons 13.21.0 (CC0) vektorlari, Phosphor'ning qayta chizilgan nusxalari o'rniga.

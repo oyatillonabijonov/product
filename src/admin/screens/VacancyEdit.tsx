@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
-import { Check, Lightning, Plus, Trash } from '@phosphor-icons/react';
+import { Check, Lightning, Plus, Trash } from '../icons';
 import type { ParseKeys } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import type { ApiVacancy, EmploymentType } from '../../../shared/types';

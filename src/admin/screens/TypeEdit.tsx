@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
-import { FloppyDisk, Image as ImageIcon, Plus, Tag, TextAa, Trash, Warning, WarningCircle, X } from '@phosphor-icons/react';
+import { FloppyDisk, Image as ImageIcon, Plus, Tag, TextAa, Trash, Warning, WarningCircle, X } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiCategory, ApiProductType } from '../../../shared/types';
 import { createType, deleteType, listCategories, listTypes, updateType, type AdminTypeInput } from '../api';

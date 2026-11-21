@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FC } from 'react';
-import { Cube, Desktop, DeviceMobile, DeviceTablet, Headphones, Laptop, VideoCamera } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { Cube, Desktop, DeviceMobile, DeviceTablet, Headphones, Laptop, VideoCamera } from './icons';
+import type { Icon as PhIcon } from './icons';
 import type { ApiDeviceModel } from '../../shared/types';
 import { filterModels } from './lib/models';
 import { IconTile, type Hue } from './ui';

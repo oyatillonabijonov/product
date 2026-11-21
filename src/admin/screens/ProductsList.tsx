@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { Eye, EyeSlash, ImageBroken, Info, MagnifyingGlass, Package, Plus, WarningCircle } from '@phosphor-icons/react';
+import { Eye, EyeSlash, ImageBroken, Info, MagnifyingGlass, Package, Plus, WarningCircle } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand, ApiCategory, ApiProduct, ApiProductType } from '../../../shared/types';
 import { listBrands, listCategories, listProducts, listTypes, setProductActive } from '../api';

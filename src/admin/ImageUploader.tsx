@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { FC } from 'react';
-import { DotsSixVertical, Trash, UploadSimple, WarningCircle } from '@phosphor-icons/react';
+import { DotsSixVertical, Trash, UploadSimple, WarningCircle } from './icons';
 import { useTranslation } from 'react-i18next';
 import { uploadImage } from './api';
 import { acceptLabel, acceptsType } from './lib/content-form';

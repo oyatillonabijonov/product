@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { ImageBroken, Plus, SealCheck, Tag, WarningCircle } from '@phosphor-icons/react';
+import { ImageBroken, Plus, SealCheck, Tag, WarningCircle } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand } from '../../../shared/types';
 import { listBrands } from '../api';

@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router';
 import {
   ArrowSquareOut, ArrowsClockwise, Check, Cpu, CurrencyCircleDollar, FloppyDisk, Image as ImageIcon, ImageBroken, ListChecks, PencilSimple, Plus, Stack,
   Star, TextAa, Trash, UploadSimple, Warning, WarningCircle, X,
-} from '@phosphor-icons/react';
+} from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel, ApiProductType } from '../../../shared/types';
 import { withHiddenLock, type ManualField } from '../../../shared/billz';

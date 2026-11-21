@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate } from 'react-router';
-import { Desktop, DeviceMobile, Image as ImageIcon, Info, LinkSimple, Prohibit } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { Desktop, DeviceMobile, Image as ImageIcon, Info, LinkSimple, Prohibit } from '../icons';
+import type { Icon as PhIcon } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiBanner } from '../../../shared/types';
 import { createBanner, deleteBanner, listBanners, updateBanner } from '../api';

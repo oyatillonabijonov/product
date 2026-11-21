@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { FC } from 'react';
 import type { ParseKeys } from 'i18next';
-import { CalendarDots, ChatCircleText, Check, Coins, Money, Package, PaintBrush, Storefront, Tag, X } from '@phosphor-icons/react';
-import type { Icon as PhIcon } from '@phosphor-icons/react';
+import { CalendarDots, ChatCircleText, Check, Coins, Money, Package, PaintBrush, Storefront, Tag, X } from '../icons';
+import type { Icon as PhIcon } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { PaymentMode } from '../../../shared/types';
 import type { AssetKey, SiteSection } from '../../lib/site-content';

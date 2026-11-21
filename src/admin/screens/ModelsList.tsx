@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FC } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { MagnifyingGlass, Plus, WarningCircle } from '@phosphor-icons/react';
+import { MagnifyingGlass, Plus, WarningCircle } from '../icons';
 import { useTranslation } from 'react-i18next';
 import type { ApiAdminBrand, ApiCategory, ApiDeviceModel } from '../../../shared/types';
 import { listBrands, listCategories, listDeviceModels } from '../api';

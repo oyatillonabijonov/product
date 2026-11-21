@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FC } from 'react';
 import { Link } from 'react-router';
-import { ArrowSquareOut, Article, Briefcase, Hash, Money, PencilSimple, Plus, Users, WarningCircle } from '@phosphor-icons/react';
+import { ArrowSquareOut, Article, Briefcase, Hash, Money, PencilSimple, Plus, Users, WarningCircle } from '../icons';
 import { Trans, useTranslation } from 'react-i18next';
 import type { ApiJobApplication, ApiVacancy, EmploymentType } from '../../../shared/types';
 import { listJobApplications, listVacancies, updateVacancy } from '../api';
